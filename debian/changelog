@@ -1,3 +1,10 @@
+tin (1:1.7.5-1) unstable; urgency=medium
+
+  * New upstream release. (Closes: #253823, #252972)
+  * Change the ask_for_metamail default to TRUE. (Closes: #243240)
+
+ -- Marco d'Itri <md@linux.it>  Tue, 15 Jun 2004 12:39:03 +0200
+
 tin (1:1.7.4+rel-1) unstable; urgency=medium
 
   * New upstream release.

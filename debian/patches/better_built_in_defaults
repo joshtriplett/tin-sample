@@ -1,7 +1,8 @@
---- tin-1.7.3+20031209.orig/src/attrib.c
-+++ tin-1.7.3+20031209/src/attrib.c
-@@ -163,7 +163,7 @@
- 	attributes->tex2iso_conv = tinrc.tex2iso_conv;
+diff -ruN tin-1.7.5.orig/src/attrib.c tin-1.7.5/src/attrib.c
+--- tin-1.7.5.orig/src/attrib.c	2004-03-14 15:43:08.000000000 +0100
++++ tin-1.7.5/src/attrib.c	2004-06-15 12:56:26.000000000 +0200
+@@ -167,7 +167,7 @@
+ 	attributes->fcc = (char *) 0;
  #ifdef CHARSET_CONVERSION
  	attributes->mm_network_charset = tinrc.mm_network_charset;
 -	attributes->undeclared_charset = (char *) 0;
@@ -9,9 +10,10 @@
  #endif /* CHARSET_CONVERSION */
  }
  
---- tin-1.7.3+20031209.orig/src/init.c
-+++ tin-1.7.3+20031209/src/init.c
-@@ -285,8 +285,8 @@
+diff -ruN tin-1.7.5.orig/src/init.c tin-1.7.5/src/init.c
+--- tin-1.7.5.orig/src/init.c	2004-06-06 20:22:57.000000000 +0200
++++ tin-1.7.5/src/init.c	2004-06-15 12:56:26.000000000 +0200
+@@ -281,8 +281,8 @@
  	32,		/* groupname_max_length */
  	UUE_NO,	/* hide_uue */
  	KILL_UNREAD,		/* kill_level */
@@ -22,7 +24,7 @@
  	POST_PROC_NO,			/* post_process */
  	REREAD_ACTIVE_FILE_SECS,	/* reread_active_file_secs */
  	1,		/* scroll_lines */
-@@ -335,7 +335,7 @@
+@@ -331,7 +331,7 @@
  	TRUE,		/* url_highlight */
  	0,		/* wrap_column */
  #ifdef HAVE_COLOR
@@ -31,7 +33,16 @@
  #endif /* HAVE_COLOR */
  	TRUE,		/* add_posted_to_filter */
  	TRUE,		/* advertising */
-@@ -693,8 +693,12 @@
+@@ -400,7 +400,7 @@
+ 	FALSE,		/* use_keypad */
+ #endif /* HAVE_KEYPAD */
+ 	TRUE,		/* wrap_on_next_unread */
+-	FALSE,		/* ask_for_metamail */
++	TRUE,		/* ask_for_metamail */
+ 	FALSE,		/* default_filter_kill_case */
+ 	FALSE,		/* default_filter_kill_expire */
+ 	TRUE,		/* default_filter_kill_global */
+@@ -689,8 +689,12 @@
  	if (!*default_organization) {
  		char buf[LEN];
  
