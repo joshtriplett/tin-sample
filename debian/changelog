@@ -1,3 +1,10 @@
+tin (1:1.7.4+20040111-1) unstable; urgency=medium
+
+  * New upstream snapshot.
+  * Compiled with libidn11. (Closes: #227310)
+
+ -- Marco d'Itri <md@linux.it>  Tue, 13 Jan 2004 12:14:38 +0100
+
 tin (1:1.7.4+20031226-1) unstable; urgency=medium
 
   * New upstream snapshot.
