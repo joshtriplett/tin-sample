@@ -1,18 +1,18 @@
-diff -ruN tin-1.7.5.orig/src/attrib.c tin-1.7.5/src/attrib.c
---- tin-1.7.5.orig/src/attrib.c	2004-03-14 15:43:08.000000000 +0100
-+++ tin-1.7.5/src/attrib.c	2004-06-15 12:56:26.000000000 +0200
+diff -ruN tin-1.7.6.orig/src/attrib.c tin-1.7.6/src/attrib.c
+--- tin-1.7.6.orig/src/attrib.c	2004-07-07 11:58:17.000000000 +0200
++++ tin-1.7.6/src/attrib.c	2004-07-11 14:37:49.000000000 +0200
 @@ -167,7 +167,7 @@
- 	attributes->fcc = (char *) 0;
+ 	attributes->fcc = NULL;
  #ifdef CHARSET_CONVERSION
  	attributes->mm_network_charset = tinrc.mm_network_charset;
--	attributes->undeclared_charset = (char *) 0;
+-	attributes->undeclared_charset = NULL;
 +	attributes->undeclared_charset = my_strdup("ISO-8859-1");
  #endif /* CHARSET_CONVERSION */
  }
  
-diff -ruN tin-1.7.5.orig/src/init.c tin-1.7.5/src/init.c
---- tin-1.7.5.orig/src/init.c	2004-06-06 20:22:57.000000000 +0200
-+++ tin-1.7.5/src/init.c	2004-06-15 12:56:26.000000000 +0200
+diff -ruN tin-1.7.6.orig/src/init.c tin-1.7.6/src/init.c
+--- tin-1.7.6.orig/src/init.c	2004-07-02 11:59:11.000000000 +0200
++++ tin-1.7.6/src/init.c	2004-07-11 14:37:10.000000000 +0200
 @@ -281,8 +281,8 @@
  	32,		/* groupname_max_length */
  	UUE_NO,	/* hide_uue */
