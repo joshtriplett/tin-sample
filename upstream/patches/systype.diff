@@ -1,0 +1,84 @@
+From urs@tin.org Wed Sep  8 19:07:56 2004
+Path: adsl-ull-215-134.44-151.net24.it!news.karlsruhe.org!not-for-mail
+From: Urs =?iso-8859-1?Q?Jan=DFen?= <urs@tin.org>
+Newsgroups: tin.dev
+Subject: [tin 1.7.6] systemtype detection
+Date: Wed, 8 Sep 2004 14:00:26 +0200
+Organization: ka-nus - ka's not usenet
+Lines: 50
+Approved: postmaster@tin.org
+Message-ID: <20040908120026.GA30772@akk10.akk.uni-karlsruhe.de>
+Reply-To: tin-dev@tin.org
+NNTP-Posting-Host: localhost.karlsruhe.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Trace: akk4-dmz.akk.uni-karlsruhe.de 1094644859 10960 127.0.0.1 [-]
+X-Complaints-To: abuse@karlsruhe.org
+NNTP-Posting-Date: 8 Sep 2004 12:00:59 GMT
+X-User-Agent: Mutt/1.5.5.1+cvs20040105i
+X-AKK-SpamChecked: Yes
+X-Spam-Checker-Version: SpamAssassin 2.63 (2004-01-11) on rzstud1
+X-To: tin-dev@tin.org
+X-Spam-Status: No, hits=-4.9 required=5.0 tests=BAYES_00 autolearn=ham 
+	version=2.63
+X-Precedence: bulk
+X-Envelope: From owner-tin-dev@tin.org Wed Sep 08 14:00:58 2004
+X-Mail2News: by tonews 0.0.4b - 11-Sep-100
+X-Content-Disposition: inline
+X-Mail-Followup-To: Urs =?iso-8859-1?Q?Jan=DFen?= <urs@tin.org>,
+	tin-dev@tin.org
+X-Spam-Level: 
+X-Sender: owner-tin-dev@tin.org
+Xref: news.karlsruhe.org tin.dev:4342
+
+the patch below fixes a problem in the User-Agent header (system not
+recognized), next time I skip the linux manpage and look at the docu
+from the Open Group instead...
+
+--- tin/src/init.c	2004-08-20 11:55:11.000000000 +0200
++++ tin/src/init.c	2004-09-08 13:16:33.000000000 +0200
+@@ -512,7 +512,7 @@
+ 
+ #ifdef HAVE_SYS_UTSNAME_H
+ #	ifdef HAVE_UNAME
+-	if (!uname(&system_info))
++	if (uname(&system_info) != -1)
+ 		;
+ 	else
+ #	endif /* HAVE_UNAME */
+--- tin/src/post.c	2004-08-20 18:53:08.000000000 +0200
++++ tin/src/post.c	2004-09-08 13:42:41.000000000 +0200
+@@ -3912,6 +3912,7 @@
+ 
+ 		suffix[0] = '\0';
+ #if defined(HAVE_SYS_UTSNAME_H) && defined(HAVE_UNAME)
++		if (*system_info.release) {
+ #	ifdef _AIX
+ 		snprintf(suffix, sizeof(suffix), " (%s/%s.%s)",
+ 			system_info.sysname, system_info.version, system_info.release);
+@@ -3924,12 +3925,15 @@
+ 				system_info.sysname, system_info.release, system_info.machine);
+ #		endif /* SEIUX */
+ #	endif /* _AIX */
+-#else
+-#	ifdef SYSTEM_NAME
+-		if (strlen(SYSTEM_NAME))
+-			snprintf(suffix, sizeof(suffix), " (%s)", SYSTEM_NAME);
+-#	endif /* SYSTEM_NAME */
++		}
+ #endif /* HAVE_SYS_UTSNAME_H && HAVE_UNAME */
++#ifdef SYSTEM_NAME
++		if (!*suffix) {
++      	if (strlen(SYSTEM_NAME))
++				snprintf(suffix, sizeof(suffix), " (%s)", SYSTEM_NAME);
++		}
++#endif /* SYSTEM_NAME */
++
+ 		fprintf(fp_out, "User-Agent: %s/%s-%s (\"%s\") (%s)%s\n",
+ 			PRODUCT, VERSION, RELEASEDATE, RELEASENAME, OSNAME, suffix);
+ 	}
+
+
+
+
+

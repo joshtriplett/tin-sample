@@ -1,3 +1,12 @@
+tin (1:1.7.6+rel-1) unstable; urgency=medium
+
+  * New upstream release. Fixes:
+    + crash at top level (Closes: #236267)
+    + undeclared_charset (Closes: #256867)
+    + article loss on editor errors (Closes: #260434)
+
+ -- Marco d'Itri <md@linux.it>  Mon, 23 Aug 2004 19:01:38 +0200
+
 tin (1:1.7.6+20040707-1) unstable; urgency=medium
 
   * New upstream snapshot.
