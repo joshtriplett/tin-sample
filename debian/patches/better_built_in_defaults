@@ -1,0 +1,46 @@
+--- tin-1.7.3+20031209.orig/src/attrib.c
++++ tin-1.7.3+20031209/src/attrib.c
+@@ -163,7 +163,7 @@
+ 	attributes->tex2iso_conv = tinrc.tex2iso_conv;
+ #ifdef CHARSET_CONVERSION
+ 	attributes->mm_network_charset = tinrc.mm_network_charset;
+-	attributes->undeclared_charset = (char *) 0;
++	attributes->undeclared_charset = my_strdup("ISO-8859-1");
+ #endif /* CHARSET_CONVERSION */
+ }
+ 
+--- tin-1.7.3+20031209.orig/src/init.c
++++ tin-1.7.3+20031209/src/init.c
+@@ -285,8 +285,8 @@
+ 	32,		/* groupname_max_length */
+ 	UUE_NO,	/* hide_uue */
+ 	KILL_UNREAD,		/* kill_level */
+-	MIME_ENCODING_7BIT,		/* mail_mime_encoding */
+-	MIME_ENCODING_7BIT,		/* post_mime_encoding */
++	MIME_ENCODING_8BIT,		/* mail_mime_encoding */
++	MIME_ENCODING_8BIT,		/* post_mime_encoding */
+ 	POST_PROC_NO,			/* post_process */
+ 	REREAD_ACTIVE_FILE_SECS,	/* reread_active_file_secs */
+ 	1,		/* scroll_lines */
+@@ -335,7 +335,7 @@
+ 	TRUE,		/* url_highlight */
+ 	0,		/* wrap_column */
+ #ifdef HAVE_COLOR
+-	FALSE,		/* use_color */
++	TRUE,		/* use_color */
+ #endif /* HAVE_COLOR */
+ 	TRUE,		/* add_posted_to_filter */
+ 	TRUE,		/* advertising */
+@@ -693,8 +693,12 @@
+ 	if (!*default_organization) {
+ 		char buf[LEN];
+ 
++#ifdef NOT_DEBIAN
+ 		joinpath(buf, libdir, "organization");
+ 		if ((fp = fopen(buf, "r")) != NULL) {
++#else
++		if ((fp = fopen("/etc/news/organization", "r")) != NULL) {
++#endif
+ 			if (fgets(buf, (int) sizeof(buf), fp) != NULL) {
+ 				ptr = strrchr(buf, '\n');
+ 				if (ptr != NULL)

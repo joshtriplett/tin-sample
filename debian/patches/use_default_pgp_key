@@ -1,0 +1,20 @@
+--- tin-1.7.3+20031209.orig/src/pgp.c
++++ tin-1.7.3+20031209/src/pgp.c
+@@ -249,6 +249,7 @@
+ 	 * <mailfrom> is valid only when signing and a local address exists
+ 	 */
+ 	if (what & PGP_SIGN) {
++#ifdef NOT_DEBIAN
+ 		if ((CURR_GROUP.attribute->from) != NULL)
+ 			strip_name(CURR_GROUP.attribute->from, mailfrom);
+ 		if (strlen(mailfrom)) {
+@@ -257,6 +258,9 @@
+ 			else
+ 				sh_format(cmd, sizeof(cmd), DO_SIGN1);
+ 		} else {
++#else
++		{
++#endif
+ 			if (what & PGP_ENCRYPT)
+ 				sh_format(cmd, sizeof(cmd), DO_BOTH);
+ 			else

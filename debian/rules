@@ -1,0 +1,104 @@
+#!/usr/bin/make -f
+SHELL=/bin/bash -e
+
+#export DH_VERBOSE=1
+export NOISY=1
+
+include debian/scripts/vars
+
+BUILD_DIR := $(SOURCE_DIR)/$(TAR_DIR)
+B := $(BUILD_DIR)
+D := $(CURDIR)/debian/tin
+
+all: build
+
+DOCS := INSTALL WHATSNEW auth.txt filtering keymap.sample reading-mail.txt \
+	umlaute.txt umlauts.txt tools.txt
+
+unpack: $(STAMP_DIR)/unpack
+$(STAMP_DIR)/unpack:
+	$(MAKE) -f debian/sys-build.mk source.make
+	touch $@
+
+# used by the maintainer
+unpack.nopatch: 
+	$(MAKE) -f debian/sys-build.mk source.build
+
+# used by the maintainer
+diff:
+	$(MAKE) -f debian/sys-build.mk make-diff
+
+clean:
+	$(MAKE) -f debian/sys-build.mk source.clean
+	dh_clean
+
+configure: $(STAMP_DIR)/configure
+$(STAMP_DIR)/configure: $(STAMP_DIR)/unpack
+	dh_testdir
+	-$(MAKE) clean
+	$(MAKE) -f debian/sys-build.mk source.command SOURCE_CMD=" \
+		./configure \
+		--prefix=/usr --mandir=\$${prefix}/share/man \
+		--with-pcre=/usr --with-domain-name=/etc/mailname \
+		--with-mailbox=/var/mail \
+		--with-editor=/usr/bin/editor --with-ispell=ispell \
+		--without-pgp --without-pgpk --with-gpg=gpg \
+		--with-sum=sum --with-shell=bash \
+		--with-spool-dir=/var/spool/news \
+		--with-nov-dir=/var/spool/news/over.view \
+		--with-libdir=/var/lib/news --with-inews-dir=/usr/bin \
+		--with-nntp-default-server=localhost \
+		--with-screen=ncursesw --enable-nntp --enable-ipv6 \
+		--enable-included-msgs --enable-nls \
+		--enable-mh-mail-handling \
+		--with-mime-default-charset=ISO-8859-15 \
+	"
+	touch $@
+
+build: $(STAMP_DIR)/build
+$(STAMP_DIR)/build: $(STAMP_DIR)/configure
+	dh_testdir
+	$(MAKE) -f debian/sys-build.mk source.command SOURCE_CMD=" \
+		cd libcanlock && $(MAKE) \
+	"
+	$(MAKE) -f debian/sys-build.mk source.command SOURCE_CMD=" \
+		cd src && $(MAKE) \
+	"
+	touch $@
+
+binary-arch: $(STAMP_DIR)/build checkroot
+	dh_testdir
+	dh_clean -k
+	dh_installdirs /etc/tin/ /usr/bin/ /usr/share/doc/tin/tools/
+
+	$(MAKE) -f debian/sys-build.mk source.command SOURCE_CMD=" \
+		$(MAKE) -C src install_nls prefix=$D/usr \
+	"
+	cp $B/src/tin $D/usr/bin/
+	cp $B/doc/tin.defaults $D/etc/tin/
+	cp $B/tools/* $D/usr/share/doc/tin/tools/
+
+	dh_installmenu
+	dh_installdocs $(addprefix $B/doc/,$(DOCS))
+	dh_installman $B/doc/tin.1 $B/doc/tin.5 
+	dh_link usr/share/man/man1/tin.1.gz usr/share/man/man1/rtin.1.gz \
+		usr/bin/tin usr/bin/rtin
+	dh_installchangelogs $B/doc/CHANGES
+	dh_installdebconf
+	dh_strip
+	dh_compress
+	dh_fixperms
+	dh_shlibdeps
+	dh_gencontrol
+	dh_installdeb
+	dh_builddeb
+
+debian/po/templates.pot: debian/templates
+	debconf-updatepo
+
+checkroot:
+	test root = "`whoami`"
+
+binary:	binary-arch binary-indep
+
+.PHONY: binary binary-arch binary-indep unpack configure build clean checkroot

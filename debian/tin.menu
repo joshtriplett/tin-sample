@@ -1,0 +1,3 @@
+?package(tin):needs="text" section="Apps/Net" hints="News"\
+  title="rtin"\
+  command="/usr/bin/rtin"

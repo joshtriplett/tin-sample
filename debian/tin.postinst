@@ -1,0 +1,32 @@
+#!/bin/sh
+
+. /usr/share/debconf/confmodule
+
+# make sure /etc/news is created
+[ -d /etc/news ] || mkdir /etc/news
+
+# Old versions made this file, we have to leave it in so other newsreaders
+# still function ok, but we will make it a symlink to /etc/news/server.
+# First, get rid of it, and replace it with /etc/news/server. It's pretty
+# ugly because we used to do the exact opposite so /etc/news/server may be
+# a sylmlink to /etc/nntpserver.
+if [ -f /etc/news/server -a -f /etc/nntpserver -a ! -L /etc/news/server ]; then
+  rm -f /etc/nntpserver
+fi
+
+if [ -f /etc/news/server -a -f /etc/nntpserver -a -L /etc/news/server ]; then
+  rm -f /etc/news/server
+  mv /etc/nntpserver /etc/news/server
+fi
+
+if [ -f /etc/nntpserver -a ! -f /etc/news/server ]; then
+  mv /etc/nntpserver /etc/news/server
+fi
+
+db_get shared/news/server
+if [ "$RET" ]; then
+  echo "$RET" > /etc/news/server
+fi
+
+#DEBHELPER#
+

@@ -1,0 +1,56 @@
+--- tin-1.7.3+20031209.orig/libcanlock/Makefile
++++ tin-1.7.3+20031209/libcanlock/Makefile
+@@ -0,0 +1,29 @@
++CFLAGS := -O2
++
++LIBCANLOCK_O := sha1.o hmac_sha1.o md5.o hmac_md5.o base64.o \
++		canlock_misc.o canlock_sha1.o canlock_md5.o
++
++all: libcanlock.a
++
++endian.h: endian
++	./endian > endian.h
++
++libcanlock.a: $(LIBCANLOCK_O)
++	ar -r $@ $?
++	ranlib $@
++
++hmactest: hmactest.c libcanlock.a
++	$(CC) -o $@ $< -L. -lcanlock
++
++canlocktest: canlocktest.c libcanlock.a
++	$(CC) -o $@ $< -L. -lcanlock
++
++test: hmactest canlocktest
++	./hmactest
++	./canlocktest
++
++clean:
++	rm -f *.o *.a endian endian.h canlocktest hmactest *~ core
++
++sha1.c: sha1.h endian.h
++md5.c: md5.h endian.h
+--- tin-1.7.3+20031209.orig/src/Makefile.in
++++ tin-1.7.3+20031209/src/Makefile.in
+@@ -50,18 +50,21 @@
+ 
+ DEBUG	= @ENABLE_DEBUG@ -DDEBUG #-DDEBUG_NEWSRC -DPROFILE -DDEBUG_REFS
+ CANLOCK = # -DUSE_CANLOCK # -DEVIL_INSIDE
++CANLOCK = -DUSE_CANLOCK
+ 
+ INTL_CPPFLAGS	= -DLOCALEDIR=\"$(prefix)/@DATADIRNAME@/locale\"
+ PCRE_CPPFLAGS	= @PCREDIR_CPPFLAGS@ @PCREDIR_MAKE@ -I$(top_builddir)/pcre -I$(top_srcdir)/pcre
+ 
+ CPPOPTS	= @DEFS@ -I. -I../include $(PCRE_CPPFLAGS) $(INTL_CPPFLAGS) -I$(INCDIR) $(DEBUG) $(CANLOCK) @CPPFLAGS@
+ CFLAGS	= @CFLAGS@
++CFLAGS += -g
+ 
+ LD	= $(CC)
+ LDFLAGS	= @LDFLAGS@
+ YACC	= @YACC@
+ 
+ CANLIB		= # -L../libcanlock -lcanlock
++CANLIB		= -L../libcanlock -lcanlock
+ INTL_LIBS	= @INTLLIBS@
+ PCRE_LIBS	= @PCREDIR_LIBS@ @PCREDIR_MAKE@ -L../pcre -lpcre
+ LIBS		= $(PCRE_LIBS) $(CANLIB) @LIBS@ @INN_NNTPLIB@ $(INTL_LIBS)
