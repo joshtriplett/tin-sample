@@ -1,9 +1,6 @@
 #!/usr/bin/make -f
 SHELL=/bin/bash -e
 
-#export DH_VERBOSE=1
-export NOISY=1
-
 include debian/scripts/vars
 
 BUILD_DIR := $(SOURCE_DIR)/$(TAR_DIR)
@@ -37,6 +34,7 @@ $(STAMP_DIR)/configure: $(STAMP_DIR)/unpack
 	dh_testdir
 	-$(MAKE) clean
 	$(MAKE) -f debian/sys-build.mk source.command SOURCE_CMD=" \
+		CFLAGS='-g -O2' \
 		./configure \
 		--prefix=/usr --mandir=\$${prefix}/share/man \
 		--with-pcre=/usr --with-domain-name=/etc/mailname \

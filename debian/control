@@ -3,7 +3,7 @@ Section: news
 Priority: optional
 Maintainer: Marco d'Itri <md@linux.it>
 Build-Depends: debhelper (>> 4.1.16), bison, bzip2, libpcre3-dev, libncursesw5-dev, libidn11-dev
-Standards-Version: 3.6.1
+Standards-Version: 3.6.1.1
 
 Package: tin
 Architecture: any
@@ -13,6 +13,4 @@ Suggests: metamail, gnupg, ispell
 Provides: news-reader
 Description: A full-screen easy to use Usenet newsreader
  tin can read news locally (i.e. from /var/spool/news) or remotely (rtin or
- tin -r option) via a NNTP (Network News Transport Protocol) server.
- It will automatically utilize NOV (News OVerview) style index files if
- available locally or via the NNTP XOVER command.
+ tin -r option) via an NNTP (Network News Transport Protocol) server.

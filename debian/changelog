@@ -1,3 +1,15 @@
+tin (1:1.7.8+20050314-1) unstable; urgency=medium
+
+  * New upstream snapshot. Fixes:
+    + i18n-related wrapping in the filter menu. (Closes: #294802)
+    + CAPABILITIES. (Closes: #293978)
+    + truncates the temporary file before reusing it. (Closes: #275944)
+    + Keymap collisions. (Closes: #240916)
+  * Improved the debconf question. (Closes: #279500)
+  * Fixed a typo in the description. (Closes: #300041)
+
+ -- Marco d'Itri <md@linux.it>  Sun, 20 Mar 2005 18:40:54 +0100
+
 tin (1:1.7.6+rel-1) unstable; urgency=medium
 
   * New upstream release. Fixes:

@@ -16,7 +16,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2003-06-16 11:03+0200\n"
+"POT-Creation-Date: 2005-03-20 19:01+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -24,18 +24,15 @@ msgstr ""
 "Content-Type: text/plain; charset=CHARSET\n"
 "Content-Transfer-Encoding: 8bit\n"
 
+#. Type: string
 #. Description
-#: ../templates:3
-msgid "What news server should be used for reading and posting news?"
+#: ../tin.templates:3
+msgid "Enter the fully qualified domain name of your news server"
 msgstr ""
 
+#. Type: string
 #. Description
-#: ../templates:3
+#: ../tin.templates:3
 msgid ""
 "What news server (NNTP server) should be used for reading and posting news?"
-msgstr ""
-
-#. Description
-#: ../templates:3
-msgid "Enter the fully qualified domain name of the server."
 msgstr ""
