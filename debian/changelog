@@ -1,3 +1,10 @@
+tin (1:1.7.4+rel-1) unstable; urgency=medium
+
+  * New upstream release.
+  * Added doc/TODO to the installed documentation. (Closes: #233230)
+
+ -- Marco d'Itri <md@linux.it>  Fri, 27 Feb 2004 16:17:33 +0100
+
 tin (1:1.7.4+20040111-1) unstable; urgency=medium
 
   * New upstream snapshot.

@@ -1,5 +1,6 @@
---- tin-1.7.3+20031209.orig/libcanlock/Makefile
-+++ tin-1.7.3+20031209/libcanlock/Makefile
+diff -ruN tin-1.7.4.orig/libcanlock/Makefile tin-1.7.4/libcanlock/Makefile
+--- tin-1.7.4.orig/libcanlock/Makefile	1970-01-01 01:00:00.000000000 +0100
++++ tin-1.7.4/libcanlock/Makefile	2004-02-27 16:28:12.000000000 +0100
 @@ -0,0 +1,29 @@
 +CFLAGS := -O2
 +
@@ -30,27 +31,29 @@
 +
 +sha1.c: sha1.h endian.h
 +md5.c: md5.h endian.h
---- tin-1.7.3+20031209.orig/src/Makefile.in
-+++ tin-1.7.3+20031209/src/Makefile.in
-@@ -50,18 +50,21 @@
+diff -ruN tin-1.7.4.orig/src/Makefile.in tin-1.7.4/src/Makefile.in
+--- tin-1.7.4.orig/src/Makefile.in	2004-01-28 10:06:36.000000000 +0100
++++ tin-1.7.4/src/Makefile.in	2004-02-27 16:28:03.000000000 +0100
+@@ -52,12 +52,14 @@
  
- DEBUG	= @ENABLE_DEBUG@ -DDEBUG #-DDEBUG_NEWSRC -DPROFILE -DDEBUG_REFS
- CANLOCK = # -DUSE_CANLOCK # -DEVIL_INSIDE
-+CANLOCK = -DUSE_CANLOCK
+ DEBUG		= @ENABLE_DEBUG@ -DDEBUG #-DDEBUG_NEWSRC -DPROFILE -DDEBUG_REFS
+ CANLOCK 	= # -DUSE_CANLOCK # -DEVIL_INSIDE
++CANLOCK		= -DUSE_CANLOCK
  
  INTL_CPPFLAGS	= -DLOCALEDIR=\"$(prefix)/@DATADIRNAME@/locale\"
  PCRE_CPPFLAGS	= @PCREDIR_CPPFLAGS@ @PCREDIR_MAKE@ -I$(top_builddir)/pcre -I$(top_srcdir)/pcre
  
- CPPOPTS	= @DEFS@ -I. -I../include $(PCRE_CPPFLAGS) $(INTL_CPPFLAGS) -I$(INCDIR) $(DEBUG) $(CANLOCK) @CPPFLAGS@
- CFLAGS	= @CFLAGS@
-+CFLAGS += -g
+ CPPFLAGS	= @DEFS@ -I. -I../include $(PCRE_CPPFLAGS) $(INTL_CPPFLAGS) -I$(INCDIR) $(DEBUG) $(CANLOCK) @CPPFLAGS@
+ CFLAGS		= @CFLAGS@
++CFLAGS		+= -g
  
- LD	= $(CC)
- LDFLAGS	= @LDFLAGS@
- YACC	= @YACC@
+ LDFLAGS		= @LDFLAGS@
+ YACC		= @YACC@
+@@ -70,6 +72,7 @@
+ X		= $(BUILD_EXEEXT)
  
  CANLIB		= # -L../libcanlock -lcanlock
 +CANLIB		= -L../libcanlock -lcanlock
  INTL_LIBS	= @INTLLIBS@
  PCRE_LIBS	= @PCREDIR_LIBS@ @PCREDIR_MAKE@ -L../pcre -lpcre
- LIBS		= $(PCRE_LIBS) $(CANLIB) @LIBS@ @INN_NNTPLIB@ $(INTL_LIBS)
+ LIBS		= @LIBS@

@@ -12,8 +12,8 @@ D := $(CURDIR)/debian/tin
 
 all: build
 
-DOCS := INSTALL WHATSNEW auth.txt filtering keymap.sample reading-mail.txt \
-	umlaute.txt umlauts.txt tools.txt
+DOCS := INSTALL WHATSNEW TODO auth.txt filtering keymap.sample \
+	reading-mail.txt umlaute.txt umlauts.txt tools.txt
 
 unpack: $(STAMP_DIR)/unpack
 $(STAMP_DIR)/unpack:
