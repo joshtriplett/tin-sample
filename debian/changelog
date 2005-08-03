@@ -1,3 +1,11 @@
+tin (1:1.7.10+20050727-1) unstable; urgency=medium
+
+  * New upstream snapshot. Fixes:
+    + display of flowed lines with multibyte characters. (Closes: #317549)
+  * New debconf translations: cs (Closes: #312977, #319590).
+
+ -- Marco d'Itri <md@linux.it>  Wed,  3 Aug 2005 17:56:46 +0200
+
 tin (1:1.7.8+20050314-1) unstable; urgency=medium
 
   * New upstream snapshot. Fixes:

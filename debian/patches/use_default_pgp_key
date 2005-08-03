@@ -1,20 +1,14 @@
---- tin-1.7.3+20031209.orig/src/pgp.c
-+++ tin-1.7.3+20031209/src/pgp.c
-@@ -249,6 +249,7 @@
+diff -ruN tin-1.7.10.orig/src/pgp.c tin-1.7.10/src/pgp.c
+--- tin-1.7.10.orig/src/pgp.c	2005-07-02 15:13:57.000000000 +0200
++++ tin-1.7.10/src/pgp.c	2005-08-03 18:03:23.000000000 +0200
+@@ -243,8 +243,10 @@
+ 	/*
  	 * <mailfrom> is valid only when signing and a local address exists
  	 */
- 	if (what & PGP_SIGN) {
 +#ifdef NOT_DEBIAN
- 		if ((CURR_GROUP.attribute->from) != NULL)
- 			strip_name(CURR_GROUP.attribute->from, mailfrom);
- 		if (strlen(mailfrom)) {
-@@ -257,6 +258,9 @@
- 			else
- 				sh_format(cmd, sizeof(cmd), DO_SIGN1);
- 		} else {
-+#else
-+		{
+ 	if ((CURR_GROUP.attribute->from) != NULL)
+ 		strip_name(CURR_GROUP.attribute->from, mailfrom);
 +#endif
- 			if (what & PGP_ENCRYPT)
- 				sh_format(cmd, sizeof(cmd), DO_BOTH);
- 			else
+ 
+ 	switch (what) {
+ 		case PGP_KEY_SIGN:
