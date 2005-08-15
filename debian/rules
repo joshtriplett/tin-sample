@@ -12,6 +12,12 @@ all: build
 DOCS := INSTALL WHATSNEW TODO auth.txt filtering keymap.sample \
 	reading-mail.txt umlaute.txt umlauts.txt tools.txt
 
+# Workaround for #323016. Suboptimal, but who cares about m68k anyway? :-)
+DEB_BUILD_ARCH := $(shell dpkg-architecture -qDEB_BUILD_ARCH)
+ifeq ($(DEB_BUILD_ARCH),m68k)
+DEBOPTS := CFLAGS=-O1
+endif
+
 unpack: $(STAMP_DIR)/unpack
 $(STAMP_DIR)/unpack:
 	$(MAKE) -f debian/sys-build.mk source.make
@@ -56,11 +62,11 @@ $(STAMP_DIR)/configure: $(STAMP_DIR)/unpack
 build: $(STAMP_DIR)/build
 $(STAMP_DIR)/build: $(STAMP_DIR)/configure
 	dh_testdir
-	$(MAKE) -f debian/sys-build.mk source.command SOURCE_CMD=" \
+	$(MAKE) -f debian/sys-build.mk source.command NOISY=1 SOURCE_CMD=" \
 		cd libcanlock && $(MAKE) \
 	"
-	$(MAKE) -f debian/sys-build.mk source.command SOURCE_CMD=" \
-		cd src && $(MAKE) \
+	$(MAKE) -f debian/sys-build.mk source.command NOISY=1 SOURCE_CMD=" \
+		cd src && $(MAKE) $(DEBOPTS) \
 	"
 	touch $@
 

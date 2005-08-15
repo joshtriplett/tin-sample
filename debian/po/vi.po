@@ -1,0 +1,33 @@
+# Vietnamese translation for tin.
+# Copyright © 2005 Free Software Foundation, Inc.
+# Clytie Siddall <clytie@riverland.net.au>, 2005.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: tin 1/1.7.8+20050314-1\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2003-06-16 11:03+0200\n"
+"PO-Revision-Date: 2005-08-10 17:09+0930\n"
+"Last-Translator: Clytie Siddall <clytie@riverland.net.au>\n"
+"Language-Team: Vietnamese <gnomevi-list@lists.sourceforge.net>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0\n"
+"X-Generator: LocFactoryEditor 1.2.2\n"
+
+#. Description
+#: ../templates:3
+msgid "What news server should be used for reading and posting news?"
+msgstr "Để đọc và gởi thư tin, bạn có muốn sử dụng máy phục vụ tin tức nào?"
+
+#. Description
+#: ../templates:3
+msgid ""
+"What news server (NNTP server) should be used for reading and posting news?"
+msgstr "Để đọc và gởi thư tin, bạn có muốn sử dụng máy phục vụ tin tức (NNTP) nào?"
+
+#. Description
+#: ../templates:3
+msgid "Enter the fully qualified domain name of the server."
+msgstr "Hãy nhập tên miền khả năng đầy đủ (FQDN) của máy phục vụ này."

@@ -11,10 +11,10 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: tin_1:1.5.19+20030609-2\n"
+"Project-Id-Version: tin_1:1.7.10+20050727-1\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2005-03-20 19:01+0100\n"
-"PO-Revision-Date: 2003-06-22 22:02+0200\n"
+"PO-Revision-Date: 2005-08-08 14:15+0200\n"
 "Last-Translator: Michel Grentzinger <mic.grentz@online.fr>\n"
 "Language-Team: French <debian-l10n-french@lists.debian.org>\n"
 "MIME-Version: 1.0\n"
@@ -24,9 +24,8 @@ msgstr ""
 #. Type: string
 #. Description
 #: ../tin.templates:3
-#, fuzzy
 msgid "Enter the fully qualified domain name of your news server"
-msgstr "Indiquez le nom de domaine pleinement qualifié du serveur."
+msgstr "Nom de domaine pleinement qualifié du serveur de nouvelles :"
 
 #. Type: string
 #. Description
@@ -35,7 +34,7 @@ msgid ""
 "What news server (NNTP server) should be used for reading and posting news?"
 msgstr ""
 "Quel est le serveur de nouvelles (serveur NNTP) qui sera utilisé pour lire "
-"et poster des nouvelles ?"
+"et poster des nouvelles ?"
 
 #~ msgid "What news server should be used for reading and posting news?"
 #~ msgstr ""

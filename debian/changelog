@@ -1,3 +1,11 @@
+tin (1:1.7.10+20050815-1) unstable; urgency=medium
+
+  * New upstream snapshot.
+  * Use -O1 on m68k to work around GCC ICE #323016.
+  * New debconf translations: fr, vi (Closes: #322930, #322304).
+
+ -- Marco d'Itri <md@linux.it>  Mon, 15 Aug 2005 20:27:35 +0200
+
 tin (1:1.7.10+20050727-1) unstable; urgency=medium
 
   * New upstream snapshot. Fixes:
