@@ -15,27 +15,27 @@ msgid ""
 msgstr ""
 "Project-Id-Version: tin 1:1.7.8\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2003-06-16 11:03+0200\n"
-"PO-Revision-Date: 2005-06-10 22:45+0200\n"
+"POT-Creation-Date: 2005-03-20 19:01+0100\n"
+"PO-Revision-Date: 2005-12-29 10:26+0100\n"
 "Last-Translator: Martin Sin <martin.sin@seznam.cz>\n"
 "Language-Team: Czech <debian-l10n-czech@lists.debian.org>\n"
 "MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=ISO-8859-2\n"
+"Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
+#. Type: string
 #. Description
-#: ../templates:3
-msgid "What news server should be used for reading and posting news?"
-msgstr "Kterı serer pou¾ít pro ètení a posílání news pøíspìvkù?"
+#: ../tin.templates:3
+msgid "Enter the fully qualified domain name of your news server"
+msgstr "Zadejte plnÄ› kvalifikovanÃ© domÃ©novÃ© jmÃ©no vaÅ¡eho serveru news"
 
+#. Type: string
 #. Description
-#: ../templates:3
+#: ../tin.templates:3
 msgid ""
 "What news server (NNTP server) should be used for reading and posting news?"
 msgstr ""
-"Kterı news server (NNTP server) pou¾ít pro ètení a posílání news pøíspìvkù?"
+"KterÃ½ news server (NNTP server) pouÅ¾Ã­t pro ÄtenÃ­ a posÃ­lÃ¡nÃ­ news pÅ™Ã­spÄ›vkÅ¯?"
 
-#. Description
-#: ../templates:3
-msgid "Enter the fully qualified domain name of the server."
-msgstr "Zadejte plnì kvalifikované doménové jméno tohoto serveru."
+#~ msgid "What news server should be used for reading and posting news?"
+#~ msgstr "KterÃ½ serer pouÅ¾Ã­t pro ÄtenÃ­ a posÃ­lÃ¡nÃ­ news pÅ™Ã­spÄ›vkÅ¯?"

@@ -46,7 +46,7 @@ diff -ruN tin-1.7.8.orig/src/Makefile.in tin-1.7.8/src/Makefile.in
  X		= $(BUILD_EXEEXT)
  
  CANLIB		= # -L../libcanlock -lcanlock
-+CANLIB		= -L../libcanlock -lcanlock
++CANLIB		= -lcanlock
  INTL_LIBS	= @INTLLIBS@
  PCRE_LIBS	= @PCREDIR_LIBS@ @PCREDIR_MAKE@ -L../pcre -lpcre
  LIBS		= @LIBS@

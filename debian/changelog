@@ -1,3 +1,11 @@
+tin (1:1.8.0-1) unstable; urgency=medium
+
+  * New upstream release.
+  * New debconf translations: sv, cs (Closes: #331596, #345139).
+  * Switched from the old built-in libcanlock to the libcanlock2 package.
+
+ -- Marco d'Itri <md@linux.it>  Sat,  7 Jan 2006 10:51:35 +0100
+
 tin (1:1.7.10+20050815-1) unstable; urgency=medium
 
   * New upstream snapshot.

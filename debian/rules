@@ -39,7 +39,7 @@ configure: $(STAMP_DIR)/configure
 $(STAMP_DIR)/configure: $(STAMP_DIR)/unpack
 	dh_testdir
 	-$(MAKE) clean
-	$(MAKE) -f debian/sys-build.mk source.command SOURCE_CMD=" \
+	$(MAKE) -f debian/sys-build.mk source.command NOISY=1 SOURCE_CMD=" \
 		CFLAGS='-g -O2' \
 		./configure \
 		--prefix=/usr --mandir=\$${prefix}/share/man \
@@ -62,9 +62,9 @@ $(STAMP_DIR)/configure: $(STAMP_DIR)/unpack
 build: $(STAMP_DIR)/build
 $(STAMP_DIR)/build: $(STAMP_DIR)/configure
 	dh_testdir
-	$(MAKE) -f debian/sys-build.mk source.command NOISY=1 SOURCE_CMD=" \
-		cd libcanlock && $(MAKE) \
-	"
+#	$(MAKE) -f debian/sys-build.mk source.command NOISY=1 SOURCE_CMD=" \
+#		cd libcanlock && $(MAKE) \
+#	"
 	$(MAKE) -f debian/sys-build.mk source.command NOISY=1 SOURCE_CMD=" \
 		cd src && $(MAKE) $(DEBOPTS) \
 	"
