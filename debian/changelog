@@ -1,3 +1,10 @@
+tin (1:1.8.1-1) unstable; urgency=medium
+
+  * New upstream release.
+    + Fixes a bug in the maildir check. (Closes: #347422)
+
+ -- Marco d'Itri <md@linux.it>  Thu, 16 Feb 2006 13:40:50 +0100
+
 tin (1:1.8.0-1) unstable; urgency=medium
 
   * New upstream release.

@@ -87,7 +87,8 @@ binary-arch: $(STAMP_DIR)/build checkroot
 	dh_installman $B/doc/tin.1 $B/doc/tin.5 
 	dh_link usr/share/man/man1/tin.1.gz usr/share/man/man1/rtin.1.gz \
 		usr/bin/tin usr/bin/rtin
-	dh_installchangelogs $B/doc/CHANGES
+	cat $B/doc/CHANGES $B/doc/CHANGES.old > $B/doc/CHANGES.tmp
+	dh_installchangelogs $B/doc/CHANGES.tmp
 	dh_installdebconf
 	dh_strip
 	dh_compress
