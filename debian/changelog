@@ -1,3 +1,9 @@
+tin (1:1.8.2-1) unstable; urgency=medium
+
+  * New upstream release.
+
+ -- Marco d'Itri <md@linux.it>  Sat, 29 Apr 2006 12:29:13 +0200
+
 tin (1:1.8.1-1) unstable; urgency=medium
 
   * New upstream release.
