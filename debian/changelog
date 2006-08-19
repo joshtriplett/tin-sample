@@ -1,3 +1,11 @@
+tin (1:1.9.2+20060621-1) unstable; urgency=low
+
+  * New upstream snapshot.
+    + Fixes generation of by-Message-ID filters. (Closes: #374462)
+  * New debconf translation: po. (Closes: #381370)
+
+ -- Marco d'Itri <md@linux.it>  Sun, 20 Aug 2006 00:24:02 +0200
+
 tin (1:1.8.2-1) unstable; urgency=medium
 
   * New upstream release.
