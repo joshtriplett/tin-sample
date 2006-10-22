@@ -1,0 +1,42 @@
+diff -ruN tin-1.9.2.orig/doc/tin.1 tin-1.9.2/doc/tin.1
+--- tin-1.9.2.orig/doc/tin.1	2006-10-09 11:50:46.000000000 +0200
++++ tin-1.9.2/doc/tin.1	2006-10-22 12:27:54.000000000 +0200
+@@ -197,7 +197,7 @@
+ .B \-r
+ Read news remotely from the default NNTP server specified in the environment
+ variable $\fBNNTPSERVER\fP or contained in the file
+-\fI/etc/nntpserver\fR.
++\fI/etc/news/server\fR.
+ .TP
+ .B \-R
+ Read news saved by the ''\fB\-S\fP'' option.
+@@ -2778,7 +2778,7 @@
+ .IR /etc/mail/mailcap
+ .PP
+ 
+-.IR /etc/nntpserver
++.IR /etc/news/server
+ .PP
+ 
+ .IR ${TIN_HOMEDIR\-"$HOME"}/.cancelsecret
+@@ -2969,7 +2969,7 @@
+ .B NNTPSERVER
+ The default NNTP server to remotely read news from. This variable only
+ needs to be set if the ''\fB\-r\fP'' command-line option is specified and
+-the file \fI/etc/nntpserver\fR does not exist. The ''\fB\-g\fP'' command
++the file \fI/etc/news/server\fR does not exist. The ''\fB\-g\fP'' command
+ line option overrides $\fBNNTPSERVER\fP.
+ .TP
+ .B NNTPPORT
+diff -ruN tin-1.9.2.orig/doc/tin.5 tin-1.9.2/doc/tin.5
+--- tin-1.9.2.orig/doc/tin.5	2006-10-09 11:50:46.000000000 +0200
++++ tin-1.9.2/doc/tin.5	2006-10-22 12:28:14.000000000 +0200
+@@ -214,7 +214,7 @@
+ .RE
+ .PP
+ 
+-.IR /etc/nntpserver
++.IR /etc/news/server
+ .sp
+ .RS
+ default NNTP-server to read news from if not reading from the local spool.

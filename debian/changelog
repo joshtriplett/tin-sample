@@ -1,3 +1,10 @@
+tin (1:1.9.2+20061021-1) unstable; urgency=medium
+
+  * New upstream snapshot.
+  * Updated debconf translation: es. (Closes: #385326)
+
+ -- Marco d'Itri <md@linux.it>  Sun, 22 Oct 2006 12:24:14 +0200
+
 tin (1:1.9.2+20060621-1) unstable; urgency=low
 
   * New upstream snapshot.
