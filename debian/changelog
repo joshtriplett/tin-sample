@@ -1,3 +1,14 @@
+tin (1:1.9.2+20070201-1) unstable; urgency=medium
+
+  * New upstream snapshot, only bug fixes.
+    + Does not contain the evil RFCs which are not considered worthy for
+      Debian anymore. (Closes: #395101)
+  * Updated debconf translation: de, ja. (Closes: #396044, #402621)
+  * Applied patch fix_capab_loop from the upstream maintainer to fix
+    an endless loop when connecting to Typhoon servers.
+
+ -- Marco d'Itri <md@linux.it>  Sun, 25 Feb 2007 20:24:33 +0100
+
 tin (1:1.9.2+20061021-1) unstable; urgency=medium
 
   * New upstream snapshot.

@@ -1,29 +1,28 @@
 msgid ""
 msgstr ""
-"Project-Id-Version: tin_1 1.7.8+20050314-1 \n"
+"Project-Id-Version: tin 1:1.9.2+20061021-1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2003-06-16 11:03+0200\n"
-"PO-Revision-Date: 2005-06-14 21:09+0900\n"
-"Last-Translator: Atsushi Shimono <shimono@kwasan.kyoto-u.ac.jp>\n"
+"POT-Creation-Date: 2006-10-26 04:40+0200\n"
+"PO-Revision-Date: 2006-11-28 19:35+0900\n"
+"Last-Translator: Atsushi Shimono <shimono@mozilla.gr.jp>\n"
 "Language-Team: Japanese <debian-japanese@lists.debian.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=EUC-JP\n"
 "Content-Transfer-Encoding: 8bit\n"
 
+#. Type: string
 #. Description
-#: ../templates:3
-msgid "What news server should be used for reading and posting news?"
-msgstr "ニュースを読み書きするのに、どのニュースサーバを利用しますか？"
+#: ../tin.templates:1001
+msgid "Enter the fully qualified domain name of your news server"
+msgstr "ニュースサーバの完全修飾ドメイン名 (FQDN) を入力してください"
 
+#. Type: string
 #. Description
-#: ../templates:3
+#: ../tin.templates:1001
 msgid ""
 "What news server (NNTP server) should be used for reading and posting news?"
-msgstr "ニュースを読み書きするのに、どのニュースサーバ (NNTP サーバ) "
-"を利用しますか？"
+msgstr ""
+"ニュースを読み書きするのに、どのニュースサーバ (NNTP サーバ) を利用しますか？"
 
-#. Description
-#: ../templates:3
-msgid "Enter the fully qualified domain name of the server."
-msgstr "サーバの完全修飾ドメイン名 (FQDN) を入力してください"
-
+#~ msgid "What news server should be used for reading and posting news?"
+#~ msgstr "ニュースを読み書きするのに、どのニュースサーバを利用しますか？"

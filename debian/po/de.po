@@ -11,32 +11,32 @@
 #
 #    Developers do not need to manually edit POT or PO files.
 #
-#, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2005-03-20 19:01+0100\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
-"Language-Team: LANGUAGE <LL@li.org>\n"
+"POT-Creation-Date: 2006-10-26 04:40+0200\n"
+"PO-Revision-Date: 2006-10-29 14:16+0100\n"
+"Last-Translator: Helge Kreutzmann <debian@helgefjell.de>\n"
+"Language-Team: de <debian-l10n-german@lists.debian.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=ISO-8859-15\n"
 "Content-Transfer-Encoding: 8bit\n"
 
 #. Type: string
 #. Description
-#: ../tin.templates:3
-#, fuzzy
+#: ../tin.templates:1001
 msgid "Enter the fully qualified domain name of your news server"
-msgstr "Bitte geben Sie den vollständigen Domainnamen (FQDN) des Servers ein."
+msgstr "Bitte geben Sie den vollständigen Domainnamen (FQDN) Ihres Servers ein."
 
 #. Type: string
 #. Description
-#: ../tin.templates:3
+#: ../tin.templates:1001
 msgid ""
 "What news server (NNTP server) should be used for reading and posting news?"
-msgstr "Welcher Newsserver soll für lesen und posten von News genutzt werden?"
+msgstr ""
+"Welcher Newsserver (NNTP-Server) soll für Lesen und Posten von News genutzt "
+"werden?"
 
 #~ msgid "What news server should be used for reading and posting news?"
-#~ msgstr "Welcher Newsserver soll genutzt werden?"
+#~ msgstr "Welcher Newsserver soll zum Lesen und Posten von News genutzt werden?"
