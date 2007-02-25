@@ -1,0 +1,19 @@
+New features and changes since tin-1.8.1
+
+New features
+------------
+. slrn style verbatim marks
+. UTF-8 descriptions (RFC 3977)
+. sort by date of last posted article
+. writes out newsrc if getting SIGUSR2
+
+Changes
+-------
+. Cancel-Locks can be enabled via configure switch
+. url_handler.pl as DEFAULT_URL_HANDLER
+. mime_forward is forced on multipart articles
+
+Retired Features
+----------------
+. VMS support
+. libinn support (was broken for ages)

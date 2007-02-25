@@ -1,0 +1,211 @@
+-- 1.9.3 release 20080326 "" --
+
+U009) Dirk Nimmich <nimmich@muenster.de>
+      ADD. (g)oto group search now case insensitive
+      ADD. infrastructure for editing and writing attributes
+      ADD. write attributes file from internal structures
+      BUG. possible memleak when freeing group attributes
+      ADD. check joinpath for overruns
+      BUG. potential buffer overruns
+      BUG. memleak in curses.c:ReadWch()
+      BUG. uninitialized mm_local_charset when no config files available,
+           leading to an endless loop on exit when newsrc cannot be written
+      BUG. inconsistent update of mm_local_charset on runtime
+      BUG. fixed length buffer in rfc1522_do_encode()
+      FIX. extern.h proto.h, tin.h, active.c, art.c, attrib.c, auth.c, config.c
+           curses.c, debug.c, feed.c, inews.c, init.c, joinpath.c, keymap.c
+           list.c, mail.c, main.c, memory.c, mimetypes.c, my_tmpfile.c
+           newsrc.c, nntplib.c, nrctbl.c, options_menu.c, pgp.c, post.c
+           rfc2046.c, save.c, select.c, sigfile.c, string.c, xref.c
+
+ 020) Urs Janssen <urs@tin.org>
+      BUG. my_realloc() didn't handle zero size reallocs
+      FIX. memory.c
+
+U008) Rado S <regrado@web.de>
+      ADD. use same article numbers in different levels
+      FIX. extern.h, lang.c, page.c
+
+ 019) Philip Hazel <ph10@cam.ac.uk>
+      BUG. missing a check for a possible return value of pcre_exec()
+      FIX. misc.c, regex.c
+
+U007) Urs Janssen <urs@tin.org>
+      ADD. enable some more CAPABILLITIES related code
+      ADD. minor code cleanup
+      ADD. config.guess, config.sub update
+      ADD. allow .me, .rs, .tel and .asia TLDs
+      ADD. check permissions of .cancelsecret-file
+      ADD. --enable-cancel-locks configure option
+      ADD. libcanlock update (1.0 -> 2b-4)
+      ADD. url_handler.pl as new DEFAULT_URL_HANDLER
+      ADD. remove leading/tailing whitespace in filter scope
+      ADD. increase internal buffer in rfc1522_encode()/rfc1522_do_encode()
+      ADD. disallow .invalidTLD in tin generated Message-IDs
+      ADD. SIGUSR2 handler to write out newsrc
+      ADD. configure check for gsasl.h/libgsasl
+      ADD. AUTHINFO SASL PLAIN support if gsasl.h/libgsasl found
+      ADD. use "LIST NEWSGROUPS grp" with -n cmd-line switch
+      ADD. use "LIST ACTIVE grp" with -n cmd-line switch
+      BUG. newnewsrc tmp-file wasn't always removed
+      BUG. subscribe_pattern() was overcomplex
+      BUG. mail_to_someone() didn't convert the article into the local charset
+      REM. libinn support (was broken for ages)
+      FIX. active.c, art.c, attrib.c, auth.c, charset.c, config.c, color.c
+           cook.c, debug.c, filter.c, group.c, header.c, help.c, inews.c
+           init.c, keymap.c, lang.c, mail.c, main.c, mimetypes.c, misc.c
+           my_tmpfile.c, newsrc.c, nntplib.c, options_menu.c, page.c, post.c
+           refs.c, rfc2045.c, rfc2047.c, save.c, screen.c, search.c, select.c
+           sigfile.c, signcal.c, string.c, tags.c, tcurses.c, thread.c, xface.c
+           xref.c, config.guess, config.sub, de.po, autoconf.h[in], debug.h
+           extern.h, policy.h, proto.h, rfc2046.h, keymap.h, tin.h, version.h
+           Makefile, configure[.in], Makefile[.in], libcanlock/*, tin.1, tin.5
+
+-- 1.9.2 release 20070201 "Dalaruan" --
+
+ 018) Christian Weisgerber <naddy@mips.inka.de>
+      BUG. assumed that wchar_t and wint_t are of the same size
+      FIX. tcurses.c
+
+ 017) Antonio Querubin <tony@lava.net>
+      BUG. missplaced ||
+      FIX. nntplib.c
+
+U006) Thomas E. Dickey <dickey@invisible-island.net>
+      ADD. update configure macros
+      FIX. aclocal.m4
+
+U005) Dirk Nimmich <nimmich@muenster.de>
+      BUG. raw-mode didn't allow rot13
+      BUG. can't 'V'iew mime-parts with (illegally) encoded filename
+      BUG. CatchupNextUnread in page level didn't always work
+      BUG. 'C'atchup in pager was still not correct (we didn't ever enter the
+           next group)
+      BUG. fast/endless reconnection loop after a "200\n\r400\n\r" greeting
+      BUG. resent command on 503 error
+      ADD. rewrote NGLIMIT handling
+      REM. return value of change_config_file()
+      FIX. proto.h, tin.h, feed.c, group.c, nntplib.c, options_menu.c, page.c
+           post.c, save.c, select.c
+
+ 015) Michael Bienia <michael@vorlon.ping.de>
+      BUG. 'l' from the pager doesn't reposition cursor to last viewed
+           article
+      FIX. thread.c
+
+ 014) Urs Janssen <urs@tin.org>
+      BUG. "Kill text pattern" form killfile menu was applied to
+           Message-ID and References instead of Message-ID only
+      BUG. FILTER_FILE_OFFSET was wrong
+      ADD. allow .ax TLD
+      FIX. filter.c, policy.h, tin.h
+
+ 013) Urs Janssen <urs@tin.org>
+      ADD. minor manpage tweaking
+      FIX. tin.1, tin.5
+
+ 012) Peter Breitenlohner <peb@mppmu.mpg.de>
+      BUG. build problem with VPATH
+      FIX. Makefile.in
+
+ 011) Andrey Simonenko <simon@comsys.ntu-kpi.kiev.ua>
+      ADD. updated russian translation
+      FIX. ru.po
+
+ 010) Urs Janssen <urs@tin.org>
+      BUG. possible division by zero in thread_by_percentage()
+      FIX. art.c
+
+U004) Urs Janssen <urs@tin.org>
+      ADD. pcre update (6.6 -> 7.0)
+      ADD. RISC OS handling
+      ADD. more options to filter menu "Kill text pattern"
+      ADD. allow UTF-8 descriptions
+      REM. don't generate Sender on Mac OS X
+      ADD. config.guess, config.sub update
+      ADD. hide some regex in 'M'enu if the related option is off
+      ADD. disallow .so, .um TLDs
+      ADD. warn about useless cmd-line option combinations
+      ADD. enable CAPABILLITIES code
+      ADD. updated german translation
+      FIX. Makefile, aclocal.m4, configure[.in], extern.h, policy.h, filter.c
+           init.c, lang.c, main.c, mail.c, nntplib.c, options_menu.c, post.c
+           pcre/*, config.guess, config.sub, de.po
+
+U003) Michael Bienia <michael@vorlon.ping.de>
+      ADD. 'M'enu option for VERBATIM_*_REGEXs
+      ADD. new option: sort by date of last posted article
+      ADD. merge tinrc.{pgdn_goto_next,tab_goto_next_unread,
+           space_goto_next_unread} into one option tinrc.goto_next_unread
+      ADD. merge PAGE_PAGE_DOWN3 (SPACE) into GLOBAL_PAGE_DOWN
+      ADD. minor code cleanup
+      FIX. extern.h, keymap.h, proto.h, tin.h, tinrc.h, version.h, art.c
+           attrib.c, charset.c, config.c, cook.c, help.c, init.c, keymap.c
+           lang.c, options_menu.c, page.c, tincfg.tbl, keymap.sample, tin.1
+           tin.5
+
+-- 1.9.1 release 20060409 "Benmore" --
+
+U002) Urs Janssen <urs@tin.org>
+      ADD. slrn style verbatim mark support (#v+/#v-)
+      ADD. use tinrc.date_format for %D date expansion
+      ADD. config.guess update
+      REM. unused gb, so and um TLDs
+      FIX. config.guess, autoconf.hin, extern.h, tin.h, cook.c, init.c
+           memory.c, misc.c, tin.1
+
+ 009) Urs Janssen <urs@tin.org>
+      BUG. didn't reissue GROUP cmd after reconnect with authentication
+      BUG. possible buffer overflow
+      REM. unnecessary test for wcsnlen
+      ADD. cat, jobs, travel and mobi TLDs
+      FIX. aclocal.m4, policy.h, misc.c, nntplib.c
+
+-- 1.9.0 release 20060228 "Ardlussa" --
+
+ 008) Urs Janssen <urs@tin.org>
+      ADD. config.guess, config.sub update
+      FIX. config.guess, config.sub
+
+ 007) Michael Bienia <michael@vorlon.ping.de>
+      BUG. buffer overflow in convert_tex2iso in UTF-8 environment
+      FIX. charset.c
+
+U001) Urs Janssen <urs@tin.org>
+      ADD. pcre update (6.4 -> 6.6)
+      REM. VMS support
+      FIX. Makefile, aclocal.m4, attrib.c, curses.c, config.c, header.c
+           inews.c, init.c, lang.c, mail.c, main.c, mimetypes.c, misc.c
+           newsrc.c, nntplib.c, post.c, read.c, save.c, signal.c, bugrep.h
+           tin.h, tnntp.h, version.h, pcre/*, vms/*
+
+-- 1.8.1 release 20060215 "Mealasta" --
+
+ 006) Aleksey Salow <aleksey.salow@gmail.com>
+      BUG. possible buffer overflow
+      FIX. mail.c
+
+ 005) Daniel Nylander <po@danielnylander.se>
+      ADD. initial swedish translation
+      FIX. sv.po
+
+ 004) Chung-chieh Shan <ken@digitas.harvard.edu>
+      BUG. bogus '/' in MAILDIR_NEW
+      FIX. misc.c
+
+ 003) Thomas E. Dickey <dickey@invisible-island.net>
+      Urs Janssen <urs@tin.org>
+      BUG. build problem on Mac OS X
+      FIX. tin.h, header.c, nntplib.c
+
+ 002) Urs Janssen <urs@tin.org>
+      ADD. config.guess, config.sub update
+      FIX. config.guess, config.sub
+
+ 001) Andrey Simonenko <simon@comsys.ntu-kpi.kiev.ua>
+      ADD. updated russian translation
+      FIX. ru.po
+
+-- 1.8.0 release 20051224 "Ronay" --
+
+For changes made till the 1.8.0 release look at CHANGES.old
