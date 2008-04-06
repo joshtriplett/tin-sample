@@ -1,0 +1,22 @@
+--- a/src/Makefile.in
++++ b/src/Makefile.in
+@@ -205,7 +205,7 @@ EXTRAOBJS = @EXTRAOBJS@
+ EXTRA_INTLLIBS = @INTLDIR_MAKE@ @INTLLIBS@
+ EXTRA_PCREHDRS = @PCREDIR_MAKE@ ../pcre/pcre.h
+ EXTRA_PCRELIBS = @PCREDIR_MAKE@ ../pcre/$(PRELIB)pcre.a
+-EXTRA_CANLIBS = @CANDIR_MAKE@ ../libcanlock/$(PRELIB)canlock.a
++#EXTRA_CANLIBS = @CANDIR_MAKE@ ../libcanlock/$(PRELIB)canlock.a
+ EXTRALIBS = $(EXTRA_INTLLIBS) $(EXTRA_PCRELIBS) $(EXTRA_CANLIBS)
+ 
+ OFILES	= @ALLOCA@ $(EXTRAOBJS) \
+--- a/include/tin.h
++++ b/include/tin.h
+@@ -2040,7 +2040,7 @@ extern struct tm *localtime(time_t *);
+ 
+ /* libcanlock */
+ #ifdef USE_CANLOCK
+-#	include "../libcanlock/include/canlock.h"
++#	include <canlock.h>
+ #endif /* USE_CANLOCK */
+ 
+ /* gsasl */

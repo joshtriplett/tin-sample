@@ -1,7 +1,6 @@
-diff -ruN tin-1.7.6.orig/src/attrib.c tin-1.7.6/src/attrib.c
---- tin-1.7.6.orig/src/attrib.c	2004-07-07 11:58:17.000000000 +0200
-+++ tin-1.7.6/src/attrib.c	2004-07-11 14:37:49.000000000 +0200
-@@ -167,7 +167,7 @@
+--- a/src/attrib.c
++++ b/src/attrib.c
+@@ -170,7 +170,7 @@ set_default_attributes(
  	attributes->fcc = NULL;
  #ifdef CHARSET_CONVERSION
  	attributes->mm_network_charset = tinrc.mm_network_charset;
@@ -10,10 +9,9 @@ diff -ruN tin-1.7.6.orig/src/attrib.c tin-1.7.6/src/attrib.c
  #endif /* CHARSET_CONVERSION */
  }
  
-diff -ruN tin-1.7.6.orig/src/init.c tin-1.7.6/src/init.c
---- tin-1.7.6.orig/src/init.c	2004-07-02 11:59:11.000000000 +0200
-+++ tin-1.7.6/src/init.c	2004-07-11 14:37:10.000000000 +0200
-@@ -281,8 +281,8 @@
+--- a/src/init.c
++++ b/src/init.c
+@@ -278,8 +278,8 @@ struct t_config tinrc = {
  	32,		/* groupname_max_length */
  	UUE_NO,	/* hide_uue */
  	KILL_UNREAD,		/* kill_level */
@@ -24,7 +22,7 @@ diff -ruN tin-1.7.6.orig/src/init.c tin-1.7.6/src/init.c
  	POST_PROC_NO,			/* post_process */
  	REREAD_ACTIVE_FILE_SECS,	/* reread_active_file_secs */
  	1,		/* scroll_lines */
-@@ -331,7 +331,7 @@
+@@ -329,7 +329,7 @@ struct t_config tinrc = {
  	TRUE,		/* url_highlight */
  	0,		/* wrap_column */
  #ifdef HAVE_COLOR
@@ -33,7 +31,7 @@ diff -ruN tin-1.7.6.orig/src/init.c tin-1.7.6/src/init.c
  #endif /* HAVE_COLOR */
  	TRUE,		/* add_posted_to_filter */
  	TRUE,		/* advertising */
-@@ -400,7 +400,7 @@
+@@ -395,7 +395,7 @@ struct t_config tinrc = {
  	FALSE,		/* use_keypad */
  #endif /* HAVE_KEYPAD */
  	TRUE,		/* wrap_on_next_unread */
@@ -42,13 +40,13 @@ diff -ruN tin-1.7.6.orig/src/init.c tin-1.7.6/src/init.c
  	FALSE,		/* default_filter_kill_case */
  	FALSE,		/* default_filter_kill_expire */
  	TRUE,		/* default_filter_kill_global */
-@@ -689,8 +689,12 @@
+@@ -696,8 +696,12 @@ init_selfinfo(
  	if (!*default_organization) {
- 		char buf[LEN];
+ 		char buf[LEN], filename[PATH_LEN];
  
 +#ifdef NOT_DEBIAN
- 		joinpath(buf, libdir, "organization");
- 		if ((fp = fopen(buf, "r")) != NULL) {
+ 		joinpath(filename, sizeof(filename), libdir, "organization");
+ 		if ((fp = fopen(filename, "r")) != NULL) {
 +#else
 +		if ((fp = fopen("/etc/news/organization", "r")) != NULL) {
 +#endif

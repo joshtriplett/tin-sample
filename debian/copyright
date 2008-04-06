@@ -10,11 +10,7 @@ The current maintainer is Marco d'Itri <md@linux.it>.
 
 It was downloaded from ftp://ftp.tin.org/pub/news/clients/tin/
 
-Upstream Authors:
-		Iain Lea <iain@bricbrac.de>,
-		Urs Janssen <urs@tin.org>
-
-Copyright:
+Copyright (c) 1992-2008 Iain Lea <iain@bricbrac.de> and others.
 
 tin is released under the BSD license.
 You can find a copy of this license in /usr/share/common-licenses/BSD .

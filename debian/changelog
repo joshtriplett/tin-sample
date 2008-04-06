@@ -1,3 +1,12 @@
+tin (1:1.9.3+20080326-1) unstable; urgency=low
+
+  * New upstream snapshot.
+  * Source package converted to quilt.
+  * Provide an md5sums control file to stop people complaining about a missing
+    md5sums control file. (Closes: #439443)
+
+ -- Marco d'Itri <md@linux.it>  Mon, 07 Apr 2008 01:56:44 +0200
+
 tin (1:1.9.2+20070201-1) unstable; urgency=medium
 
   * New upstream snapshot, only bug fixes.

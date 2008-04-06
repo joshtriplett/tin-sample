@@ -1,13 +1,10 @@
 #!/usr/bin/make -f
 SHELL=/bin/bash -e
 
-include debian/scripts/vars
+QUILT_STAMPFN := debian/.stamp-patched
+include /usr/share/quilt/quilt.make
 
-BUILD_DIR := $(SOURCE_DIR)/$(TAR_DIR)
-B := $(BUILD_DIR)
 D := $(CURDIR)/debian/tin
-
-all: build
 
 DOCS := INSTALL WHATSNEW TODO auth.txt filtering keymap.sample \
 	reading-mail.txt umlaute.txt umlauts.txt tools.txt
@@ -18,30 +15,15 @@ ifeq ($(DEB_BUILD_ARCH),m68k)
 DEBOPTS := CFLAGS=-O1
 endif
 
-unpack: $(STAMP_DIR)/unpack
-$(STAMP_DIR)/unpack:
-	$(MAKE) -f debian/sys-build.mk source.make
-	touch $@
-
-# used by the maintainer
-unpack.nopatch: 
-	$(MAKE) -f debian/sys-build.mk source.build
-
-# used by the maintainer
-diff:
-	$(MAKE) -f debian/sys-build.mk make-diff
-
-clean:
-	$(MAKE) -f debian/sys-build.mk source.clean
+clean: unpatch
+	rm -f debian/.stamp-*
+	$(MAKE) distclean
 	dh_clean
 
-configure: $(STAMP_DIR)/configure
-$(STAMP_DIR)/configure: $(STAMP_DIR)/unpack
+configure: debian/.stamp-configure
+debian/.stamp-configure: $(QUILT_STAMPFN)
 	dh_testdir
-	-$(MAKE) clean
-	$(MAKE) -f debian/sys-build.mk source.command NOISY=1 SOURCE_CMD=" \
-		CFLAGS='-g -O2' \
-		./configure \
+	CFLAGS='-g -O2' ./configure \
 		--prefix=/usr --mandir=\$${prefix}/share/man \
 		--with-pcre=/usr --with-domain-name=/etc/mailname \
 		--with-mailbox=/var/mail \
@@ -54,41 +36,32 @@ $(STAMP_DIR)/configure: $(STAMP_DIR)/unpack
 		--with-nntp-default-server=localhost \
 		--with-screen=ncursesw --enable-nntp --enable-ipv6 \
 		--enable-included-msgs --enable-nls \
-		--enable-mh-mail-handling \
-		--with-mime-default-charset=ISO-8859-15 \
-	"
+		--enable-mh-mail-handling --enable-cancel-locks \
+		--with-mime-default-charset=ISO-8859-15
 	touch $@
 
-build: $(STAMP_DIR)/build
-$(STAMP_DIR)/build: $(STAMP_DIR)/configure
+build: debian/.stamp-build
+debian/.stamp-build: debian/.stamp-configure
 	dh_testdir
-#	$(MAKE) -f debian/sys-build.mk source.command NOISY=1 SOURCE_CMD=" \
-#		cd libcanlock && $(MAKE) \
-#	"
-	$(MAKE) -f debian/sys-build.mk source.command NOISY=1 SOURCE_CMD=" \
-		cd src && $(MAKE) $(DEBOPTS) \
-	"
+	cd src && $(MAKE) $(DEBOPTS)
 	touch $@
 
-binary-arch: $(STAMP_DIR)/build checkroot
+binary-arch: debian/.stamp-build checkroot
 	dh_testdir
 	dh_clean -k
 	dh_installdirs /etc/tin/ /usr/bin/ /usr/share/doc/tin/tools/
 
-	$(MAKE) -f debian/sys-build.mk source.command SOURCE_CMD=" \
-		$(MAKE) -C src install_nls prefix=$D/usr \
-	"
-	cp $B/src/tin $D/usr/bin/
-	cp $B/doc/tin.defaults $D/etc/tin/
-	cp $B/tools/* $D/usr/share/doc/tin/tools/
+	$(MAKE) -C src install_nls prefix=$D/usr
+	cp src/tin $D/usr/bin/
+	cp doc/tin.defaults $D/etc/tin/
+	cp tools/* $D/usr/share/doc/tin/tools/
 
 	dh_installmenu
-	dh_installdocs $(addprefix $B/doc/,$(DOCS))
-	dh_installman $B/doc/tin.1 $B/doc/tin.5 
+	dh_installdocs $(addprefix doc/,$(DOCS))
+	dh_installman doc/tin.1 doc/tin.5 
 	dh_link usr/share/man/man1/tin.1.gz usr/share/man/man1/rtin.1.gz \
 		usr/bin/tin usr/bin/rtin
-	cat $B/doc/CHANGES $B/doc/CHANGES.old > $B/doc/CHANGES.tmp
-	dh_installchangelogs $B/doc/CHANGES.tmp
+	cat doc/CHANGES doc/CHANGES.old | dh_installchangelogs /dev/fd/0
 	dh_installdebconf
 	dh_strip
 	dh_compress
@@ -96,6 +69,7 @@ binary-arch: $(STAMP_DIR)/build checkroot
 	dh_shlibdeps
 	dh_gencontrol
 	dh_installdeb
+	dh_md5sums
 	dh_builddeb
 
 debian/po/templates.pot: debian/templates
