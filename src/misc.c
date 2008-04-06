@@ -3456,7 +3456,7 @@ gnksa_do_check_from(
 		strcpy(realname, decoded);
 
 #ifdef DEBUG
-	if (debug & DEBUG_MISC) {
+	if (debug & DEBUG_MISC) { /* TODO: dump to a file instead of wait_message() */
 		if (GNKSA_OK != code)
 			wait_message(2, "From:=[%s], GNKSA=[%d]", from, code);
 		else

@@ -3,7 +3,7 @@
  *  Module    : memory.c
  *  Author    : I. Lea & R. Skrenta
  *  Created   : 1991-04-01
- *  Updated   : 2007-12-30
+ *  Updated   : 2008-04-19
  *  Notes     :
  *
  * Copyright (c) 1991-2008 Iain Lea <iain@bricbrac.de>, Rich Skrenta <skrenta@pbm.com>
@@ -213,6 +213,8 @@ void
 free_all_arrays(
 	void)
 {
+	int i;
+
 	hash_reclaim();
 
 #ifndef USE_CURSES
@@ -282,6 +284,12 @@ free_all_arrays(
 	}
 
 	FreeAndNull(nntp_caps.implementation);
+
+	if (ofmt) { /* ofmt might not be allocated yet on early abort */
+		for (i = 0; ofmt[i].name; i++)
+			free(ofmt[i].name);
+		free(ofmt);
+	}
 
 	tin_fgets(NULL, FALSE);
 }

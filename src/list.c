@@ -3,7 +3,7 @@
  *  Module    : list.c
  *  Author    : I. Lea
  *  Created   : 1993-12-18
- *  Updated   : 2007-12-30
+ *  Updated   : 2008-04-15
  *  Notes     : Low level functions handling the active[] list and its group_hash index
  *
  * Copyright (c) 1993-2008 Iain Lea <iain@bricbrac.de>
@@ -124,7 +124,7 @@ find_group_index(
 	const char *group,
 	t_bool ignore_case)
 {
-	char *group_lcase = NULL;
+	char *group_lcase;
 	int i;
 	unsigned long h;
 
@@ -190,7 +190,7 @@ group_add_to_hash(
 	const char *groupname,
 	int idx)
 {
-	char *groupname_lcase = NULL;
+	char *groupname_lcase;
 	unsigned long h;
 
 	groupname_lcase = my_strdup(groupname);

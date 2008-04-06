@@ -3,7 +3,7 @@
 .\" Module    : tin.1
 .\" Author    : I. Lea, U. Janssen
 .\" Created   : 1991-08-23
-.\" Updated   : 2008-03-20
+.\" Updated   : 2008-05-06
 .\" Notes     : use american english; still needs some work, e.g.:
 .\"             - document authorization (.newsauth)
 .\"             - document random organization feature
@@ -19,7 +19,7 @@
 .fi
 ..
 .\"
-.TH tin 1 "March 20th, 2008" "1.9.3" "A Usenet newsreader"
+.TH tin 1 "May 6th, 2008" "1.9.3" "A Usenet newsreader"
 .\"
 .\"
 .SH NAME
@@ -353,7 +353,7 @@ recent articles and the number of killed articles. I.e.:
 .PP
 .nf
 .\" FIXME - make this autocenter
-            alt.sources (5B -50/23+ 0* 3o 0K).
+            alt.sources (5B \-50/23+ 0* 3o 0K).
 .fi
 .PP
 The characters after the numbers are depending to the configuration and if
@@ -2007,9 +2007,9 @@ Score of an article which should be marked hot, this must be >=
 .B Number of lines to scroll in pager (scroll_lines)
 The number of lines that will be scrolled up/down in the article pager when
 using cursor-up/down. The default is 1 (line-by-line). Set to 0 to get
-traditional tin page-by-page scrolling. Set to -1 to get page-by-page
+traditional tin page-by-page scrolling. Set to \-1 to get page-by-page
 scrolling where the top/bottom line is carried over onto the next page.
-This setting supersedes show_last_line_prev_page=ON. Set to -2 to get
+This setting supersedes show_last_line_prev_page=ON. Set to \-2 to get
 half-page scrolling. This setting supersedes full_page_scroll=OFF.
 .TP
 .B In group menu, show author by (show_author)
@@ -2455,7 +2455,7 @@ news_quote_format=In %M, %F wrote:
 would expand to:
 .RS
 .Vb
-On 21 Sep 1993 09:45:51 -0400 in alt.sources you wrote:
+On 21 Sep 1993 09:45:51 \-0400 in alt.sources you wrote:
 In <abcINN123@example.org>, Joe Bar <joe@example.org> wrote:
 .Ve
 .RE
@@ -2766,7 +2766,7 @@ find ${TIN_INDEX_NEWSDIR:\-"${TIN_HOMEDIR:\-"$HOME"}/.tin"}/.news* \\
 .\"               .article[.$$], .cancel[.$$], .letter[.$$]?
 .\"       $PWD/trace (--with-trace)
 .\"       $TMPDIR/NNTP, $TMPDIR/ARTS, $TMPDIR/ACTIVE, $TMPDIR/BASE,
-\."       $TMPDIR/SAVE_COMP, $TMPDIR/BITMAP, $TMPDIR/MALLOC, $TMPDIR/FILTER
+.\"       $TMPDIR/SAVE_COMP, $TMPDIR/BITMAP, $TMPDIR/MALLOC, $TMPDIR/FILTER
 For a detailed description see
 .BR tin (5).
 .PP
@@ -2919,6 +2919,13 @@ For a detailed description see
 .\" "\fInntppassword\fR \fInntpusername\fR" pair for genereic authentication.
 .\" .TP
 .\" .B NNTP_AUTH_FDS
+.\"
+.\" used in xface support
+.\" .TP
+.\" .B DISPLAY
+.\" .TP
+.\" .B WINDOWID
+.\"
 .\"
 .TP
 .B TINRC

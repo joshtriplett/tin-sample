@@ -3,7 +3,7 @@
  *  Module    : attrib.c
  *  Author    : I. Lea
  *  Created   : 1993-12-01
- *  Updated   : 2008-03-25
+ *  Updated   : 2008-04-23
  *  Notes     : Group attribute routines
  *
  * Copyright (c) 1993-2008 Iain Lea <iain@bricbrac.de>
@@ -254,7 +254,7 @@ read_attributes_file(
 	char scope[LEN];
 	int num;
 	int i;
-	int upgrade = RC_CHECK;
+	enum rc_state upgrade = RC_CHECK;
 	t_bool flag, found = FALSE;
 
 	/*
@@ -487,6 +487,7 @@ set_attrib(
 	attributes->integer = *data; \
 	break
 
+
 static void
 do_set_attrib(
 	struct t_group *group,
@@ -502,6 +503,7 @@ do_set_attrib(
 	}
 	_do_set_attrib(group->attribute, type, data);
 }
+
 
 static void
 _do_set_attrib(

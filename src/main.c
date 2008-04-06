@@ -217,7 +217,9 @@ main(
 	/*
 	 * Check if overview indexes contain Xref: lines
 	 */
-	if (nntp_caps.over_cmd)
+#ifdef NNTP_ABLE
+	if ((read_news_via_nntp && nntp_caps.over_cmd) || !read_news_via_nntp)
+#endif /* NNTP_ABLE */
 		xref_supported = overview_xref_support();
 
 #ifdef DEBUG

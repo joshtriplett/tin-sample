@@ -3,7 +3,7 @@
  *  Module    : nntplib.c
  *  Author    : S. Barber & I. Lea
  *  Created   : 1991-01-12
- *  Updated   : 2008-03-19
+ *  Updated   : 2008-04-24
  *  Notes     : NNTP client routines taken from clientlib.c 1.5.11 (1991-02-10)
  *  Copyright : (c) Copyright 1991-99 by Stan Barber & Iain Lea
  *              Permission is hereby granted to copy, reproduce, redistribute
@@ -34,6 +34,8 @@ char *nntp_server = NULL;
 
 /* Flag to show whether tin did reconnect in last get_server() */
 t_bool reconnected_in_last_get_server = FALSE;
+/* Flag used in LIST ACVTIVE loop */
+t_bool did_reconnect = FALSE;
 
 static TCP *nntp_rd_fp = NULL;
 static TCP *nntp_wr_fp = NULL;
@@ -53,7 +55,7 @@ static TCP *nntp_wr_fp = NULL;
 #ifdef NNTP_ABLE
 	static int mode_reader(t_bool *sec);
 	static int reconnect(int retry);
-	static int server_init(char *machine, const char *cservice, int port, char *text, size_t mlen);
+	static int server_init(char *machine, const char *cservice, unsigned short port, char *text, size_t mlen);
 	static int check_extensions(t_bool *sec);
 	static void close_server(void);
 	static void list_motd(void);
@@ -204,7 +206,7 @@ static int
 server_init(
 	char *machine,
 	const char *cservice,	/* usually a literal */
-	int port,
+	unsigned short port,
 	char *text,
 	size_t mlen)
 {
@@ -226,9 +228,9 @@ server_init(
 		sockt_rd = get_tcp_socket(machine, service, port);
 #	else
 #		ifdef INET6
-	sockt_rd = get_tcp6_socket(machine, (unsigned short) port);
+	sockt_rd = get_tcp6_socket(machine, port);
 #		else
-	sockt_rd = get_tcp_socket(machine, service, (unsigned short) port);
+	sockt_rd = get_tcp_socket(machine, service, port);
 #		endif /* INET6 */
 #	endif /* DECNET */
 
@@ -775,8 +777,15 @@ put_server(
 		/*
 		 * remember the last command we wrote to be able to resend it after a
 		 * reconnect. reconnection is handled by get_server()
+		 *
+		 * don't cache "LIST ACTIVE something" as we would need to
+		 * resend all of them but we remeber just the last one. we cache
+		 * "LIST" instead, this will slow down things, but that's ok on
+		 * reconnect.
 		 */
-		if (last_put != string)
+		if (!strncmp(string, "LIST ACTIVE ", 12))
+			STRCPY(last_put, "LIST");
+		else
 			STRCPY(last_put, string);
 	}
 	(void) s_flush(nntp_wr_fp);
@@ -836,6 +845,7 @@ reconnect(
 		}
 		DEBUG_IO((stderr, _("Resend last command (%s)\n"), buf));
 		put_server(buf);
+		did_reconnect = TRUE;
 		return 0;
 	}
 
@@ -871,9 +881,12 @@ get_server(
 
 	/*
 	 * NULL socket reads indicates socket has closed. Try a few times more
+	 *
+	 * TODO: add a timeout (some servers do not close the connection but
+	 *       simply do not send any response data -> we need a timeout to
+	 *       leave the s_gets() in that case)
 	 */
 	while (nntp_rd_fp == NULL || s_gets(string, size, nntp_rd_fp) == NULL) {
-
 		if (quitting)						/* Don't bother to reconnect */
 			tin_done(NNTP_ERROR_EXIT);		/* And don't try to disconnect again! */
 
@@ -1088,7 +1101,7 @@ check_extensions(
 					else if (!strcasecmp(ptr, "IHAVE"))
 						nntp_caps.ihave = TRUE;
 					else if (!strcasecmp(ptr, "STREAMING"))
-					 	nntp_caps.streaming = TRUE;
+						nntp_caps.streaming = TRUE;
 #		endif /* 0 */
 				} else
 					nntp_caps.type = NONE;
@@ -1097,7 +1110,7 @@ check_extensions(
 
 		/*
 		 * XanaNewz 2 Server Version 2.0.0.3 doesn't know CAPABILITIES
-		 * but responses with 400 _without_ closing the connection. If
+		 * but respondes with 400 _without_ closing the connection. If
 		 * you use tin on a XanaNewz 2 Server comment out the following
 		 * case.
 		 */
@@ -1462,7 +1475,7 @@ nntp_open(
 					if (debug & DEBUG_NNTP)
 						debug_print_file("NNTP" "nntp_open() %s skipping data", &xover_cmds[i]);
 #	endif /* DEBUG */
-					while ((linep = tin_fgets(FAKE_NNTP_FP, FALSE)) != NULL)
+					while (tin_fgets(FAKE_NNTP_FP, FALSE))
 						;
 					j = -1;
 					break;
@@ -1473,15 +1486,27 @@ nntp_open(
 					break;
 			}
 		}
+#	ifdef XHDR_XREF
+		for (i = 0, j = 0; i < 2 && j >= 0; i++) {
+			j = new_nntp_command(&xhdr_cmds[i], ERR_CMDSYN, line, sizeof(line));
+			switch (j) {
+				case ERR_COMMAND:
+					break;
+
+				default:	/* usualy ERR_CMDSYN (args missing), Typhoon/Twister sends ERR_NCING */
+					nntp_caps.hdr_cmd = &xhdr_cmds[i];
+					j = -1;
+					break;
+			}
+		}
+#	endif /* XHDR_XREF */
 	} else {
 		if (!nntp_caps.over_cmd) {
 			/*
 			 * CAPABILITIES/LIST EXTENSIONS didn't mention OVER or XOVER, try
 			 * XOVER
 			 */
-			i = new_nntp_command(xover_cmds, ERR_NCING, line, sizeof(line));
-
-			switch (i) {
+			switch (new_nntp_command(xover_cmds, ERR_NCING, line, sizeof(line))) {
 				case ERR_COMMAND:
 					break;
 
@@ -1491,7 +1516,7 @@ nntp_open(
 					if (debug & DEBUG_NNTP)
 						debug_print_file("NNTP", "nntp_open() %s skipping data", xover_cmds);
 #	endif /* DEBUG */
-					while ((linep = tin_fgets(FAKE_NNTP_FP, FALSE)) != NULL)
+					while (tin_fgets(FAKE_NNTP_FP, FALSE))
 						;
 					break;
 
@@ -1506,8 +1531,14 @@ nntp_open(
 			 * CAPABILITIES/LIST EXTENSIONS didn't mention HDR or XHDR, try
 			 * XHDR
 			 */
-			if (!nntp_command(xhdr_cmds, ERR_COMMAND, NULL, 0))
-				nntp_caps.hdr_cmd = xhdr_cmds;
+			switch (new_nntp_command(xhdr_cmds, ERR_CMDSYN, line, sizeof(line))) {
+				case ERR_COMMAND:
+					break;
+
+				default:	/* usualy ERR_CMDSYN (args missing), Typhoon/Twister sends ERR_NCING */
+					nntp_caps.hdr_cmd = xhdr_cmds;
+					break;
+			}
 		}
 #	endif /* XHDR_XREF */
 	}
@@ -1528,14 +1559,6 @@ nntp_open(
 		 * TODO: issue warning if old index files found?
 		 *	      in index_newsdir?
 		 */
-	}
-
-	/*
-	 * TODO: if we're using -n, check for LIST NEWSGROUPS <wildmat>
-	 * see also comments in open_newsgroups_fp()
-	 */
-	if (newsrc_active && !list_active) { /* -n */
-		/* code goes here */
 	}
 #	endif /* 0 */
 
@@ -1576,7 +1599,7 @@ nntp_close(
 #endif /* NNTP_ABLE */
 }
 
-
+#ifdef NNTP_ABLE
 /*
  * Get a response code from the server.
  * Returns:
@@ -1592,9 +1615,8 @@ get_only_respcode(
 	char *message,
 	size_t mlen)
 {
-	int respcode = 0;
-#ifdef NNTP_ABLE
-	char *end, *ptr = NULL;
+	int respcode;
+	char *end, *ptr;
 
 	ptr = tin_fgets(FAKE_NNTP_FP, FALSE);
 
@@ -1647,7 +1669,6 @@ get_only_respcode(
 	if (message != NULL && mlen > 1)		/* Pass out the rest of the text */
 		my_strncpy(message, end, mlen - 1);
 
-#endif /* NNTP_ABLE */
 	return respcode;
 }
 
@@ -1667,8 +1688,7 @@ get_respcode(
 	char *message,
 	size_t mlen)
 {
-	int respcode = 0;
-#ifdef NNTP_ABLE
+	int respcode;
 	char savebuf[NNTP_STRLEN];
 	char *ptr, *end;
 
@@ -1722,12 +1742,10 @@ get_respcode(
 			tin_done(EXIT_FAILURE);
 		}
 	}
-#endif /* NNTP_ABLE */
 	return respcode;
 }
 
 
-#ifdef NNTP_ABLE
 /*
  * Do an NNTP command. Send command to server, and read the reply.
  * If the reply code matches success, then return an open file stream

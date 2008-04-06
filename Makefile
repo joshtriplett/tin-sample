@@ -9,7 +9,7 @@ LVER	= 1
 PVER	= 9
 SVER	= 3
 VER	= $(LVER).$(PVER).$(SVER)
-DVER	= 20080326
+DVER	= 20080506
 EXE	= tin
 
 # directory structure
@@ -195,6 +195,7 @@ PCRE	= \
 	$(PCREDIR)/RunTest.in \
 	$(PCREDIR)/config.h \
 	$(PCREDIR)/configure.in \
+	$(PCREDIR)/version.sh \
 	$(PCREDIR)/dftables.c \
 	$(PCREDIR)/pcre-config.in \
 	$(PCREDIR)/pcre.h \
@@ -429,7 +430,8 @@ chmod:
 	$(TOLDIR)/url_handler.pl \
 	$(TOLDIR)/url_handler.sh \
 	$(TOLDIR)/w2r.pl \
-	$(PCREDIR)/perltest
+	$(PCREDIR)/perltest \
+	$(PCREDIR)/version.sh
 
 tar:
 	@$(ECHO) "Generating gzipped tar file..."

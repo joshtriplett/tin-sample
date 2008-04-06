@@ -3,7 +3,7 @@
  *  Module    : version.c
  *  Author    : U. Janssen
  *  Created   : 2003-05-11
- *  Updated   : 2005-07-02
+ *  Updated   : 2008-04-25
  *  Notes     :
  *
  * Copyright (c) 2003-2008 Urs Janssen <urs@tin.org>
@@ -38,9 +38,6 @@
 #ifndef TIN_H
 #	include "tin.h"
 #endif /* !TIN_H */
-#ifndef VERSION_H
-#	include "version.h"
-#endif /* !VERSION_H */
 
 
 /*
@@ -57,7 +54,7 @@
  * Don't make the arguments to sscanf() consts, as some old systems require
  * them to writable (but do not change them)
  */
-int
+enum rc_state
 check_upgrade(
 	char *line,
 	const char *skip,
@@ -101,7 +98,7 @@ check_upgrade(
 
 void
 upgrade_prompt_quit(
-	int reason,
+	enum rc_state reason,
 	const char *file)
 {
 	switch (reason) {

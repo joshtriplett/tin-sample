@@ -3,7 +3,7 @@
  *  Module    : xface.c
  *  Author    : Joshua Crawford & Drazen Kacar
  *  Created   : 2003-04-27
- *  Updated   : 2007-10-04
+ *  Updated   : 2008-04-22
  *  Notes     :
  *
  * Copyright (c) 2003-2008 Joshua Crawford <mortarn@softhome.net> & Drazen Kacar <dave@willfork.com>
@@ -36,9 +36,7 @@
 
 
 /*
- * TODO: - add configure check option for use_slrnface
- *         (see comments include/autoconf.hin)
- *       - document the used vars/files/dir in the mapage
+ * TODO: - document the used vars/files/dir in the mapage
  *       - move strings to lang.c
  */
 
@@ -57,20 +55,22 @@ slrnface_start(
 {
 	char *fifo;
 	char *ptr;
-	int pathlen, status;
+	int status;
 	pid_t pid, pidst;
+	size_t pathlen;
 	struct utsname u;
 
 	if (!tinrc.use_slrnface)
 		return;
 
 #ifdef HAVE_IS_XTERM
-	if (!is_xterm())
+	if (!is_xterm()) {
 #	ifdef DEBUG
 		if (debug & DEBUG_MISC)
 			error_message(_("Can't run slrnface: Not running in a xterm."));
 #	endif /* DEBUG */
 		return;
+	}
 #endif /* HAVE_IS_XTERM */
 
 	/*
@@ -105,8 +105,8 @@ slrnface_start(
 	}
 	pathlen = strlen(ptr) + strlen("/.slrnfaces/") + strlen(u.nodename) + 30;
 	fifo = my_malloc(pathlen);
-	sprintf(fifo, "%s/.slrnfaces", ptr);
-	if (mkdir(fifo, 0700)) {	/* TODO: use my_mkdir() */
+	snprintf(fifo, pathlen, "%s/.slrnfaces", ptr);
+	if (my_mkdir(fifo, (mode_t) S_IRWXU)) {
 		if (errno != EEXIST) {
 			perror_message(_("Can't run slrnface: failed to create %s"), fifo);
 			free(fifo);
@@ -115,8 +115,8 @@ slrnface_start(
 	} else {
 		FILE *fp;
 
-		/* We'll abuse fifo filename memory here. It's long enough. */
-		sprintf(fifo, "%s/.slrnfaces/README", ptr);
+		/* We abuse fifo filename memory here. It is long enough. */
+		snprintf(fifo, pathlen, "%s/.slrnfaces/README", ptr);
 		if ((fp = fopen(fifo, "w")) != NULL) {
 			fputs(_("This directory is used to create named pipes for communication between\n"
 "slrnface and its parent process. It should normally be empty because\n"

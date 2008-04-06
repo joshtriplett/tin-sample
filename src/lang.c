@@ -3,7 +3,7 @@
  *  Module    : lang.c
  *  Author    : I. Lea
  *  Created   : 1991-04-01
- *  Updated   : 2008-01-10
+ *  Updated   : 2008-04-23
  *  Notes     :
  *
  * Copyright (c) 1991-2008 Iain Lea <iain@bricbrac.de>
@@ -941,7 +941,7 @@ Warning: Posting is in %s and contains characters which are not\n\
 	constext txt_caching_off[] = N_("Try cache_overview_files to speed up things.\n");
 	constext txt_caching_on[] = N_("Tin will use local index files instead.\n");
 	constext txt_cannot_get_nntp_server_name[] = N_("Cannot find NNTP server name");
-	constext txt_connecting_port[] = N_("Connecting to %s:%d...");
+	constext txt_connecting_port[] = N_("Connecting to %s:%u...");
 	constext txt_disconnecting[] = N_("Disconnecting from server...\n");
 	constext txt_error_wrong_newsgroupname_in_group_response[] = N_("Wrong newsgroup name in response of GROUP command, %s for %s");
 	constext txt_failed_to_connect_to_server[] = N_("Failed to connect to NNTP server %s. Exiting...");

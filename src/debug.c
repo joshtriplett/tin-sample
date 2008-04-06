@@ -3,7 +3,7 @@
  *  Module    : debug.c
  *  Author    : I. Lea
  *  Created   : 1991-04-01
- *  Updated   : 2008-03-10
+ *  Updated   : 2008-04-23
  *  Notes     : debug routines
  *
  * Copyright (c) 1991-2008 Iain Lea <iain@bricbrac.de>
@@ -43,9 +43,6 @@
 #	ifndef NEWSRC_H
 #		include "newsrc.h"
 #	endif /* !NEWSRC_H */
-#	ifndef TCURSES_H
-#		include "tcurses.h"
-#	endif /* !TCURSES_H */
 #endif /* DEBUG */
 
 int debug;
@@ -56,6 +53,7 @@ int debug;
  */
 static void debug_print_attributes(struct t_attribute *attr, FILE *fp);
 static void debug_print_filter(FILE *fp, int num, struct t_filter *the_filter);
+static void debug_print_newsrc(struct t_newsrc *NewSrc, FILE *fp);
 
 
 /*
@@ -167,7 +165,7 @@ debug_print_active(
 				group->spooldir);
 			fprintf(fp, "count=[%4ld] max=[%4ld] min=[%4ld] mod=[%c]\n",
 				group->count, group->xmax, group->xmin, group->moderated);
-			fprintf(fp, " nxt=[%4d] hash=[%ld]  description=[%s]\n", group->next,
+			fprintf(fp, " nxt=[%4d] hash=[%lu]  description=[%s]\n", group->next,
 				hash_groupname(group->name), BlankIfNull(group->description));
 #	ifdef DEBUG
 			if (debug & DEBUG_NEWSRC)
@@ -227,7 +225,7 @@ debug_print_malloc(
 {
 	FILE *fp;
 	char file[PATH_LEN];
-	static int total = 0;
+	static size_t total = 0;
 
 	if (debug & DEBUG_MEM) {
 		joinpath(file, sizeof(file), TMPDIR, "MALLOC");
@@ -235,9 +233,9 @@ debug_print_malloc(
 			total += size;
 			/* sometimes size_t is long */
 			if (is_malloc)
-				fprintf(fp, "%10s:%-4d Malloc  %6ld. Total %d\n", xfile, line, (long) size, total);
+				fprintf(fp, "%10s:%-4d Malloc  %6lu. Total %lu\n", xfile, line, (unsigned long) size, (unsigned long) total);
 			else
-				fprintf(fp, "%10s:%-4d Realloc %6ld. Total %d\n", xfile, line, (long) size, total);
+				fprintf(fp, "%10s:%-4d Realloc %6lu. Total %lu\n", xfile, line, (unsigned long) size, (unsigned long) total);
 			fchmod(fileno(fp), (S_IRUGO|S_IWUGO));
 			fclose(fp);
 		}
@@ -380,30 +378,32 @@ debug_print_bitmap(
 		return;
 
 	joinpath(file, sizeof(file), TMPDIR, "BITMAP");
-	if ((fp = fopen(file, "a+")) != NULL) {
-		fprintf(fp, "\nActive: Group=[%s] sub=[%c] min=[%ld] max=[%ld] count=[%ld] num_unread=[%ld]\n",
-			group->name, SUB_CHAR(group->subscribed),
-			group->xmin, group->xmax, group->count,
-			group->newsrc.num_unread);
-		if (art != NULL) {
-			fprintf(fp, "art=[%5ld] tag=[%s] kill=[%s] selected=[%s] subj=[%s]\n",
-				art->artnum,
-				bool_unparse(art->tagged),
-				bool_unparse(art->killed),
-				bool_unparse(art->selected),
-				art->subject);
-			fprintf(fp, "thread=[%d]  prev=[%d]  status=[%s]\n",
-				art->thread, art->prev,
-				(art->status == ART_READ ? "READ" : "UNREAD"));
+	if (group != NULL) {
+		if ((fp = fopen(file, "a+")) != NULL) {
+			fprintf(fp, "\nActive: Group=[%s] sub=[%c] min=[%ld] max=[%ld] count=[%ld] num_unread=[%ld]\n",
+				group->name, SUB_CHAR(group->subscribed),
+				group->xmin, group->xmax, group->count,
+				group->newsrc.num_unread);
+			if (art != NULL) {
+				fprintf(fp, "art=[%5ld] tag=[%s] kill=[%s] selected=[%s] subj=[%s]\n",
+					art->artnum,
+					bool_unparse(art->tagged),
+					bool_unparse(art->killed),
+					bool_unparse(art->selected),
+					art->subject);
+				fprintf(fp, "thread=[%d]  prev=[%d]  status=[%s]\n",
+					art->thread, art->prev,
+					(art->status == ART_READ ? "READ" : "UNREAD"));
+			}
+			debug_print_newsrc(&group->newsrc, fp);
 		}
-		debug_print_newsrc(&group->newsrc, fp);
 		fchmod(fileno(fp), (S_IRUGO|S_IWUGO));
 		fclose(fp);
 	}
 }
 
 
-void
+static void
 debug_print_newsrc(
 	struct t_newsrc *lnewsrc,
 	FILE *fp)

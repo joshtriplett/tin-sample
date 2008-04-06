@@ -3,7 +3,7 @@
  *  Module    : config.c
  *  Author    : I. Lea
  *  Created   : 1991-04-01
- *  Updated   : 2008-03-14
+ *  Updated   : 2008-04-23
  *  Notes     : Configuration file routines
  *
  * Copyright (c) 1991-2008 Iain Lea <iain@bricbrac.de>
@@ -73,7 +73,7 @@ read_config_file(
 {
 	FILE *fp;
 	char buf[LEN], tmp[LEN];
-	int upgrade = RC_CHECK;
+	enum rc_state upgrade = RC_CHECK;
 
 	if ((fp = fopen(file, "r")) == NULL)
 		return FALSE;
@@ -1830,7 +1830,7 @@ read_server_config(
 	char file[PATH_LEN];
 	char newnews_info[LEN];
 	char serverdir[PATH_LEN];
-	int upgrade = RC_CHECK;
+	enum rc_state upgrade = RC_CHECK;
 
 #ifdef NNTP_ABLE
 	if (read_news_via_nntp && !read_saved_news && nntp_tcp_port != IPPORT_NNTP)

@@ -3,7 +3,7 @@
  *  Module    : header.c
  *  Author    : Urs Janssen <urs@tin.org>
  *  Created   : 1997-03-10
- *  Updated   : 2007-10-04
+ *  Updated   : 2008-04-29
  *
  * Copyright (c) 1997-2008 Urs Janssen <urs@tin.org>
  * All rights reserved.
@@ -59,7 +59,7 @@ get_host_name(
 #endif /* HAVE_GETHOSTNAME */
 #ifdef HAVE_SYS_UTSNAME_H
 	if (!*hostname)
-		strncpy(hostname, system_info.nodename, sizeof(hostname) - 1);
+		my_strncpy(hostname, system_info.nodename, sizeof(hostname) - 1);
 #endif /* HAVE_SYS_UTSNAME_H */
 	if (!*hostname) {
 		if ((ptr = getenv("HOST")) != NULL)
@@ -142,7 +142,7 @@ get_fqdn(
 	if (host) {
 		if (strchr(host, '.'))
 			return host;
-		strncpy(name, host, sizeof(name) - 1);
+		my_strncpy(name, host, sizeof(name) - 1);
 	} else {
 #	ifdef HAVE_GETHOSTNAME
 		if (gethostname(name, sizeof(name) - 1))

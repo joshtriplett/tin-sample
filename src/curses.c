@@ -933,6 +933,7 @@ input_pending(
 {
 #if 0
 	int ch;
+
 	nodelay(stdscr, TRUE);
 	if ((ch = getch()) != ERR)
 		ungetch(ch);
