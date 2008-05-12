@@ -1,5 +1,5 @@
---- tin-1.7.3+20031209.orig/doc/tin.defaults
-+++ tin-1.7.3+20031209/doc/tin.defaults
+--- a/doc/tin.defaults
++++ b/doc/tin.defaults
 @@ -27,7 +27,7 @@
  #              files
  # common values are /usr/lib/news, /var/lib/news, /usr/local/lib/news
@@ -76,3 +76,27 @@
  #
 -#subscriptionsfile=/usr/lib/news/subscriptions
 +#subscriptionsfile=/var/lib/news/subscriptions
+--- a/src/xref.c
++++ b/src/xref.c
+@@ -75,8 +75,7 @@ open_overview_fmt_fp(
+ 		char filename[PATH_LEN];
+ 
+ 		/* TODO make configurable via tin.defaults */
+-		joinpath(filename, sizeof(filename), libdir, OVERVIEW_FMT);
+-		return (fopen(filename, "r"));
++		return (fopen("/etc/news/" OVERVIEW_FMT, "r"));
+ #ifdef NNTP_ABLE
+ 	}
+ #endif /* NNTP_ABLE */
+--- a/src/init.c
++++ b/src/init.c
+@@ -694,8 +694,7 @@ init_selfinfo(
+ 	if (!*default_organization) {
+ 		char buf[LEN], filename[PATH_LEN];
+ 
+-		joinpath(filename, sizeof(filename), libdir, "organization");
+-		if ((fp = fopen(filename, "r")) != NULL) {
++		if ((fp = fopen("/etc/news/organization", "r")) != NULL) {
+ 			if (fgets(buf, (int) sizeof(buf), fp) != NULL) {
+ 				ptr = strrchr(buf, '\n');
+ 				if (ptr != NULL)

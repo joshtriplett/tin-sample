@@ -40,16 +40,3 @@
  	FALSE,		/* default_filter_kill_case */
  	FALSE,		/* default_filter_kill_expire */
  	TRUE,		/* default_filter_kill_global */
-@@ -696,8 +696,12 @@ init_selfinfo(
- 	if (!*default_organization) {
- 		char buf[LEN], filename[PATH_LEN];
- 
-+#ifdef NOT_DEBIAN
- 		joinpath(filename, sizeof(filename), libdir, "organization");
- 		if ((fp = fopen(filename, "r")) != NULL) {
-+#else
-+		if ((fp = fopen("/etc/news/organization", "r")) != NULL) {
-+#endif
- 			if (fgets(buf, (int) sizeof(buf), fp) != NULL) {
- 				ptr = strrchr(buf, '\n');
- 				if (ptr != NULL)

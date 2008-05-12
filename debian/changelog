@@ -1,3 +1,11 @@
+tin (1:1.9.3+rel-1) unstable; urgency=medium
+
+  * New upstream release.
+  * Stop building with -O2 on m68k. (Closes: #478721)
+  * Link the package with libuu for yenc support.
+
+ -- Marco d'Itri <md@linux.it>  Mon, 12 May 2008 23:53:26 +0200
+
 tin (1:1.9.3+20080326-1) unstable; urgency=low
 
   * New upstream snapshot.

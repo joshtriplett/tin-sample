@@ -6,13 +6,12 @@ include /usr/share/quilt/quilt.make
 
 D := $(CURDIR)/debian/tin
 
-DOCS := INSTALL WHATSNEW TODO auth.txt filtering keymap.sample \
-	reading-mail.txt umlaute.txt umlauts.txt tools.txt
-
-# Workaround for #323016. Suboptimal, but who cares about m68k anyway? :-)
-DEB_BUILD_ARCH := $(shell dpkg-architecture -qDEB_BUILD_ARCH)
-ifeq ($(DEB_BUILD_ARCH),m68k)
-DEBOPTS := CFLAGS=-O1
+DEB_HOST_GNU_TYPE  ?= $(shell dpkg-architecture -qDEB_HOST_GNU_TYPE)
+DEB_BUILD_GNU_TYPE ?= $(shell dpkg-architecture -qDEB_BUILD_GNU_TYPE)
+ifeq ($(DEB_BUILD_GNU_TYPE),$(DEB_HOST_GNU_TYPE))
+  configure_flags += --build $(DEB_HOST_GNU_TYPE)
+else
+  configure_flags += --build $(DEB_BUILD_GNU_TYPE) --host $(DEB_HOST_GNU_TYPE)
 endif
 
 clean: unpatch
@@ -23,7 +22,8 @@ clean: unpatch
 configure: debian/.stamp-configure
 debian/.stamp-configure: $(QUILT_STAMPFN)
 	dh_testdir
-	CFLAGS='-g -O2' ./configure \
+	ac_cv_header_unicode_unorm_h=no \
+	./configure $(configure_flags) \
 		--prefix=/usr --mandir=\$${prefix}/share/man \
 		--with-pcre=/usr --with-domain-name=/etc/mailname \
 		--with-mailbox=/var/mail \
@@ -43,7 +43,7 @@ debian/.stamp-configure: $(QUILT_STAMPFN)
 build: debian/.stamp-build
 debian/.stamp-build: debian/.stamp-configure
 	dh_testdir
-	cd src && $(MAKE) $(DEBOPTS)
+	cd src && $(MAKE)
 	touch $@
 
 binary-arch: debian/.stamp-build checkroot
@@ -57,7 +57,8 @@ binary-arch: debian/.stamp-build checkroot
 	cp tools/* $D/usr/share/doc/tin/tools/
 
 	dh_installmenu
-	dh_installdocs $(addprefix doc/,$(DOCS))
+	dh_installdocs
+	dh_installexamples
 	dh_installman doc/tin.1 doc/tin.5 
 	dh_link usr/share/man/man1/tin.1.gz usr/share/man/man1/rtin.1.gz \
 		usr/bin/tin usr/bin/rtin

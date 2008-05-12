@@ -1,9 +1,0 @@
-diff -ruN tin-1.7.4.orig/configure tin-1.7.4/configure
---- tin-1.7.4.orig/configure	2004-02-25 10:59:03.000000000 +0100
-+++ tin-1.7.4/configure	2004-02-27 16:45:16.000000000 +0100
-@@ -1,4 +1,4 @@
--#! /bin/sh
-+#! /bin/bash
- 
- # Guess values for system-dependent variables and create Makefiles.
- # Generated automatically using autoconf version 2.13.20020210 

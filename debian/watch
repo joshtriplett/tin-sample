@@ -1,0 +1,3 @@
+version=3
+opts=dversionmangle=s/r$// \
+ftp://ftp.tin.org/pub/news/clients/tin/v1.9/tin-([\d\.]+)\.tar\.gz

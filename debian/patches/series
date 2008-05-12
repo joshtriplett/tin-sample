@@ -1,10 +1,13 @@
-zzz_fix_configure_bashism
-use_default_pgp_key
-update_paths_doc
-po_no_rebuild
-misc_autoconf.h
-better_tin.defaults
-better_built_in_defaults
-allow_minor_forgeries
+# Debian integration
 use_system_libcanlock
-fix_manpage_typo
+fix_path_names
+update_paths_doc
+misc_autoconf.h
+po_no_rebuild
+
+# changed defaults
+use_default_pgp_key
+allow_minor_forgeries
+better_built_in_defaults
+
+# bug fixes
