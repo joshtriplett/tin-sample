@@ -3,10 +3,10 @@
  *  Module    : inews.c
  *  Author    : I. Lea
  *  Created   : 1992-03-17
- *  Updated   : 2008-04-23
+ *  Updated   : 2009-01-07
  *  Notes     : NNTP built in version of inews
  *
- * Copyright (c) 1991-2008 Iain Lea <iain@bricbrac.de>
+ * Copyright (c) 1991-2009 Iain Lea <iain@bricbrac.de>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -134,7 +134,7 @@ submit_inews(
 
 	if ((from_name[0] == '\0') || (from_name[6] == '\0')) {
 		/* we could silently add a From: line here if we want to... */
-		error_message(_(txt_error_no_from));
+		error_message(2, _(txt_error_no_from));
 		fclose(fp);
 		return ret_code;
 	}
@@ -150,8 +150,8 @@ submit_inews(
 	 *
 	 * check for valid From: line
 	 */
-	if (!tinrc.post_8bit_header && GNKSA_OK != gnksa_check_from(from_name + 6)) { /* error in address */
-		error_message(_(txt_invalid_from), from_name + 6);
+	if (!(group ? group->attribute->post_8bit_header : tinrc.post_8bit_header) && GNKSA_OK != gnksa_check_from(from_name + 6)) { /* error in address */
+		error_message(2, _(txt_invalid_from), from_name + 6);
 		fclose(fp);
 		return ret_code;
 	}
@@ -165,14 +165,14 @@ submit_inews(
 			sender = sender_needed(from_name + 6, group, ptr);
 			switch (sender) {
 				case -2: /* can't build Sender: */
-					error_message(_(txt_invalid_sender), ptr);
+					error_message(2, _(txt_invalid_sender), ptr);
 					fclose(fp);
 					return ret_code;
 					/* NOTREACHED */
 					break;
 
 				case -1: /* illegal From: (can't happen as check is done above already) */
-					error_message(_(txt_invalid_from), from_name + 6);
+					error_message(2, _(txt_invalid_from), from_name + 6);
 					fclose(fp);
 					return ret_code;
 					/* NOTREACHED */
@@ -183,7 +183,7 @@ submit_inews(
 #		ifdef CHARSET_CONVERSION
 					buffer_to_network(sender_hdr, group ? group->attribute->mm_network_charset : tinrc.mm_network_charset);
 #		endif /* CHARSET_CONVERSION */
-					if (!tinrc.post_8bit_header) {
+					if (!(group ? group->attribute->post_8bit_header : tinrc.post_8bit_header)) {
 						char *p;
 #		ifdef CHARSET_CONVERSION
 						p = rfc1522_encode(sender_hdr, group ? txt_mime_charsets[group->attribute->mm_network_charset] : txt_mime_charsets[tinrc.mm_network_charset], ismail);
@@ -207,7 +207,7 @@ submit_inews(
 		 * Receive CONT_POST or ERROR response code from NNTP server
 		 */
 		if (nntp_command("POST", CONT_POST, response, sizeof(response)) == NULL) {
-			error_message("%s", response);
+			error_message(2, "%s", response);
 			fclose(fp);
 			return ret_code;
 		}
@@ -316,6 +316,8 @@ submit_inews(
 		 * Don't leave this loop if we only tried once to post and an
 		 * authentication request was received. Leave loop on any other
 		 * response or any further authentication requests.
+		 *
+		 * TODO: add 483 (RFC 3977) support
 		 */
 		if (((respcode == ERR_NOAUTH) || (respcode == NEED_AUTHINFO)) && (auth_error++ < 1) && (authenticate(nntp_server, userid, FALSE)))
 			leave_loop = FALSE;
@@ -332,7 +334,7 @@ submit_inews(
 	 */
 	if (respcode != OK_POSTED) {
 		/* TODO: -> lang.c */
-		error_message("Posting failed (%s)", str_trim(response));
+		error_message(2, "Posting failed (%s)", str_trim(response));
 		return ret_code;
 	}
 
@@ -387,10 +389,10 @@ submit_news_file(
 
 	a_message_id[0] = '\0';
 
-	fcc = checknadd_headers(name);
+	fcc = checknadd_headers(name, group);
 	FreeIfNeeded(fcc); /* we don't use it at the moment */
 
-	rfc15211522_encode(name, txt_mime_encodings[tinrc.post_mime_encoding], group, tinrc.post_8bit_header, ismail);
+	rfc15211522_encode(name, txt_mime_encodings[(group ? group->attribute->post_mime_encoding : tinrc.post_mime_encoding)], group, (group ? group->attribute->post_8bit_header : tinrc.post_8bit_header), ismail);
 
 #ifdef NNTP_INEWS
 	if (read_news_via_nntp && !read_saved_news && 0 == strcasecmp(tinrc.inews_prog, INTERNAL_CMD))

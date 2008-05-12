@@ -3,10 +3,10 @@
  *  Module    : save.c
  *  Author    : I. Lea & R. Skrenta
  *  Created   : 1991-04-01
- *  Updated   : 2008-04-25
+ *  Updated   : 2009-01-14
  *  Notes     :
  *
- * Copyright (c) 1991-2008 Iain Lea <iain@bricbrac.de>, Rich Skrenta <skrenta@pbm.com>
+ * Copyright (c) 1991-2009 Iain Lea <iain@bricbrac.de>, Rich Skrenta <skrenta@pbm.com>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -161,9 +161,6 @@ check_start_save_any_news(
 		if (group->bogus || !group->subscribed)
 			continue;
 
-		if (!index_group(group))
-			continue;
-
 		if (function == MAIL_ANY_NEWS || function == SAVE_ANY_NEWS) {
 			if (!group->attribute->batch_save)
 				continue;
@@ -177,7 +174,7 @@ check_start_save_any_news(
 			if (function == SAVE_ANY_NEWS) {
 				char tmp[PATH_LEN];
 
-				if (!strfpath(group->attribute->savedir, tmp, sizeof(tmp), group))
+				if (!strfpath(tinrc.savedir, tmp, sizeof(tmp), group))
 					joinpath(tmp, sizeof(tmp), homedir, DEFAULT_SAVEDIR);
 
 				make_group_path(group->name, group_path);
@@ -185,6 +182,9 @@ check_start_save_any_news(
 				create_path(path);	/* TODO error handling */
 			}
 		}
+
+		if (!index_group(group))
+			continue;
 
 		/*
 		 * For each article in this group...
@@ -754,7 +754,7 @@ post_process_uud(
 			my_printf(cCRLF);
 
 			/* item->mimetype seems not to be available for uudecoded files etc */
-			if (tinrc.post_process_view) {
+			if (curr_group->attribute->post_process_view) {
 				joinpath(path, sizeof(path), file_out_dir, item->filename);
 				view_file(path, strrchr(path, DIRSEP) + 1);
 			}
@@ -907,7 +907,7 @@ post_process_uud(
 				my_printf(_(txt_uu_success), filename);
 				my_printf(cCRLF);
 				sum_file(path, filename);
-				if (tinrc.post_process_view)
+				if (curr_group->attribute->post_process_view)
 					view_file(path, filename);
 				state = INITIAL;
 				continue;
@@ -1115,7 +1115,7 @@ print_art_seperator_line(
 {
 #ifdef DEBUG
 	if (debug & DEBUG_MISC)
-		error_message("Mailbox=[%d], mailbox_format=[%s]", is_mailbox, txt_mailbox_formats[tinrc.mailbox_format]);
+		error_message(2, "Mailbox=[%d], mailbox_format=[%s]", is_mailbox, txt_mailbox_formats[tinrc.mailbox_format]);
 #endif /* DEBUG */
 
 	fprintf(fp, "%s", (is_mailbox && !strcasecmp(txt_mailbox_formats[tinrc.mailbox_format], "MMDF")) ? MMDFHDRTXT : "\n");
@@ -1210,7 +1210,7 @@ decode_save_one(
 	}
 
 	if (!(create_path(savepath))) {
-		error_message(_(txt_cannot_open_for_saving), savepath);
+		error_message(2, _(txt_cannot_open_for_saving), savepath);
 		return FALSE;
 	}
 
@@ -1218,7 +1218,7 @@ decode_save_one(
 	 * Decode/save the attachment
 	 */
 	if ((fp = open_save_filename(savepath, FALSE)) == NULL) {
-		error_message(_(txt_cannot_open_for_saving), savepath);
+		error_message(2, _(txt_cannot_open_for_saving), savepath);
 		return FALSE;
 	}
 
@@ -1263,7 +1263,7 @@ decode_save_one(
 	 * View the attachment
 	 */
 	if (postproc) {
-		if (tinrc.post_process_view) {
+		if (curr_group->attribute->post_process_view) {
 			start_viewer(part, savepath);
 			my_printf(cCRLF);
 		}
@@ -1280,7 +1280,7 @@ decode_save_one(
 	/*
 	 * Save the attachment
 	 */
-	if (postproc && tinrc.post_process_view) {
+	if (postproc && curr_group->attribute->post_process_view) {
 		my_printf(_(txt_uu_success), savepath);
 		my_printf(cCRLF);
 	}

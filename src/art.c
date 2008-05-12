@@ -3,10 +3,10 @@
  *  Module    : art.c
  *  Author    : I.Lea & R.Skrenta
  *  Created   : 1991-04-01
- *  Updated   : 2008-04-27
+ *  Updated   : 2009-01-15
  *  Notes     :
  *
- * Copyright (c) 1991-2008 Iain Lea <iain@bricbrac.de>, Rich Skrenta <skrenta@pbm.com>
+ * Copyright (c) 1991-2009 Iain Lea <iain@bricbrac.de>, Rich Skrenta <skrenta@pbm.com>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -57,11 +57,11 @@ int top_art = 0;				/* # of articles in arts[] */
 /*
  * Local prototypes
  */
-static FILE *open_art_header(long art, long *next);
+static FILE *open_art_header(char *groupname, long art, long *next);
 static FILE *open_xover_fp(struct t_group *group, const char *mode, long min, long max, t_bool local);
 static char *find_nov_file(struct t_group *group, int mode);
 static char *print_date(time_t secs);
-static char *print_from(struct t_article *article);
+static char *print_from(struct t_group *group, struct t_article *article);
 static int artnum_comp(t_comptype p1, t_comptype p2);
 static int base_comp(t_comptype p1, t_comptype p2);
 static int date_comp_asc(t_comptype p1, t_comptype p2);
@@ -135,7 +135,7 @@ find_base(
 		if (grpmenu.max >= max_art)
 			expand_art();
 
-		if (group->attribute->show_only_unread) {
+		if (group->attribute->show_only_unread_arts) {
 			if (arts[i].status != ART_READ)
 				base[grpmenu.max++] = i;
 			else {
@@ -206,7 +206,7 @@ setup_hard_base(
 	/*
 	 * If reading with NNTP, issue a LISTGROUP
 	 */
-	if (read_news_via_nntp && group->type == GROUP_TYPE_NEWS) {
+	if (read_news_via_nntp && !read_saved_news && group->type == GROUP_TYPE_NEWS) {
 #ifdef NNTP_ABLE
 		char buf[NNTP_STRLEN];
 		FILE *fp;
@@ -215,7 +215,8 @@ setup_hard_base(
 		/*
 		 * Some nntp servers are broken and need an extra GROUP command
 		 * (reported by reorx@irc.pl). This affects (old?) versions of
-		 * nntpcache and leafnode. Usually this should not be needed.
+		 * nntpcache, leafnode and SurgeNews. Usually this should not be
+		 * needed.
 		 */
 		snprintf(buf, sizeof(buf), "GROUP %s", group->name);
 		if (nntp_command(buf, OK_GROUP, NULL, 0) == NULL)
@@ -224,6 +225,13 @@ setup_hard_base(
 
 		/*
 		 * See if LISTGROUP works
+		 *
+		 * think about something like:
+		 * if (nntp_caps.type == CAPABILITIES && tinrc.getart_limit != 0) {
+		 *    calculate some usefull min vals, eg. if getart_limit < 0
+		 *    use lowest unread art + 2*getart_limit (to include holes)
+		 *    snprintf(buf, sizeof(buf), "LISTGROUP %s %d-%d, group->name, min, max);
+		 * }
 		 */
 		snprintf(buf, sizeof(buf), "LISTGROUP %s", group->name);
 		if ((fp = nntp_command(buf, OK_GROUP, NULL, 0)) != NULL) {
@@ -294,7 +302,7 @@ setup_hard_base(
 		make_base_group_path(group->spooldir, group->name, group_path, sizeof(group_path));
 
 		if (access(group_path, R_OK) != 0) {
-			error_message(_(txt_not_exist));
+			error_message(2, _(txt_not_exist));
 			return -1;
 		}
 
@@ -439,6 +447,12 @@ index_group(
 	 * Add any articles to arts[] that are new or were killed
 	 */
 	if (total > 0) {
+		/*
+		 * TODO
+		 * his doesn't honor tinrc.getart_limit
+		 * something like (tinrc.getart_limit ? min : last_read_article)
+		 * as 3rd arg to read_art_headers() might solve this
+		 */
 		if ((changed += read_art_headers(group, total, last_read_article)) == -1)
 			return FALSE;		/* user aborted indexing */
 	}
@@ -538,12 +552,14 @@ find_first_unread(
  */
 static FILE *
 open_art_header(
+	char *groupname,
 	long art,
 	long *next)
 {
 	char buf[NNTP_STRLEN];
 #ifdef NNTP_ABLE
 	FILE *fp;
+	int i;
 
 	if (read_news_via_nntp && CURR_GROUP.type == GROUP_TYPE_NEWS) {
 		/*
@@ -562,8 +578,32 @@ open_art_header(
 		 * HEAD failed, try to find NEXT
 		 * Should return "223 artno message-id more text...."
 		 */
-		if (nntp_command("NEXT", OK_NOTEXT, buf, sizeof(buf)))
-			*next = atoi(buf);		/* Set next art number */
+		i = new_nntp_command("NEXT", OK_NOTEXT, buf, sizeof(buf));
+		switch (i) {
+			case OK_NOTEXT:
+				*next = atoi(buf);		/* Set next art number */
+				break;
+
+#	ifndef BROKEN_LISTGROUP
+			/*
+			 * might happen if LISTGROUP doesn't select group, but
+			 * we are not -DBROKEN_LISTGROUP
+			 */
+			case ERR_NCING:
+				snprintf(buf, sizeof(buf), "GROUP %s", groupname);
+				if (nntp_command(buf, OK_GROUP, NULL, 0) == NULL)
+					return NULL;
+				snprintf(buf, sizeof(buf), "HEAD %ld", art);
+				if ((fp = nntp_command(buf, OK_HEAD, NULL, 0)) != NULL)
+					return fp;
+				if (nntp_command("NEXT", OK_NOTEXT, buf, sizeof(buf)))
+					*next = atoi(buf);
+				break;
+#	endif /*! BROKEN_LISTGROUP */
+
+			default:
+				break;
+		}
 
 		return NULL;
 	}
@@ -629,7 +669,7 @@ read_art_headers(
 		/*
 		 * Try and open the article
 		 */
-		if ((fp = open_art_header(art, &head_next)) == NULL)
+		if ((fp = open_art_header(group->name, art, &head_next)) == NULL)
 			continue;
 
 		/*
@@ -652,11 +692,12 @@ read_art_headers(
 
 		if (!res) {
 #ifdef DEBUG
-			char buf[PATH_LEN];
+			if (debug & DEBUG_NNTP) {
+				char buf[PATH_LEN];
 
-			snprintf(buf, sizeof(buf), "FAILED parse_headers(%ld)", art);
-			if (debug & DEBUG_NNTP)
+				snprintf(buf, sizeof(buf), "FAILED parse_headers(%ld)", art);
 				debug_print_file("NNTP", "read_art_headers() %s", buf);
+			}
 #endif /* DEBUG */
 			continue;
 		}
@@ -738,6 +779,7 @@ thread_by_subject(
 #endif /* 0 */
 }
 
+
 /*
  * This Threading algorithm threads articles into 'buckets' where each bucket
  * contains all the articles which match the root article's subject line to
@@ -809,6 +851,7 @@ thread_by_percentage(
 		}
 	}
 }
+
 
 /*
  * This was brought over from tags.c, however this version doesn't not
@@ -1037,12 +1080,12 @@ make_threads(
 	t_bool rethread)
 {
 	if (!cmd_line && !batch_mode)
-		info_message((group->attribute->thread_arts == THREAD_NONE ? _(txt_unthreading_arts) : _(txt_threading_arts)));
+		info_message((group->attribute->thread_articles == THREAD_NONE ? _(txt_unthreading_arts) : _(txt_threading_arts)));
 
 #ifdef DEBUG
 	if (debug & DEBUG_MISC)
-		error_message("rethread=[%d]  thread_arts=[%d]  attr_thread_arts=[%d]",
-				rethread, tinrc.thread_articles, group->attribute->thread_arts);
+		error_message(2, "rethread=[%d]  thread_articles=[%d]  attr_thread_articles=[%d]",
+				rethread, tinrc.thread_articles, group->attribute->thread_articles);
 #endif /* DEBUG */
 
 	/*
@@ -1051,7 +1094,7 @@ make_threads(
 	 * on arts[] and so the base messages under all threading systems
 	 * will be sorted in this way.
 	 */
-	sort_arts(group->attribute->sort_art_type);
+	sort_arts(group->attribute->sort_article_type);
 
 	/*
 	 * Reset all the ptrs to articles following the above sort
@@ -1062,7 +1105,7 @@ make_threads(
 	 * The threading pointers need to be reset if re-threading
 	 * If using ref threading, revector the links back to the articles
 	 */
-	if (rethread || group->attribute->thread_arts) {
+	if (rethread || group->attribute->thread_articles) {
 		int i;
 
 		for_each_art(i) {
@@ -1091,7 +1134,7 @@ make_threads(
 	/*
 	 * Do the right thing according to the threading strategy
 	 */
-	switch (group->attribute->thread_arts) {
+	switch (group->attribute->thread_articles) {
 		case THREAD_NONE:
 			break;
 
@@ -1407,7 +1450,7 @@ read_overview(
 	int expired = 0;
 	long artnum;
 	struct t_article *art;
-	size_t over_fields;
+	size_t over_fields = 1;
 
 	/*
 	 * open the overview file (whether it be local or via nntp)
@@ -1421,24 +1464,28 @@ read_overview(
 	group_msg = fmt_string(_(txt_group), cCOLS - strlen(_(txt_group)) + 2 - 3, group->name);
 
 	/* get the number of fields per over-record as announced by LIST OVERVIEW.FMT */
-	for (over_fields = 1; ofmt[over_fields].name; over_fields++)
-		;
+	if (ofmt) {
+		for (; ofmt[over_fields].name; over_fields++)
+			;
+	}
 	if (!--over_fields) { /* e.g. nntp_caps.type == CAPABILITIES && !nntp_caps.list_overview_fmt -> assume defaults */
 		ofmt = my_realloc(ofmt, sizeof(struct t_overview_fmt) * (8 + 1));
+		ofmt[0].type = OVER_T_INT;
+		ofmt[0].name = my_strdup("Artnum:");
 		ofmt[1].type = OVER_T_STRING;
-		ofmt[1].name = strdup("Subject:");
+		ofmt[1].name = my_strdup("Subject:");
 		ofmt[2].type = OVER_T_STRING;
-		ofmt[2].name = strdup("From:");
+		ofmt[2].name = my_strdup("From:");
 		ofmt[3].type = OVER_T_STRING;
-		ofmt[3].name = strdup("Date:");
+		ofmt[3].name = my_strdup("Date:");
 		ofmt[4].type = OVER_T_STRING;
-		ofmt[4].name = strdup("Message-ID:");
+		ofmt[4].name = my_strdup("Message-ID:");
 		ofmt[5].type = OVER_T_STRING;
-		ofmt[5].name = strdup("References:");
+		ofmt[5].name = my_strdup("References:");
 		ofmt[6].type = OVER_T_INT;
-		ofmt[6].name = strdup("Bytes:");
+		ofmt[6].name = my_strdup("Bytes:");
 		ofmt[7].type = OVER_T_INT;
-		ofmt[7].name = strdup("Lines:");
+		ofmt[7].name = my_strdup("Lines:");
 		ofmt[8].type = OVER_T_ERROR;
 		ofmt[8].name = NULL;
 		over_fields = 7;
@@ -1502,7 +1549,7 @@ read_overview(
 			if (count > over_fields) {
 #ifdef DEBUG
 				if (debug & DEBUG_NNTP)
-					debug_print_file("NNTP", "OVER: %d Unexpected overview-field %d of %d: %s", artnum, count, over_fields, ptr);
+					debug_print_file("NNTP", "OVER(%d) Unexpected overview-field %d of %d: %s", artnum, count, over_fields, ptr);
 #endif	/* DEBUG */
 
 				/* "common error" Xref:full in overview-data but not in OVERVIEW.FTM */
@@ -1535,7 +1582,7 @@ read_overview(
 							art->subject = hash_str("");
 #ifdef DEBUG
 							if (debug & DEBUG_NNTP)
-								debug_print_file("NNTP", "OVER(%d) overview-field %s empty", artnum, ofmt[count].name);
+								debug_print_file("NNTP", "OVER(%d) empty overview-field %s", artnum, ofmt[count].name);
 #endif /* DEBUG */
 						}
 						continue;
@@ -1551,7 +1598,7 @@ read_overview(
 							art->from = hash_str("");
 #ifdef DEBUG
 							if (debug & DEBUG_NNTP)
-								debug_print_file("NNTP", "OVER(%d) overview-field %s empty", artnum, ofmt[count].name);
+								debug_print_file("NNTP", "OVER(%d) empty overview-field %s", artnum, ofmt[count].name);
 #endif /* DEBUG */
 						}
 						continue;
@@ -1561,7 +1608,7 @@ read_overview(
 						art->date = parsedate(ptr, (TIMEINFO *) 0);
 #ifdef DEBUG
 						if ((debug & DEBUG_NNTP) && art->date == (time_t) -1)
-							debug_print_file("NNTP", "OVER(%d) overview-field %s bogus: %s", artnum, ofmt[count].name, ptr);
+							debug_print_file("NNTP", "OVER(%d) bogus overview-field %s %s", artnum, ofmt[count].name, ptr);
 #endif /* DEBUG */
 						continue;
 					}
@@ -1573,7 +1620,7 @@ read_overview(
 							art->msgid = NULL;
 #ifdef DEBUG
 							if (debug & DEBUG_NNTP)
-								debug_print_file("NNTP", "OVER(%d) overview-field %s empty", artnum, ofmt[count].name);
+								debug_print_file("NNTP", "OVER(%d) empty overview-field %s", artnum, ofmt[count].name);
 #endif /* DEBUG */
 						}
 						continue;
@@ -1592,8 +1639,8 @@ read_overview(
 					if (!strcasecmp(ofmt[count].name, "Bytes:")) {
 						if (*ptr) {
 #ifdef DEBUG
-							if (!isdigit((unsigned char) *ptr))
-								debug_print_file("NNTP", "OVER(%d) overview field %d (%s) missmatch: %s", artnum, count, ofmt[count].name, ptr);
+							if ((debug & DEBUG_NNTP) && !isdigit((unsigned char) *ptr))
+									debug_print_file("NNTP", "OVER(%d) overview field %d (%s) missmatch: %s", artnum, count, ofmt[count].name, ptr);
 #endif /* DEBUG */
 						}
 						continue;
@@ -1606,7 +1653,8 @@ read_overview(
 							else {
 								art->line_count = 0;
 #ifdef DEBUG
-								debug_print_file("NNTP", "OVER(%d) overview field %d (%s) missmatch: %s", artnum, count, ofmt[count].name, ptr);
+								if (debug & DEBUG_NNTP)
+									debug_print_file("NNTP", "OVER(%d) overview field %d (%s) missmatch: %s", artnum, count, ofmt[count].name, ptr);
 #endif /* DEBUG */
 							}
 						} else
@@ -1623,7 +1671,7 @@ read_overview(
 							art->subject = hash_str("");
 #ifdef DEBUG
 							if (debug & DEBUG_NNTP)
-								debug_print_file("NNTP", "OVER(%d) overview-field %s empty", artnum, ofmt[count].name);
+								debug_print_file("NNTP", "OVER(%d) empty overview-field %s", artnum, ofmt[count].name);
 #endif /* DEBUG */
 						}
 						break;
@@ -1638,7 +1686,7 @@ read_overview(
 							art->from = hash_str("");
 #ifdef DEBUG
 							if (debug & DEBUG_NNTP)
-								debug_print_file("NNTP", "OVER(%d) overview-field %s empty", artnum, ofmt[count].name);
+								debug_print_file("NNTP", "OVER(%d) empty overview-field %s", artnum, ofmt[count].name);
 #endif /* DEBUG */
 						}
 						break;
@@ -1647,7 +1695,7 @@ read_overview(
 						art->date = parsedate(ptr, (TIMEINFO *) 0);
 #ifdef DEBUG
 						if ((debug & DEBUG_NNTP) && art->date == (time_t) -1)
-							debug_print_file("NNTP", "OVER(%d) overview-field %s bogus: %s", artnum, ofmt[count].name, ptr);
+							debug_print_file("NNTP", "OVER(%d) bogus overview-field %s %s", artnum, ofmt[count].name, ptr);
 #endif /* DEBUG */
 						break;
 
@@ -1658,7 +1706,7 @@ read_overview(
 							art->msgid = NULL;
 #ifdef DEBUG
 							if (debug & DEBUG_NNTP)
-								debug_print_file("NNTP", "OVER(%d) overview-field %s empty", artnum, ofmt[count].name);
+								debug_print_file("NNTP", "OVER(%d) empty overview-field %s", artnum, ofmt[count].name);
 #endif /* DEBUG */
 						}
 						break;
@@ -1673,7 +1721,7 @@ read_overview(
 					case 6:	/* :bytes || Bytes: */
 						if (*ptr) {
 #ifdef DEBUG
-							if (!isdigit((unsigned char) *ptr))
+							if ((debug & DEBUG_NNTP) && !isdigit((unsigned char) *ptr))
 								debug_print_file("NNTP", "OVER(%d) overview field %d (%s) missmatch: %s", artnum, count, ofmt[count].name, ptr);
 #endif /* DEBUG */
 						}
@@ -1686,7 +1734,8 @@ read_overview(
 							else {
 								art->line_count = 0;
 #ifdef DEBUG
-								debug_print_file("NNTP", "OVER(%d) overview field %d (%s) missmatch: %s", artnum, count, ofmt[count].name, ptr);
+								if (debug & DEBUG_NNTP)
+									debug_print_file("NNTP", "OVER(%d) overview field %d (%s) missmatch: %s", artnum, count, ofmt[count].name, ptr);
 #endif /* DEBUG */
 							}
 						} else
@@ -1706,7 +1755,7 @@ read_overview(
 #ifdef DEBUG
 					else {
 						if (debug & DEBUG_NNTP)
-							debug_print_file("NNTP", "OVER(%d) overview-field %s bogus: %s", artnum, ofmt[count].name, ptr);
+							debug_print_file("NNTP", "OVER(%d) bogus overview-field %s %s", artnum, ofmt[count].name, ptr);
 					}
 #endif /* DEBUG */
 				}
@@ -1738,33 +1787,66 @@ read_overview(
 #if defined(NNTP_ABLE) && defined(XHDR_XREF)
 	if (read_news_via_nntp && !read_saved_news && !xref_supported && nntp_caps.hdr_cmd) {
 		char cbuf[HEADER_LEN];
+		static t_bool found;
+		static t_bool first = TRUE;
 
-		snprintf(cbuf, sizeof(cbuf), "%s XREF %ld-%ld", nntp_caps.hdr_cmd, min, max);
-		group_msg = fmt_string("%s XREF loop", nntp_caps.hdr_cmd); /* TODO: find a better message, move to lang.c */
-		if ((fp = nntp_command(cbuf, OK_HEAD, NULL, 0)) != NULL) {
-			while ((ptr = tin_fgets(fp, FALSE)) != NULL) {
-				artnum = atol(ptr);
-				if (artnum <= 0 || artnum < group->xmin || artnum > group->xmax)
-					continue;
-				art = &arts[top_art];
-				set_article(art);
-				if (!art->xref && !strstr(ptr, "(none)")) {
-					if ((q = strchr(ptr, ' ')) == NULL) /* skip article number */
-						continue;
-					ptr = q;
-					while (*ptr && isspace((int) *ptr))
-						ptr++;
-					q = strchr(ptr, '\n');
-					if (q)
-						*q = '\0';
-					art->xref = my_strdup(ptr);
+		if (first) {
+			found = TRUE;
+			/*
+			 * TODO: do once a start and cache full result
+			 *       if "LIST HEADERS RANGE" failed try "LIST HEADERS"?
+			 */
+			if (nntp_caps.type == CAPABILITIES && nntp_caps.list_headers) {
+				int i = new_nntp_command("LIST HEADERS RANGE", 215, cbuf, sizeof(cbuf));
+
+				found = FALSE;
+				switch (i) {
+					case 215:
+						while ((ptr = tin_fgets(FAKE_NNTP_FP, FALSE)) != NULL) {
+#	ifdef DEBUG
+							if (debug & DEBUG_NNTP)
+								debug_print_file("NNTP", "<<< %s", ptr);
+#	endif /* DEBUG */
+							if (!found && ((*ptr == ':' && *(ptr + 1) == '\0') || !strncasecmp(ptr, "Xref", 4)))
+								found = TRUE;
+						}
+						break;
+
+					default:
+						break;
 				}
-				/* we might loose accuracy here, but that shouldn't hurt */
-				if (artnum % MODULO_COUNT_NUM == 0)
-					show_progress(group_msg, artnum - min, max - min);
+				first = FALSE;
 			}
 		}
-		free(group_msg);
+
+		if (found) {
+			snprintf(cbuf, sizeof(cbuf), "%s XREF %ld-%ld", nntp_caps.hdr_cmd, min, max);
+			group_msg = fmt_string("%s XREF loop", nntp_caps.hdr_cmd); /* TODO: find a better message, move to lang.c */
+			if ((fp = nntp_command(cbuf, OK_HEAD, NULL, 0)) != NULL) {
+				while ((ptr = tin_fgets(fp, FALSE)) != NULL) {
+					artnum = atol(ptr);
+					if (artnum <= 0 || artnum < group->xmin || artnum > group->xmax)
+						continue;
+					art = &arts[top_art];
+					set_article(art);
+					if (!art->xref && !strstr(ptr, "(none)")) {
+						if ((q = strchr(ptr, ' ')) == NULL) /* skip article number */
+							continue;
+						ptr = q;
+						while (*ptr && isspace((int) *ptr))
+							ptr++;
+						q = strchr(ptr, '\n');
+						if (q)
+							*q = '\0';
+						art->xref = my_strdup(ptr);
+					}
+					/* we might loose accuracy here, but that shouldn't hurt */
+					if (artnum % MODULO_COUNT_NUM == 0)
+						show_progress(group_msg, artnum - min, max - min);
+				}
+			}
+			free(group_msg);
+		}
 	}
 #endif /* NNTP_ABLE && XHDR_XREF */
 
@@ -1821,7 +1903,7 @@ write_overview(
 	if ((fp = open_xover_fp(group, "w", 0L, 0L, FALSE)) == NULL)
 		return;
 
-	if (group->attribute->sort_art_type != SORT_ARTICLES_BY_NOTHING)
+	if (group->attribute->sort_article_type != SORT_ARTICLES_BY_NOTHING)
 		SortBy(artnum_comp);
 
 	/*
@@ -1872,8 +1954,8 @@ write_overview(
 
 			fprintf(fp, "%ld\t%s\t%s\t%s\t%s\t%s\t%d\t%d",
 				article->artnum,
-				tinrc.post_8bit_header ? article->subject : p,
-				print_from(article),
+				group->attribute->post_8bit_header ? article->subject : p,
+				print_from(group, article),
 				print_date(article->date),
 				BlankIfNull(article->msgid),
 				BlankIfNull(ref),
@@ -2363,7 +2445,7 @@ score_comp_base(
 	if (a == b) {
 		const struct t_article *s1 = &arts[*(const long *)p1];
 		const struct t_article *s2 = &arts[*(const long *)p2];
-		t_compfunc comp_func = eval_sort_arts_func(CURR_GROUP.attribute->sort_art_type);
+		t_compfunc comp_func = eval_sort_arts_func(CURR_GROUP.attribute->sort_article_type);
 
 		if (comp_func)
 			return (*comp_func)(s1, s2);
@@ -2522,6 +2604,7 @@ print_date(
 
 static char *
 print_from(
+	struct t_group *group,
 	struct t_article *article)
 {
 	char *p;
@@ -2533,9 +2616,9 @@ print_from(
 		p = rfc1522_encode(article->name, tinrc.mm_local_charset, FALSE);
 		unfold_header(p);
 		if (strpbrk(article->name, "\".:;<>@[]()\\") != NULL && article->name[0] != '"' && article->name[strlen(article->name)] != '"')
-			snprintf(from, sizeof(from), "\"%s\" <%s>", tinrc.post_8bit_header ? article->name : p, article->from);
+			snprintf(from, sizeof(from), "\"%s\" <%s>", group->attribute->post_8bit_header ? article->name : p, article->from);
 		else
-			snprintf(from, sizeof(from), "%s <%s>", tinrc.post_8bit_header ? article->name : p, article->from);
+			snprintf(from, sizeof(from), "%s <%s>", group->attribute->post_8bit_header ? article->name : p, article->from);
 
 		free(p);
 	}
@@ -2575,7 +2658,7 @@ open_xover_fp(
 				return fp;
 
 			if (*mode != 'r')
-				error_message(_(txt_cannot_open), nov_file);
+				error_message(2, _(txt_cannot_open), nov_file);
 		}
 	}
 	return NULL;

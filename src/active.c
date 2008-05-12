@@ -3,10 +3,10 @@
  *  Module    : active.c
  *  Author    : I. Lea
  *  Created   : 1992-02-16
- *  Updated   : 2008-04-14
+ *  Updated   : 2009-01-25
  *  Notes     :
  *
- * Copyright (c) 1992-2008 Iain Lea <iain@bricbrac.de>
+ * Copyright (c) 1992-2009 Iain Lea <iain@bricbrac.de>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -68,8 +68,7 @@ static FILE *open_news_active_fp(void);
 static void active_add(struct t_group *ptr, long count, long max, long min, const char *moderated);
 static void append_group_line(char *active_file, char *group_path, long art_max, long art_min, char *base_dir);
 static void check_for_any_new_groups(void);
-static void make_group_list(char *active_file, char *base_dir, char *group_path);
-static void make_group_name(char *base_dir, char *group_name, char *group_path);
+static void make_group_list(char *active_file, char *base_dir, char *fixed_base, char *group_path);
 static void read_active_file(void);
 static void read_newsrc_active_file(void);
 static void subscribe_new_group(char *group, char *autosubscribe, char *autounsubscribe);
@@ -121,7 +120,7 @@ resync_active_file(
 	else
 		toggle_my_groups(old_group);
 
-	FreeAndNull(old_group);
+	FreeIfNeeded(old_group);
 	show_selection_page();
 
 	return TRUE;
@@ -227,7 +226,11 @@ parse_active_line(
 	}
 
 	if (!p || !q || !r || !lineok) {
-		error_message(_(txt_bad_active_file), line);
+#	ifdef DEBUG
+		if (debug & DEBUG_NNTP)
+			debug_print_file("NNTP", txt_bad_active_file, line);
+#	endif /* DEBUG */
+		error_message(2, _(txt_bad_active_file), line);
 		return FALSE;
 	}
 
@@ -299,7 +302,7 @@ read_newsrc_active_file(
 			ptr = ngname;
 		}
 
-		if (read_news_via_nntp) {
+		if (read_news_via_nntp && !read_saved_news) {
 #ifdef NNTP_ABLE
 			char buf[NNTP_STRLEN];
 			char line[NNTP_STRLEN];
@@ -351,9 +354,9 @@ read_newsrc_active_file(
 
 							snprintf(fmt, sizeof(fmt), "%%ld %%ld %%ld %%%ds", NNTP_STRLEN);
 							if (sscanf(line, fmt, &count, &min, &max, ngname) != 4)
-								error_message(_(txt_error_invalid_response_to_group), line);
+								error_message(2, _(txt_error_invalid_response_to_group), line);
 							if (strcmp(ngname, ngnames[index_o]) != 0)
-								error_message(_(txt_error_wrong_newsgroupname_in_group_response), line, ngnames[index_o]);
+								error_message(2, _(txt_error_wrong_newsgroupname_in_group_response), line, ngnames[index_o]);
 							ptr = ngname;
 							free(ngnames[index_o]);
 							index_o = (index_o + 1) % NUM_SIMULTANEOUS_GROUP_COMMAND;
@@ -368,7 +371,7 @@ read_newsrc_active_file(
 						continue;
 
 					case ERR_ACCESS:
-						error_message("%s%s", cCRLF, line);
+						error_message(2, "%s%s", cCRLF, line);
 						tin_done(NNTP_ERROR_EXIT);
 						/* keep lint quiet: */
 						/* FALLTHROUGH */
@@ -435,9 +438,9 @@ read_newsrc_active_file(
 	 */
 	if (tin_errno || !num_active) {
 		if (newsrc_active && !num_active)
-			error_message(_(txt_error_server_has_no_listed_groups), newsrc);
+			error_message(2, _(txt_error_server_has_no_listed_groups), newsrc);
 		else
-			error_message(_(txt_active_file_is_empty), (read_news_via_nntp ? _(txt_servers_active) : news_active_file));
+			error_message(2, _(txt_active_file_is_empty), (read_news_via_nntp ? (read_saved_news ? news_active_file : (txt_servers_active)) : news_active_file));
 		tin_done(EXIT_FAILURE);
 	}
 
@@ -485,13 +488,13 @@ read_active_file(
 
 #ifdef NNTP_ABLE
 		if (read_news_via_nntp)
-			error_message(_(txt_cannot_retrieve), ACTIVE_FILE);
+			error_message(2, _(txt_cannot_retrieve), ACTIVE_FILE);
 #	ifndef NNTP_ONLY
 		else
-			error_message(_(txt_cannot_open_active_file), news_active_file, tin_progname);
+			error_message(2, _(txt_cannot_open_active_file), news_active_file, tin_progname);
 #	endif /* !NNTP_ONLY */
 #else
-		error_message(_(txt_cannot_open), news_active_file);
+		error_message(2, _(txt_cannot_open), news_active_file);
 #endif /* NNTP_ABLE */
 
 		tin_done(EXIT_FAILURE);
@@ -538,7 +541,7 @@ read_active_file(
 	 * Exit if active file wasn't read correctly or is empty
 	 */
 	if (tin_errno || !num_active) {
-		error_message(_(txt_active_file_is_empty), (read_news_via_nntp ? _(txt_servers_active) : news_active_file));
+		error_message(2, _(txt_active_file_is_empty), (read_news_via_nntp ? (read_saved_news ? news_active_file : _(txt_servers_active)) : news_active_file));
 		tin_done(EXIT_FAILURE);
 	}
 
@@ -601,19 +604,16 @@ read_news_active_file(
 
 			/* we can't use for_each_group(i) yet, so we have to prase the newsrc */
 			if ((fp = fopen(newsrc, "r")) != NULL) {
-				while ((ptr = tin_fgets(fp, FALSE)) != NULL) {
+				while (tin_fgets(fp, FALSE) != NULL)
 					j++;
-				}
 				rewind(fp);
 				if (j < PIPELINE_LIMIT) {
 					while ((ptr = tin_fgets(fp, FALSE)) != NULL) {
-						if (ptr) {
-							if (!(q = strpbrk(ptr, ":!")))
-								continue;
-							*q = '\0';
-							snprintf(buff, sizeof(buff), "LIST ACTIVE %s", ptr);
-							put_server(buff);
-						}
+						if (!(q = strpbrk(ptr, ":!")))
+							continue;
+						*q = '\0';
+						snprintf(buff, sizeof(buff), "LIST ACTIVE %s", ptr);
+						put_server(buff);
 					}
 				}
 				fclose(fp);
@@ -621,6 +621,7 @@ read_news_active_file(
 				if (j < PIPELINE_LIMIT) {
 					for (i = 0; i < j && !did_reconnect; i++) {
 						if ((r = get_only_respcode(buff, sizeof(buff))) != OK_GROUPS) {
+							/* TODO: add 483 (RFC 3977) code */
 							if (r == ERR_NOAUTH || r == NEED_AUTHINFO)
 								need_auth = TRUE;
 							continue;
@@ -653,7 +654,7 @@ read_news_active_file(
 					}
 					if (need_auth) { /* retry after auth is overkill here, so just auth */
 						if (!authenticate(nntp_server, userid, FALSE)) {
-							error_message(_(txt_auth_failed), ERR_ACCESS);
+							error_message(2, _(txt_auth_failed), ERR_ACCESS);
 							tin_done(EXIT_FAILURE);
 						}
 					}
@@ -678,7 +679,7 @@ read_news_active_file(
 	/*
 	 * finally we have a list of all groups an can set the attributes
 	 */
-	read_attributes_files();
+	assign_attributes_to_groups();
 }
 
 
@@ -1028,19 +1029,24 @@ void
 create_save_active_file(
 	void)
 {
+	char *fb;
 	char group_path[PATH_LEN];
 	char local_save_active_file[PATH_LEN];
 
 	joinpath(local_save_active_file, sizeof(local_save_active_file), rcdir, ACTIVE_SAVE_FILE);
 
-	if (no_write && file_size(local_save_active_file) != 1L)
+	if (no_write && file_size(local_save_active_file) != -1L)
 		return;
 
-	my_printf(_(txt_creating_active));
+	wait_message(0, _(txt_creating_active));
 
 	print_active_head(local_save_active_file);
-	strcpy(group_path, tinrc.savedir);
-	make_group_list(local_save_active_file, tinrc.savedir, group_path);
+	strfpath(tinrc.savedir, group_path, sizeof(group_path), NULL);
+	while (strlen(group_path) && group_path[strlen(group_path) - 1] == '/')
+		group_path[strlen(group_path) - 1] = '\0';
+	fb = my_strdup(group_path);
+	make_group_list(local_save_active_file, tinrc.savedir, fb, group_path);
+	free(fb);
 }
 
 
@@ -1048,6 +1054,7 @@ static void
 make_group_list(
 	char *active_file,
 	char *base_dir,
+	char *fixed_base,
 	char *group_path)
 {
 	DIR *dir;
@@ -1065,7 +1072,6 @@ make_group_list(
 		while ((direntry = readdir(dir)) != NULL) {
 			STRCPY(filename, direntry->d_name);
 			joinpath(path, sizeof(path), group_path, filename);
-
 			if (!(filename[0] == '.' && filename[1] == '\0') &&
 				!(filename[0] == '.' && filename[1] == '.' && filename[2] == '\0')) {
 				if (stat(path, &stat_info) != -1) {
@@ -1077,9 +1083,9 @@ make_group_list(
 				is_dir = FALSE;
 				strcpy(group_path, path);
 
-				make_group_list(active_file, base_dir, group_path);
+				make_group_list(active_file, base_dir, fixed_base, group_path);
 				find_art_max_min(group_path, &art_max, &art_min);
-				append_group_line(active_file, group_path, art_max, art_min, base_dir);
+				append_group_line(active_file, group_path + strlen(fixed_base) + 1, art_max, art_min, fixed_base);
 				if ((ptr = strrchr(group_path, '/')) != NULL) /* TODO: Unix'ism */
 					*ptr = '\0';
 			}
@@ -1099,7 +1105,6 @@ append_group_line(
 {
 	FILE *fp;
 	char *file_tmp;
-	char group_name[PATH_LEN];
 
 	if (art_max == 0 && art_min == 1)
 		return;
@@ -1112,43 +1117,20 @@ append_group_line(
 	}
 
 	if ((fp = fopen(active_file, "a+")) != NULL) {
-		make_group_name(base_dir, group_name, group_path);
-		my_printf("Appending=[%s %ld %ld %s]\n", group_name, art_max, art_min, base_dir);
+		char *ptr;
+		char *group_name;
+
+		ptr = group_name = my_strdup(group_path);
+		ptr++;
+		while ((ptr = strchr(ptr, '/')) != NULL)
+			*ptr = '.';
+
+		wait_message(0, "Appending=[%s %ld %ld %s]\n", group_name, art_max, art_min, base_dir);
 		print_group_line(fp, group_name, art_max, art_min, base_dir);
 		if (ferror(fp) || fclose(fp)) /* TODO: issue warning? */
 			rename(file_tmp, active_file);
+		free(group_name);
 	}
 	unlink(file_tmp);
 	free(file_tmp);
-}
-
-
-/*
- * Given an absolute pathname & a base pathname build a newsgroup name
- * base = /usr/spool/news
- * absolute path = /usr/spool/news/alt/sources
- * newsgroup = alt.sources
- */
-static void
-make_group_name(
-	char *base_dir,
-	char *group_name,
-	char *group_path)
-{
-	char *base_ptr;
-	char *name_ptr;
-	char *path_ptr;
-
-	base_ptr = base_dir;
-	path_ptr = group_path;
-
-	while (*base_ptr && (*base_ptr == *path_ptr)) {
-		base_ptr++;
-		path_ptr++;
-	}
-	strcpy(group_name, ++path_ptr);
-
-	name_ptr = group_name;
-	while ((name_ptr = strchr(name_ptr, '/')) != NULL)
-		*name_ptr = '.';
 }

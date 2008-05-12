@@ -3,10 +3,10 @@
  *  Module    : debug.c
  *  Author    : I. Lea
  *  Created   : 1991-04-01
- *  Updated   : 2008-04-23
+ *  Updated   : 2009-01-20
  *  Notes     : debug routines
  *
- * Copyright (c) 1991-2008 Iain Lea <iain@bricbrac.de>
+ * Copyright (c) 1991-2009 Iain Lea <iain@bricbrac.de>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -70,10 +70,6 @@ debug_delete_files(
 		unlink(file);
 		joinpath(file, sizeof(file), TMPDIR, "ARTS");
 		unlink(file);
-		joinpath(file, sizeof(file), TMPDIR, "SAVE_COMP");
-		unlink(file);
-		joinpath(file, sizeof(file), TMPDIR, "BASE");
-		unlink(file);
 		joinpath(file, sizeof(file), TMPDIR, "ACTIVE");
 		unlink(file);
 		joinpath(file, sizeof(file), TMPDIR, "BITMAP");
@@ -81,6 +77,10 @@ debug_delete_files(
 		joinpath(file, sizeof(file), TMPDIR, "MALLOC");
 		unlink(file);
 		joinpath(file, sizeof(file), TMPDIR, "FILTER");
+		unlink(file);
+		joinpath(file, sizeof(file), TMPDIR, "ATTRIBUTES");
+		unlink(file);
+		joinpath(file, sizeof(file), TMPDIR, "SCOPES");
 		unlink(file);
 	}
 }
@@ -148,8 +148,6 @@ debug_print_active(
 {
 	FILE *fp;
 	char file[PATH_LEN];
-	int i;
-	struct t_group *group;
 
 	if (!(debug & DEBUG_MISC))
 		return;
@@ -157,6 +155,9 @@ debug_print_active(
 	joinpath(file, sizeof(file), TMPDIR, "ACTIVE");
 
 	if ((fp = fopen(file, "w")) != NULL) {
+		int i;
+		struct t_group *group;
+
 		for_each_group(i) {
 			group = &active[i];
 			fprintf(fp, "[%4d]=[%s] type=[%s] spooldir=[%s]\n",
@@ -167,11 +168,10 @@ debug_print_active(
 				group->count, group->xmax, group->xmin, group->moderated);
 			fprintf(fp, " nxt=[%4d] hash=[%lu]  description=[%s]\n", group->next,
 				hash_groupname(group->name), BlankIfNull(group->description));
-#	ifdef DEBUG
 			if (debug & DEBUG_NEWSRC)
 				debug_print_newsrc(&group->newsrc, fp);
-#	endif /* DEBUG */
-			debug_print_attributes(group->attribute, fp);
+			if (debug & DEBUG_ATTRIB)
+				debug_print_attributes(group->attribute, fp);
 		}
 		fchmod(fileno(fp), (S_IRUGO|S_IWUGO));
 		fclose(fp);
@@ -189,14 +189,14 @@ debug_print_attributes(
 
 	fprintf(fp, "global=[%d] show=[%d] thread=[%d] sort=[%d] author=[%d] auto_select=[%d] auto_save=[%d] batch_save=[%d] process=[%d]\n",
 		attr->global,
-		attr->show_only_unread,
-		attr->thread_arts,
-		attr->sort_art_type,
+		attr->show_only_unread_arts,
+		attr->thread_articles,
+		attr->sort_article_type,
 		attr->show_author,
 		attr->auto_select,
 		attr->auto_save,
 		attr->batch_save,
-		attr->post_proc_type);
+		attr->post_process_type);
 	fprintf(fp, "select_header=[%d] select_global=[%s] select_expire=[%s]\n",
 		attr->quick_select_header,
 		BlankIfNull(attr->quick_select_scope),
@@ -232,10 +232,7 @@ debug_print_malloc(
 		if ((fp = fopen(file, "a+")) != NULL) {
 			total += size;
 			/* sometimes size_t is long */
-			if (is_malloc)
-				fprintf(fp, "%10s:%-4d Malloc  %6lu. Total %lu\n", xfile, line, (unsigned long) size, (unsigned long) total);
-			else
-				fprintf(fp, "%10s:%-4d Realloc %6lu. Total %lu\n", xfile, line, (unsigned long) size, (unsigned long) total);
+			fprintf(fp, "%12s:%-4d %s(%6lu). Total %lu\n", xfile, line, is_malloc ? " malloc" : "realloc" , (unsigned long) size, (unsigned long) total);
 			fchmod(fileno(fp), (S_IRUGO|S_IWUGO));
 			fclose(fp);
 		}
@@ -328,41 +325,14 @@ debug_print_file(
 }
 
 
-/* TODO: print out all fields of t_capabilities */
-#	ifdef NNTP_ABLE
-void
-debug_print_nntp_extensions(
-	void)
-{
-	if (!(debug & DEBUG_NNTP))
-		return;
-
-	debug_print_file("NNTP", "### NNTP EXTENSIONS/CAPABILITIES");
-	debug_print_file("NNTP", "### Implementation: %s", BlankIfNull(nntp_caps.implementation));
-	debug_print_file("NNTP", "### Type/Version  : %d/%d", nntp_caps.type, nntp_caps.version);
-	debug_print_file("NNTP", "### Command-names : %s %s", BlankIfNull(nntp_caps.over_cmd), BlankIfNull(nntp_caps.hdr_cmd));
-	debug_print_file("NNTP", "### List          : %s", nntp_caps.list_motd ? "MOTD" : "");
-}
-#	endif /* NNTP_ABLE */
-
-
 void
 debug_print_comment(
 	const char *comment)
 {
-	FILE *fp;
-	char file[PATH_LEN];
-
 	if (!(debug & DEBUG_NEWSRC))
 		return;
 
-	joinpath(file, sizeof(file), TMPDIR, "BITMAP");
-
-	if ((fp = fopen(file, "a+")) != NULL) {
-		fprintf(fp,"\n%s\n", comment);
-		fchmod(fileno(fp), (S_IRUGO|S_IWUGO));
-		fclose(fp);
-	}
+	debug_print_file("BITMAP", comment);
 }
 
 

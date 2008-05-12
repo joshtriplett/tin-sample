@@ -3,10 +3,10 @@
  *  Module    : list.c
  *  Author    : I. Lea
  *  Created   : 1993-12-18
- *  Updated   : 2008-04-15
+ *  Updated   : 2008-11-28
  *  Notes     : Low level functions handling the active[] list and its group_hash index
  *
- * Copyright (c) 1993-2008 Iain Lea <iain@bricbrac.de>
+ * Copyright (c) 1993-2009 Iain Lea <iain@bricbrac.de>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -287,7 +287,8 @@ group_rehash(
 	}
 
 #ifdef DEBUG
-	debug_print_active_hash();
+	if (debug & DEBUG_MISC)
+		debug_print_active_hash();
 #endif /* DEBUG */
 }
 
@@ -334,5 +335,6 @@ debug_print_active_hash(
 	for (i = 0; i < 32; i++)
 		fprintf(stderr, "%2d ", collisions[i]);
 	fprintf(stderr, "\n");
+	sleep(4);
 }
 #endif /* DEBUG */

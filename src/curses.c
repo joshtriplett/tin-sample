@@ -1237,7 +1237,7 @@ ReadWch(
 	allow_resize(TRUE);
 	while ((result = read(0, mbs, 1)) < 0 && errno == EINTR) { /* spin on signal interrupts */
 		if (need_resize) {
-			handle_resize((need_resize == cRedraw) ? TRUE :  FALSE);
+			handle_resize((need_resize == cRedraw) ? TRUE : FALSE);
 			need_resize = cNo;
 		}
 	}
@@ -1304,7 +1304,7 @@ ReadWch(
 			allow_resize(TRUE);
 			while ((result = read(0, mbs + 1, to_read)) < 0 && errno == EINTR) { /* spin on signal interrupts */
 				if (need_resize) {
-					handle_resize((need_resize == cRedraw) ? TRUE :  FALSE);
+					handle_resize((need_resize == cRedraw) ? TRUE : FALSE);
 					need_resize = cNo;
 				}
 			}
