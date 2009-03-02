@@ -1,3 +1,8 @@
+Fix all default path names to match the ones used on Debian systems.
+
+The spool and overview paths match the ones used by INN 1.x, since TIN is
+not able to read the spool of INN 2.x.
+
 --- a/doc/tin.defaults
 +++ b/doc/tin.defaults
 @@ -27,7 +27,7 @@
@@ -45,7 +50,15 @@
  
  # overviewfile - the name of a single overview file
  #
-@@ -121,21 +121,21 @@
+@@ -122,28 +122,28 @@
+ # usually the overview.fmt file is in newslibdir, so you only have
+ # to change this setting if your configuration differs
+ #
+-#overviewfmtfile=/usr/lib/news/overview.fmt
++#overviewfmtfile=/etc/news/overview.fmt
+ 
+ # activefile - the full pathname of your newssystem's active file
+ #
  # usually the active file is in newslibdir, so you only have
  # to change this setting if your configuration differs
  #
@@ -70,27 +83,20 @@
  
  # subscriptionsfile - the full pathname of your newssystem's
  #                     subscriptions file
-@@ -143,4 +143,4 @@
- # usually the newsgroups file is in newslibdir, so you only have
+@@ -151,4 +151,4 @@
+ # usually the subscriptionsfile file is in newslibdir, so you only have
  # to change this setting if your configuration differs
  #
 -#subscriptionsfile=/usr/lib/news/subscriptions
 +#subscriptionsfile=/var/lib/news/subscriptions
---- a/src/xref.c
-+++ b/src/xref.c
-@@ -75,8 +75,7 @@ open_overview_fmt_fp(
- 		char filename[PATH_LEN];
- 
- 		/* TODO make configurable via tin.defaults */
--		joinpath(filename, sizeof(filename), libdir, OVERVIEW_FMT);
--		return (fopen(filename, "r"));
-+		return (fopen("/etc/news/" OVERVIEW_FMT, "r"));
- #ifdef NNTP_ABLE
- 	}
- #endif /* NNTP_ABLE */
 --- a/src/init.c
 +++ b/src/init.c
-@@ -694,8 +694,7 @@ init_selfinfo(
+@@ -686,12 +686,11 @@ init_selfinfo(
+ 	if (!*subscriptions_file)
+ 		joinpath(subscriptions_file, sizeof(subscriptions_file), libdir, SUBSCRIPTIONS_FILE);
+ 	if (!*overviewfmt_file)
+-		joinpath(overviewfmt_file, sizeof(overviewfmt_file), libdir, OVERVIEW_FMT);
++		joinpath(overviewfmt_file, sizeof(overviewfmt_file), "/etc/news/", OVERVIEW_FMT);
  	if (!*default_organization) {
  		char buf[LEN], filename[PATH_LEN];
  

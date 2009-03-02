@@ -3,7 +3,7 @@ Section: news
 Priority: optional
 Maintainer: Marco d'Itri <md@linux.it>
 Build-Depends: debhelper (>> 4.1.16), quilt (>= 0.40), bison, bzip2, libpcre3-dev, libncursesw5-dev, libidn11-dev, libcanlock2-dev, libuu-dev
-Standards-Version: 3.7.3
+Standards-Version: 3.8.0.1
 
 Package: tin
 Architecture: any

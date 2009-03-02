@@ -1,6 +1,6 @@
 --- a/src/attrib.c
 +++ b/src/attrib.c
-@@ -170,7 +170,7 @@ set_default_attributes(
+@@ -233,7 +233,7 @@ set_default_attributes(
  	attributes->fcc = NULL;
  #ifdef CHARSET_CONVERSION
  	attributes->mm_network_charset = tinrc.mm_network_charset;
@@ -11,18 +11,16 @@
  
 --- a/src/init.c
 +++ b/src/init.c
-@@ -278,8 +278,8 @@ struct t_config tinrc = {
+@@ -271,7 +271,7 @@ struct t_config tinrc = {
  	32,		/* groupname_max_length */
  	UUE_NO,	/* hide_uue */
  	KILL_UNREAD,		/* kill_level */
--	MIME_ENCODING_7BIT,		/* mail_mime_encoding */
--	MIME_ENCODING_7BIT,		/* post_mime_encoding */
+-	MIME_ENCODING_QP,		/* mail_mime_encoding */
 +	MIME_ENCODING_8BIT,		/* mail_mime_encoding */
-+	MIME_ENCODING_8BIT,		/* post_mime_encoding */
- 	POST_PROC_NO,			/* post_process */
+ 	MIME_ENCODING_8BIT,		/* post_mime_encoding */
+ 	POST_PROC_NO,			/* post_process_type */
  	REREAD_ACTIVE_FILE_SECS,	/* reread_active_file_secs */
- 	1,		/* scroll_lines */
-@@ -329,7 +329,7 @@ struct t_config tinrc = {
+@@ -324,7 +324,7 @@ struct t_config tinrc = {
  	TRUE,		/* url_highlight */
  	0,		/* wrap_column */
  #ifdef HAVE_COLOR
@@ -31,7 +29,7 @@
  #endif /* HAVE_COLOR */
  	TRUE,		/* add_posted_to_filter */
  	TRUE,		/* advertising */
-@@ -395,7 +395,7 @@ struct t_config tinrc = {
+@@ -390,7 +390,7 @@ struct t_config tinrc = {
  	FALSE,		/* use_keypad */
  #endif /* HAVE_KEYPAD */
  	TRUE,		/* wrap_on_next_unread */
