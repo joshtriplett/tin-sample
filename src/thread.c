@@ -3,7 +3,7 @@
  *  Module    : thread.c
  *  Author    : I. Lea
  *  Created   : 1991-04-01
- *  Updated   : 2008-11-25
+ *  Updated   : 2009-06-21
  *  Notes     :
  *
  * Copyright (c) 1991-2009 Iain Lea <iain@bricbrac.de>
@@ -247,6 +247,7 @@ build_tline(
 
 			for (ptr = art->refptr->parent; ptr && IS_EXPIRED(ptr); ptr = ptr->parent)
 				;
+
 			if (!(ptr && arts[ptr->article].subject == art->subject)) {
 #if defined(MULTIBYTE_ABLE) && !defined(NO_LOCALE)
 				if ((wtmp = char2wchar_t(art->subject)) != NULL) {
@@ -448,7 +449,7 @@ thread_page(
 	 * See if we're on a direct call from the group menu to the pager
 	 */
 	if (page) {
-		if ((ret_code =	enter_pager(page->art, page->ignore_unavail, GROUP_LEVEL)) != 0)
+		if ((ret_code = enter_pager(page->art, page->ignore_unavail, GROUP_LEVEL)) != 0)
 			return ret_code;
 		/* else fall through to stay in thread level */
 	}
@@ -559,7 +560,7 @@ thread_page(
 				break;
 
 			case GLOBAL_EDIT_FILTER:
-				if (!invoke_editor(filter_file, FILTER_FILE_OFFSET, NULL))
+				if (!invoke_editor(filter_file, filter_file_offset, NULL))
 					break;
 				unfilter_articles();
 				(void) read_filter_file(filter_file);
@@ -636,7 +637,7 @@ thread_page(
 				break;
 
 			case GLOBAL_OPTION_MENU:
-				change_config_file(group);
+				config_page(group->name);
 				n = find_response(thread_basenote, thdmenu.curr);
 				if (which_thread(n) == -1) /* We have lost the thread */
 					ret_code = GRP_EXIT;

@@ -3,7 +3,7 @@
  *  Module    : signal.c
  *  Author    : I.Lea
  *  Created   : 1991-04-01
- *  Updated   : 2008-02-09
+ *  Updated   : 2009-02-14
  *  Notes     : signal handlers for different modes and window resizing
  *
  * Copyright (c) 1991-2009 Iain Lea <iain@bricbrac.de>
@@ -271,6 +271,7 @@ handle_resize(
 			show_art_msg(curr_group->name);
 			break;
 
+		case cAttrib:
 		case cConfig:
 			refresh_config_page(SIGNAL_HANDLER);
 			break;
@@ -284,6 +285,7 @@ handle_resize(
 			break;
 
 		case cGroup:
+		case cScope:
 		case cSelect:
 		case cThread:
 			ClearScreen();

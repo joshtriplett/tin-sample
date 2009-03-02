@@ -3,7 +3,7 @@
  *  Module    : nntplib.c
  *  Author    : S. Barber & I. Lea
  *  Created   : 1991-01-12
- *  Updated   : 2009-01-15
+ *  Updated   : 2009-07-17
  *  Notes     : NNTP client routines taken from clientlib.c 1.5.11 (1991-02-10)
  *  Copyright : (c) Copyright 1991-99 by Stan Barber & Iain Lea
  *              Permission is hereby granted to copy, reproduce, redistribute
@@ -58,7 +58,7 @@ static TCP *nntp_wr_fp = NULL;
 	static int mode_reader(t_bool *sec);
 	static int reconnect(int retry);
 	static int server_init(char *machine, const char *cservice, unsigned short port, char *text, size_t mlen);
-	static int check_extensions(t_bool *sec);
+	static int check_extensions(void);
 	static void close_server(void);
 	static void list_motd(void);
 #	ifdef INET6
@@ -84,13 +84,14 @@ get_nntp_fp(
 }
 
 
+#if 0 /* unused */
 FILE *
 get_nntp_wr_fp(
 	FILE *fp)
 {
 	return (fp == FAKE_NNTP_FP ? nntp_wr_fp : fp);
 }
-
+#endif /* 0 */
 
 /*
  * getserverbyfile(file)
@@ -133,8 +134,8 @@ getserverbyfile(
 	}
 
 #ifdef NNTP_ABLE
-	if (cmdline_nntpserver[0] != '\0') {
-		get_nntpserver(buf, sizeof(buf), cmdline_nntpserver);
+	if (cmdline.args & CMDLINE_NNTPSERVER) {
+		get_nntpserver(buf, sizeof(buf), cmdline.nntpserver);
 #	ifdef HAVE_SETENV
 		setenv("NNTPSERVER", buf, 1);
 #	else
@@ -335,15 +336,15 @@ get_tcp_socket(
 	sock_in.sin_family = AF_INET;
 	sock_in.sin_port = htons(port);
 
-	if (!isdigit((unsigned char)*machine) ||
+	if (!isdigit((unsigned char) *machine)
 #		ifdef HAVE_INET_ATON
-	    !inet_aton(machine, &sock_in)
+	    || !inet_aton(machine, &sock_in)
 #		else
 #			ifdef HAVE_INET_ADDR
-	    (long) (sock_in.sin_addr.s_addr = inet_addr(machine)) == INADDR_NONE)
+	    || (long) (sock_in.sin_addr.s_addr = inet_addr(machine)) == INADDR_NONE
 #			endif /* HAVE_INET_ADDR */
 #		endif /* HAVE_INET_ATON */
-	{
+	) {
 		if ((hp = gethostbyname(machine)) == NULL) {
 			my_fprintf(stderr, _(txt_gethostbyname), "gethostbyname() ", machine);
 			t_close(s);
@@ -961,21 +962,20 @@ close_server(
 
 #ifdef NNTP_ABLE
 /*
- * Try and use CAPABILITIES/LIST EXTENSIONS here. Get this list before
- * issuing other NNTP commands because the correct methods may be mentioned
- * in the list of extensions.
+ * Try and use CAPABILITIES here. Get this list before issuing other NNTP
+ * commands because the correct methods may be mentioned in the list of
+ * extensions.
  *
  * Sets up: t_capabilities nntp_caps
  */
 static int
-check_extensions(
-	t_bool *sec)
+check_extensions(void)
 {
-	char *ptr;
-	int ret = 0;
-	char buf[NNTP_STRLEN];
 	char *d;
+	char *ptr;
+	char buf[NNTP_STRLEN];
 	int i;
+	int ret = 0;
 
 	buf[0] = '\0';
 	i = new_nntp_command("CAPABILITIES", INF_CAPABILITIES, buf, sizeof(buf));
@@ -1032,6 +1032,7 @@ check_extensions(
 							d = strpbrk(d, " \t");
 						}
 					} else if (!strncasecmp(ptr, "IMPLEMENTATION", 14)) {
+						FreeIfNeeded(nntp_caps.implementation);
 						nntp_caps.implementation = my_strdup(ptr + 14);
 						str_trim(nntp_caps.implementation);
 					} else if (!strcasecmp(ptr, "MODE-READER")) {
@@ -1074,6 +1075,8 @@ check_extensions(
 					} else if (!strncasecmp(ptr, "AUTHINFO", 8)) {
 						d = ptr + 8;
 						d = strpbrk(d, " \t");
+						if (d == NULL) /* AUTHINFO without args */
+							nntp_caps.authinfo_state = TRUE;
 						while (d != NULL && (d + 1 < (ptr + strlen(ptr)))) {
 							d++;
 							if (!strncasecmp(d, "USER", 4))
@@ -1087,24 +1090,39 @@ check_extensions(
 						d = strpbrk(d, " \t");
 						while (d != NULL && (d + 1 < (ptr + strlen(ptr)))) {
 							d++;
-							if (!strncasecmp(d, "CRAM-MD5", 8)) /* RFC 2195 */
-								nntp_caps.authinfo_sasl = nntp_caps.sasl_cram_md5 = TRUE;
-							if (!strncasecmp(d, "DIGEST-MD5", 10)) /* RFC 2831 */
-								nntp_caps.authinfo_sasl = nntp_caps.sasl_digest_md5 = TRUE;
-							if (!strncasecmp(d, "PLAIN", 5)) /* RFC 4616 */
-								nntp_caps.authinfo_sasl = nntp_caps.sasl_plain = TRUE;
-							if (!strncasecmp(d, "GSSAPI", 6)) /* RFC 4752 */
-								nntp_caps.authinfo_sasl = nntp_caps.sasl_gssapi = TRUE;
-							if (!strncasecmp(d, "EXTERNAL", 8)) /* RFC 4422 */
-								nntp_caps.authinfo_sasl = nntp_caps.sasl_external = TRUE;
-#		if 0 /* inn also can do these */
-							if (!strncasecmp(d, "OTP", 3)) /* RFC 2444 */
-								nntp_caps.authinfo_sasl = nntp_caps.sasl_otp = TRUE;
-							if (!strncasecmp(d, "NTLM", 4)) /* Microsoft */
-								nntp_caps.authinfo_sasl = nntp_caps.sasl_ntlm = TRUE;
-							if (!strncasecmp(d, "LOGIN", 5)) /* Microsoft */
-								nntp_caps.authinfo_sasl = nntp_caps.sasl_login = TRUE;
-#		endif
+							if (!strncasecmp(d, "CRAM-MD5", 8)) { /* RFC 2195 */
+								nntp_caps.authinfo_sasl = TRUE;
+								nntp_caps.sasl |= SASL_CRAM_MD5;
+							}
+							if (!strncasecmp(d, "DIGEST-MD5", 10)) { /* RFC 2831 */
+								nntp_caps.authinfo_sasl = TRUE;
+								nntp_caps.sasl |= SASL_DIGEST_MD5;
+							}
+							if (!strncasecmp(d, "PLAIN", 5)) { /* RFC 4616 */
+								nntp_caps.authinfo_sasl = TRUE;
+								nntp_caps.sasl |= SASL_PLAIN;
+							}
+							if (!strncasecmp(d, "GSSAPI", 6)) { /* RFC 4752 */
+								nntp_caps.authinfo_sasl = TRUE;
+								nntp_caps.sasl |= SASL_GSSAPI;
+							}
+							if (!strncasecmp(d, "EXTERNAL", 8)) { /* RFC 4422 */
+								nntp_caps.authinfo_sasl = TRUE;
+								nntp_caps.sasl |= SASL_EXTERNAL;
+							}
+							/* inn also can do these */
+							if (!strncasecmp(d, "OTP", 3)) { /* RFC 2444 */
+								nntp_caps.authinfo_sasl = TRUE;
+								nntp_caps.sasl |= SASL_OTP;
+							}
+							if (!strncasecmp(d, "NTLM", 4)) { /* Microsoft */
+								nntp_caps.authinfo_sasl = TRUE;
+								nntp_caps.sasl |= SASL_NTLM;
+							}
+							if (!strncasecmp(d, "LOGIN", 5)) { /* Microsoft */
+								nntp_caps.authinfo_sasl = TRUE;
+								nntp_caps.sasl |= SASL_LOGIN;
+							}
 						}
 					}
 #		if 0 /* we don't need these */
@@ -1133,19 +1151,6 @@ check_extensions(
 
 		default:
 			break;
-	}
-
-	if ((ret != ERR_GOODBYE) && !*sec && !nntp_caps.reader && !force_auth_on_conn_open) {
-		if (nntp_caps.type == CAPABILITIES && !nntp_caps.mode_reader) {
-			if (!nntp_caps.post) { /* as a last resort check if post was mentioned */
-				error_message(2, _("CAPABILITIES did not announce any of READER, MODE-READER, POST")); /* TODO: -> lang.c */
-				return -1; /* give up */
-			}
-		}
-		if ((ret = mode_reader(&*sec)) != 0)
-			return ret;
-		else if (nntp_caps.type != BROKEN) /* 2nd pass (we may receive 500 on the first try on an RFC 3977 aware server with mode switching) */
-			ret = check_extensions(&*sec);
 	}
 
 	return ret;
@@ -1232,7 +1237,7 @@ nntp_open(
 #ifdef NNTP_ABLE
 	char *linep;
 	char line[NNTP_STRLEN];
-	int i, ret;
+	int ret;
 	t_bool sec = FALSE;
 	/* It appears that is_reconnect guards code that should be run only once */
 	static t_bool is_reconnect = FALSE;
@@ -1328,12 +1333,8 @@ nntp_open(
 	 *       of extensions. (For details about authentication methods, see
 	 *       RFC 4643).
 	 */
-	if (nntp_caps.type != BROKEN) {
-		if ((ret = check_extensions(&sec)))
-			return ret; /* required "MODE READER/READER" failed, exit */
-		if (nntp_caps.type == CAPABILITIES && !nntp_caps.post)
-			can_post = FALSE;
-	}
+	if (nntp_caps.type != BROKEN)
+		check_extensions();
 
 	/*
 	 * If the user wants us to authenticate on connection startup, do it now.
@@ -1342,25 +1343,48 @@ nntp_open(
 	 * allowed to post after authentication issue a "MODE READER" again and
 	 * interpret the response code.
 	 */
-	if (force_auth_on_conn_open) {
+	if (force_auth_on_conn_open || (nntp_caps.type == CAPABILITIES && !nntp_caps.reader && (nntp_caps.authinfo_user || (nntp_caps.authinfo_sasl & SASL_PLAIN)))) {
 #	ifdef DEBUG
 		if (debug & DEBUG_NNTP)
 			debug_print_file("NNTP", "nntp_open() authenticate()");
 #	endif /* DEBUG */
-		authenticate(nntp_server, userid, TRUE);
-		if (nntp_caps.type == CAPABILITIES && !is_reconnect) {
-			if ((ret = check_extensions(&sec))) /* capabilities may change on auth */
-				return ret; /* required "MODE READER/READER" failed, exit */
-		} else {
-			if ((ret = mode_reader(&sec)))
-				return ret; /* "MODE READER" failed, exit */
+		if (!authenticate(nntp_server, userid, FALSE))	/* 3rd parameter is FALSE as we need to get prompted for username password here */
+			return -1;
+		if (nntp_caps.type == CAPABILITIES)
+			check_extensions();
+	}
+
+	if ((nntp_caps.type == CAPABILITIES && nntp_caps.mode_reader) || nntp_caps.type != CAPABILITIES) {
+		if ((ret = mode_reader(&sec))) {
+			if (nntp_caps.type == CAPABILITIES)
+				can_post = nntp_caps.post && !force_no_post;
+
+			return ret;
 		}
+		if (nntp_caps.type == CAPABILITIES)
+			check_extensions();
+	}
+
+	if (nntp_caps.type == CAPABILITIES) {
+		if (!nntp_caps.reader) {
+			error_message(2, _("CAPABILITIES did not announce READER")); /* TODO: -> lang.c */
+			return -1; /* give up */
+		}
+		can_post = nntp_caps.post && !force_no_post;
 	}
 
 	if (!is_reconnect) {
+#if 0
+	/*
+	 * gives wrong results if RFC 3977 server requestes auth after
+	 * CAPABILITIES is parsed (with no posting allowed) and after auth
+	 * posting is allowed. as we will inform the user later on when he
+	 * actually tries to post it should do no harm to skip this message
+	 */
 		/* Inform user if he cannot post */
 		if (!can_post && !batch_mode)
 			wait_message(0, "%s\n", _(txt_cannot_post));
+#endif /* 0 */
 
 		/* Remove leading white space and save server's second response */
 		linep = line;
@@ -1399,12 +1423,11 @@ nntp_open(
 	}
 
 	/*
-	 * If LIST EXTENSIONS failed, check if NNTP supports XOVER or OVER command
-	 * (successor of XOVER as of latest NNTP Draft (Jan 2002)
+	 * If CAPABILITIES failed, check if NNTP supports XOVER or OVER command
 	 * We have to check that we _don't_ get an ERR_COMMAND
 	 */
-	if (nntp_caps.type == NONE) {
-		int j = 0;
+	if (nntp_caps.type != CAPABILITIES) {
+		int i, j = 0;
 
 		for (i = 0; i < 2 && j >= 0; i++) {
 			j = new_nntp_command(&xover_cmds[i], ERR_NCING, line, sizeof(line));
@@ -1412,7 +1435,7 @@ nntp_open(
 				case ERR_COMMAND:
 					break;
 
-				case OK_XOVER:	/* unexpected multiline ok, e.g.: Synchronet 3.13 NNTP Service 1.92 */
+				case OK_XOVER:	/* unexpected multiline ok, e.g.: Synchronet 3.13 NNTP Service 1.92 or on reconnect if last cmd was GROUP */
 					nntp_caps.over_cmd = &xover_cmds[i];
 #	ifdef DEBUG
 					if (debug & DEBUG_NNTP)
@@ -1457,14 +1480,13 @@ nntp_open(
 	} else {
 		if (!nntp_caps.over_cmd) {
 			/*
-			 * CAPABILITIES/LIST EXTENSIONS didn't mention OVER or XOVER, try
-			 * XOVER
+			 * CAPABILITIES didn't mention OVER or XOVER, try XOVER
 			 */
 			switch (new_nntp_command(xover_cmds, ERR_NCING, line, sizeof(line))) {
 				case ERR_COMMAND:
 					break;
 
-				case OK_XOVER:	/* unexpected multiline ok, e.g.: Synchronet 3.13 NNTP Service 1.92 */
+				case OK_XOVER:	/* unexpected multiline ok, e.g.: Synchronet 3.13 NNTP Service 1.92 or on reconnect if last cmd was GROUP */
 					nntp_caps.over_cmd = xover_cmds;
 #	ifdef DEBUG
 					if (debug & DEBUG_NNTP)
@@ -1482,10 +1504,9 @@ nntp_open(
 #	ifdef XHDR_XREF
 		if (!nntp_caps.hdr_cmd) {
 			/*
-			 * CAPABILITIES/LIST EXTENSIONS didn't mention HDR or XHDR, try
-			 * XHDR
+			 * CAPABILITIES didn't mention HDR or XHDR, try XHDR
 			 */
-			switch (new_nntp_command(xhdr_cmds, ERR_CMDSYN, line, sizeof(line))) {
+			switch (new_nntp_command(xhdr_cmds, ERR_NCING, line, sizeof(line))) {
 				case ERR_COMMAND:
 					break;
 
@@ -1499,7 +1520,7 @@ nntp_open(
 						;
 					break;
 
-				default:	/* usualy ERR_CMDSYN (args missing), Typhoon/Twister sends ERR_NCING */
+				default:	/* ERR_NCING or ERR_CMDSYN */
 					nntp_caps.hdr_cmd = xhdr_cmds;
 					break;
 			}
@@ -1595,7 +1616,7 @@ get_only_respcode(
 
 #	ifdef DEBUG
 	if (debug & DEBUG_NNTP)
-		debug_print_file("NNTP", "<<< %s",  ptr);
+		debug_print_file("NNTP", "<<< %s", ptr);
 #	endif /* DEBUG */
 	respcode = (int) strtol(ptr, &end, 10);
 	DEBUG_IO((stderr, "get_only_respcode(%d)\n", respcode));
@@ -1671,6 +1692,10 @@ get_respcode(
 		strncpy(savebuf, last_put, sizeof(savebuf) - 1);		/* Take copy, as authenticate() will clobber this */
 
 		if (authenticate(nntp_server, userid, FALSE)) {
+			if (nntp_caps.type == CAPABILITIES) {
+				check_extensions();
+				can_post = nntp_caps.post && !force_no_post;
+			}
 			if (curr_group != NULL) {
 				DEBUG_IO((stderr, _("Rejoin current group\n")));
 				snprintf(last_put, sizeof(last_put), "GROUP %s", curr_group->name);
@@ -1704,8 +1729,7 @@ get_respcode(
 				strncpy(message, end, mlen - 1);
 
 		} else {
-			error_message(2, _(txt_auth_failed), ERR_ACCESS);
-			/*	return -1; */
+			error_message(2, _(txt_auth_failed), nntp_caps.type == CAPABILITIES ? ERR_AUTHFAIL : ERR_ACCESS);
 			tin_done(EXIT_FAILURE);
 		}
 	}

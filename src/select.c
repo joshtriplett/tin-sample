@@ -3,7 +3,7 @@
  *  Module    : select.c
  *  Author    : I. Lea & R. Skrenta
  *  Created   : 1991-04-01
- *  Updated   : 2008-11-25
+ *  Updated   : 2009-07-17
  *  Notes     :
  *
  * Copyright (c) 1991-2009 Iain Lea <iain@bricbrac.de>, Rich Skrenta <skrenta@pbm.com>
@@ -251,7 +251,7 @@ selection_page(
 				break;
 
 			case GLOBAL_EDIT_FILTER:
-				if (!invoke_editor(filter_file, FILTER_FILE_OFFSET, NULL))
+				if (!invoke_editor(filter_file, filter_file_offset, NULL))
 					break;
 				(void) read_filter_file(filter_file);
 				break;
@@ -342,7 +342,7 @@ selection_page(
 				break;
 
 			case GLOBAL_OPTION_MENU:
-				change_config_file(NULL);
+				config_page(CURR_GROUP.name);
 				show_selection_page();
 				break;
 
@@ -746,8 +746,8 @@ active_comp(
 	t_comptype p1,
 	t_comptype p2)
 {
-	const struct t_group *s1 = (const struct t_group *)p1;
-	const struct t_group *s2 = (const struct t_group *)p2;
+	const struct t_group *s1 = (const struct t_group *) p1;
+	const struct t_group *s2 = (const struct t_group *) p2;
 
 	return strcasecmp(s1->name, s2->name);
 }
@@ -1126,6 +1126,7 @@ toggle_my_groups(
 		}
 	}
 #else
+	/* preserv group ordering based on newsrc */
 	if ((fp = fopen(newsrc, "r")) == NULL)
 		return;
 
@@ -1209,6 +1210,7 @@ select_quit(
 	void)
 {
 	write_config_file(local_config_file);
+	ClearScreen();
 	tin_done(EXIT_SUCCESS);	/* Tin END */
 }
 

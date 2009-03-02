@@ -40,9 +40,9 @@
 
 #	define PRODUCT		"tin"
 #	ifndef TIN_AUTOCONF_H
-#		define VERSION		"1.9.4"
+#		define VERSION		"1.9.5"
 #	endif /* !TIN_AUTOCONF_H */
-#	define RELEASEDATE	"20090211"
+#	define RELEASEDATE	"20090720"
 #	define RELEASENAME	"Rieclachan"
 /* config-file versions - must by dotted triples */
 #	define TINRC_VERSION	"1.3.11"

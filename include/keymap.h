@@ -3,7 +3,7 @@
  *  Module    : keymap.h
  *  Author    : J. Faultless, D. Nimmich
  *  Created   : 1999
- *  Updated   : 2008-03-26
+ *  Updated   : 2009-02-14
  *  Notes     :
  *
  * Copyright (c) 1999-2009 Jason Faultless <jason@altarstone.com>
@@ -158,8 +158,11 @@ enum defined_functions {
 	SPECIAL_MOUSE_TOGGLE,
 	CATCHUP,
 	CATCHUP_NEXT_UNREAD,
+	CONFIG_RESET_ATTRIB,
+	CONFIG_SCOPE_MENU,
 	CONFIG_SELECT,
 	CONFIG_NO_SAVE,
+	CONFIG_TOGGLE_ATTRIB,
 	FEED_ARTICLE,
 	FEED_THREAD,
 	FEED_HOT,
@@ -315,6 +318,12 @@ enum defined_functions {
 	PROMPT_YES,
 	SAVE_APPEND_FILE,
 	SAVE_OVERWRITE_FILE,
+	SCOPE_ADD,
+	SCOPE_DELETE,
+	SCOPE_EDIT_ATTRIBUTES_FILE,
+	SCOPE_MOVE,
+	SCOPE_RENAME,
+	SCOPE_SELECT,
 	SELECT_ENTER_GROUP,
 	SELECT_ENTER_NEXT_UNREAD_GROUP,
 	SELECT_GOTO,
@@ -391,6 +400,7 @@ extern struct keylist post_postpone_keys;
 extern struct keylist post_send_keys;
 extern struct keylist prompt_keys;
 extern struct keylist save_append_overwrite_keys;
+extern struct keylist scope_keys;
 extern struct keylist select_keys;
 extern struct keylist thread_keys;
 

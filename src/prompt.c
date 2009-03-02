@@ -3,7 +3,7 @@
  *  Module    : prompt.c
  *  Author    : I. Lea
  *  Created   : 1991-04-01
- *  Updated   : 2008-11-22
+ *  Updated   : 2009-05-07
  *  Notes     :
  *
  * Copyright (c) 1991-2009 Iain Lea <iain@bricbrac.de>
@@ -178,9 +178,9 @@ prompt_yn(
 	yes = func_to_key(PROMPT_YES, prompt_keys);
 	no = func_to_key(PROMPT_NO, prompt_keys);
 
+#if defined(MULTIBYTE_ABLE) && !defined(NO_LOCALE)
 	printascii(keyyes, (default_answer ? towupper(yes) : yes));
 	printascii(keyno, (!default_answer ? towupper(no) : no));
-#if defined (MULTIBYTE_ABLE) && !defined(NO_LOCALE)
 	if ((wtmp = char2wchar_t(keyyes))) {
 		keyyes_len = wcswidth(wtmp, wcslen(wtmp));
 		free(wtmp);
@@ -190,6 +190,8 @@ prompt_yn(
 		free(wtmp);
 	}
 #else
+	printascii(keyyes, (default_answer ? toupper(yes) : yes));
+	printascii(keyno, (!default_answer ? toupper(no) : no));
 	keyyes_len = (int) strlen(keyyes);
 	keyno_len = (int) strlen(keyno);
 #endif /* MULTIBYTE_ABLE && !NO_LOCALE */
@@ -424,10 +426,15 @@ prompt_option_string(
 {
 	char *variable = OPT_STRING_list[option_table[option].var_index];
 	char prompt[LEN];
+	char old_value[LEN];
 
+	STRCPY(old_value, variable);
 	show_menu_help(option_table[option].txt->help);
 	fmt_option_prompt(prompt, sizeof(prompt) - 1, TRUE, option);
-	return prompt_menu_string(option_row(option), prompt, variable);
+	if (prompt_menu_string(option_row(option), prompt, variable))
+		return strcmp(old_value, variable) ? TRUE : FALSE;
+	else
+		return FALSE;
 }
 
 
@@ -676,12 +683,11 @@ prompt_slk_response(
 		else
 			func = key_to_func(ch, keys);
 
+#if 1
 		/*
-		 * TODO: ignore special-keys which are represented as a
-		 *       multibyte ESC-seq to avoid interpreting them as 'ESC' only
-		 *       like it's done in the ugly code below.
+		 * ignore special-keys which are represented as a multibyte ESC-seq
+		 * to avoid interpreting them as 'ESC' only
 		 */
-#if 0
 		if (ch == ESC) {
 			switch (get_arrow_key(ch)) {
 				case KEYMAP_UP:
@@ -693,13 +699,14 @@ prompt_slk_response(
 				case KEYMAP_HOME:
 				case KEYMAP_END:
 					ch = '\0';
+					func = NOT_ASSIGNED;
 					break;
 
 				default:
 					break;
 			}
 		}
-#endif /* 0 */
+#endif /* 1 */
 	} while (func == NOT_ASSIGNED);
 
 	input_context = cNone;

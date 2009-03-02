@@ -3,7 +3,7 @@
  *  Module    : main.c
  *  Author    : I. Lea & R. Skrenta
  *  Created   : 1991-04-01
- *  Updated   : 2009-01-22
+ *  Updated   : 2009-07-19
  *  Notes     :
  *
  * Copyright (c) 1991-2009 Iain Lea <iain@bricbrac.de>, Rich Skrenta <skrenta@pbm.com>
@@ -62,7 +62,7 @@ static t_bool start_any_unread = FALSE;	/* only start if unread news */
 /*
  * Local prototypes
  */
-static t_bool create_mail_save_dirs(void);
+static void create_mail_save_dirs(void);
 static void read_cmd_line_options(int argc, char *argv[]);
 static void show_intro_page(void);
 static void update_index_files(void);
@@ -78,7 +78,7 @@ main(
 	char *argv[])
 {
 	int count;
-	int num_cmd_line_groups;
+	int num_cmd_line_groups = 0;
 	int start_groupnum = 0;
 	t_bool tmp_no_write;
 
@@ -146,17 +146,19 @@ main(
 	setup_default_keys(); /* preinit keybindings */
 
 	/*
-	 * Read user local & global config files
-	 * These override the compiled in defaults
-	 */
-	read_config_file(global_config_file, TRUE);
-	read_config_file(local_config_file, FALSE);
-
-	/*
 	 * Process envargs & command line options
 	 * These override the configured in values
 	 */
 	read_cmd_line_options(argc, argv);
+
+	/*
+	 * Read user local & global config files
+	 * These override the compiled in defaults
+	 *
+	 * must be called before setup_screen()
+	 */
+	read_config_file(global_config_file, TRUE);
+	read_config_file(local_config_file, FALSE);
 
 	tmp_no_write = no_write; /* keep no_write */
 	no_write = TRUE;		/* don't allow any writing back during startup */
@@ -281,6 +283,13 @@ main(
 #endif /* DEBUG */
 
 	/*
+	 * Preloads active[] with command line groups. They will follow any
+	 * new newsgroups
+	 */
+	if (!post_postponed_and_exit)
+		num_cmd_line_groups = read_cmd_line_groups();
+
+	/*
 	 * Quick post an article and exit if -w or -o specified
 	 */
 	if (post_article_and_exit || post_postponed_and_exit) {
@@ -304,17 +313,10 @@ main(
 		no_write = TRUE; /* disable newsrc updates */
 	}
 
-	/*
-	 * TODO: what has write_config_file() to do with create_mail_save_dirs ()
-	 */
-	if (create_mail_save_dirs())
+	/* what about "if (!no_write)" here? */
+	create_mail_save_dirs();
+	if (created_rcdir) /* first start */
 		write_config_file(local_config_file);
-
-	/*
-	 * Preloads active[] with command line groups. They will follow any
-	 * new newsgroups
-	 */
-	num_cmd_line_groups = read_cmd_line_groups();
 
 	backup_newsrc();
 
@@ -430,7 +432,7 @@ read_cmd_line_options(
 		switch (ch) {
 			case 'a':
 #ifdef HAVE_COLOR
-				use_color = bool_not(use_color);
+				cmdline.args |= CMDLINE_USE_COLOR;
 #else
 				error_message(2, _(txt_option_not_enabled), "-DHAVE_COLOR");
 				giveup();
@@ -477,12 +479,14 @@ read_cmd_line_options(
 				break;
 
 			case 'G':
-				tinrc.getart_limit = atoi(optarg);
+				cmdline.getart_limit = atoi(optarg);
+				cmdline.args |= CMDLINE_GETART_LIMIT;
 				break;
 
 			case 'g':	/* select alternative NNTP-server, implies -r */
 #ifdef NNTP_ABLE
-				my_strncpy(cmdline_nntpserver, optarg, sizeof(cmdline_nntpserver) - 1);
+				my_strncpy(cmdline.nntpserver, optarg, sizeof(cmdline.nntpserver) - 1);
+				cmdline.args |= CMDLINE_NNTPSERVER;
 				read_news_via_nntp = TRUE;
 #else
 				error_message(2, _(txt_option_not_enabled), "-DNNTP_ABLE");
@@ -507,7 +511,8 @@ read_cmd_line_options(
 				break;
 
 			case 'm':
-				my_strncpy(tinrc.maildir, optarg, sizeof(tinrc.maildir) - 1);
+				my_strncpy(cmdline.maildir, optarg, sizeof(cmdline.maildir) - 1);
+				cmdline.args |= CMDLINE_MAILDIR;
 				break;
 
 			case 'M':	/* mail new news to specified user */
@@ -585,7 +590,8 @@ read_cmd_line_options(
 				break;
 
 			case 's':
-				my_strncpy(tinrc.savedir, optarg, sizeof(tinrc.savedir) - 1);
+				my_strncpy(cmdline.savedir, optarg, sizeof(cmdline.savedir) - 1);
+				cmdline.args |= CMDLINE_SAVEDIR;
 				break;
 
 			case 'S':	/* save new news to dir structure */
@@ -884,8 +890,14 @@ read_cmd_line_groups(
 
 			for_each_group(i) {
 				if (match_group_list(active[i].name, cmdargs[num])) {
-					if (my_group_add(active[i].name, TRUE) != -1)
+					if (my_group_add(active[i].name, TRUE) != -1) {
+						if (post_article_and_exit) {
+							my_strncpy(tinrc.default_post_newsgroups, active[i].name, sizeof(tinrc.default_post_newsgroups) - 1);
+							matched++;
+							break;
+						}
 						matched++;
+					}
 				}
 			}
 		}
@@ -896,33 +908,25 @@ read_cmd_line_groups(
 
 /*
  * Create default mail & save directories if they do not exist
- * TODO: return code not meaningful ?
  */
-static t_bool
+static void
 create_mail_save_dirs(
 	void)
 {
-	t_bool created = FALSE;
 	char path[PATH_LEN];
 	struct stat sb;
 
-	if (!strfpath(tinrc.maildir, path, sizeof(path), NULL))
+	if (!strfpath(tinrc.maildir, path, sizeof(path), NULL, FALSE))
 		joinpath(path, sizeof(path), homedir, DEFAULT_MAILDIR);
 
-	if (stat(path, &sb) == -1) {
+	if (stat(path, &sb) == -1)
 		my_mkdir(path, (mode_t) (S_IRWXU));
-		created = TRUE;
-	}
 
-	if (!strfpath(tinrc.savedir, path, sizeof(path), NULL))
+	if (!strfpath(tinrc.savedir, path, sizeof(path), NULL, FALSE))
 		joinpath(path, sizeof(path), homedir, DEFAULT_SAVEDIR);
 
-	if (stat(path, &sb) == -1) {
+	if (stat(path, &sb) == -1)
 		my_mkdir(path, (mode_t) (S_IRWXU));
-		created = TRUE;
-	}
-
-	return created;
 }
 
 

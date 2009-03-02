@@ -3,7 +3,7 @@
  *  Module    : proto.h
  *  Author    : Urs Janssen <urs@tin.org>
  *  Created   :
- *  Updated   : 2009-01-09
+ *  Updated   : 2009-07-17
  *  Notes     :
  *
  * Copyright (c) 1997-2009 Urs Janssen <urs@tin.org>
@@ -72,10 +72,9 @@ extern void make_threads(struct t_group *group, t_bool rethread);
 extern void set_article(struct t_article *art);
 extern void show_art_msg(const char *group);
 extern void sort_arts(unsigned /* int */ sort_art_type);
-extern void write_overview(struct t_group *group);
 
 /* attrib.c */
-extern int add_tempscope(const char *scope);
+extern int add_scope(const char *scope);
 extern void assign_attributes_to_groups(void);
 extern void build_news_headers_array(struct t_attribute *scope, t_bool header_to_display);
 extern void read_attributes_file(t_bool global_file);
@@ -121,7 +120,7 @@ extern void write_config_file(char *file);
 
 /* cook.c */
 extern const char *get_filename(t_param *ptr);
-extern t_bool cook_article(t_bool wrap_lines, t_openartinfo *artinfo, int tabs, int hide_uue);
+extern t_bool cook_article(t_bool wrap_lines, t_openartinfo *artinfo, int hide_uue);
 extern t_bool expand_ctrl_chars(char **line, size_t *length, size_t cook_width);
 
 /* curses.c */
@@ -308,6 +307,7 @@ extern void init_alloc(void);
 extern void free_all_arrays(void);
 extern void free_art_array(void);
 extern void free_save_array(void);
+extern void free_scope(int num);
 extern void *my_malloc1(const char *file, int line, size_t size);
 extern void *my_calloc1(const char *file, int line, size_t nmemb, size_t size);
 extern void *my_realloc1(const char *file, int line, void *p, size_t size);
@@ -338,7 +338,7 @@ extern int my_chdir(char *path);
 extern int my_mkdir(char *path, mode_t mode);
 extern int parse_from(const char *from, char *address, char *realname);
 extern int strfmailer(const char *mail_prog, char *subject, char *to, const char *filename, char *dest, size_t maxsize, const char *format);
-extern int strfpath(const char *format, char *str, size_t maxsize, struct t_group *group);
+extern int strfpath(const char *format, char *str, size_t maxsize, struct t_group *group, t_bool expand_all);
 extern int strfquote(const char *group, int respnum, char *s, size_t maxsize, char *format);
 extern int tin_version_info(FILE *fp);
 extern long file_mtime(const char *file);
@@ -413,7 +413,7 @@ extern void set_default_bitmap(struct t_group *group);
 
 /* nntplib.c */
 extern FILE *get_nntp_fp(FILE *fp);
-extern FILE *get_nntp_wr_fp(FILE *fp);
+/* extern FILE *get_nntp_wr_fp(FILE *fp); */
 extern char *getserverbyfile(const char *file);
 extern int nntp_open(void);
 extern void nntp_close(void);
@@ -428,12 +428,14 @@ extern void nntp_close(void);
 #endif /* NNTP_ABLE */
 
 /* nrctbl.c */
-extern int get_newsrcname(char *newsrc_name, size_t newsrc_name_len, const char *nntpserver_name);
-extern void get_nntpserver(char *nntpserver_name, size_t nntpserver_name_len, char *nick_name);
+extern t_bool get_newsrcname(char *newsrc_name, size_t newsrc_name_len, const char *nntpserver_name);
+#ifdef NNTP_ABLE
+	extern void get_nntpserver(char *nntpserver_name, size_t nntpserver_name_len, char *nick_name);
+#endif /* NNTP_ABLE */
 
 /* options_menu.c */
 extern char *fmt_option_prompt(char *dst, size_t len, t_bool editing, enum option_enum option);
-extern void change_config_file(struct t_group *group);
+extern void config_page(const char *grpname);
 extern int option_row(enum option_enum option);
 extern t_bool option_is_visible(enum option_enum option);
 extern void check_score_defaults(void);
@@ -483,7 +485,7 @@ extern t_bool user_posted_messages(void);
 extern void init_postinfo(void);
 extern void quick_post_article(t_bool postponed_only);
 #ifdef USE_CANLOCK
-	extern const char *build_canlock(const char *messageid, const char *secret);
+	extern char *build_canlock(const char *messageid, const char *secret);
 	extern char *get_secret(void);
 #endif /* USE_CANLOCK */
 

@@ -60,7 +60,7 @@ slrnface_start(
 	size_t pathlen;
 	struct utsname u;
 
-	if (!tinrc.use_slrnface)
+	if (tinrc.use_slrnface == FALSE)
 		return;
 
 #ifdef HAVE_IS_XTERM
@@ -130,8 +130,8 @@ slrnface_start(
 		}
 	}
 
-	snprintf(fifo, pathlen, "%s/.slrnfaces/%s.%ld", ptr, u.nodename, (long) getpid());
-	if (!(status = strlen(fifo))) {
+	status = snprintf(fifo, pathlen, "%s/.slrnfaces/%s.%ld", ptr, u.nodename, (long) getpid());
+	if (status <= 0 || status >= pathlen) {
 		error_message(2, _("Can't run slrnface: couldn't construct fifo name."));
 		unlink(fifo);
 		free(fifo);
@@ -286,7 +286,7 @@ slrnface_show_xface(
 }
 
 #else
-static void no_xface(void);        /* proto-type */
+static void no_xface(void);	/* proto-type */
 static void
 no_xface(	/* ANSI C requires non-empty source file */
 	void)

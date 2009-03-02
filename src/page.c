@@ -3,7 +3,7 @@
  *  Module    : page.c
  *  Author    : I. Lea & R. Skrenta
  *  Created   : 1991-04-01
- *  Updated   : 2009-01-20
+ *  Updated   : 2009-06-25
  *  Notes     :
  *
  * Copyright (c) 1991-2009 Iain Lea <iain@bricbrac.de>, Rich Skrenta <skrenta@pbm.com>
@@ -73,6 +73,8 @@ t_openartinfo pgart =	/* Global context of article open in the pager */
 int last_resp;			/* previous & current article # in arts[] for '-' command */
 int this_resp;
 
+size_t tabwidth = 8;
+
 static struct t_header *note_h = &pgart.hdr;	/* Easy access to article headers */
 
 static FILE *info_file;
@@ -82,7 +84,6 @@ static int hide_uue;			/* set when uuencoded sections are 'hidden' */
 static int num_info_lines;
 static int reveal_ctrl_l_lines;	/* number of lines (from top) with de-activated ^L */
 static int rotate;				/* 0=normal, 13=rot13 decode */
-static int tabwidth = 8;
 static int scroll_region_top;	/* first screen line for displayed message */
 static int search_line;			/* Line to commence next search from */
 static t_lineinfo *infoline = (t_lineinfo *) 0;
@@ -300,7 +301,7 @@ show_page(
 {
 	char buf[LEN];
 	char key[MAXKEYLEN];
-	int i, n = 0;
+	int i, j, n = 0;
 	int old_sort_art_type = tinrc.sort_article_type;
 	int art_type = GROUP_TYPE_NEWS;
 	t_bool mouse_click_on = TRUE;
@@ -335,7 +336,7 @@ show_page(
 			repeat_search = FALSE;
 
 		switch (func) {
-			case GLOBAL_ABORT:       /* Abort */
+			case GLOBAL_ABORT:	/* Abort */
 				break;
 
 			case DIGIT_1:
@@ -695,7 +696,7 @@ page_goto_next_unread:
 
 			case GLOBAL_EDIT_FILTER:
 				XFACE_CLEAR();
-				if (!invoke_editor(filter_file, FILTER_FILE_OFFSET, NULL))
+				if (!invoke_editor(filter_file, filter_file_offset, NULL))
 					break;
 				unfilter_articles();
 				(void) read_filter_file(filter_file);
@@ -832,7 +833,7 @@ return_to_index:
 
 			case GLOBAL_OPTION_MENU:	/* option menu */
 				XFACE_CLEAR();
-				change_config_file(group);
+				config_page(group->name);
 				draw_page(group->name, 0);
 				break;
 
@@ -939,13 +940,20 @@ return_to_index:
 				break;
 
 			case PAGE_SKIP_INCLUDED_TEXT:	/* skip included text */
-				for (i = curr_line; i < artlines; i++) {
-					if (!(artline[i].flags & (C_QUOTE1 | C_QUOTE2 | C_QUOTE3)))
+				for (i = j = curr_line; i < artlines; i++) {
+					if (artline[i].flags & (C_QUOTE1 | C_QUOTE2 | C_QUOTE3)) {
+						j = i;
+						break;
+					}
+				}
+
+				for (; j < artlines; j++) {
+					if (!(artline[j].flags & (C_QUOTE1 | C_QUOTE2 | C_QUOTE3)))
 						break;
 				}
 
-				if (i != curr_line) {
-					curr_line = i;
+				if (j != curr_line) {
+					curr_line = j;
 					draw_page(group->name, 0);
 				}
 				break;
@@ -1690,12 +1698,14 @@ load_article(
 	int new_respnum,
 	struct t_group *group)
 {
+	static t_bool art_closed = FALSE;
+
 #ifdef DEBUG
 	if (debug & DEBUG_MISC)
-		fprintf(stderr, "load_art %s(new=%d, curr=%d)\n", (new_respnum == this_resp) ? "ALREADY OPEN!" : "", new_respnum, this_resp);
+		fprintf(stderr, "load_art %s(new=%d, curr=%d)\n", (new_respnum == this_resp && !art_closed) ? "ALREADY OPEN!" : "", new_respnum, this_resp);
 #endif /* DEBUG */
 
-	if (new_respnum != this_resp) {
+	if (new_respnum != this_resp || art_closed) {
 		char *progress_mesg = my_strdup(_(txt_reading_article));
 		int ret;
 
@@ -1707,26 +1717,33 @@ load_article(
 		switch (ret) {
 			case ART_UNAVAILABLE:
 				art_mark(group, &arts[new_respnum], ART_READ);
+				art_closed = TRUE;
 				wait_message(1, _(txt_art_unavailable));
 				return GRP_ARTUNAVAIL;
 
 			case ART_ABORT:
 				art_close(&pgart);
+				art_closed = TRUE;
 				return GRP_ARTABORT;	/* special retcode to stop redrawing screen */
 
 			default:					/* Normal case */
 #if 0			/* Very useful debugging tool */
-				if (prompt_yn(cLINES, "Fake art unavailable? ", FALSE) == 1) {
+				if (prompt_yn("Fake art unavailable? ", FALSE) == 1) {
 					art_close(&pgart);
 					art_mark(group, &arts[new_respnum], ART_READ);
+					art_closed = TRUE;
 					return GRP_ARTUNAVAIL;
 				}
 #endif /* 0 */
-				/*
-				 * Remember current & previous articles for '-' command
-				 */
-				last_resp = this_resp;
-				this_resp = new_respnum;		/* Set new art globally */
+				if (art_closed)
+					art_closed = FALSE;
+				if (new_respnum != this_resp) {
+					/*
+					 * Remember current & previous articles for '-' command
+					 */
+					last_resp = this_resp;
+					this_resp = new_respnum;		/* Set new art globally */
+				}
 				break;
 		}
 	}
@@ -2031,7 +2048,7 @@ resize_article(
 	if (artinfo->cooked)
 		fclose(artinfo->cooked);
 
-	cook_article(wrap_lines, artinfo, tabwidth, hide_uue);
+	cook_article(wrap_lines, artinfo, hide_uue);
 
 	show_all_headers = FALSE;
 	artline = pgart.cookl;
@@ -2070,12 +2087,12 @@ info_pager(
 
 			case GLOBAL_LINE_UP:
 				if (num_info_lines <= NOTESLINES) {
-					info_message(_(txt_begin_of_art));
+					info_message(_(txt_begin_of_page));
 					break;
 				}
 				if (curr_info_line == 0) {
 					if (!wrap_at_ends) {
-						info_message(_(txt_begin_of_art));
+						info_message(_(txt_begin_of_page));
 						break;
 					}
 					curr_info_line = num_info_lines - NOTESLINES;
@@ -2089,12 +2106,12 @@ info_pager(
 
 			case GLOBAL_LINE_DOWN:
 				if (num_info_lines <= NOTESLINES) {
-					info_message(_(txt_end_of_art));
+					info_message(_(txt_end_of_page));
 					break;
 				}
 				if (curr_info_line + NOTESLINES >= num_info_lines) {
 					if (!wrap_at_ends) {
-						info_message(_(txt_end_of_art));
+						info_message(_(txt_end_of_page));
 						break;
 					}
 					curr_info_line = 0;
@@ -2108,12 +2125,12 @@ info_pager(
 
 			case GLOBAL_PAGE_DOWN:
 				if (num_info_lines <= NOTESLINES) {
-					info_message(_(txt_end_of_art));
+					info_message(_(txt_end_of_page));
 					break;
 				}
 				if (curr_info_line + NOTESLINES >= num_info_lines) {	/* End is already on screen */
 					if (!wrap_at_ends) {
-						info_message(_(txt_end_of_art));
+						info_message(_(txt_end_of_page));
 						break;
 					}
 					curr_info_line = 0;
@@ -2126,12 +2143,12 @@ info_pager(
 
 			case GLOBAL_PAGE_UP:
 				if (num_info_lines <= NOTESLINES) {
-					info_message(_(txt_begin_of_art));
+					info_message(_(txt_begin_of_page));
 					break;
 				}
 				if (curr_info_line == 0) {
 					if (!wrap_at_ends) {
-						info_message(_(txt_begin_of_art));
+						info_message(_(txt_begin_of_page));
 						break;
 					}
 					curr_info_line = num_info_lines - NOTESLINES;

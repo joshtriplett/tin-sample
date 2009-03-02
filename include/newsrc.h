@@ -118,8 +118,8 @@
 
 #define NTEST(n,b)	(n[NOFFSET(b)] & (1 << NBITIDX(b)))
 
-#define NSETBLK1(n,i)	(memset (n, NBITSON, (size_t) NOFFSET(i)+1))
-#define NSETBLK0(n,i)	(memset (n, 0, (size_t) NOFFSET(i)+1))
+#define NSETBLK1(n,i)	(memset(n, NBITSON, (size_t) NOFFSET(i) + 1))
+#define NSETBLK0(n,i)	(memset(n, 0, (size_t) NOFFSET(i) + 1))
 
 /* dbmalloc checks memset() parameters, so we'll use it to check the assignments */
 #ifdef USE_DBMALLOC
