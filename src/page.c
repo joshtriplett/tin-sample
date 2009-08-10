@@ -3,10 +3,10 @@
  *  Module    : page.c
  *  Author    : I. Lea & R. Skrenta
  *  Created   : 1991-04-01
- *  Updated   : 2009-06-25
+ *  Updated   : 2009-09-27
  *  Notes     :
  *
- * Copyright (c) 1991-2009 Iain Lea <iain@bricbrac.de>, Rich Skrenta <skrenta@pbm.com>
+ * Copyright (c) 1991-2010 Iain Lea <iain@bricbrac.de>, Rich Skrenta <skrenta@pbm.com>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -524,20 +524,20 @@ page_goto_next_unread:
 
 			case GLOBAL_PIPE:		/* pipe article/thread/tagged arts to command */
 				XFACE_SUPPRESS();
-				feed_articles(FEED_PIPE, PAGE_LEVEL, group, this_resp);
+				feed_articles(FEED_PIPE, PAGE_LEVEL, NOT_ASSIGNED, group, this_resp);
 				XFACE_SHOW();
 				break;
 
 			case PAGE_MAIL:	/* mail article/thread/tagged articles to somebody */
 				XFACE_SUPPRESS();
-				feed_articles(FEED_MAIL, PAGE_LEVEL, group, this_resp);
+				feed_articles(FEED_MAIL, PAGE_LEVEL, NOT_ASSIGNED, group, this_resp);
 				XFACE_SHOW();
 				break;
 
 #ifndef DISABLE_PRINTING
 			case GLOBAL_PRINT:	/* output art/thread/tagged arts to printer */
 				XFACE_SUPPRESS();
-				feed_articles(FEED_PRINT, PAGE_LEVEL, group, this_resp);
+				feed_articles(FEED_PRINT, PAGE_LEVEL, NOT_ASSIGNED, group, this_resp);
 				XFACE_SHOW();
 				break;
 #endif /* !DISABLE_PRINTING */
@@ -545,7 +545,7 @@ page_goto_next_unread:
 			case PAGE_REPOST:	/* repost current article */
 				if (can_post) {
 					XFACE_SUPPRESS();
-					feed_articles(FEED_REPOST, PAGE_LEVEL, group, this_resp);
+					feed_articles(FEED_REPOST, PAGE_LEVEL, NOT_ASSIGNED, group, this_resp);
 					XFACE_SHOW();
 				} else
 					info_message(_(txt_cannot_post));
@@ -553,14 +553,14 @@ page_goto_next_unread:
 
 			case PAGE_SAVE:	/* save article/thread/tagged articles */
 				XFACE_SUPPRESS();
-				feed_articles(FEED_SAVE, PAGE_LEVEL, group, this_resp);
+				feed_articles(FEED_SAVE, PAGE_LEVEL, NOT_ASSIGNED, group, this_resp);
 				XFACE_SHOW();
 				break;
 
 			case PAGE_AUTOSAVE:	/* Auto-save articles without prompting */
 				if (grpmenu.curr >= 0) {
 					XFACE_SUPPRESS();
-					feed_articles(FEED_AUTOSAVE, PAGE_LEVEL, group, (int) base[grpmenu.curr]);
+					feed_articles(FEED_AUTOSAVE, PAGE_LEVEL, NOT_ASSIGNED, group, (int) base[grpmenu.curr]);
 					XFACE_SHOW();
 				}
 				break;
@@ -728,12 +728,10 @@ page_goto_next_unread:
 
 			case CATCHUP:			/* catchup - mark read, goto next */
 			case CATCHUP_NEXT_UNREAD:	/* goto next unread */
-				/*
-				 * TODO: if (group->attribute->thread_articles == THREAD_NONE)
-				 *       	snprintf(buf, sizeof(buf), _("Mark article as read%s?"), (func == CATCHUP_NEXT_UNREAD) ? _(" and enter next unread article") : "");
-				 *       else
-				 */
-				snprintf(buf, sizeof(buf), _(txt_mark_thread_read), (func == CATCHUP_NEXT_UNREAD) ? _(txt_enter_next_thread) : "");
+				if (group->attribute->thread_articles == THREAD_NONE)
+					snprintf(buf, sizeof(buf), _(txt_mark_art_read), (func == CATCHUP_NEXT_UNREAD) ? _(txt_enter_next_unread_art) : "");
+				else
+					snprintf(buf, sizeof(buf), _(txt_mark_thread_read), (func == CATCHUP_NEXT_UNREAD) ? _(txt_enter_next_thread) : "");
 				if ((!TINRC_CONFIRM_ACTION) || prompt_yn(buf, TRUE) == 1) {
 					thd_mark_read(group, base[which_thread(this_resp)]);
 					XFACE_CLEAR();

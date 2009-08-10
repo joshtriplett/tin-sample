@@ -3,10 +3,10 @@
  *  Module    : newsrc.c
  *  Author    : I. Lea & R. Skrenta
  *  Created   : 1991-04-01
- *  Updated   : 2009-07-17
+ *  Updated   : 2009-11-17
  *  Notes     : ArtCount = (ArtMax - ArtMin) + 1  [could have holes]
  *
- * Copyright (c) 1991-2009 Iain Lea <iain@bricbrac.de>, Rich Skrenta <skrenta@pbm.com>
+ * Copyright (c) 1991-2010 Iain Lea <iain@bricbrac.de>, Rich Skrenta <skrenta@pbm.com>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -293,12 +293,11 @@ open_subscription_fp(
 #ifdef NNTP_ABLE
 		if (read_news_via_nntp) {
 			/*
-			 * RFC 3977 doesn't list SUBSCRIPTIONS, so we keep this check
-			 * disabled till this is fixed in the next RFC
+			 * draft-elie-nntp-list-additions-00.txt
 			 */
-			/* if (nntp_caps.type == CAPABILITIES && !nntp_caps.list_subscriptions)
+			if (nntp_caps.type == CAPABILITIES && !nntp_caps.list_subscriptions)
 				return NULL;
-			else */
+			else
 				return (nntp_command("LIST SUBSCRIPTIONS", OK_GROUPS, NULL, 0));
 		} else
 #endif /* NNTP_ABLE */
@@ -429,9 +428,9 @@ group_get_art_info(
 				break;
 
 			case ERR_NOGROUP:
-				*art_count = 0;
-				*art_min = 1;
-				*art_max = 0;
+				*art_count = 0L;
+				*art_min = 1L;
+				*art_max = 0L;
 				return -ERR_NOGROUP;
 
 			case ERR_ACCESS:
@@ -454,19 +453,19 @@ group_get_art_info(
 #endif /* NNTP_ABLE */
 	} else {
 		char group_path[PATH_LEN];
-		*art_count = 0;
-		*art_min = 1;
-		*art_max = 0;
+		*art_count = 0L;
+		*art_min = 0L;
+		*art_max = 0L;
 
 		make_base_group_path(tin_spooldir, groupname, group_path, sizeof(group_path));
 
 		if ((dir = opendir(group_path)) != NULL) {
 			while ((direntry = readdir(dir)) != NULL) {
 				artnum = atol(direntry->d_name); /* should be '\0' terminated... */
-				if (artnum >= 1) {
+				if (artnum >= 1L) {
 					if (artnum > *art_max) {
 						*art_max = artnum;
-						if (*art_min == 0)
+						if (*art_min == 0L)
 							*art_min = artnum;
 					} else if (artnum < *art_min)
 						*art_min = artnum;
@@ -474,8 +473,12 @@ group_get_art_info(
 				}
 			}
 			CLOSEDIR(dir);
-		} else
+			if (*art_min == 0L)
+				*art_min = 1L;
+		} else {
+			*art_min = 1L;
 			return -1;
+		}
 	}
 
 	return 0;
@@ -690,14 +693,14 @@ grp_mark_read(
 	if (art != NULL) {
 		for_each_art(i)
 			art_mark(group, &art[i], ART_READ);
+	} else {
+		FreeAndNull(group->newsrc.xbitmap);
+		group->newsrc.xbitlen = 0;
+		if (group->xmax > group->newsrc.xmax)
+			group->newsrc.xmax = group->xmax;
+		group->newsrc.xmin = group->newsrc.xmax + 1;
+		group->newsrc.num_unread = 0;
 	}
-
-	FreeAndNull(group->newsrc.xbitmap);
-	group->newsrc.xbitlen = 0;
-	if (group->xmax > group->newsrc.xmax)
-		group->newsrc.xmax = group->xmax;
-	group->newsrc.xmin = group->newsrc.xmax + 1;
-	group->newsrc.num_unread = 0;
 }
 
 
@@ -1001,7 +1004,8 @@ parse_get_seq(
  */
 void
 parse_unread_arts(
-	struct t_group *group)
+	struct t_group *group,
+	long min)
 {
 	int i;
 	long unread = 0;
@@ -1024,6 +1028,24 @@ parse_unread_arts(
 	if (group->newsrc.xmax >= bitmin) {
 		newbitmap = my_malloc(BITS_TO_BYTES(group->newsrc.xmax - bitmin + 1));
 		NSETRNG0(newbitmap, 0L, group->newsrc.xmax - bitmin);
+	}
+
+	/*
+	 * if getart_limit > 0 preserve read/unread state
+	 * of all articles below the new minimum
+	 */
+	if (min > 0 && newbitmap) {
+		long j, tmp_bitmax;
+
+		tmp_bitmax = (bitmax < min) ? bitmax : min;
+		for (j = bitmin; j < tmp_bitmax; j++) {
+			if (NTEST(group->newsrc.xbitmap, j - bitmin) != ART_READ)
+				NSET1(newbitmap, j - bitmin);
+		}
+		while (j < min) {
+			NSET1(newbitmap, j - bitmin);
+			j++;
+		}
 	}
 
 	for_each_art(i) {

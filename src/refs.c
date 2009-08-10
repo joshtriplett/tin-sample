@@ -3,12 +3,12 @@
  *  Module    : refs.c
  *  Author    : Jason Faultless <jason@altarstone.com>
  *  Created   : 1996-05-09
- *  Updated   : 2009-05-15
+ *  Updated   : 2009-11-17
  *  Notes     : Cacheing of message ids / References based threading
  *  Credits   : Richard Hodson <richard@macgyver.tele2.co.uk>
  *              hash_msgid, free_msgid
  *
- * Copyright (c) 1996-2009 Jason Faultless <jason@altarstone.com>
+ * Copyright (c) 1996-2010 Jason Faultless <jason@altarstone.com>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -60,6 +60,7 @@ static t_bool valid_msgid(char *msgid);
 static unsigned int hash_msgid(const char *key);
 static void add_to_parent(struct t_msgid *ptr);
 static void build_thread(struct t_msgid *ptr);
+static void rearrange_siblings(void);
 #ifdef DEBUG
 	static void dump_msgid_thread(struct t_msgid *ptr, int level);
 	static void dump_msgid_threads(void);
@@ -68,11 +69,6 @@ static void build_thread(struct t_msgid *ptr);
 	static void dump_msgids(void);
 	static void dump_thread(FILE *fp, struct t_msgid *msgid, int level);
 #endif /* 0 */
-
-/*
- * Set if the sorting algorithm goes 'upwards'
- */
-static t_bool sort_ascend;
 
 /*
  * The msgids are all hashed into a big array, with overspill
@@ -148,27 +144,14 @@ add_to_parent(
 
 	/*
 	 * Add this followup to the sibling chain of our parent.
-	 * arts[] has been sorted by build_references and we add at the start or end
-	 * of the chain depending on whether the sort method is ASCEND or DESCEND
-	 * Unavailable articles go at the start of the chain if ASCEND (because
-	 * we presume unavailable arts (ie REF_REF links) have expired), otherwise at the end.
-	 * ie: if ASCEND && REF
-	 *        add_to_start
-	 *     else
-	 *        add_to_end
+	 * We add at the end of the chain, rearrange_siblings() will
+	 * sort it later.
 	 */
-	if (sort_ascend && (ptr->article == ART_UNAVAILABLE)) {
-		/* Add to start */
-		ptr->sibling = ptr->parent->child;
-		ptr->parent->child = ptr;
-	} else {
-		/* Add to end */
-		for (p = ptr->parent->child; p->sibling != NULL; p = p->sibling)
-			;
+	for (p = ptr->parent->child; p->sibling != NULL; p = p->sibling)
+		;
 
-/*		ptr->sibling is already NULL */
-		p->sibling = ptr;
-	}
+/*	ptr->sibling is already NULL */
+	p->sibling = ptr;
 }
 
 
@@ -430,6 +413,60 @@ parse_references(
 	}
 
 	return current;
+}
+
+
+static void
+rearrange_siblings(
+	void)
+{
+	int i;
+	struct t_msgid *current, *p1, *p2;
+
+	for_each_art(i) {
+		current = arts[i].refptr;
+
+		if (!current)
+		continue;
+
+		for (; current->sibling == NULL && current->parent != NULL; current = current->parent)
+			;
+
+		if (current->sibling != NULL) {
+			for (p1 = current; p1->article == ART_UNAVAILABLE && p1->child != NULL; p1 = p1->child)
+				;
+
+			for (p2 = current->sibling; p2->article == ART_UNAVAILABLE && p2->child != NULL; p2 = p2->child)
+				;
+
+			if (p1->article != ART_UNAVAILABLE && p2->article != ART_UNAVAILABLE && p1->article > p2->article) {
+				if (current->parent->child == current) {
+					/*
+					 * current is the first followup
+					 *  adjust parent->child pointer
+					 */
+					current->parent->child = current->sibling;
+					p1 = current->parent->child;
+				} else {
+					/*
+					 * current is not the first followup
+					 *  find the sibling above current
+					 *  adjust the sibling pointer there
+					 */
+					for (p1 = current->parent->child; p1->sibling != current; p1 = p1->sibling)
+						;
+
+					p1->sibling = current->sibling;
+					p1 = p1->sibling;
+				}
+				/*
+				 * swap current <-> sibling
+				 */
+				current->sibling = p1->sibling;
+				p1->sibling = current;
+			}
+		}
+	}
 }
 
 
@@ -945,12 +982,6 @@ build_references(
 	if (group->attribute->sort_article_type != SORT_ARTICLES_BY_NOTHING)
 		sort_arts(group->attribute->sort_article_type);
 
-	sort_ascend = (group->attribute->sort_article_type == SORT_ARTICLES_BY_SUBJ_ASCEND ||
-	               group->attribute->sort_article_type == SORT_ARTICLES_BY_FROM_ASCEND ||
-	               group->attribute->sort_article_type == SORT_ARTICLES_BY_DATE_ASCEND ||
-	               group->attribute->sort_article_type == SORT_ARTICLES_BY_SCORE_ASCEND ||
-	               group->attribute->sort_article_type == SORT_ARTICLES_BY_LINES_ASCEND);
-
 #ifdef DEBUG
 	if (debug & DEBUG_REFS) {
 		char file[PATH_LEN];
@@ -1002,6 +1033,13 @@ build_references(
 				FreeAndNull(art->refs);
 			}
 		}
+
+		/*
+		 * set art->refptr->article - rearrange_siblings() needs this
+		 */
+		if (art->refptr != NULL)
+			art->refptr->article = i;
+
 		FreeAndNull(art->msgid);	/* Now cached - discard this */
 	}
 
@@ -1035,4 +1073,10 @@ build_references(
 	if (debug & DEBUG_REFS)
 		fclose(dbgfd);
 #endif /* DEBUG */
+
+	/*
+	 * all msgids are cached now
+	 * change order of siblings if needed
+	 */
+	rearrange_siblings();
 }

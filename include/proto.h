@@ -3,10 +3,10 @@
  *  Module    : proto.h
  *  Author    : Urs Janssen <urs@tin.org>
  *  Created   :
- *  Updated   : 2009-07-17
+ *  Updated   : 2009-12-09
  *  Notes     :
  *
- * Copyright (c) 1997-2009 Urs Janssen <urs@tin.org>
+ * Copyright (c) 1997-2010 Urs Janssen <urs@tin.org>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -54,6 +54,7 @@
 /* active.c */
 extern char group_flag(char ch);
 extern int find_newnews_index(const char *cur_newnews_host);
+extern int read_news_active_file(void);
 extern t_bool match_group_list(const char *group, const char *group_list);
 extern t_bool parse_active_line(char *line, long *max, long *min, char *moderated);
 extern t_bool process_bogus(char *name);
@@ -61,7 +62,6 @@ extern t_bool need_reread_active_file(void);
 extern t_bool resync_active_file(void);
 extern void create_save_active_file(void);
 extern void load_newnews_info(char *info);
-extern void read_news_active_file(void);
 
 /* art.c */
 extern int global_get_multipart_info(int aindex, MultiPartInfo *setme);
@@ -176,7 +176,7 @@ extern void word_highlight_string(int row, int col, int size, int color);
 extern void envargs(int *Pargc, char ***Pargv, const char *envstr);
 
 /* feed.c */
-extern void feed_articles(int function, int level, struct t_group *group, int respnum);
+extern int feed_articles(int function, int level, t_function type, struct t_group *group, int respnum);
 
 /* filter.c */
 extern t_bool filter_articles(struct t_group *group);
@@ -210,6 +210,7 @@ extern void set_first_screen_item(void);
 /* group.c */
 extern int find_new_pos(int old_top, long old_artnum, int cur_pos);
 extern int group_page(struct t_group *group);
+extern t_bool group_mark_postprocess(int function, t_function feed_type, int respnum);
 extern void clear_note_area(void);
 extern void mark_screen(int screen_row, int screen_col, const char *value);
 extern void pos_first_unread_thread(void);
@@ -404,7 +405,7 @@ extern void delete_group(char *group);
 extern void expand_bitmap(struct t_group *group, long min);
 extern void grp_mark_read(struct t_group *group, struct t_article *art);
 extern void grp_mark_unread(struct t_group *group);
-extern void parse_unread_arts(struct t_group *group);
+extern void parse_unread_arts(struct t_group *group, long min);
 extern void reset_newsrc(void);
 extern void subscribe(struct t_group *group, int sub_state, t_bool get_info);
 extern void thd_mark_read(struct t_group *group, long thread);
@@ -505,6 +506,7 @@ extern t_bool prompt_option_string(enum option_enum option);
 extern t_bool prompt_string(const char *prompt, char *buf, int which_hist);
 extern void prompt_continue(void);
 extern void prompt_slk_redraw(void);
+extern void prompt_yn_redraw(void);
 
 /* read.c */
 extern char *tin_fgets(FILE *fp, t_bool header);
@@ -675,10 +677,8 @@ extern void str_lwr(char *str);
 
 /* tags.c */
 extern int line_is_tagged(int n);
-extern int mark_tagged_read(struct t_group *group);
 extern int tag_multipart(int base_index);
 extern t_bool arts_selected(void);
-extern t_bool got_tagged_unread_arts(void);
 extern t_bool set_range(int level, int min, int max, int curr);
 extern t_bool tag_article(int art);
 extern t_bool untag_all_articles(void);
@@ -709,6 +709,7 @@ extern int stat_thread(int n, struct t_art_stat *sbuf);
 extern int which_response(int n);
 extern int which_thread(int n);
 extern int thread_page(struct t_group *group, int respnum, int thread_depth, t_pagerinfo *page);
+extern t_bool thread_mark_postprocess(int function, t_function feed_type, int respnum);
 extern void fixup_thread(int respnum, t_bool redraw);
 
 /* version.c */

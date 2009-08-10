@@ -3,10 +3,10 @@
  *  Module    : art.c
  *  Author    : I.Lea & R.Skrenta
  *  Created   : 1991-04-01
- *  Updated   : 2009-07-17
+ *  Updated   : 2009-12-23
  *  Notes     :
  *
- * Copyright (c) 1991-2009 Iain Lea <iain@bricbrac.de>, Rich Skrenta <skrenta@pbm.com>
+ * Copyright (c) 1991-2010 Iain Lea <iain@bricbrac.de>, Rich Skrenta <skrenta@pbm.com>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -354,7 +354,7 @@ index_group(
 	int respnum;
 	int total;
 	long last_read_article;
-	long min, max;
+	long min, new_min, max;
 	t_bool caching_xover;
 	t_bool filtered;
 
@@ -396,11 +396,15 @@ index_group(
 	if (getart_limit > 0) {
 		if (grpmenu.max && (grpmenu.max > getart_limit))
 			min = base[grpmenu.max - getart_limit];
+		else
+			getart_limit = 0;
 	} else if (getart_limit < 0) {
 		long first_unread = find_first_unread(group);
 
 		if (min - first_unread < getart_limit)
 			min = first_unread + getart_limit;
+		else
+			getart_limit = 0;
 	}
 
 	/*
@@ -429,9 +433,9 @@ index_group(
 	 * Only do this if the previous read_overview() was against private cache
 	 */
 	if ((last_read_article < max) && caching_xover) {
-		min = (last_read_article >= min) ? last_read_article + 1 : min;
+		new_min = (last_read_article >= min) ? last_read_article + 1 : min;
 
-		if ((changed += read_overview(group, min, max, &last_read_article, FALSE)) == -1)
+		if ((changed += read_overview(group, new_min, max, &last_read_article, FALSE)) == -1)
 			return FALSE;	/* user aborted indexing */
 	} else
 		caching_xover = FALSE;
@@ -454,13 +458,9 @@ index_group(
 	 * Add any articles to arts[] that are new or were killed
 	 */
 	if (total > 0) {
-		/*
-		 * TODO
-		 * his doesn't honor tinrc.getart_limit
-		 * something like (tinrc.getart_limit ? min : last_read_article)
-		 * as 3rd arg to read_art_headers() might solve this
-		 */
-		if ((changed += read_art_headers(group, total, last_read_article)) == -1)
+		new_min = (getart_limit != 0 && last_read_article < min) ? min - 1 : last_read_article;
+
+		if ((changed += read_art_headers(group, total, new_min)) == -1)
 			return FALSE;		/* user aborted indexing */
 	}
 
@@ -474,7 +474,8 @@ index_group(
 	 * Do this before calling art_mark(,, ART_READ) if you want
 	 * the unread count to be correct.
 	 */
-	parse_unread_arts(group);
+	min = getart_limit > 0 ? min : 0L;
+	parse_unread_arts(group, min);
 #ifdef DEBUG
 	if (debug & DEBUG_NEWSRC) {
 		debug_print_comment("After parse_unread_arts()");
@@ -610,6 +611,9 @@ open_art_header(
 #	endif /*! BROKEN_LISTGROUP */
 
 			default:
+				/*
+				 * TODO: abort loop over all arts on ERR_NONEXT
+				 */
 #	ifndef BROKEN_LISTGROUP
 				/*
 				 * to avoid out of sync responses
@@ -1448,7 +1452,7 @@ parse_headers(
  *	5. MessageID:     (ie. <123@ether.net>)    [mandatory]
  *	6. References:    (ie. <message-id> ....)  [optional]
  *	7. Byte count     (Skipped - not used)     [mandatory]
- *	8. Lines: line    (ie. 23)                 [mandatory]
+ *	8. Line count     (ie. 23)                 [mandatory]
  *	9. Xref: line     (ie. alt.test:389)       [optional]
  */
 static int
@@ -1536,6 +1540,12 @@ read_overview(
 			continue;
 
 		/*
+		 * skip artnums below the given minimum (getart_limit)
+		 */
+		if (artnum < min)
+			continue;
+
+		/*
 		 * Check to make sure article in nov file has not expired in group
 		 */
 		if (artnum < group->xmin) {
@@ -1570,7 +1580,7 @@ read_overview(
 #ifdef DEBUG
 				if (debug & DEBUG_NNTP)
 					debug_print_file("NNTP", "%s(%d) Unexpected overview-field %d of %d: %s", nntp_caps.over_cmd, artnum, count, over_fields, ptr);
-#endif	/* DEBUG */
+#endif /* DEBUG */
 
 				/* "common error" Xref:full in overview-data but not in OVERVIEW.FTM */
 				if (count == over_fields + 1) {
@@ -1578,7 +1588,7 @@ read_overview(
 #ifdef DEBUG
 						if (debug & DEBUG_NNTP)
 							debug_print_file("NNTP", "%s: found unexpected Xref: on semi std. position", nntp_caps.over_cmd);
-#endif  /* DEBUG */
+#endif /* DEBUG */
 						over_fields++;
 						ofmt = my_realloc(ofmt, sizeof(struct t_overview_fmt) * (over_fields + 2)); /* + 2 = artnum and end-marker */
 						ofmt[over_fields].type = OVER_T_FSTRING;
@@ -1840,7 +1850,7 @@ read_overview(
 		}
 
 		if (found) {
-			snprintf(cbuf, sizeof(cbuf), "%s XREF %ld-%ld", nntp_caps.hdr_cmd, min, max);
+			snprintf(cbuf, sizeof(cbuf), "%s XREF %ld-%ld", nntp_caps.hdr_cmd, min, MAX(min, max));
 			group_msg = fmt_string("%s XREF loop", nntp_caps.hdr_cmd); /* TODO: find a better message, move to lang.c */
 			if ((fp = nntp_command(cbuf, nntp_caps.hdr ? OK_HDR : OK_HEAD, NULL, 0)) != NULL) { /* RFC 2980 (XHDR) uses 221; RFC 3977 (HDR) uses 225 */
 				while ((ptr = tin_fgets(fp, FALSE)) != NULL) {
@@ -1885,7 +1895,7 @@ read_overview(
  *	5. MessageID:     (ie. <123@ether.net>)    [mandatory]
  *	6. References:    (ie. <message-id> ....)  [optional]
  *	7. Byte count     (Skipped - not used)     [mandatory]
- *	8. Lines: line    (ie. 23)                 [mandatory]
+ *	8. Line count     (ie. 23)                 [mandatory]
  *	9. Xref: line     (ie. alt.test:389)       [optional]
  *
  * TODO: as we don't use the original data, we currently can't store
@@ -1915,9 +1925,9 @@ write_overview(
 	struct t_article *article;
 
 	/*
-	 * Can't write or caching is off
+	 * Can't write or caching is off or getart_limit is set
 	 */
-	if (no_write || !tinrc.cache_overview_files)
+	if (no_write || !tinrc.cache_overview_files || (cmdline.args & CMDLINE_GETART_LIMIT ? cmdline.getart_limit : tinrc.getart_limit) != 0)
 		return;
 
 	if ((fp = open_xover_fp(group, "w", 0L, 0L, FALSE)) == NULL)
@@ -2664,7 +2674,7 @@ open_xover_fp(
 	if (!local && nntp_caps.over_cmd && *mode == 'r' && group->type == GROUP_TYPE_NEWS) {
 		char line[NNTP_STRLEN];
 
-		snprintf(line, sizeof(line), "%s %ld-%ld", nntp_caps.over_cmd, min, max);
+		snprintf(line, sizeof(line), "%s %ld-%ld", nntp_caps.over_cmd, min, MAX(min, max));
 		return (nntp_command(line, OK_XOVER, NULL, 0));
 	}
 #endif /* NNTP_ABLE */

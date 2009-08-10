@@ -3,10 +3,10 @@
  *  Module    : prompt.c
  *  Author    : I. Lea
  *  Created   : 1991-04-01
- *  Updated   : 2009-05-07
+ *  Updated   : 2009-10-22
  *  Notes     :
  *
- * Copyright (c) 1991-2009 Iain Lea <iain@bricbrac.de>
+ * Copyright (c) 1991-2010 Iain Lea <iain@bricbrac.de>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -44,6 +44,7 @@
 
 
 static char *prompt_slk_message;	/* prompt message for prompt_slk_redraw */
+static char *prompt_yn_message;
 
 /*
  * Local prototypes
@@ -139,7 +140,7 @@ prompt_menu_string(
 	 * connection right before a resync_active() call
 	 * would lead to a 'n' answer to the reconnect prompt
 	 */
-	fflush(stdin);
+	/* fflush(stdin); */
 	MoveCursor(line, 0);
 	if ((p = tin_getline(prompt, FALSE, var, 0, FALSE, HIST_OTHER)) == NULL)
 		return FALSE;
@@ -163,7 +164,7 @@ prompt_yn(
 {
 	char *keyprompt;
 	char keyno[MAXKEYLEN], keyyes[MAXKEYLEN];
-	int keyyes_len = 0, keyno_len = 0, maxlen;
+	int keyyes_len = 0, keyno_len = 0, maxlen, prompt_len;
 	t_function func;
 #if defined (MULTIBYTE_ABLE) && !defined(NO_LOCALE)
 	wint_t yes, no, prompt_ch, ch;
@@ -196,21 +197,17 @@ prompt_yn(
 	keyno_len = (int) strlen(keyno);
 #endif /* MULTIBYTE_ABLE && !NO_LOCALE */
 	maxlen = MAX(keyyes_len, keyno_len);
+	prompt_len = (int) strlen(prompt) + keyyes_len + keyno_len + maxlen + 6;
+	prompt_yn_message = my_malloc(prompt_len + 1);
+
+	input_context = cPromptYN;
 
 	do {
 		prompt_ch = (default_answer ? yes : no);
 		keyprompt = (default_answer ? keyyes : keyno);
 
-		if (!cmd_line) {
-			MoveCursor(cLINES, 0);
-			CleartoEOLN();
-		}
-		my_printf("%s (%s/%s) %-*s", prompt, keyyes, keyno, maxlen, keyprompt);
-		if (!cmd_line)
-			cursoron();
-		my_flush();
-		if (!cmd_line)
-			MoveCursor(cLINES, (int) strlen(prompt) + keyyes_len + keyno_len + 5);
+		snprintf(prompt_yn_message, prompt_len, "%s (%s/%s) %-*s", prompt, keyyes, keyno, maxlen, keyprompt);
+		prompt_yn_redraw();
 
 #if defined (MULTIBYTE_ABLE) && !defined(NO_LOCALE)
 		if (((ch = ReadWch()) == '\n') || (ch == '\r'))
@@ -250,11 +247,32 @@ prompt_yn(
 		func = key_to_func(ch, prompt_keys);
 	} while (func == NOT_ASSIGNED);
 
+	input_context = cNone;
+	FreeAndNull(prompt_yn_message);
+
 	if (!cmd_line) {
 		clear_message();
 		my_flush();
 	}
 	return (func == PROMPT_YES) ? 1 : (func == GLOBAL_ABORT) ? -1 : 0;
+}
+
+
+/* (Re)draws the prompt message for prompt_yn() */
+void
+prompt_yn_redraw(
+	void)
+{
+	if (!cmd_line) {
+		MoveCursor(cLINES, 0);
+		CleartoEOLN();
+	}
+	my_printf("%s", prompt_yn_message);
+	if (!cmd_line)
+		cursoron();
+	my_flush();
+	if (!cmd_line)
+		MoveCursor(cLINES, (int) strlen(prompt_yn_message) -1);
 }
 
 
@@ -752,11 +770,14 @@ prompt_continue(
 	void)
 {
 	int ch;
+	int save_signal_context = signal_context;
 
 #ifdef USE_CURSES
 	cmd_line = TRUE;
 #endif /* USE_CURSES */
 	info_message(_(txt_return_key));
+	signal_context = cMain;
+	input_context = cPromptCONT;
 
 	switch ((ch = ReadCh())) {
 		case ESC:
@@ -769,6 +790,10 @@ prompt_continue(
 		default:
 			break;
 	}
+
+	input_context = cNone;
+	signal_context = save_signal_context;
+	my_fputc('\n', stdout);
 
 #ifdef USE_CURSES
 	cmd_line = FALSE;

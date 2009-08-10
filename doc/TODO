@@ -131,10 +131,12 @@ o  make 'GNKSA'-parser RFC5322/USEFOR compliant and fix bugs
    (e.g. "<~$!~( )@( )example.com>" causes "illegal character in RHS", but
    the address is valid)
 
+o  allow IDN ccTLDs (/\.xn--\S+$/) in 'GNKSA'-parser
+
 o  add In-Reply-To threading for mailgroups
    [20030518 Urs Janssen <urs@tin.org>]
 
-o  make auto'S'ave also work for inrange articles/threads(/groups)
+o  make auto'S'ave also work for inrange groups
    (unfortunately 'S' at select level is used for something else)
    [20030508 Urs Janssen <urs@tin.org>]
 
@@ -365,11 +367,11 @@ o  Merge the selection code with the range code. Having two similar methods
    of picking articles with similar goals is wasteful.
    [Jason Faultless <jason@altarstone.com>]
 
-o  add check for libbzip2/zlib (>=1.1.4)/[mini]lzo
-   (<http://sources.redhat.com/bzip2/>, <http://www.gzip.org/zlib/>,
-    <http://www.oberhumer.com/opensource/lzo/>) and add an
-   option to write/read {g,b,l}zipped local overviews.
-   zlib, libbzip2 and lzo might also be used for post-processing.
+o  add check for liblzma/libbzip2/zlib (>=1.1.4)/[mini]lzo
+   (<http://tukaani.org/xz/>, <http://sources.redhat.com/bzip2/>,
+    <http://www.gzip.org/zlib/>, <http://www.oberhumer.com/opensource/lzo/>)
+   and add an option to write/read {g,b,l}zipped local overviews.
+   liblzma, zlib, libbzip2 and lzo might also be used for post-processing.
 
 o  add check for GPGME (<http://www.gnupg.org/related_software/gpgme/>) and if
    found use it for pgp actions.
@@ -666,6 +668,10 @@ o  add configure-switch for DISABLE_PIPELINING
 
 Docs/online help
 ----------------
+o  the online help of GroupMarkUnselArtRead 'X' is unclear as it doesn't
+   say that the article are marked read
+   [20090814 Urs Janssen <urs@tin.org>]
+
 o  document the different singnals/actions (i.e. SIGUSR2 writes newsrc)
    [20080209 Urs Janssen <urs@tin.org>]
 
@@ -673,8 +679,8 @@ o  exit staus documentation in the manpage isn't correct, we have more
    exit codes than just 0/1 (and 2 in the -Z case).
    [20080320 Urs Janssen <urs@tin.org>]
 
-o  review the turkish, russian and kinyarwanda translations
-   (tr.po, ru.po, rw.po); add/finish man-page translation(s).
+o  review the danish, swedish, turkish, russian and kinyarwanda translations
+   (da.po, sv.po, tr.po, ru.po, rw.po); add/finish man-page translation(s).
 
 o  add installation guide (in html)
 
@@ -697,6 +703,17 @@ o  integrate doc/auth.txt into tin.1-manpage
 
 Not yet classified
 ------------------
+o  un/subscribe_pattern() is very slow on servers with a huge active file
+   [20091223 Urs Janssen <urs@tin.org>]
+
+o  replace wildmat.c with uwildmat.c
+   <http://inn.eyrie.org/trac/browser/trunk/lib/uwildmat.c>? It knows poison
+   patterns and can handle UTF-8 strings
+   [20091223 Urs Janssen <urs@tin.org>]
+
+o  mask inline PGP SIGNATURE/KEY BLOCK like we do for uu-sections?
+   [20090722 Urs Janssen <urs@tin.org>]
+
 o  support $XDG_CONFIG_HOME / $XDG_DATA_HOME?
    <http://standards.freedesktop.org/basedir-spec/basedir-spec-latest.html>
    [20081010 Urs Janssen <urs@tin.org>]
@@ -780,10 +797,6 @@ o  what about -a cmd-line flag? is this really needed? IMHO this can be
    dropped, '&' can be used for runtime color toggling.
    [20021106 Urs Janssen <urs@tin.org>]
 
-o  -G doesn't "work" in the !NNTP case, shall we disallow it in that case
-   or shall we try to implement it?
-   [20030421 Urs Janssen <urs@tin.org>]
-
 o  commas in real-name might cause problems in mail-replys
    From: Last, First <user@accou.nt> (which is illegal) leads to
    To: Last, First<user@accou.nt> which is last@localhost,user@accou.nt
@@ -802,7 +815,7 @@ o  check_article_to_be_posted() needs a cleanup!
 
 o  update gettext stuff to > gettext-0.12.1
 
-o  clean up included pcre stuff and update to >= pcre-7.9
+o  clean up included pcre stuff and update to >= pcre-8.0
 
 o  what is with conflicting tinrc settings? should we disallow those, or leave
    it to the user to realise that e.g. strip_blanks=ON && inverse_okay=ON

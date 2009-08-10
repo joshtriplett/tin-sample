@@ -3,10 +3,10 @@
  *  Module    : misc.c
  *  Author    : I. Lea & R. Skrenta
  *  Created   : 1991-04-01
- *  Updated   : 2009-07-17
+ *  Updated   : 2009-12-13
  *  Notes     :
  *
- * Copyright (c) 1991-2009 Iain Lea <iain@bricbrac.de>, Rich Skrenta <skrenta@pbm.com>
+ * Copyright (c) 1991-2010 Iain Lea <iain@bricbrac.de>, Rich Skrenta <skrenta@pbm.com>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -166,7 +166,7 @@ asfail(
 
 /*
  * Quick copying of files
- * Returns FALSE if copy failed. Caller may wish to check for SIGPIPE
+ * Returns FALSE if copy failed. Caller may wish to check for errno == EPIPE.
  */
 t_bool
 copy_fp(
@@ -176,11 +176,13 @@ copy_fp(
 	char buf[8192];
 	size_t have, sent;
 
+	errno = 0;	/* To check errno after write, clear it here */
+
 	while ((have = fread(buf, 1, sizeof(buf), fp_ip)) != 0) {
 		sent = fwrite(buf, 1, have, fp_op);
 		if (sent != have) {
 			TRACE(("copy_fp wrote %d of %d:{%.*s}", sent, have, (int) sent, buf));
-			if (!got_sig_pipe) /* !SIGPIPE => more serious error */
+			if (errno && errno != EPIPE) /* not a broken pipe => more serious error */
 				perror_message(_(txt_error_copy_fp));
 			return FALSE;
 		}

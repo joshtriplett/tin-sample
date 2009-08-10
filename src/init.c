@@ -3,10 +3,10 @@
  *  Module    : init.c
  *  Author    : I. Lea
  *  Created   : 1991-04-01
- *  Updated   : 2009-07-17
+ *  Updated   : 2009-12-13
  *  Notes     :
  *
- * Copyright (c) 1991-2009 Iain Lea <iain@bricbrac.de>
+ * Copyright (c) 1991-2010 Iain Lea <iain@bricbrac.de>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -133,12 +133,12 @@ t_bool filtered_articles;		/* locally killed / auto-selected articles */
 #else
 	t_bool force_no_post = FALSE;	/* don't force no posting mode */
 #endif /* NO_POSTING */
-t_bool got_sig_pipe = FALSE;
 t_bool list_active;
 t_bool newsrc_active;
 t_bool no_write = FALSE;		/* do not write newsrc on quit (-X cmd-line flag) */
 t_bool post_article_and_exit;		/* quick post of an article then exit(elm like) */
 t_bool post_postponed_and_exit;		/* post postponed articles and exit */
+t_bool range_active;		/* Set if a range is defined */
 t_bool reread_active_for_posted_arts;
 t_bool read_local_newsgroups_file;	/* read newsgroups file locally or via NNTP */
 t_bool read_news_via_nntp = FALSE;	/* read news locally or via NNTP */
@@ -506,6 +506,7 @@ struct t_capabilities nntp_caps = {
 	FALSE, /* LIST: "LIST SUBSCRIPTIONS" */
 	FALSE, /* LIST: "LIST DISTRIBUTIONS" */
 	FALSE, /* LIST: "LIST MODERATORS" */
+	FALSE, /* LIST: "LIST COUNTS" */
 	FALSE, /* XPAT */
 	FALSE, /* HDR: "HDR", "LIST HEADERS" */
 	NULL, /* [X]HDR */

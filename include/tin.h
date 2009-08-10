@@ -3,10 +3,10 @@
  *  Module    : tin.h
  *  Author    : I. Lea & R. Skrenta
  *  Created   : 1991-04-01
- *  Updated   : 2009-07-17
+ *  Updated   : 2009-11-30
  *  Notes     : #include files, #defines & struct's
  *
- * Copyright (c) 1997-2009 Iain Lea <iain@bricbrac.de>, Rich Skrenta <skrenta@pbm.com>
+ * Copyright (c) 1997-2010 Iain Lea <iain@bricbrac.de>, Rich Skrenta <skrenta@pbm.com>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -98,7 +98,7 @@
 #include	<signal.h>
 
 enum context { cMain, cArt, cAttrib, cConfig, cFilter, cGroup, cHelp, cInfopager, cPage, cScope, cSelect, cThread };
-enum icontext { cNone, cGetline, cPromptSLK };
+enum icontext { cNone, cGetline, cPromptCONT, cPromptSLK, cPromptYN };
 enum resizer { cNo, cYes, cRedraw };
 enum rc_state { RC_IGNORE, RC_CHECK, RC_UPGRADE, RC_DOWNGRADE, RC_ERROR };
 
@@ -724,6 +724,12 @@ enum rc_state { RC_IGNORE, RC_CHECK, RC_UPGRADE, RC_DOWNGRADE, RC_ERROR };
 #ifdef HAVE_LIBUTF8_H
 #	include <libutf8.h>
 #else
+/*
+ * order is important here:
+ * - Solaris 2.5.1 requires wchar.h before wctype.h
+ * - Tru64 with Desktop Toolkit C requires stdio.h before wchar.h
+ * - BSD/OS 4.0.1 requires stddef.h, stdio.h and time.h before wchar.h
+ */
 #	ifdef HAVE_WCHAR_H
 #		include <wchar.h>
 #	endif /* HAVE_WCHAR_H */
@@ -1033,6 +1039,8 @@ enum {
 #define FEED_SAVE		4
 #define FEED_AUTOSAVE	5
 #define FEED_REPOST		6
+#define FEED_MARK_READ		7
+#define FEED_MARK_UNREAD	8
 
 
 /*
@@ -2272,7 +2280,7 @@ extern struct tm *localtime(time_t *);
 
 /* read_news_active_file() / open_newsgroups_fp() */
 #ifndef DISABLE_PIPELINING
-#	define PIPELINE_LIMIT 30
+#	define PIPELINE_LIMIT 45
 #else
 #	define PIPELINE_LIMIT 1
 #endif /* DISABLE_PIPELINING */

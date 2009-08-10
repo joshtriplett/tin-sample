@@ -3,10 +3,10 @@
  *  Module    : help.c
  *  Author    : I. Lea
  *  Created   : 1991-04-01
- *  Updated   : 2009-02-22
+ *  Updated   : 2009-09-27
  *  Notes     :
  *
- * Copyright (c) 1991-2009 Iain Lea <iain@bricbrac.de>
+ * Copyright (c) 1991-2010 Iain Lea <iain@bricbrac.de>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -299,6 +299,8 @@ static t_help_page group_help_page[] = {
 	{ txt_help_group_catchup_next, CATCHUP_NEXT_UNREAD },
 	{ txt_help_group_mark_article_unread, MARK_ARTICLE_UNREAD },
 	{ txt_help_group_mark_thread_unread, MARK_THREAD_UNREAD },
+	{ txt_help_mark_feed_read, MARK_FEED_READ },
+	{ txt_help_mark_feed_unread, MARK_FEED_UNREAD },
 	{ txt_help_empty_line, NOT_ASSIGNED },
 	{ txt_help_group_select_all, GROUP_DO_AUTOSELECT },
 	{ txt_help_group_select_thread, GROUP_SELECT_THREAD },
@@ -389,8 +391,10 @@ static t_help_page thread_help_page[] = {
 	{ txt_help_thread_mark_article_read, THREAD_MARK_ARTICLE_READ },
 	{ txt_help_thread_catchup, CATCHUP },
 	{ txt_help_thread_catchup_next_unread, CATCHUP_NEXT_UNREAD },
-	{ txt_help_group_mark_article_unread, MARK_ARTICLE_UNREAD },
-	{ txt_help_group_mark_thread_unread, MARK_THREAD_UNREAD },
+	{ txt_help_thread_mark_article_unread, MARK_ARTICLE_UNREAD },
+	{ txt_help_thread_mark_thread_unread, MARK_THREAD_UNREAD },
+	{ txt_help_mark_feed_read, MARK_FEED_READ },
+	{ txt_help_mark_feed_unread, MARK_FEED_UNREAD },
 	{ txt_help_empty_line, NOT_ASSIGNED },
 	{ txt_help_group_select_thread, THREAD_SELECT_ARTICLE },
 	{ txt_help_group_toggle_thread_selection, THREAD_TOGGLE_ARTICLE_SELECTION },
@@ -498,7 +502,7 @@ static t_help_page page_help_page[] = {
 	{ txt_help_thread_catchup, CATCHUP },
 	{ txt_help_thread_catchup_next_unread, CATCHUP_NEXT_UNREAD },
 	{ txt_help_group_mark_article_unread, MARK_ARTICLE_UNREAD },
-	{ txt_help_group_mark_thread_unread, MARK_THREAD_UNREAD },
+	{ txt_help_thread_mark_thread_unread, MARK_THREAD_UNREAD },
 	{ txt_help_empty_line, NOT_ASSIGNED },
 	{ txt_help_article_autoselect, GLOBAL_MENU_FILTER_SELECT },
 	{ txt_help_article_autokill, GLOBAL_MENU_FILTER_KILL },

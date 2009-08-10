@@ -3,10 +3,10 @@
  *  Module    : lang.c
  *  Author    : I. Lea
  *  Created   : 1991-04-01
- *  Updated   : 2009-06-27
+ *  Updated   : 2009-12-01
  *  Notes     :
  *
- * Copyright (c) 1991-2009 Iain Lea <iain@bricbrac.de>
+ * Copyright (c) 1991-2010 Iain Lea <iain@bricbrac.de>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -61,7 +61,7 @@ constext txt_art_parent_killed[] = N_("Parent article has been killed");
 constext txt_art_parent_unavail[] = N_("Parent article is unavailable");
 constext txt_art_posted[] = N_("Article posted: %s");
 constext txt_art_rejected[] = N_("Article rejected (saved to %s)");
-constext txt_art_thread_regex_tag[] = N_("%s=article, %s=thread, %s=hot, %s=pattern, %s=tagged articles, %s=quit: ");
+constext txt_art_thread_regex_tag[] = N_("%s=article, %s=thread, %s=range, %s=hot, %s=pattern, %s=tagged, %s=quit: ");
 constext txt_art_unavailable[] = N_("Article unavailable");
 constext txt_art_undeleted[] = N_("Article undeleted.");
 constext txt_art_x_of_n[] = N_("Article %4d of %4d");
@@ -147,6 +147,7 @@ constext txt_end_of_thread[] = N_("*** End of thread ***");
 constext txt_enter_getart_limit[] = N_("Enter limit of articles to get> ");
 constext txt_enter_message_id[] = N_("Enter Message-ID to go to> ");
 constext txt_enter_next_thread[] = N_(" and enter next unread thread");
+constext txt_enter_next_unread_art[] = N_(" and enter next unread article");
 constext txt_enter_next_unread_group[] = N_(" and enter next unread group");
 constext txt_enter_option_num[] = N_("Enter option number> ");
 constext txt_enter_range[] = N_("Enter range [%s]> ");
@@ -224,6 +225,7 @@ constext txt_error_no_such_file[] = N_("File %s does not exist\n");
 constext txt_error_no_write_permission[] = N_("No write permissions for %s\n");
 constext txt_error_passwd_missing[] = N_("Can't get user information (/etc/passwd missing?)");
 constext txt_error_plural[] = N_("errors");
+constext txt_error_grp_renamed[] = N_("\nError: \"%s\" is renamed, use \"%s\" instead!\n");
 #ifndef FORGERY
 	constext txt_error_sender_in_header_not_allowed[] = N_("\nError on line %d: \"Sender:\" header not allowed (it will be added for you)\n");
 #endif /* !FORGERY */
@@ -395,8 +397,10 @@ constext txt_help_group_first_thread[] = N_("choose first thread in list");
 constext txt_help_group_last_thread[] = N_("choose last thread in list");
 constext txt_help_group_list_thread[] = N_("list articles within current thread (bring up Thread sub-menu)");
 constext txt_help_group_mark_article_unread[] = N_("mark article as unread");
-constext txt_help_group_mark_thread_read[] = N_("mark current thread or tagged threads as read");
-constext txt_help_group_mark_thread_unread[] = N_("mark thread as unread");
+constext txt_help_group_mark_thread_read[] = N_("mark current thread, range or tagged threads as read");
+constext txt_help_group_mark_thread_unread[] = N_("mark current thread, range or tagged threads as unread");
+constext txt_help_mark_feed_read[] = N_("mark current/range/selected/pattern/tagged as read after prompting");
+constext txt_help_mark_feed_unread[] = N_("mark current/range/selected/pattern/tagged as unread after prompting");
 constext txt_help_group_mark_unsel_art_read[] = N_("toggle display of all/selected articles");
 constext txt_help_group_next[] = N_("display next group");
 constext txt_help_group_prev[] = N_("display previous group");
@@ -453,7 +457,9 @@ constext txt_help_thread_catchup[] = N_("mark thread as read and return to group
 constext txt_help_thread_catchup_next_unread[] = N_("mark thread as read and enter next unread thread or group");
 constext txt_help_thread_first_article[] = N_("choose first article in list");
 constext txt_help_thread_last_article[] = N_("choose last article in list");
-constext txt_help_thread_mark_article_read[] = N_("mark article or tagged articles as read and move cursor to next unread article");
+constext txt_help_thread_mark_article_read[] = N_("mark art, range or tagged arts as read; move crsr to next unread art");
+constext txt_help_thread_mark_article_unread[] = N_("mark article, range or tagged articles as unread");
+constext txt_help_thread_mark_thread_unread[] = N_("mark current thread as unread");
 constext txt_help_thread_read_article[] = N_("read chosen article");
 constext txt_help_title_disp[] = N_("Display properties\n------------------");
 constext txt_help_title_misc[] = N_("Miscellaneous\n-------------");
@@ -537,13 +543,15 @@ constext txt_mailing_to[] = N_("Mailing to %s...");
 constext txt_mail_save_active_head[] = N_("# [Mail/Save] active file. Format is like news active file:\n\
 #   groupname  max.artnum  min.artnum  /dir\n\
 # The 4th field is the basedir (ie. ~/Mail or ~/News)\n#\n");
+constext txt_marked_as_read[] = N_("%s marked as read");
 constext txt_marked_as_unread[] = N_("%s marked as unread");
-constext txt_marked_tagged_arts_as_read[] = N_("Marked %d of %d tagged %s as read");
+constext txt_marked_arts_as_read[] = N_("Marked %d of %d %s as read");
+constext txt_marked_arts_as_unread[] = N_("Marked %d of %d %s as unread");
+constext txt_mark[] = N_("Mark");
 constext txt_mark_arts_read[] = N_("Mark all articles as read%s?");
-constext txt_mark_art_read_tagged_current[] = N_("Mark %s=tagged articles, %s=current article, %s=quit: ");
+constext txt_mark_art_read[] = N_("Mark article as read%s?");
 constext txt_mark_group_read[] = N_("Mark group %s as read?");
 constext txt_mark_thread_read[] = N_("Mark thread as read%s?");
-constext txt_mark_thread_read_tagged_current[] = N_("Mark %s=tagged articles/threads, %s=current thread, %s=quit: ");
 constext txt_matching_cmd_line_groups[] = N_("Matching %s groups...");
 constext txt_mini_group_1[] = N_("<n>=set current to n; %s=next unread; %s=search pattern; %s=kill/select");
 constext txt_mini_group_2[] = N_("%s=author search; %s=catchup; %s=line down; %s=line up; %s=mark read; %s=list thread");
@@ -783,7 +791,6 @@ constext txt_thread_marked_as_selected[] = N_("Thread selected");
 #if 0 /* unused */
 	constext txt_thread_plural[] = N_("threads");
 #endif /* 0 */
-constext txt_thread_range[] = N_("Thread range");
 constext txt_thread_singular[] = N_("thread");
 constext txt_thread_x_of_n[] = N_("Thread %4s of %4s");
 constext txt_threading_arts[] = N_("Threading articles...");
@@ -809,6 +816,9 @@ constext txt_unsubscribed_to[] = N_("Unsubscribed from %s");
 constext txt_unsubscribing[] = N_("Unsubscribing... ");
 constext txt_unthreading_arts[] = N_("Unthreading articles...");
 constext txt_updated[] = N_("Updated");
+#ifdef NNTP_ABLE
+	constext txt_unparseable_counts[] = N_("unparseable \"LIST COUNTS\" line: \"%s\"");
+#endif /* NNTP_ABLE */
 constext txt_updating[] = N_("Updating");
 constext txt_url_open[] = N_("Opening %s\n");
 constext txt_url_done[] = N_("No more URL's in this article");
@@ -879,6 +889,7 @@ Warning: Your signature  is longer than %d lines.  Since signatures usually do\n
          possible.\n");
 constext txt_warn_suspicious_mail[] = N_("Warning: this mail address may contain a spamtrap. %s=continue, %s=abort? ");
 constext txt_warn_wrong_sig_format[] = N_("\nWarning: Signatures should start with '-- \\n' not with '--\\n'.\n");
+constext txt_warn_grp_renamed[] = N_("\nWarning: \"%s\" is renamed, you should use \"%s\" instead!\n");
 constext txt_writing_attributes_file[] = N_("Writing attributes file...");
 
 constext txt_x_resp[] = N_("%d Responses");
@@ -997,7 +1008,7 @@ Warning: Posting is in %s and contains characters which are not\n\
 #endif /* HAVE_PGP_GPG */
 
 #ifdef M_UNIX
-	constext txt_copyright_notice[] = "%s (c) Copyright 1991-2009 Iain Lea.";
+	constext txt_copyright_notice[] = "%s (c) Copyright 1991-2010 Iain Lea.";
 #endif /* M_UNIX */
 
 #ifdef NNTP_ABLE
@@ -1912,8 +1923,8 @@ struct opttxt txt_confirm_choice = {
 
 struct opttxt txt_mark_ignore_tags = {
 	N_("<SPACE> toggles, <CR> sets, <ESC> cancels."),
-	N_("'Mark article read' ignores tags"),
-	N_("# If ON the 'Mark article read' function marks only the current article.\n")
+	N_("'Mark as (un)read' ignores tags"),
+	N_("# If ON the 'Mark as (un)read' function marks only the current article.\n")
 };
 
 struct opttxt txt_url_handler = {
@@ -2682,7 +2693,7 @@ struct opttxt txt_mime_forward = {
 };
 
 struct opttxt txt_mime_types_to_save = {
-	N_("A comma seperated list of MIME major/minor Content-Types. <ESC> cancels."),
+	N_("A comma separated list of MIME major/minor Content-Types. <ESC> cancels."),
 	N_("Which MIME types will be saved"),
 	NULL
 };
@@ -2768,7 +2779,7 @@ struct opttxt txt_x_headers = {
 };
 
 struct opttxt txt_x_comment_to = {
-	N_("Atomatically insert an X-Comment-To: header? <SPACE> toggles & <CR> sets."),
+	N_("Automatically insert an X-Comment-To: header? <SPACE> toggles & <CR> sets."),
 	N_("Insert X-Comment-To: header"),
 	NULL
 };

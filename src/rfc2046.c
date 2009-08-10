@@ -6,7 +6,7 @@
  *  Updated   : 2009-06-24
  *  Notes     : RFC 2046 MIME article parsing
  *
- * Copyright (c) 2000-2009 Jason Faultless <jason@altarstone.com>
+ * Copyright (c) 2000-2010 Jason Faultless <jason@altarstone.com>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
