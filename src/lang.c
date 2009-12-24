@@ -3,7 +3,7 @@
  *  Module    : lang.c
  *  Author    : I. Lea
  *  Created   : 1991-04-01
- *  Updated   : 2009-12-01
+ *  Updated   : 2009-12-27
  *  Notes     :
  *
  * Copyright (c) 1991-2010 Iain Lea <iain@bricbrac.de>
@@ -165,6 +165,7 @@ constext txt_error_bad_msgidfqdn[] = N_("\nError: Bad FQDN in Message-ID: header
 constext txt_error_copy_fp[] = "copy_fp() failed";
 constext txt_error_corrupted_file[] = N_("Corrupted file %s");
 constext txt_error_fseek[] = "fseek() error on [%s]";
+constext txt_error_followup_poster[] = N_("\nError: Followup-To \"poster\" and a newsgroup is not allowed!\n");
 constext txt_error_gnksa_internal[] = N_("Internal error in GNKSA routine - send bug report.\n");
 constext txt_error_gnksa_langle[] = N_("Left angle bracket missing in route address.\n");
 constext txt_error_gnksa_lparen[] = N_("Left parenthesis missing in old-style address.\n");
@@ -217,6 +218,7 @@ constext txt_error_invalid_response_to_group[] = N_("Invalid response to GROUP c
 constext txt_error_locale[] = "Can't set the specified locale!";
 constext txt_error_mime_end[] = N_("MIME parse error: Unexpected end of %s/%s article");
 constext txt_error_mime_start[] = N_("MIME parse error: Start boundary whilst reading headers");
+constext txt_error_newsgroups_poster[] = N_("\nError: \"poster\" is not allowed in Newsgroups!\n");
 constext txt_error_no_domain_name[] = N_("Can't get a (fully-qualified) domain-name!");
 constext txt_error_no_enter_permission[] = N_("No permissions to go into %s\n");
 constext txt_error_no_from[] = N_("\nError: From: line missing.\n");
@@ -225,7 +227,6 @@ constext txt_error_no_such_file[] = N_("File %s does not exist\n");
 constext txt_error_no_write_permission[] = N_("No write permissions for %s\n");
 constext txt_error_passwd_missing[] = N_("Can't get user information (/etc/passwd missing?)");
 constext txt_error_plural[] = N_("errors");
-constext txt_error_grp_renamed[] = N_("\nError: \"%s\" is renamed, use \"%s\" instead!\n");
 #ifndef FORGERY
 	constext txt_error_sender_in_header_not_allowed[] = N_("\nError on line %d: \"Sender:\" header not allowed (it will be added for you)\n");
 #endif /* !FORGERY */
@@ -872,6 +873,7 @@ Warning: You are using a non-plain transfer encoding (such as base64 or\n\
          quoted-printable) and an external inews program to submit your\n\
          article. If a signature is appended by that inews program it will\n\
          not be encoded properly.\n");
+constext txt_warn_example_hierarchie[]= N_("\nWarning: \"example\" is a reserved hierarchie!\n");
 constext txt_warn_update[] = N_("\n\nYou are upgrading to tin %s from an earlier version.\n\
 Some values in your %s file have changed!\nRead WHATSNEW, etc...\n");
 constext txt_warn_downgrade[] = N_("\n\nYou are downgrading to tin %s from a more recent version!\n\
@@ -889,7 +891,6 @@ Warning: Your signature  is longer than %d lines.  Since signatures usually do\n
          possible.\n");
 constext txt_warn_suspicious_mail[] = N_("Warning: this mail address may contain a spamtrap. %s=continue, %s=abort? ");
 constext txt_warn_wrong_sig_format[] = N_("\nWarning: Signatures should start with '-- \\n' not with '--\\n'.\n");
-constext txt_warn_grp_renamed[] = N_("\nWarning: \"%s\" is renamed, you should use \"%s\" instead!\n");
 constext txt_writing_attributes_file[] = N_("Writing attributes file...");
 
 constext txt_x_resp[] = N_("%d Responses");
@@ -953,10 +954,12 @@ Warning: Posting is in %s and contains characters which are not\n\
 
 #ifdef HAVE_FASCIST_NEWSADMIN
 	constext txt_error_followup_to_several_groups[] = N_("\nError: Followup-To set to more than one newsgroup!\n");
+	constext txt_error_grp_renamed[] = N_("\nError: \"%s\" is renamed, use \"%s\" instead!\n");
 	constext txt_error_missing_followup_to[] = N_("\nError: cross-posting to %d newsgroups and no Followup-To line!\n");
 	constext txt_error_not_valid_newsgroup[] = N_("\nError: \"%s\" is not a valid newsgroup!\n");
 #else
 	constext txt_warn_followup_to_several_groups[] = N_("\nWarning: Followup-To set to more than one newsgroup!\n");
+	constext txt_warn_grp_renamed[] = N_("\nWarning: \"%s\" is renamed, you should use \"%s\" instead!\n");
 	constext txt_warn_missing_followup_to[] = N_("\nWarning: cross-posting to %d newsgroups and no Followup-To line!\n");
 	constext txt_warn_not_in_newsrc[] = N_("\nWarning: \"%s\" is not in your newsrc, it may be invalid at this site!\n");
 	constext txt_warn_not_valid_newsgroup[] = N_("\nWarning: \"%s\" is not a valid newsgroup at this site!\n");

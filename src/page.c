@@ -3,7 +3,7 @@
  *  Module    : page.c
  *  Author    : I. Lea & R. Skrenta
  *  Created   : 1991-04-01
- *  Updated   : 2009-09-27
+ *  Updated   : 2010-03-07
  *  Notes     :
  *
  * Copyright (c) 1991-2010 Iain Lea <iain@bricbrac.de>, Rich Skrenta <skrenta@pbm.com>
@@ -302,13 +302,11 @@ show_page(
 	char buf[LEN];
 	char key[MAXKEYLEN];
 	int i, j, n = 0;
-	int old_sort_art_type = tinrc.sort_article_type;
 	int art_type = GROUP_TYPE_NEWS;
+	long old_artnum = 0L;
 	t_bool mouse_click_on = TRUE;
 	t_bool repeat_search;
 	t_function func;
-
-	filtered_articles = FALSE;	/* used in thread level */
 
 	if (group->attribute->mailing_list != NULL)
 		art_type = GROUP_TYPE_MAIL;
@@ -678,30 +676,52 @@ page_goto_next_unread:
 
 			case GLOBAL_QUICK_FILTER_SELECT:	/* quickly auto-select article */
 			case GLOBAL_QUICK_FILTER_KILL:		/* quickly kill article */
-				if ((filtered_articles = quick_filter(func, group, &arts[this_resp])))
-					goto return_to_index;
-
-				draw_page(group->name, 0);
+				if (quick_filter(func, group, &arts[this_resp])) {
+					old_artnum = arts[this_resp].artnum;
+					unfilter_articles(group);
+					filter_articles(group);
+					arts[this_resp].status = ART_UNREAD;
+					make_threads(group, FALSE);
+					if ((n = find_artnum(old_artnum)) == -1 || which_thread(n) == -1) /* We have lost the thread */
+						return GRP_KILLED;
+					this_resp = n;
+					arts[this_resp].status = ART_READ;
+					draw_page(group->name, 0);
+					info_message((func == GLOBAL_QUICK_FILTER_KILL) ? _(txt_info_add_kill) : _(txt_info_add_select));
+				}
 				break;
 
 			case GLOBAL_MENU_FILTER_SELECT:		/* auto-select article menu */
 			case GLOBAL_MENU_FILTER_KILL:			/* kill article menu */
 				XFACE_CLEAR();
 				if (filter_menu(func, group, &arts[this_resp])) {
-					if ((filtered_articles = filter_articles(group)))
-						goto return_to_index;
+					old_artnum = arts[this_resp].artnum;
+					unfilter_articles(group);
+					filter_articles(group);
+					arts[this_resp].status = ART_UNREAD;
+					make_threads(group, FALSE);
+					if ((n = find_artnum(old_artnum)) == -1 || which_thread(n) == -1) /* We have lost the thread */
+						return GRP_KILLED;
+					this_resp = n;
+					arts[this_resp].status = ART_READ;
 				}
 				draw_page(group->name, 0);
 				break;
 
 			case GLOBAL_EDIT_FILTER:
 				XFACE_CLEAR();
-				if (!invoke_editor(filter_file, filter_file_offset, NULL))
-					break;
-				unfilter_articles();
-				(void) read_filter_file(filter_file);
-				if ((filtered_articles = filter_articles(group)))
-					goto return_to_index;
+				if (invoke_editor(filter_file, filter_file_offset, NULL)) {
+					old_artnum = arts[this_resp].artnum;
+					unfilter_articles(group);
+					(void) read_filter_file(filter_file);
+					filter_articles(group);
+					arts[this_resp].status = ART_UNREAD;
+					make_threads(group, FALSE);
+					if ((n = find_artnum(old_artnum)) == -1 || which_thread(n) == -1) /* We have lost the thread */
+						return GRP_KILLED;
+					this_resp = n;
+					arts[this_resp].status = ART_READ;
+				}
 				draw_page(group->name, 0);
 				break;
 
@@ -792,21 +812,10 @@ page_goto_next_unread:
 			case GLOBAL_QUIT:	/* return to index page */
 return_to_index:
 				XFACE_CLEAR();
-				if (tinrc.sort_article_type != old_sort_art_type)
-					make_threads(group, TRUE);
-
 				i = which_thread(this_resp);
 				if (threadnum)
 					*threadnum = which_response(this_resp);
 
-				if (filtered_articles) {
-					int old_top = top_art;
-					long old_artnum = arts[this_resp].artnum;
-
-					filter_articles(group);
-					make_threads(group, FALSE);
-					i = find_new_pos(old_top, old_artnum, i);
-				}
 				return i;
 
 			case GLOBAL_TOGGLE_INVERSE_VIDEO:	/* toggle inverse video */
@@ -831,7 +840,13 @@ return_to_index:
 
 			case GLOBAL_OPTION_MENU:	/* option menu */
 				XFACE_CLEAR();
+				old_artnum = arts[this_resp].artnum;
 				config_page(group->name);
+				if ((this_resp = find_artnum(old_artnum)) == -1 || which_thread(this_resp) == -1) { /* We have lost the thread */
+					pos_first_unread_thread();
+					return GRP_EXIT;
+				}
+				fixup_thread(this_resp, FALSE);
 				draw_page(group->name, 0);
 				break;
 
@@ -1715,6 +1730,9 @@ load_article(
 		switch (ret) {
 			case ART_UNAVAILABLE:
 				art_mark(group, &arts[new_respnum], ART_READ);
+	 			/* prevent retagging as unread in unfilter_articles() */
+				if (arts[new_respnum].killed == ART_KILLED_UNREAD)
+					arts[new_respnum].killed = ART_KILLED;
 				art_closed = TRUE;
 				wait_message(1, _(txt_art_unavailable));
 				return GRP_ARTUNAVAIL;
@@ -1747,6 +1765,13 @@ load_article(
 	}
 
 	art_mark(group, &arts[this_resp], ART_READ);
+
+	/*
+	 * Change status if art was unread before killing to
+	 * prevent retagging as unread in unfilter_articles()
+	 */
+	if (arts[this_resp].killed == ART_KILLED_UNREAD)
+		arts[this_resp].killed = ART_KILLED;
 
 	if (pgart.cooked == NULL) { /* harmony corruption */
 		wait_message(1, _(txt_art_unavailable));

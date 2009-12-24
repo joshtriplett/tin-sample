@@ -3,7 +3,7 @@
  *  Module    : nntplib.c
  *  Author    : S. Barber & I. Lea
  *  Created   : 1991-01-12
- *  Updated   : 2009-12-19
+ *  Updated   : 2010-01-26
  *  Notes     : NNTP client routines taken from clientlib.c 1.5.11 (1991-02-10)
  *  Copyright : (c) Copyright 1991-99 by Stan Barber & Iain Lea
  *              Permission is hereby granted to copy, reproduce, redistribute
@@ -410,8 +410,8 @@ get_tcp_socket(
 #			ifdef h_addr
 	int x = 0;
 	char **cp;
-	static char *alist[2] = {0, 0};
 #			endif /* h_addr */
+	static char *alist[2] = {0, 0};
 	static struct hostent def;
 	static struct in_addr defaddr;
 	static char namebuf[256];
@@ -442,9 +442,7 @@ get_tcp_socket(
 		/* Raw ip address, fake */
 		STRCPY(namebuf, machine);
 		def.h_name = (char *) namebuf;
-#			ifdef h_addr
 		def.h_addr_list = alist;
-#			endif /* h_addr */
 		def.h_addr_list[0] = (char *) &defaddr;
 		def.h_length = sizeof(struct in_addr);
 		def.h_addrtype = AF_INET;
@@ -805,6 +803,7 @@ reconnect(
 	int retry)
 {
 	char buf[NNTP_STRLEN];
+	int save_signal_context = signal_context;
 
 	/*
 	 * Tear down current connection
@@ -822,11 +821,22 @@ reconnect(
 	DEBUG_IO((stderr, _("\nServer timed out, trying reconnect # %d\n"), retry));
 
 	/*
+	 * set signal_context temporary to cReconnect to avoid trouble when receiving
+	 * SIGWINCH while beeing in prompt_yn()
+	 */
+	signal_context = cReconnect;
+
+	/*
 	 * Exit tin if the user says no to reconnect. The exit code stops tin from trying
 	 * to disconnect again - the connection is already dead
 	 */
 	if (!tinrc.auto_reconnect && prompt_yn(_(txt_reconnect_to_news_server), TRUE) != 1)
 		tin_done(NNTP_ERROR_EXIT);		/* user said no to reconnect */
+
+	/*
+	 * reset signal_context
+	 */
+	signal_context = save_signal_context;
 
 	clear_message();
 
@@ -1143,6 +1153,16 @@ check_extensions(void)
 							if (!strncasecmp(d, "LOGIN", 5)) { /* Microsoft */
 								nntp_caps.authinfo_sasl = TRUE;
 								nntp_caps.sasl |= SASL_LOGIN;
+							}
+						}
+					} else if (!strncasecmp(ptr, "COMPRESS", 8)) { /* draft-murchison-nntp-compress-01.txt */
+						d = ptr + 8;
+						d = strpbrk(d, " \t");
+						while (d != NULL && (d + 1 < (ptr + strlen(ptr)))) {
+							d++;
+							if (!strncasecmp(d, "DEFLATE", 7)) {
+								nntp_caps.compress = TRUE;
+								nntp_caps.compress_algorithm |= COMPRESS_DEFLATE;
 							}
 						}
 					}

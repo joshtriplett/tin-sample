@@ -3,7 +3,7 @@
  *  Module    : attrib.c
  *  Author    : I. Lea
  *  Created   : 1993-12-01
- *  Updated   : 2009-11-05
+ *  Updated   : 2010-03-01
  *  Notes     : Group attribute routines
  *
  * Copyright (c) 1993-2010 Iain Lea <iain@bricbrac.de>
@@ -873,6 +873,7 @@ assign_attributes_to_groups(
 	struct t_scope *default_scope, *curr_scope;
 	t_bool found;
 	int i, j;
+	long processed = 0L;
 #ifdef CHARSET_CONVERSION
 	t_bool is_7bit;
 #endif /* CHARSET_CONVERSION */
@@ -882,6 +883,8 @@ assign_attributes_to_groups(
 
 	default_scope = &scopes[0];
 	for_each_group(i) {
+		if (++processed % (MODULO_COUNT_NUM) == 0)
+			spin_cursor();
 		group = &active[i];
 		found = FALSE;
 		for (j = 1; j < num_scope; j++) {

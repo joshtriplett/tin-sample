@@ -3,7 +3,7 @@
  *  Module    : art.c
  *  Author    : I.Lea & R.Skrenta
  *  Created   : 1991-04-01
- *  Updated   : 2009-12-23
+ *  Updated   : 2010-03-01
  *  Notes     :
  *
  * Copyright (c) 1991-2010 Iain Lea <iain@bricbrac.de>, Rich Skrenta <skrenta@pbm.com>
@@ -2608,6 +2608,25 @@ valid_artnum(
 }
 
 
+/*
+ * Loop over arts[] to see if 'art' (an article number) exists in arts[]
+ * Needed if arts[] is not sorted on artnum
+ * Return index into arts[] or -1
+ */
+int
+find_artnum(
+	long art)
+{
+	int i;
+
+	for_each_art(i) {
+		if (arts[i].artnum == art)
+			return i;
+	}
+	return -1;
+}
+
+
 /*----------------------------- Overview handling -----------------------*/
 
 static char *
@@ -2674,7 +2693,12 @@ open_xover_fp(
 	if (!local && nntp_caps.over_cmd && *mode == 'r' && group->type == GROUP_TYPE_NEWS) {
 		char line[NNTP_STRLEN];
 
-		snprintf(line, sizeof(line), "%s %ld-%ld", nntp_caps.over_cmd, min, MAX(min, max));
+		if (!max)
+			return NULL;
+		if (min == max)
+			snprintf(line, sizeof(line), "%s %ld", nntp_caps.over_cmd, min);
+		else
+			snprintf(line, sizeof(line), "%s %ld-%ld", nntp_caps.over_cmd, min, MAX(min, max));
 		return (nntp_command(line, OK_XOVER, NULL, 0));
 	}
 #endif /* NNTP_ABLE */

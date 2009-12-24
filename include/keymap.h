@@ -3,7 +3,7 @@
  *  Module    : keymap.h
  *  Author    : J. Faultless, D. Nimmich
  *  Created   : 1999
- *  Updated   : 2009-09-27
+ *  Updated   : 2010-02-06
  *  Notes     :
  *
  * Copyright (c) 1999-2010 Jason Faultless <jason@altarstone.com>
@@ -211,7 +211,7 @@ enum defined_functions {
 	GLOBAL_SET_RANGE,
 #ifndef NO_SHELL_ESCAPE
 	GLOBAL_SHELL_ESCAPE,
-#endif /* NO_SHELL_ESCAPE */
+#endif /* !NO_SHELL_ESCAPE */
 #ifdef HAVE_COLOR
 	GLOBAL_TOGGLE_COLOR,
 #endif /* HAVE_COLOR */
@@ -220,6 +220,7 @@ enum defined_functions {
 	GLOBAL_TOGGLE_INVERSE_VIDEO,
 	GLOBAL_VERSION,
 	GROUP_AUTOSAVE,
+	GROUP_CANCEL,
 	GROUP_DO_AUTOSELECT,
 	GROUP_GOTO,
 	GROUP_LIST_THREAD,
@@ -343,6 +344,7 @@ enum defined_functions {
 	SELECT_QUIT_NO_WRITE,
 	SELECT_YANK_ACTIVE,
 	THREAD_AUTOSAVE,
+	THREAD_CANCEL,
 	THREAD_MAIL,
 	THREAD_MARK_ARTICLE_READ,
 	THREAD_READ_NEXT_ARTICLE_OR_THREAD,

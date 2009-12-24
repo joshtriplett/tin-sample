@@ -918,7 +918,7 @@ parse_multipart_article(
 				/*
 				 * Keep headers that interest us
 				 */
-/*fprintf(stderr, "HDR:%s\n", line);*/
+/* fprintf(stderr, "HDR:%s\n", line); */
 				unfold_header(line);
 				if ((ptr = parse_header(line, "Content-Type", FALSE, FALSE))) {
 					parse_content_type(ptr, curr_part);
@@ -942,7 +942,7 @@ parse_multipart_article(
 			case M_BODY:
 				switch (bnd) {
 					case BOUND_NONE:
-/*fprintf(stderr, "BOD:%s\n", line);*/
+/* fprintf(stderr, "BOD:%s\n", line); */
 						curr_part->line_count++;
 						break;
 
@@ -1141,8 +1141,8 @@ open_art_fp(
 }
 
 
-/*----------- art_open() and art_close() are the only interface ---------*/
-/*------------------------for accessing articles -------------------*/
+/* ----------- art_open() and art_close() are the only interface --------- */
+/* ------------------------for accessing articles ------------------- */
 
 /*
  * Open's and postprocesses and article

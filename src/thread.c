@@ -3,7 +3,7 @@
  *  Module    : thread.c
  *  Author    : I. Lea
  *  Created   : 1991-04-01
- *  Updated   : 2009-11-12
+ *  Updated   : 2010-03-07
  *  Notes     :
  *
  * Copyright (c) 1991-2010 Iain Lea <iain@bricbrac.de>
@@ -403,6 +403,7 @@ thread_page(
 	char key[MAXKEYLEN];
 	char mark[] = { '\0', '\0' };
 	int i, n;
+	long old_artnum = 0L;
 	t_bool repeat_search;
 	t_function func;
 
@@ -553,16 +554,14 @@ thread_page(
 
 			case GLOBAL_MENU_FILTER_SELECT:
 			case GLOBAL_MENU_FILTER_KILL:
-				/*
-				 * FIXME: a filter which kills all remaining messages in a thread
-				 *        is 'troublesome'
-				 */
 				n = find_response(thread_basenote, thdmenu.curr);
-				filter_menu(func, group, &arts[n]);
-				if (filter_articles(group)) {
+				if (filter_menu(func, group, &arts[n])) {
+					old_artnum = arts[n].artnum;
+					unfilter_articles(group);
+					filter_articles(group);
 					make_threads(group, FALSE);
-					if ((n = next_unread(n)) == -1) {
-						ret_code = GRP_EXIT;
+					if ((n = find_artnum(old_artnum)) == -1 || which_thread(n) == -1) { /* We have lost the thread */
+						ret_code = GRP_KILLED;
 						break;
 					}
 					fixup_thread(n, TRUE);
@@ -571,14 +570,14 @@ thread_page(
 				break;
 
 			case GLOBAL_EDIT_FILTER:
-				if (!invoke_editor(filter_file, filter_file_offset, NULL))
-					break;
-				unfilter_articles();
-				(void) read_filter_file(filter_file);
-				if (filter_articles(group)) {
+				if (invoke_editor(filter_file, filter_file_offset, NULL)) {
+					old_artnum = arts[find_response(thread_basenote, thdmenu.curr)].artnum;
+					unfilter_articles(group);
+					(void) read_filter_file(filter_file);
+					filter_articles(group);
 					make_threads(group, FALSE);
-					if ((n = next_unread(n)) == -1) {
-						ret_code = GRP_EXIT;
+					if ((n = find_artnum(old_artnum)) == -1 || which_thread(n) == -1) { /* We have lost the thread */
+						ret_code = GRP_KILLED;
 						break;
 					}
 					fixup_thread(n, TRUE);
@@ -592,6 +591,21 @@ thread_page(
 
 			case THREAD_READ_NEXT_ARTICLE_OR_THREAD:
 				ret_code = thread_tab_pressed();
+				break;
+
+			case THREAD_CANCEL:		/* cancel current article */
+				if (can_post || group->attribute->mailing_list != NULL) {
+					char *progress_msg = my_strdup(_(txt_reading_article));
+					int ret;
+
+					n = find_response(thread_basenote, thdmenu.curr);
+					ret = art_open(TRUE, &arts[n], group, &pgart, TRUE, progress_msg);
+					free(progress_msg);
+					if (ret != ART_UNAVAILABLE && ret != ART_ABORT && cancel_article(group, &arts[n], n))
+						show_thread_page();
+					art_close(&pgart);
+				} else
+					info_message(_(txt_cannot_post));
 				break;
 
 			case GLOBAL_POST:		/* post a basenote */
@@ -656,11 +670,13 @@ thread_page(
 				break;
 
 			case GLOBAL_OPTION_MENU:
-				config_page(group->name);
 				n = find_response(thread_basenote, thdmenu.curr);
-				if (which_thread(n) == -1) /* We have lost the thread */
+				old_artnum = arts[n].artnum;
+				config_page(group->name);
+				if ((n = find_artnum(old_artnum)) == -1 || which_thread(n) == -1) { /* We have lost the thread */
+					pos_first_unread_thread();
 					ret_code = GRP_EXIT;
-				else {
+				} else {
 					fixup_thread(n, FALSE);
 					thdmenu.curr = which_response(n);
 					show_thread_page();
@@ -966,7 +982,9 @@ which_thread(
 			return j;
 	}
 
+#ifdef DEBUG
 	error_message(2, _(txt_cannot_find_base_art), n);
+#endif /* DEBUG */
 	return -1;
 }
 
@@ -1452,9 +1470,11 @@ again:
 	switch ((i = show_page(curr_group, art, &thdmenu.curr))) {
 		/* These exit to previous menu level */
 		case GRP_QUIT:				/* 'Q' all the way out */
+		case GRP_EXIT:				/*     back to group menu */
 		case GRP_RETSELECT:			/* 'T' back to select menu */
 		case GRP_NEXT:				/* 'c' Move to next thread on group menu */
 		case GRP_NEXTUNREAD:		/* 'C' */
+		case GRP_KILLED:			/*     article/thread was killed at page level */
 			break;
 
 		case GRP_ARTABORT:			/* user 'q'uit load of article */
@@ -1481,8 +1501,6 @@ again:
 			return 0;
 
 		default:					/* >=0 normal exit, new basenote */
-			if (filtered_articles)
-				return GRP_KILLED; /* ? set group cursor back to 0 and do nothing */
 			fixup_thread(this_resp, FALSE);
 
 			if (currmenu != &grpmenu)	/* group menu will redraw itself */

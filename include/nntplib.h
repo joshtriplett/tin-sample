@@ -3,7 +3,7 @@
  *  Module    : nntplib.h
  *  Author    : I.Lea
  *  Created   : 1991-04-01
- *  Updated   : 2009-12-19
+ *  Updated   : 2010-01-26
  *  Notes     : nntp.h 1.5.11/1.6 with extensions for tin
  *
  * Copyright (c) 1991-2010 Iain Lea <iain@bricbrac.de>
@@ -50,7 +50,7 @@
  * NB: This is different from the NNTP server timing us out due to inactivity
  */
 #if defined(HAVE_ALARM) && defined(SIGALRM)
-#	define NNTP_READ_TIMEOUT	60
+#	define NNTP_READ_TIMEOUT	120
 #endif /* HAVE_ALARM && SIGALRM */
 
 /*
@@ -164,6 +164,7 @@ enum f_type { OVER_T_ERROR, OVER_T_INT, OVER_T_STRING, OVER_T_FSTRING };
 enum extension_type { NONE, CAPABILITIES, BROKEN };
 
 enum sasl_types { SASL_NONE = 0, SASL_PLAIN = 1, SASL_CRAM_MD5 = 2, SASL_DIGEST_MD5 = 4, SASL_GSSAPI = 8, SASL_EXTERNAL = 16, SASL_OTP = 32, SASL_NTLM = 64, SASL_LOGIN = 128 };
+enum c_algorithms { COMPRESS_NONE = 0, COMPRESS_DEFLATE = 1 };
 
 struct t_capabilities {
 	enum extension_type type;		/* NONE, CAPABILITIES, BROKEN */
@@ -195,6 +196,8 @@ struct t_capabilities {
 	t_bool authinfo_sasl:1;			/* AUTHINFO SASL */
 	t_bool authinfo_state:1;		/* AUTHINFO not supported in curent state */
 	enum sasl_types sasl;			/* SASL_NONE, SASL_PLAIN, SASL_CRAM_MD5, SASL_DIGEST_MD5, SASL_GSSAPI, SASL_EXTERNAL, SASL_OTP, SASL_NTLM, SASL_LOGIN */
+	t_bool compress:1;				/* COMPRESS */
+	enum c_algorithms compress_algorithm;	/* COMPRESS_NONE, COMPRESS_DEFLATE */
 #if 0
 	t_bool streaming:1;				/* STREAMING: "MODE STREAM", "CHECK", "TAKETHIS" */
 	t_bool ihave:1;					/* IHAVE: "IHAVE" */

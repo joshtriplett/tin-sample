@@ -3,7 +3,7 @@
  *  Module    : keymap.c
  *  Author    : D. Nimmich, J. Faultless
  *  Created   : 2000-05-25
- *  Updated   : 2009-10-10
+ *  Updated   : 2010-02-06
  *  Notes     : This file contains key mapping routines and variables.
  *
  * Copyright (c) 2000-2010 Dirk Nimmich <nimmich@muenster.de>
@@ -705,6 +705,11 @@ process_mapping(
 		case 'G':
 			if (strcmp(keyname, "GroupAutoSave") == 0) {
 				process_keys(GROUP_AUTOSAVE, keys, &group_keys);
+
+				return TRUE;
+			}
+			if (strcmp(keyname, "GroupCancel") == 0) {
+				process_keys(GROUP_CANCEL, keys, &group_keys);
 
 				return TRUE;
 			}
@@ -1616,7 +1621,9 @@ process_mapping(
 			if (strcmp(keyname, "ShellEscape") == 0) {
 #ifndef NO_SHELL_ESCAPE
 				process_keys(GLOBAL_SHELL_ESCAPE, keys, &group_keys);
+				process_keys(GLOBAL_SHELL_ESCAPE, keys, &option_menu_keys);
 				process_keys(GLOBAL_SHELL_ESCAPE, keys, &page_keys);
+				process_keys(GLOBAL_SHELL_ESCAPE, keys, &scope_keys);
 				process_keys(GLOBAL_SHELL_ESCAPE, keys, &select_keys);
 				process_keys(GLOBAL_SHELL_ESCAPE, keys, &thread_keys);
 #endif /* !NO_SHELL_ESCAPE */
@@ -1628,6 +1635,11 @@ process_mapping(
 		case 'T':
 			if (strcmp(keyname, "ThreadAutoSave") == 0) {
 				process_keys(THREAD_AUTOSAVE, keys, &thread_keys);
+
+				return TRUE;
+			}
+			if (strcmp(keyname, "ThreadCancel") == 0) {
+				process_keys(THREAD_CANCEL, keys, &thread_keys);
 
 				return TRUE;
 			}
@@ -2414,6 +2426,9 @@ setup_default_keys(
 	add_default_key(&scope_keys, "r", SCOPE_RENAME);
 	add_default_key(&scope_keys, ">", GLOBAL_SCROLL_DOWN);
 	add_default_key(&scope_keys, "<", GLOBAL_SCROLL_UP);
+#ifndef NO_SHELL_ESCAPE
+	add_default_key(&scope_keys, "!", GLOBAL_SHELL_ESCAPE);
+#endif /* !NO_SHELL_ESCAPE */
 
 	/* select level */
 	add_global_keys(&select_keys);
@@ -2468,6 +2483,7 @@ setup_default_keys(
 	add_default_key(&group_keys, "A", GLOBAL_SEARCH_AUTHOR_BACKWARD);
 	add_default_key(&group_keys, "B", GLOBAL_SEARCH_BODY);
 	add_default_key(&group_keys, "C", CATCHUP_NEXT_UNREAD);
+	add_default_key(&group_keys, "D", GROUP_CANCEL);
 	add_default_key(&group_keys, "E", GLOBAL_EDIT_FILTER);
 	add_default_key(&group_keys, "G", GROUP_TOGGLE_GET_ARTICLES_LIMIT);
 	add_default_key(&group_keys, "K", GROUP_MARK_THREAD_READ);
@@ -2514,6 +2530,7 @@ setup_default_keys(
 	add_default_key(&thread_keys, "A", GLOBAL_SEARCH_AUTHOR_BACKWARD);
 	add_default_key(&thread_keys, "B", GLOBAL_SEARCH_BODY);
 	add_default_key(&thread_keys, "C", CATCHUP_NEXT_UNREAD);
+	add_default_key(&thread_keys, "D", THREAD_CANCEL);
 	add_default_key(&thread_keys, "E", GLOBAL_EDIT_FILTER);
 	add_default_key(&thread_keys, "K", THREAD_MARK_ARTICLE_READ);
 	add_default_key(&thread_keys, "L", GLOBAL_LOOKUP_MESSAGEID);
@@ -2635,6 +2652,9 @@ setup_default_keys(
 	add_default_key(&option_menu_keys, "/", GLOBAL_SEARCH_SUBJECT_FORWARD);
 	add_default_key(&option_menu_keys, "?", GLOBAL_SEARCH_SUBJECT_BACKWARD);
 	add_default_key(&option_menu_keys, "\\", GLOBAL_SEARCH_REPEAT);
+#ifndef NO_SHELL_ESCAPE
+	add_default_key(&option_menu_keys, "!", GLOBAL_SHELL_ESCAPE);
+#endif /* !NO_SHELL_ESCAPE */
 
 	/* prompt keys */
 	add_default_key(&prompt_keys, "", GLOBAL_ABORT);
@@ -2803,7 +2823,7 @@ add_global_keys(
 	add_default_key(keys, "#", GLOBAL_SET_RANGE);
 #ifndef NO_SHELL_ESCAPE
 	add_default_key(keys, "!", GLOBAL_SHELL_ESCAPE);
-#endif /* NO_SHELL_ESCAPE */
+#endif /* !NO_SHELL_ESCAPE */
 #ifdef HAVE_COLOR
 	add_default_key(keys, "&", GLOBAL_TOGGLE_COLOR);
 #endif /* HAVE COLOR */

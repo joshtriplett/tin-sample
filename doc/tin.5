@@ -2,11 +2,11 @@
 .\" Module    : tin.5
 .\" Author    : U. Janssen
 .\" Created   : 2000-07-10
-.\" Updated   : 2009-12-24
+.\" Updated   : 2010-02-06
 .\" Notes     : needs a some work
 .\"
 .\"
-.TH tin 5 "December 24th, 2009" "1.9.5" "A Usenet newsreader"
+.TH tin 5 "December 24th, 2009" "1.9.6" "A Usenet newsreader"
 
 .SH NAME
 tin, rtin \- related files
@@ -741,7 +741,7 @@ lines beginning with a '#' are ignored.
 .B comment
 Every entry (rule) in the filter file might get a comment. Multiple
 lines are allowed (but only for comments yet). Every line must start
-with the "comment="-keyword. Comments must appear first in the rule.
+with the "comment=" keyword. Comments must appear first in the rule.
 Comment lines placed within a rule will be moved to the begin of the
 next rule. This might be changed in the future. Don't use '#' to mark
 comments as those lines are ignored and your comments will get lost
@@ -785,10 +785,10 @@ Match against ''Lines:'', <num matches less than, >num matches more than.
 .TP
 .\" TODO: document option in detail
 .B gnksa
-Match against ''From:''-address parser return codes.
+Match against ''From:'' address parser return codes.
 .TP
 .B xref
-Match against ''Xref:''-line. Before any matching is done the line is
+Match against ''Xref:'' line. Before any matching is done the line is
 turned into the same format ''Newsgroups:'' has that is it is turned
 into a comma separated newsgroup list with all other informations (i.e.
 the article counter) removed.
@@ -899,6 +899,7 @@ their defaults. If a keyname is bound to NULL it is unassigned.
 \fBGroupSelThdIfUnreadSelected\fP	;
 \fBGroupSelPattern\fP	=
 \fBGroupReverseSel\fP	@
+\fBGroupCancel\fP	D
 \fBGroupToggleGetartLimit\fP	G
 \fBGroupMarkThdRead\fP	K
 \fBGroupNextUnreadArt\fP	N
@@ -1023,6 +1024,7 @@ their defaults. If a keyname is bound to NULL it is unassigned.
 \fBThreadSelArt\fP	*
 \fBThreadToggleArtSel\fP	.
 \fBThreadReverseSel\fP	@
+\fBThreadCancel\fP	D
 \fBThreadMarkArtRead\fP	K
 \fBThreadAutoSave\fP	S
 \fBThreadUntag\fP	U

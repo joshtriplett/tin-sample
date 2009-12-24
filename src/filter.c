@@ -3,7 +3,7 @@
  *  Module    : filter.c
  *  Author    : I. Lea
  *  Created   : 1992-12-28
- *  Updated   : 2009-07-17
+ *  Updated   : 2010-03-07
  *  Notes     : Filter articles. Kill & auto selection are supported.
  *
  * Copyright (c) 1991-2010 Iain Lea <iain@bricbrac.de>
@@ -48,6 +48,7 @@
 
 #define IS_READ(i)	(arts[i].status == ART_READ)
 #define IS_KILLED(i)	(arts[i].killed)
+#define IS_KILLED_UNREAD(i)	(arts[i].killed == ART_KILLED_UNREAD)
 #define IS_SELECTED(i)	(arts[i].selected)
 
 /*
@@ -1437,7 +1438,7 @@ filter_menu(
 			rule.comment = free_filter_comment(rule.comment);
 			if (!invoke_editor(filter_file, filter_file_offset, NULL))
 				return FALSE;
-			unfilter_articles();
+			unfilter_articles(group);
 			(void) read_filter_file(filter_file);
 			return TRUE;
 			/* keep lint quiet: */
@@ -1785,20 +1786,22 @@ add_filter_rule(
 
 /*
  * We assume that any articles which are tagged as killed are also
- * tagged as being read BECAUSE they were killed. So, we retag
- * them as being unread. Selected articles will be un"select"ed.
+ * tagged as being read BECAUSE they were killed. We retag them as
+ * being unread if they were unread before killing (ART_KILLED_UNREAD).
+ * Selected articles will be un"select"ed.
  */
 void
 unfilter_articles(
-	void)
+	struct t_group *group)
 {
 	int i;
 
 	for_each_art(i) {
 		arts[i].score = 0;
 		if (IS_KILLED(i)) {
+			if (IS_KILLED_UNREAD(i))
+				art_mark(group, &arts[i], ART_UNREAD);
 			arts[i].killed = ART_NOTKILLED;
-			arts[i].status = ART_UNREAD;
 		}
 		if (IS_SELECTED(i))
 			arts[i].selected = FALSE;
@@ -2140,6 +2143,9 @@ filter_articles(
 			}
 		}
 	}
+	if (!cmd_line && !batch_mode)
+		clear_message();
+
 	return filtered;
 }
 

@@ -3,7 +3,7 @@
  *  Module    : extern.h
  *  Author    : I. Lea
  *  Created   : 1991-04-01
- *  Updated   : 2009-12-19
+ *  Updated   : 2010-03-07
  *  Notes     :
  *
  * Copyright (c) 1997-2010 Iain Lea <iain@bricbrac.de>
@@ -567,6 +567,7 @@ extern constext txt_error_bad_msgidfqdn[];
 extern constext txt_error_copy_fp[];
 extern constext txt_error_corrupted_file[];
 extern constext txt_error_fseek[];
+extern constext txt_error_followup_poster[];
 extern constext txt_error_gnksa_internal[];
 extern constext txt_error_gnksa_langle[];
 extern constext txt_error_gnksa_lparen[];
@@ -593,7 +594,6 @@ extern constext txt_error_gnksa_rn_enc[];
 extern constext txt_error_gnksa_rn_encsyn[];
 extern constext txt_error_gnksa_rn_paren[];
 extern constext txt_error_gnksa_rn_invalid[];
-extern constext txt_error_grp_renamed[];
 extern constext txt_error_header_and_body_not_separate[];
 extern constext txt_error_header_duplicate[];
 extern constext txt_error_header_format[];
@@ -616,6 +616,7 @@ extern constext txt_error_no_from[];
 extern constext txt_error_no_read_permission[];
 extern constext txt_error_no_such_file[];
 extern constext txt_error_no_write_permission[];
+extern constext txt_error_newsgroups_poster[];
 extern constext txt_error_passwd_missing[];
 extern constext txt_error_plural[];
 extern constext txt_error_server_has_no_listed_groups[];
@@ -1230,6 +1231,7 @@ extern constext txt_warn_encoding_and_external_inews[];
 	extern constext txt_warn_header_line_comma[];
 	extern constext txt_warn_header_line_groups_contd[];
 #endif /* FOLLOW_USEFOR_DRAFT */
+extern constext txt_warn_example_hierarchie[];
 extern constext txt_warn_multiple_sigs[];
 extern constext txt_warn_newsrc[];
 extern constext txt_warn_not_all_arts_saved[];
@@ -1241,7 +1243,6 @@ extern constext txt_warn_update[];
 extern constext txt_warn_unrecognized_version[];
 extern constext txt_warn_wrong_sig_format[];
 extern constext txt_warn_xref_not_supported[];
-extern constext txt_warn_grp_renamed[];
 extern constext txt_writing_attributes_file[];
 extern constext txt_x_resp[];
 extern constext txt_yanked_groups[];
@@ -1262,6 +1263,7 @@ extern constext txt_you_have_mail[];
 
 #ifndef HAVE_FASCIST_NEWSADMIN
 	extern constext txt_warn_followup_to_several_groups[];
+	extern constext txt_warn_grp_renamed[];
 	extern constext txt_warn_missing_followup_to[];
 	extern constext txt_warn_not_in_newsrc[];
 	extern constext txt_warn_not_valid_newsgroup[];
@@ -1376,7 +1378,6 @@ extern t_bool disable_sender;
 extern t_bool force_no_post;
 extern t_bool force_reread_active_file;
 extern t_bool have_linescroll;
-extern t_bool filtered_articles;
 extern t_bool list_active;
 extern t_bool newsrc_active;
 extern t_bool no_write;
@@ -1503,6 +1504,7 @@ extern t_bool word_highlight;
 
 #ifdef HAVE_FASCIST_NEWSADMIN
 	extern constext txt_error_followup_to_several_groups[];
+	extern constext txt_error_grp_renamed[];
 	extern constext txt_error_missing_followup_to[];
 	extern constext txt_error_not_valid_newsgroup[];
 #endif /* HAVE_FASCIST_NEWSADMIN */

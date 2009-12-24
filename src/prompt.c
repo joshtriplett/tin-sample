@@ -166,7 +166,7 @@ prompt_yn(
 	char keyno[MAXKEYLEN], keyyes[MAXKEYLEN];
 	int keyyes_len = 0, keyno_len = 0, maxlen, prompt_len;
 	t_function func;
-#if defined (MULTIBYTE_ABLE) && !defined(NO_LOCALE)
+#if defined(MULTIBYTE_ABLE) && !defined(NO_LOCALE)
 	wint_t yes, no, prompt_ch, ch;
 	wchar_t *wtmp;
 #else
@@ -209,7 +209,7 @@ prompt_yn(
 		snprintf(prompt_yn_message, prompt_len, "%s (%s/%s) %-*s", prompt, keyyes, keyno, maxlen, keyprompt);
 		prompt_yn_redraw();
 
-#if defined (MULTIBYTE_ABLE) && !defined(NO_LOCALE)
+#if defined(MULTIBYTE_ABLE) && !defined(NO_LOCALE)
 		if (((ch = ReadWch()) == '\n') || (ch == '\r'))
 #else
 		if (((ch = (char) ReadCh()) == '\n') || (ch == '\r'))

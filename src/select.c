@@ -3,7 +3,7 @@
  *  Module    : select.c
  *  Author    : I. Lea & R. Skrenta
  *  Created   : 1991-04-01
- *  Updated   : 2009-10-30
+ *  Updated   : 2010-03-01
  *  Notes     :
  *
  * Copyright (c) 1991-2010 Iain Lea <iain@bricbrac.de>, Rich Skrenta <skrenta@pbm.com>
@@ -381,6 +381,8 @@ selection_page(
 				show_selection_page();
 				if (tinrc.show_only_unread_groups)
 					info_message(_(txt_show_unread));
+				else
+					clear_message();
 				break;
 
 			case GLOBAL_BUGREPORT:
