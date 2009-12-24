@@ -1,3 +1,13 @@
+tin (1:1.9.5-1) unstable; urgency=low
+
+  * New upstream release.
+    + Adds dead connection detection. (Closes: #534747)
+    + Adds support for marking articles as read/unread. (Closes: #541472)
+    + Fixes segfaults in feed_articles(). (Closes: #557528)
+  * New debconf translation: ru. (Closes: #541764)
+
+ -- Marco d'Itri <md@linux.it>  Thu, 24 Dec 2009 14:40:30 +0100
+
 tin (1:1.9.5~20090720-1) unstable; urgency=low
 
   * New upstream snapshot. Fixes:
