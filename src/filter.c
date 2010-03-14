@@ -3,7 +3,7 @@
  *  Module    : filter.c
  *  Author    : I. Lea
  *  Created   : 1992-12-28
- *  Updated   : 2010-03-07
+ *  Updated   : 2010-03-14
  *  Notes     : Filter articles. Kill & auto selection are supported.
  *
  * Copyright (c) 1991-2010 Iain Lea <iain@bricbrac.de>
@@ -1874,7 +1874,7 @@ filter_articles(
 	}
 
 	/*
-	 * loop thru all arts applying global & local filtering rules
+	 * loop through all arts applying global & local filtering rules
 	 */
 	for (i = 0; (i < top_art) && !error; i++) {
 		arts[i].score = 0;
@@ -2138,6 +2138,8 @@ filter_articles(
 					arts[i].killed = ART_KILLED;
 				filtered = TRUE;
 				art_mark(group, &arts[i], ART_READ);
+				if (group->attribute->show_only_unread_arts)
+					arts[i].keep_in_base = FALSE;
 			} else if (arts[i].score >= tinrc.score_limit_select) {
 				arts[i].selected = TRUE;
 			}

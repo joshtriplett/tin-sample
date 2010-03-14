@@ -3,7 +3,7 @@
  *  Module    : screen.c
  *  Author    : I. Lea & R. Skrenta
  *  Created   : 1991-04-01
- *  Updated   : 2008-11-22
+ *  Updated   : 2010-03-26
  *  Notes     :
  *
  * Copyright (c) 1991-2010 Iain Lea <iain@bricbrac.de>, Rich Skrenta <skrenta@pbm.com>
@@ -61,7 +61,7 @@ stow_cursor(
 
 /*
  * helper for the varius *_message() functions
- * returns a pointer to an allocated buffer with the formated message
+ * returns a pointer to an allocated buffer with the formatted message
  * must be freed if not needed anymore
  */
 char *
@@ -355,9 +355,21 @@ show_title(
 	const char *title)
 {
 	int col;
+#if defined(MULTIBYTE_ABLE) && !defined(NO_LOCALE)
+	int width;
+	wchar_t *wbuf;
+#endif /* MULTIBYTE_ABLE && !NO_LOCALE */
 
-	col = (cCOLS - (int) strlen(_(txt_type_h_for_help))) + 1;
-	if (col) {
+	col = cCOLS - (int) strlen(_(txt_type_h_for_help));
+#if defined(MULTIBYTE_ABLE) && !defined(NO_LOCALE)
+	if ((wbuf = char2wchar_t(_(txt_type_h_for_help))) != NULL) {
+		if ((width = wcswidth(wbuf, wcslen(wbuf))) > 0)
+			col = cCOLS - width;
+		free(wbuf);
+	}
+#endif /* MULTIBYTE_ABLE && !NO_LOCALE */
+
+	if (col > 0) {
 		MoveCursor(0, col);
 #ifdef HAVE_COLOR
 		fcol(tinrc.col_title);
@@ -493,7 +505,7 @@ show_progress(
 		 * From the 20th sample on use only the last 20 samples to calculate
 		 * the running averave. To make things easier we don't want to store
 		 * and keep track of all of them, so we assume that the first sample
-		 * was close to the current average and substract it from sum. Then,
+		 * was close to the current average and subtract it from sum. Then,
 		 * the new sample is added to the sum and the sum is divided by 20 to
 		 * get the new average.
 		 */

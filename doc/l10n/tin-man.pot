@@ -3,11 +3,10 @@
 # This file is distributed under the same license as the PACKAGE package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 # 
-#, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2010-03-13 18:01+0100\n"
+"POT-Creation-Date: 2010-03-16 13:47+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -8618,9 +8617,9 @@ msgid "B<mark_ignore_tags>"
 msgstr ""
 
 # type: TP
-#: ../tin.5:501
+#: ../tin.5:501 ../tin.5:1608
 #, no-wrap
-msgid "B<mark_saved_unread>"
+msgid "B<mark_saved_read>"
 msgstr ""
 
 # type: TP
@@ -9266,7 +9265,7 @@ msgstr ""
 msgid ""
 "Match against ''Xref:'' line. Before any matching is done the line is turned "
 "into the same format ''Newsgroups:'' has that is it is turned into a comma "
-"separated newsgroup list with all other informations (i.e.  the article "
+"separated newsgroup list with all other information (i.e.  the article "
 "counter) removed."
 msgstr ""
 
@@ -10510,12 +10509,6 @@ msgid ""
 "%T\tto-filed\n"
 "%U\tusername\n"
 "%%\t%\n"
-msgstr ""
-
-# type: TP
-#: ../tin.5:1608
-#, no-wrap
-msgid "B<mark_saved_read>"
 msgstr ""
 
 # type: TP

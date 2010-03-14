@@ -3,7 +3,7 @@
  *  Module    : nntplib.c
  *  Author    : S. Barber & I. Lea
  *  Created   : 1991-01-12
- *  Updated   : 2010-01-26
+ *  Updated   : 2010-04-01
  *  Notes     : NNTP client routines taken from clientlib.c 1.5.11 (1991-02-10)
  *  Copyright : (c) Copyright 1991-99 by Stan Barber & Iain Lea
  *              Permission is hereby granted to copy, reproduce, redistribute
@@ -639,7 +639,7 @@ get_tcp6_socket(
 		freeaddrinfo(res0);
 	if (err < 0) {
 		/*
-		 * TODO: issue a more usefull error-message
+		 * TODO: issue a more useful error-message
 		 */
 		my_fprintf(stderr, _(txt_error_socket_or_connect_problem));
 		return -1;
@@ -779,7 +779,7 @@ put_server(
 		 * reconnect. reconnection is handled by get_server()
 		 *
 		 * don't cache "LIST ACTIVE something" as we would need to
-		 * resend all of them but we remeber just the last one. we cache
+		 * resend all of them but we remember just the last one. we cache
 		 * "LIST" instead, this will slow down things, but that's ok on
 		 * reconnect.
 		 */
@@ -1297,7 +1297,7 @@ nntp_open(
 		return -EHOSTUNREACH;
 	}
 
-	if (!batch_mode) {
+	if (!batch_mode || verbose) {
 		if (nntp_tcp_port != IPPORT_NNTP)
 			wait_message(0, _(txt_connecting_port), nntp_server, nntp_tcp_port);
 		else
@@ -1312,7 +1312,7 @@ nntp_open(
 	ret = server_init(nntp_server, NNTP_TCP_NAME, nntp_tcp_port, line, sizeof(line));
 	DEBUG_IO((stderr, "server_init returns %d,%s\n", ret, line));
 
-	if (!batch_mode && ret >= 0 && cmd_line)
+	if ((!batch_mode || verbose) && ret >= 0)
 		my_fputc('\n', stdout);
 
 #	ifdef DEBUG
@@ -1541,7 +1541,7 @@ nntp_open(
 					j = -1;
 					break;
 
-				default:	/* usualy ERR_CMDSYN (args missing), Typhoon/Twister sends ERR_NCING */
+				default:	/* usually ERR_CMDSYN (args missing), Typhoon/Twister sends ERR_NCING */
 					nntp_caps.hdr_cmd = &xhdr_cmds[i];
 					j = -1;
 					break;
@@ -1848,9 +1848,9 @@ DEBUG_IO((stderr, "nntp_command(%s)\n", command));
 
 
 /*
- * same as above, but with a slightly more usefull return code.
+ * same as above, but with a slightly more useful return code.
  * TODO: use it instead of nntp_command in the rest of the code
- *       (wherever it is more usefull).
+ *       (wherever it is more useful).
  */
 int
 new_nntp_command(

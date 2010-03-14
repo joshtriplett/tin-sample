@@ -3,7 +3,7 @@
  *  Module    : tin.h
  *  Author    : I. Lea & R. Skrenta
  *  Created   : 1991-04-01
- *  Updated   : 2010-01-01
+ *  Updated   : 2010-03-14
  *  Notes     : #include files, #defines & struct's
  *
  * Copyright (c) 1997-2010 Iain Lea <iain@bricbrac.de>, Rich Skrenta <skrenta@pbm.com>
@@ -337,7 +337,7 @@ enum rc_state { RC_IGNORE, RC_CHECK, RC_UPGRADE, RC_DOWNGRADE, RC_ERROR };
 
 /*
  * any pgp/gpp support possible and wanted
- * sort out possible conflicts: gpg is prefered over pgp5 over pgp
+ * sort out possible conflicts: gpg is preferred over pgp5 over pgp
  */
 #if defined(HAVE_PGP) || defined(HAVE_PGPK) || defined(HAVE_GPG)
 #	define HAVE_PGP_GPG 1
@@ -559,7 +559,7 @@ enum rc_state { RC_IGNORE, RC_CHECK, RC_UPGRADE, RC_DOWNGRADE, RC_ERROR };
 #define SAVEFILE_PREFIX		"unknown"
 
 
-/* MMDF-mailbox seperator */
+/* MMDF-mailbox separator */
 #ifndef MMDFHDRTXT
 #	define MMDFHDRTXT "\01\01\01\01\n"
 #endif /* MMDFHDRTXT */
@@ -1415,11 +1415,12 @@ struct t_article {
 	int score;			/* score article has reached after filtering */
 	unsigned int status:2;	/* 0 = read, 1 = unread, 2 = will return */
 	unsigned int killed:2;	/* 0 = not killed, 1 = killed, 2 = killed unread */
-	unsigned int zombie:1;	/* 1 = was alive (unread) before 'X' command */
-	unsigned int delete_it:1;	/* 1 = delete art when leaving group [mail group] */
+	t_bool zombie:1;	/* 1 = was alive (unread) before 'X' command */
+	t_bool delete_it:1;	/* 1 = delete art when leaving group [mail group] */
 	t_bool selected:1;	/* FALSE = not selected, TRUE = selected */
 	t_bool inrange:1;	/* TRUE = article selected via # range command */
 	t_bool matched:1;	/* TRUE = article matched regex in feed.c */
+	t_bool keep_in_base:1;	/* TRUE = keep (read) article in base[] (show_only_unread_arts) */
 };
 
 /*
@@ -1686,7 +1687,7 @@ struct t_hashnode {
  * future directions in adding other retrieval methods to present kill &
  * auto selection.
  *
- * Also seperate kill/select screen to allow ^K=kill ^A=auto-select
+ * Also separate kill/select screen to allow ^K=kill ^A=auto-select
  */
 struct t_filters {
 	int max;

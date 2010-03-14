@@ -246,14 +246,14 @@ init_postinfo(
 	char *ptr;
 
 	/*
-	 * check enviroment for REPLYTO
+	 * check environment for REPLYTO
 	 */
 	reply_to[0] = '\0';
 	if ((ptr = getenv("REPLYTO")) != NULL)
 		my_strncpy(reply_to, ptr, sizeof(reply_to) - 1);
 
 	/*
-	 * check enviroment for DISTRIBUTION
+	 * check environment for DISTRIBUTION
 	 */
 	my_distribution[0] = '\0';
 	if ((ptr = getenv("DISTRIBUTION")) != NULL)
@@ -659,7 +659,7 @@ append_mail(
 			}
 			fputs(buf, fp_out);
 		}
-		print_art_seperator_line(fp_out, mmdf);
+		print_art_separator_line(fp_out, mmdf);
 
 		fflush(fp_out);
 #ifndef NO_LOCKING
@@ -984,7 +984,7 @@ check_article_to_be_posted(
 
 		if (cp - line == 4 && !strncasecmp(line, "Date", 4)) {
 			if ((cp2 = parse_header(line, "Date", FALSE, FALSE))) {
-				if (parsedate(cp2,  (struct _TIMEINFO *) 0) <= 0)
+				if (parsedate(cp2, (struct _TIMEINFO *) 0) <= 0)
 				errors_catbp |= CA_ERROR_BAD_DATE;
 			} else {
 				errors_catbp |= CA_ERROR_BAD_DATE;
@@ -993,7 +993,7 @@ check_article_to_be_posted(
 
 		if (cp - line == 7 && !strncasecmp(line, "Expires", 7)) {
 			if ((cp2 = parse_header(line, "Expires", FALSE, FALSE))) {
-				if (parsedate(cp2,  (struct _TIMEINFO *) 0) <= 0)
+				if (parsedate(cp2, (struct _TIMEINFO *) 0) <= 0)
 				errors_catbp |= CA_ERROR_BAD_EXPIRES;
 			} else {
 				errors_catbp |= CA_ERROR_BAD_EXPIRES;
@@ -1236,7 +1236,7 @@ check_article_to_be_posted(
 						contains_8bit = TRUE;
 					cp++;
 					col++;
-#endif /* MULTIBYTE_ABLE && ! NO_LOCALE */
+#endif /* MULTIBYTE_ABLE && !NO_LOCALE */
 				}
 			}
 		}
@@ -1434,7 +1434,7 @@ check_article_to_be_posted(
 			my_fprintf(stderr, _(txt_warn_references_but_no_re));
 
 		if ((warnings_catbp & CA_WARNING_NEWSGROUPS_EXAMPLE) || (warnings_catbp & CA_WARNING_FOLLOWUP_TO_EXAMPLE))
-			my_fprintf(stderr, _(txt_warn_example_hierarchie));
+			my_fprintf(stderr, _(txt_warn_example_hierarchy));
 
 #ifdef FOLLOW_USEFOR_DRAFT /* TODO: give useful warning */
 		if (warnings_catbp & CA_WARNING_SPACE_IN_NEWSGROUPS)
@@ -1666,7 +1666,7 @@ post_article_loop:
 			case GLOBAL_QUIT:
 			case GLOBAL_ABORT:
 				if (tinrc.unlink_article) {
-#if 0 /* usefull? */
+#if 0 /* useful? */
 					if (tinrc.keep_dead_articles)
 						append_file(dead_articles, dead_article);
 #endif /* 0 */
@@ -2853,7 +2853,7 @@ post_response(
 					while (pgart.cookl[i].flags & C_HEADER) /* skip headers in cooked art if any */
 						i++;
 
-					if (i) /* cooked art contained any headers, so skip also the header/body seperator */
+					if (i) /* cooked art contained any headers, so skip also the header/body separator */
 						i++;
 
 					fseek(pgart.cooked, pgart.cookl[i].offset, SEEK_SET); /* skip headers and header/body separator */
@@ -3406,7 +3406,7 @@ mail_to_author(
 					i = 0;
 					while (pgart.cookl[i].flags & C_HEADER) /* skip headers in cooked art if any */
 						i++;
-					if (i) /* cooked art contained any headers, so skip also the header/body seperator */
+					if (i) /* cooked art contained any headers, so skip also the header/body separator */
 						i++;
 					fseek(pgart.cooked, pgart.cookl[i].offset, SEEK_SET);
 				}
@@ -3923,7 +3923,7 @@ repost_article(
 
 		while (artinfo->cookl[i].flags & C_HEADER) /* skip headers in cooked art if any */
 			i++;
-		if (i) /* cooked art contained any headers, so skip also the header/body seperator */
+		if (i) /* cooked art contained any headers, so skip also the header/body separator */
 			i++;
 		fseek(artinfo->cooked, artinfo->cookl[i].offset, SEEK_SET);
 		copy_fp(artinfo->cooked, fp);
@@ -4197,7 +4197,7 @@ checknadd_headers(
 			PRODUCT, VERSION, RELEASEDATE, RELEASENAME, OSNAME, suffix);
 	}
 
-	fputs("\n", fp_out); /* header/body seperator */
+	fputs("\n", fp_out); /* header/body separator */
 
 	while ((l = tin_fgets(fp_in, FALSE)) != NULL)
 		fprintf(fp_out, "%s\n", l);

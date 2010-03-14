@@ -146,7 +146,7 @@ build_tline(
 	 * Start with 2 spaces for ->
 	 * then index number of the message and whitespace (2+4+1 chars)
 	 */
-#if 0 /* usefull? see also group.c:build_sline() */
+#if 0 /* useful? see also group.c:build_sline() */
 	if (!tinrc.draw_arrow)
 		sprintf(buffer, "%s ", tin_ltoa(l + 1, 6));
 	else
@@ -1544,7 +1544,7 @@ thread_tab_pressed(
 
 
 /*
- * Redraw all neccessary parts of the screen after FEED_MARK_(UN)READ
+ * Redraw all necessary parts of the screen after FEED_MARK_(UN)READ
  * Move cursor to next unread item if needed
  *
  * Returns TRUE when no next unread art, FALSE otherwise

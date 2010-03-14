@@ -3,7 +3,7 @@
  *  Module    : options_menu.c
  *  Author    : Michael Bienia <michael@vorlon.ping.de>
  *  Created   : 2004-09-05
- *  Updated   : 2010-03-10
+ *  Updated   : 2010-03-14
  *  Notes     : Split from config.c
  *
  * Copyright (c) 2004-2010 Michael Bienia <michael@vorlon.ping.de>
@@ -886,7 +886,8 @@ config_page(
 		DISPLAY_OPTS = 1,
 		SCORE_OPTS = 2,
 		THREAD_OPTS = 4,
-		THREAD_SCORE = 8
+		THREAD_SCORE = 8,
+		SHOW_ONLY_UNREAD = 16
 	} changed = NO_CHANGES;
 	int i, scope_idx = 0;
 	t_bool change_option = FALSE;
@@ -935,9 +936,11 @@ config_page(
 				if (grpname && curr_group) {
 					if (old_sort_arts != curr_group->attribute->sort_article_type
 						|| old_sort_threads != curr_group->attribute->sort_threads_type
-						|| old_show_unread != curr_group->attribute->show_only_unread_arts
 						|| old_thread_arts != curr_group->attribute->thread_articles)
 						changed |= THREAD_OPTS;
+
+					if (old_show_unread != curr_group->attribute->show_only_unread_arts)
+						changed |= SHOW_ONLY_UNREAD;
 
 					if (changed) {
 						t_bool filtered = FALSE;
@@ -949,6 +952,13 @@ config_page(
 							if (pgart.raw)
 								resize_article(TRUE, &pgart);
 						}
+						/*
+						 * Clear art->keep_in_base if switching to !show_only_unread_arts
+						 */
+						if ((changed & SHOW_ONLY_UNREAD) && !curr_group->attribute->show_only_unread_arts) {
+							for_each_art(i)
+								arts[i].keep_in_base = FALSE;
+						}
 
 						if (changed & SCORE_OPTS) {
 							unfilter_articles(curr_group);
@@ -959,15 +969,15 @@ config_page(
 						 * If the sorting/threading strategy of threads or filter options have
 						 * changed, fix things so that resorting will occur
 						 *
-						 * If the scoring of a thread has changed, resort base[] (find_base() is
-						 * called inside make_threads() too, so do this only if make_threads() was
-						 * not called before)
+						 * If show_only_unread_arts or the scoring of a thread has changed,
+						 * resort base[] (find_base() is called inside make_threads() too, so
+						 * do this only if make_threads() was not called before)
 						 */
 						if (changed & THREAD_OPTS)
 							make_threads(curr_group, TRUE);
 						else if (filtered)
 							make_threads(curr_group, FALSE);
-						else if (changed & THREAD_SCORE)
+						else if (changed & (SHOW_ONLY_UNREAD | THREAD_SCORE))
 							find_base(curr_group);
 					}
 				}
@@ -1287,7 +1297,7 @@ config_page(
 							if (prompt_option_on_off(option))
 								UPDATE_INT_ATTRIBUTES(print_header);
 							break;
-#endif /*! DISABLE_PRINTING */
+#endif /* !DISABLE_PRINTING */
 
 						case OPT_PROCESS_ONLY_UNREAD:
 							if (prompt_option_on_off(option))

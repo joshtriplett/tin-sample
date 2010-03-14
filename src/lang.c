@@ -3,7 +3,7 @@
  *  Module    : lang.c
  *  Author    : I. Lea
  *  Created   : 1991-04-01
- *  Updated   : 2009-12-27
+ *  Updated   : 2010-03-16
  *  Notes     :
  *
  * Copyright (c) 1991-2010 Iain Lea <iain@bricbrac.de>
@@ -193,7 +193,7 @@ constext txt_error_gnksa_rn_encsyn[] = N_("Bad syntax in encoded word used in re
 constext txt_error_gnksa_rn_paren[] = N_("Illegal character in realname.\nUnquoted words may not contain '()<>\\' in old-style addresses.\n");
 constext txt_error_gnksa_rn_invalid[] = N_("Illegal character in realname.\nControl characters and unencoded 8bit characters > 127 are not allowed.\n");
 constext txt_error_header_and_body_not_separate[] = N_("\nError: No blank line found after header.\n");
-constext txt_error_header_format[] = N_("\nError: Illegal formated %s.\n");
+constext txt_error_header_format[] = N_("\nError: Illegal formatted %s.\n");
 /* TODO: fixme, US-ASCII is not the only 7bit charset we know about */
 constext txt_error_header_line_bad_charset[] = N_("\n\
 Error: Posting contains non-ASCII characters but MM_CHARSET is set to\n\
@@ -803,7 +803,7 @@ constext txt_toggled_tabwidth[] = N_("Toggled tab-width to %d");
 	constext txt_trying_dotlock[] = N_("%d Trying to dotlock %s");
 	constext txt_trying_lock[] = N_("%d Trying to lock %s");
 #endif /* NO_LOCKING */
-constext txt_type_h_for_help[] = N_("           h=help\n");
+constext txt_type_h_for_help[] = N_("           h=help");
 
 constext txt_unlimited_time[] = N_("Unlimited");
 constext txt_unsubscribe_pattern[] = N_("Enter wildcard unsubscribe pattern> ");
@@ -873,7 +873,7 @@ Warning: You are using a non-plain transfer encoding (such as base64 or\n\
          quoted-printable) and an external inews program to submit your\n\
          article. If a signature is appended by that inews program it will\n\
          not be encoded properly.\n");
-constext txt_warn_example_hierarchie[]= N_("\nWarning: \"example\" is a reserved hierarchie!\n");
+constext txt_warn_example_hierarchy[]= N_("\nWarning: \"example\" is a reserved hierarchy!\n");
 constext txt_warn_update[] = N_("\n\nYou are upgrading to tin %s from an earlier version.\n\
 Some values in your %s file have changed!\nRead WHATSNEW, etc...\n");
 constext txt_warn_downgrade[] = N_("\n\nYou are downgrading to tin %s from a more recent version!\n\
@@ -1615,7 +1615,7 @@ struct opttxt txt_kill_level = {
 struct opttxt txt_goto_next_unread = {
 	N_("<SPACE> toggles, <CR> sets, <ESC> cancels."),
 	N_("Go to the next unread article with"),
-	N_("# Go to the unread article with folling key(s)\n\
+	N_("# Go to the unread article with following key(s)\n\
 # Possible values are (the default is marked with *):\n\
 #   0 = nothing\n\
 #   1 = PAGE DOWN\n\
@@ -1626,18 +1626,18 @@ struct opttxt txt_goto_next_unread = {
 struct opttxt txt_trim_article_body = {
 	N_("<SPACE> toggles, <CR> sets, <ESC> cancels."),
 	N_("How to treat blank lines"),
-	N_("# Trim the article body, remove unecessary blank lines.\n\
+	N_("# Trim the article body, remove unnecessary blank lines.\n\
 # Possible values are (the default is marked with *):\n\
 # * 0 = Nothing special\n\
 #   1 = Skip leading blank lines\n\
 #   2 = Skip trailing blank lines\n\
 #   3 = Skip leading and trailing blank lines\n\
-#   4 = Compact multiple blank lines between textblocks\n\
-#   5 = Compact multiple blank lines between textblocks and skip\n\
+#   4 = Compact multiple blank lines between text blocks\n\
+#   5 = Compact multiple blank lines between text blocks and skip\n\
 #       leading blank lines\n\
-#   6 = Compact multiple blank lines between textblocks and skip\n\
+#   6 = Compact multiple blank lines between text blocks and skip\n\
 #       trailing blank lines\n\
-#   7 = Compact multiple blank lines between textblocks and skip\n\
+#   7 = Compact multiple blank lines between text blocks and skip\n\
 #       leading and trailing blank lines\n")
 };
 
@@ -1719,7 +1719,7 @@ struct opttxt txt_groupname_max_length = {
 struct opttxt txt_show_info = {
 	N_("<SPACE> toggles, <CR> sets, <ESC> cancels."),
 	N_("Show lines/score in listings"),
-	N_("# What informations should be displayed in article/thread listing\n\
+	N_("# What information should be displayed in article/thread listing\n\
 # Possible values are (the default is marked with *):\n\
 #   0 = nothing\n\
 # * 1 = lines\n\

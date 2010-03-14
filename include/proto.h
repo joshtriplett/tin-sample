@@ -565,7 +565,7 @@ extern t_bool create_path(const char *path);
 extern t_bool post_process_files(t_function proc_type_type, t_bool auto_delete);
 extern t_bool save_and_process_art(t_openartinfo *artinfo, struct t_article *artptr, t_bool is_mailbox, const char *inpath, int max, t_bool post_process);
 extern void decode_save_mime(t_openartinfo *art, t_bool postproc);
-extern void print_art_seperator_line(FILE *fp, t_bool is_mailbox);
+extern void print_art_separator_line(FILE *fp, t_bool is_mailbox);
 
 /* screen.c */
 extern char *fmt_message(const char *fmt, va_list ap);

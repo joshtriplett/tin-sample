@@ -271,7 +271,7 @@ copy_body(
 	if (strlen(prefix) > 240) /* truncate and terminate */
 		prefix[240] = '\0';
 
-	/* convert %S to %s, for compability reasons only */
+	/* convert %S to %s, for compatibility reasons only */
 	if (strstr(prefix, "%S")) {
 		status_char = FALSE;
 		for (i = 0; prefix[i]; i++) {
@@ -417,7 +417,7 @@ invoke_ispell(
 		STRCPY(ispell, get_val("ISPELL", PATH_ISPELL));
 
 	/*
-	 * Now seperating the header and body in two different files so that
+	 * Now separating the header and body in two different files so that
 	 * the header is not checked by ispell
 	 */
 #ifdef HAVE_LONG_FILE_NAMES
@@ -1218,7 +1218,7 @@ strfquote(
 					}
 					break;
 
-				case 'D':	/* Articles Date (reformated as specified in attributes->date_format) */
+				case 'D':	/* Articles Date (reformatted as specified in attributes->date_format) */
 					if (!my_strftime(tbuf, LEN - 1, curr_group->attribute->date_format, localtime(&arts[this_resp].date))) {
 						STRCPY(tbuf, BlankIfNull(pgart.hdr.date));
 					}
@@ -2620,7 +2620,7 @@ process_charsets(
 
 
 /*
- * checking of mail adresses for GNKSA compliance
+ * checking of mail addresses for GNKSA compliance
  *
  * son of RFC 1036:
  *   article         = 1*header separator body

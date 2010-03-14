@@ -332,7 +332,7 @@ if test -n "$cf_cv_lockfile"; then
 			break
 		fi
 	done
-### if none of them matched use the one with the higest priority
+### if none of them matched use the one with the highest priority
 	if test "x$used_locking" = "x"; then
 		used_locking=`echo $cf_cv_lockfile|sed -e 's/^\([[^ ]]\+\).*/\1/g'`
 	fi

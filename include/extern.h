@@ -3,7 +3,7 @@
  *  Module    : extern.h
  *  Author    : I. Lea
  *  Created   : 1991-04-01
- *  Updated   : 2010-03-07
+ *  Updated   : 2010-03-16
  *  Notes     :
  *
  * Copyright (c) 1997-2010 Iain Lea <iain@bricbrac.de>
@@ -1231,7 +1231,7 @@ extern constext txt_warn_encoding_and_external_inews[];
 	extern constext txt_warn_header_line_comma[];
 	extern constext txt_warn_header_line_groups_contd[];
 #endif /* FOLLOW_USEFOR_DRAFT */
-extern constext txt_warn_example_hierarchie[];
+extern constext txt_warn_example_hierarchy[];
 extern constext txt_warn_multiple_sigs[];
 extern constext txt_warn_newsrc[];
 extern constext txt_warn_not_all_arts_saved[];

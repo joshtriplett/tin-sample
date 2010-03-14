@@ -3,7 +3,7 @@
  *  Module    : active.c
  *  Author    : I. Lea
  *  Created   : 1992-02-16
- *  Updated   : 2010-02-09
+ *  Updated   : 2010-03-15
  *  Notes     :
  *
  * Copyright (c) 1992-2010 Iain Lea <iain@bricbrac.de>
@@ -43,8 +43,8 @@
 #endif /* !TCURSES_H */
 
 /*
- * List of allowed seperator chars in active file
- * unsed in parse_active_line()
+ * List of allowed separator chars in active file
+ * unused in parse_active_line()
  */
 #define ACTIVE_SEP	" \n"
 
@@ -419,7 +419,7 @@ read_newsrc_active_file(
 								error_message(2, _(txt_error_wrong_newsgroupname_in_group_response), ngname, ngnames[index_o], line);
 #	ifdef DEBUG
 								if (debug & DEBUG_NNTP) /* TODO: -> lang.c */
-									debug_print_file("NNTP", "Groupname missmatch in response to \"GROUP %s\": \"%s\"", ngnames[index_o], line);
+									debug_print_file("NNTP", "Groupname mismatch in response to \"GROUP %s\": \"%s\"", ngnames[index_o], line);
 #	endif /* DEBUG */
 							}
 							ptr = ngname;

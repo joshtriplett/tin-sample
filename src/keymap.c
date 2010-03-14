@@ -137,7 +137,7 @@ func_to_key(
 /*
  * adds a key to a keylist
  * default_key: TRUE if a default key should be added
- * returns TRUE if the key was succesfully added else FALSE
+ * returns TRUE if the key was successfully added else FALSE
  */
 static t_bool
 add_key(
