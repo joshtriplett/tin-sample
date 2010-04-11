@@ -1,3 +1,9 @@
+tin (1:1.9.6~20100401-1) unstable; urgency=low
+
+  * New upstream snapshot.
+
+ -- Marco d'Itri <md@linux.it>  Sun, 11 Apr 2010 16:45:07 +0200
+
 tin (1:1.9.6~20100313-1) unstable; urgency=low
 
   * New upstream snapshot.
