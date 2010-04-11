@@ -3,7 +3,7 @@
  *  Module    : keymap.c
  *  Author    : D. Nimmich, J. Faultless
  *  Created   : 2000-05-25
- *  Updated   : 2010-02-06
+ *  Updated   : 2010-04-06
  *  Notes     : This file contains key mapping routines and variables.
  *
  * Copyright (c) 2000-2010 Dirk Nimmich <nimmich@muenster.de>
@@ -2125,8 +2125,8 @@ upgrade_keymap_file(
 				else if (strcmp(keyname, "PageCatchupNextUnread") == 0)
 					catchup_next_unread[1] = my_strdup(keydef);
 				else if (strcmp(keyname, "PromptNo") == 0 || strcmp(keyname, "PromptYes") == 0) {
-					if (strlen(keydef) == 1 && islower(keydef[0]))
-						fprintf(newfp, "%s\t\t\t%c\t%c\n", keyname, keydef[0], toupper(keydef[0]));
+					if (strlen(keydef) == 1 && islower((int)(unsigned char) keydef[0]))
+						fprintf(newfp, "%s\t\t\t%c\t%c\n", keyname, keydef[0], toupper((int)(unsigned char) keydef[0]));
 					else
 						fprintf(newfp, "%s", backup);
 				} else

@@ -42,7 +42,7 @@
 #	ifndef TIN_AUTOCONF_H
 #		define VERSION		"1.9.6"
 #	endif /* !TIN_AUTOCONF_H */
-#	define RELEASEDATE	"20100402"
+#	define RELEASEDATE	"20100522"
 #	define RELEASENAME	"Lochruan"
 /* config-file versions - must by dotted triples */
 #	define TINRC_VERSION	"1.3.11"

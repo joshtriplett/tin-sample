@@ -4,6 +4,11 @@ not read only ,-).
 
 Bugs
 ----
+o  get_respcode() doesn't handle the 401 response code. as we have to
+   evaluate the response text as well we have to fix every
+   nntp_command(..., NULL, 0) call.
+   [20100429 Urs Janssen <urs@tin.org>]
+
 o  col_response is a misnomer as the counter doesn't count responses
    anymore (except on the very first article). The man-page is outdated too.
    [20080826 Urs Janssen <urs@tin.org>]
@@ -130,8 +135,6 @@ o  add XZVER (and XZHDR) support (zlib compressed yyencoded overview data)
 o  make 'GNKSA'-parser RFC5322/USEFOR compliant and fix bugs
    (e.g. "<~$!~( )@( )example.com>" causes "illegal character in RHS", but
    the address is valid)
-
-o  allow IDN ccTLDs (/\.xn--\S+$/) in 'GNKSA'-parser
 
 o  add In-Reply-To threading for mailgroups
    [20030518 Urs Janssen <urs@tin.org>]
@@ -461,6 +464,8 @@ o  rewrite mini-help, remove the long strings and generate them dynamicly
    [20100326 Urs Janssen <urs@tin.org>]
 
 o  rewrite auth.c
+   - turn t_bool authinfo_user, authinfo_sasl, authinfo_state into
+     enum authinfo { NONE = 0, USER = 1, SASL = 2 }
 
 o  make article numbers (u)int_least64_t/PRI[iu]LEAST64 (on OSs where possible),
    provide useful fallbacks if system doesn't have <inttypes.h>/<stdint.h>
@@ -608,11 +613,6 @@ o  rewrite the tag code so that arts[].tagged becomes index in arts[]
 o  strip Xref:-header if saving news in batch mode (-S)?
    [Urs Janssen <urs@tin.org>]
 
-o  When reading local spool, assign the filehandle of the on-spool
-   article directly to artinfo->raw. There is no need to take a local
-   copy.
-   [Jason Faultless <jason@altarstone.com>]
-
 o  what is with NEW_HASH_METHOD in list.c?
 
 o  rewrite code to use INEWS_PATH instead of INEWSDIR
@@ -705,6 +705,9 @@ o  integrate doc/auth.txt into tin.1-manpage
 
 Not yet classified
 ------------------
+o  fix memleaks on early exits (i.e. host unreachable, auth failed, ...)
+   [20100517 Urs Janssen <urs@tin.org>]
+
 o  add "COMPRESS DEFLATE" support once it's official? this would require a
    rewrite of the code which reads data from the network (which should be
    done anyway for TLS) as we must handle null-bytes in the stream.

@@ -3,7 +3,7 @@
  *  Module    : nntplib.c
  *  Author    : S. Barber & I. Lea
  *  Created   : 1991-01-12
- *  Updated   : 2010-04-01
+ *  Updated   : 2010-05-14
  *  Notes     : NNTP client routines taken from clientlib.c 1.5.11 (1991-02-10)
  *  Copyright : (c) Copyright 1991-99 by Stan Barber & Iain Lea
  *              Permission is hereby granted to copy, reproduce, redistribute
@@ -1010,7 +1010,46 @@ check_extensions(void)
 	i = new_nntp_command("CAPABILITIES", INF_CAPABILITIES, buf, sizeof(buf));
 	switch (i) {
 		case INF_CAPABILITIES:
+			/* clear capabilities */
 			nntp_caps.type = CAPABILITIES;
+			nntp_caps.version = 0;
+			nntp_caps.mode_reader = FALSE;
+			nntp_caps.reader = FALSE;
+			nntp_caps.post = FALSE;
+			nntp_caps.list_active = FALSE;
+			nntp_caps.list_active_times = FALSE;
+			nntp_caps.list_distrib_pats = FALSE;
+			nntp_caps.list_headers = FALSE;
+			nntp_caps.list_newsgroups = FALSE;
+			nntp_caps.list_overview_fmt = FALSE;
+			nntp_caps.list_motd = FALSE;
+			nntp_caps.list_subscriptions = FALSE;
+			nntp_caps.list_distributions = FALSE;
+			nntp_caps.list_moderators = FALSE;
+			nntp_caps.list_counts = FALSE;
+			nntp_caps.xpat = FALSE;
+			nntp_caps.hdr = FALSE;
+			nntp_caps.hdr_cmd = NULL;
+			nntp_caps.over = FALSE;
+			nntp_caps.over_msgid = FALSE;
+			nntp_caps.over_cmd = NULL;
+			nntp_caps.newnews = FALSE;
+			FreeAndNull(nntp_caps.implementation);
+			nntp_caps.starttls = FALSE;
+			nntp_caps.authinfo_user = FALSE;
+			nntp_caps.authinfo_sasl = FALSE;
+			nntp_caps.authinfo_state = FALSE;
+			nntp_caps.sasl = SASL_NONE;
+#if 0
+			nntp_caps.streaming = FALSE;
+			nntp_caps.ihave = FALSE;
+#endif /* 0 */
+#ifndef BROKEN_LISTGROUP
+			nntp_caps.broken_listgroup = FALSE;
+#else
+			nntp_caps.broken_listgroup = TRUE;
+#endif /*! BROKEN_LISTGROUP */
+
 			while ((ptr = tin_fgets(FAKE_NNTP_FP, FALSE)) != NULL) {
 #		ifdef DEBUG
 				if (debug & DEBUG_NNTP)
@@ -1023,7 +1062,7 @@ check_extensions(void)
 						d = strpbrk(d, " \t");
 						while (d != NULL && (d + 1 < (ptr + strlen(ptr)))) {
 							d++;
-							nntp_caps.version = MAX(nntp_caps.version, (unsigned int) atoi(d));
+							nntp_caps.version = (unsigned int) atoi(d);
 							d = strpbrk(d, " \t");
 						}
 					}
@@ -1724,7 +1763,7 @@ get_only_respcode(
 		DEBUG_IO((stderr, "get_only_respcode(%d)\n", respcode));
 	}
 	if (message != NULL && mlen > 1)		/* Pass out the rest of the text */
-		my_strncpy(message, end, mlen - 1);
+		my_strncpy(message, ++end, mlen - 1);
 
 	return respcode;
 }
@@ -1740,7 +1779,10 @@ get_only_respcode(
  * Performs authentication if required and repeats the last command if
  * necessary after a timeout.
  *
- * TODO: make this handle 483 (RFC 3977) return codes
+ * TODO: make this handle 401 and 483 (RFC 3977) return codes.
+ *       as 401 requires to examine the returned text besides the
+ *       return value, we have to "fix" all nntp_command(..., NULL, 0) and
+ *       get_only_respcode(NULL, 0) calls to do this properly.
  */
 int
 get_respcode(
@@ -1762,47 +1804,45 @@ get_respcode(
 #	endif /* DEBUG */
 		strncpy(savebuf, last_put, sizeof(savebuf) - 1);		/* Take copy, as authenticate() will clobber this */
 
-		if (authenticate(nntp_server, userid, FALSE)) {
-			if (nntp_caps.type == CAPABILITIES) {
-				check_extensions();
-				can_post = nntp_caps.post && !force_no_post;
-			}
-			if (curr_group != NULL) {
-				DEBUG_IO((stderr, _("Rejoin current group\n")));
-				snprintf(last_put, sizeof(last_put), "GROUP %s", curr_group->name);
-				put_server(last_put);
-				s_gets(last_put, NNTP_STRLEN, nntp_rd_fp);
-#	ifdef DEBUG
-				if (debug & DEBUG_NNTP)
-					debug_print_file("NNTP", "<<< %s", last_put);
-#	endif /* DEBUG */
-				DEBUG_IO((stderr, _("Read (%s)\n"), last_put));
-			}
-			strcpy(last_put, savebuf);
-
-			put_server(last_put);
-			ptr = tin_fgets(FAKE_NNTP_FP, FALSE);
-
-			if (tin_errno) {
-#	ifdef DEBUG
-				if (debug & DEBUG_NNTP)
-					debug_print_file("NNTP", "<<< Error: tin_errno <> 0");
-#	endif /* DEBUG */
-				return -1;
-			}
-
-#	ifdef DEBUG
-			if (debug & DEBUG_NNTP)
-				debug_print_file("NNTP", "<<< %s", ptr);
-#	endif /* DEBUG */
-			respcode = (int) strtol(ptr, &end, 10);
-			if (message != NULL && mlen > 1)				/* Pass out the rest of the text */
-				strncpy(message, end, mlen - 1);
-
-		} else {
+		if (!authenticate(nntp_server, userid, FALSE)) {
 			error_message(2, _(txt_auth_failed), nntp_caps.type == CAPABILITIES ? ERR_AUTHFAIL : ERR_ACCESS);
 			tin_done(EXIT_FAILURE);
 		}
+		if (nntp_caps.type == CAPABILITIES) {
+			check_extensions();
+			can_post = nntp_caps.post && !force_no_post;
+		}
+		if (curr_group != NULL) {
+			DEBUG_IO((stderr, _("Rejoin current group\n")));
+			snprintf(last_put, sizeof(last_put), "GROUP %s", curr_group->name);
+			put_server(last_put);
+			s_gets(last_put, NNTP_STRLEN, nntp_rd_fp);
+#	ifdef DEBUG
+			if (debug & DEBUG_NNTP)
+				debug_print_file("NNTP", "<<< %s", last_put);
+#	endif /* DEBUG */
+			DEBUG_IO((stderr, _("Read (%s)\n"), last_put));
+		}
+		strcpy(last_put, savebuf);
+
+		put_server(last_put);
+		ptr = tin_fgets(FAKE_NNTP_FP, FALSE);
+
+		if (tin_errno) {
+#	ifdef DEBUG
+			if (debug & DEBUG_NNTP)
+				debug_print_file("NNTP", "<<< Error: tin_errno <> 0");
+#	endif /* DEBUG */
+				return -1;
+		}
+
+#	ifdef DEBUG
+		if (debug & DEBUG_NNTP)
+			debug_print_file("NNTP", "<<< %s", ptr);
+#	endif /* DEBUG */
+		respcode = (int) strtol(ptr, &end, 10);
+		if (message != NULL && mlen > 1)				/* Pass out the rest of the text */
+			strncpy(message, end, mlen - 1);
 	}
 	return respcode;
 }

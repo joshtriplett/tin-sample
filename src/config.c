@@ -3,7 +3,7 @@
  *  Module    : config.c
  *  Author    : I. Lea
  *  Created   : 1991-04-01
- *  Updated   : 2009-12-30
+ *  Updated   : 2010-04-11
  *  Notes     : Configuration file routines
  *
  * Copyright (c) 1991-2010 Iain Lea <iain@bricbrac.de>
@@ -101,6 +101,9 @@ read_config_file(
 
 		switch (tolower((unsigned char) buf[0])) {
 		case 'a':
+			if (match_boolean(buf, "abbreviate_groupname=", &tinrc.abbreviate_groupname))
+				break;
+
 			if (match_boolean(buf, "add_posted_to_filter=", &tinrc.add_posted_to_filter))
 				break;
 
@@ -1129,6 +1132,9 @@ write_config_file(
 
 	fprintf(fp, _(txt_groupname_max_length.tinrc));
 	fprintf(fp, "groupname_max_length=%d\n\n", tinrc.groupname_max_length);
+
+	fprintf(fp, _(txt_abbreviate_groupname.tinrc));
+	fprintf(fp, "abbreviate_groupname=%s\n\n", print_boolean(tinrc.abbreviate_groupname));
 
 	fprintf(fp, _(txt_beginner_level.tinrc));
 	fprintf(fp, "beginner_level=%s\n\n", print_boolean(tinrc.beginner_level));

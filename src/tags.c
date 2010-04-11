@@ -3,7 +3,7 @@
  *  Module    : tags.c
  *  Author    : Jason Faultless <jason@altarstone.com>
  *  Created   : 1999-12-06
- *  Updated   : 2009-10-14
+ *  Updated   : 2010-04-02
  *  Notes     : Split out from other modules
  *
  * Copyright (c) 1999-2010 Jason Faultless <jason@altarstone.com>
@@ -136,7 +136,7 @@ get_multiparts(
 	MultiPartInfo **malloc_and_setme_info)
 {
 	MultiPartInfo tmp, tmp2;
-	MultiPartInfo *info = 0;
+	MultiPartInfo *info = NULL;
 	int i;
 	int part_index;
 
@@ -207,7 +207,7 @@ int
 tag_multipart(
 	int base_index)
 {
-	MultiPartInfo *info = 0;
+	MultiPartInfo *info = NULL;
 	int i;
 	const int qty = get_multiparts(base_index, &info);
 

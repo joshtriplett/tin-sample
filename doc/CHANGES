@@ -1,4 +1,4 @@
--- 1.9.6 release 20100401 "" --
+-- 1.9.6 release 20100522 "" --
 
 U022) Thomas E. Dickey <dickey@invisible-island.net>
       BUG. _XOPEN_SOURCE was defined on darwin
@@ -11,14 +11,21 @@ U021) Dennis Preiser <onkelp@gmx.de>
       ADD. cancel article 'D' to the group and thread level
       ADD. shell escape '!' to the 'M'enu
       ADD. workaround for buggy isspace() implementations
+      ADD. tinrc.abbreviate_groupname option
+      ADD. don't take a copy of the article in raw mode when reading from
+           local-spool
+      BUG. highlighting for SearchBody didn't work
       BUG. fixed several sorting/threading/filtering options which did not
            instantly reflect changes when not beeing in select level
       BUG. help string was truncated at cCOLS without checking if inside a
            multibyte sequence
-      FIX. art.c, attrib.c, filter.c, group.c, help.c, init.c, keymap.c, main.c
-           newsrc.c, nntplib.c, options_menu.c, page.c, refs.c, rfc2047.c
-           screen.c, select.c, signal.c, tags.c, thread.c, extern.h, keymap.h
-           proto.h, tin.h, tin.1, tin.5, keymap.sample
+      BUG. build_gline() miscalculates free space for utf-8 groups &
+           descriptions
+      FIX. art.c, attrib.c, config.c, filter.c, group.c, help.c, init.c
+           keymap.c, lang.c, mail.c, main.c, misc.c, newsrc.c, nntplib.c
+           options_menu.c, page.c, prompt.c, refs.c, rfc2047.c, screen.c
+           select.c, signal.c, string.c, tags.c, thread.c, extern.h, keymap.h
+           proto.h, tin.h, tinrc.h, tincfg.tbl, tin.1, tin.5, keymap.sample
 
 U020) Urs Janssen <urs@tin.org>
       ADD. minor manpage tweaking
@@ -28,11 +35,15 @@ U020) Urs Janssen <urs@tin.org>
       ADD. forbid "poster" in Newsgroups, warn about "example" in Newsgroups
       ADD. forbid "poster" and a groupname in Followup-To, warn about "example"
            in Followup-To
+      ADD. allow IDN ccTLDs in 'GNKSA'-parser
       BUG. da.po was missing from the tarball
       BUG. x-posting to an unexisting group named first in Newsgroups caused
            a crash
-      FIX. active.c, art.c, config.c, init.c, lang.c, misc.c, nntplib.c, post.c
-           extern.h, nntplib.h, Makefile, tin.5, config.guess, config.sub
+      BUG. remembered capabilities over reconnects, they are flushed now
+      BUG. memleak on dublicated overview fields
+      FIX. active.c, art.c, config.c, filter.c, init.c, lang.c, misc.c
+           nntplib.c, post.c, select.c, string.c, thread.c, extern.h, nntplib.h
+           policy.h, Makefile, tin.5, config.guess, config.sub
 
 -- 1.9.5 release 20091224 "Lochruan" --
 

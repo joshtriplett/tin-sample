@@ -3,7 +3,7 @@
 .\" Module    : tin.1
 .\" Author    : I. Lea, U. Janssen
 .\" Created   : 1991-08-23
-.\" Updated   : 2010-02-06
+.\" Updated   : 2010-04-16
 .\" Notes     : use american english; still needs some work, e.g.:
 .\"             - document authorization (.newsauth)
 .\"             - document random organization feature
@@ -1352,6 +1352,12 @@ Here is a full list of all the available variables. The name in braces is
 the name of the corresponding setting in
 \fI${TIN_HOMEDIR:\-"$HOME"}/.tin/tinrc\fR.
 .TP 4
+.B Abbreviate long newsgroup names (abbreviate_groupname)
+If ON abbreviate long newsgroup names at group selection level and article
+level (if necessary) like this:
+news.software.readers \-> n.software.readers \-> n.s.readers \-> n.s.r.
+Default is OFF.
+.TP
 .B Add posted articles to filter (add_posted_to_filter)
 If ON add posted articles which start a new thread to filter for
 highlighting follow-ups. Default is ON.
@@ -3361,7 +3367,7 @@ DISABLE_PIPELINING in include/autoconf.h and recompile.
 .br
 Before mailing a bug-report to <tin\-bugs@tin.org> please check if you
 are using the latest (stable) release, and if not, please upgrade
-first! Have a look a the doc/TODO file for known bugs. If you still
+first! Have a look at the doc/TODO file for known bugs. If you still
 think you've found a bug, please use the \fBBugReport\fP ('\fBR\fP')
 function and write in English. Please do NOT enclose a core-file in
 your bugreport until we request it.

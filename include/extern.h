@@ -3,7 +3,7 @@
  *  Module    : extern.h
  *  Author    : I. Lea
  *  Created   : 1991-04-01
- *  Updated   : 2010-03-16
+ *  Updated   : 2010-05-09
  *  Notes     :
  *
  * Copyright (c) 1997-2010 Iain Lea <iain@bricbrac.de>
@@ -487,14 +487,18 @@ extern constext txt_base_article_range[];
 extern constext txt_batch_update_unavail[];
 extern constext txt_begin_of_art[];
 extern constext txt_begin_of_page[];
-extern constext txt_caching_off[];
-extern constext txt_caching_on[];
+#ifdef NNTP_ABLE
+	extern constext txt_caching_off[];
+	extern constext txt_caching_on[];
+#endif /* NNTP_ABLE */
 extern constext txt_cancel_article[];
 extern constext txt_cancelling_art[];
 extern constext txt_cannot_create[];
 extern constext txt_cannot_create_uniq_name[];
 extern constext txt_cannot_find_base_art[];
-extern constext txt_cannot_get_nntp_server_name[];
+#ifdef NNTP_ABLE
+	extern constext txt_cannot_get_nntp_server_name[];
+#endif /* NNTP_ABLE */
 #if !defined(USE_CURSES) && defined(M_UNIX) && !defined(USE_TERMINFO)
 	extern constext txt_cannot_get_term_entry[];
 #endif /* !USE_CURSES && M_UNIX && !USE_TERMINFO */
@@ -502,7 +506,9 @@ extern constext txt_cannot_open[];
 extern constext txt_cannot_open_for_saving[];
 extern constext txt_cannot_post[];
 extern constext txt_cannot_post_group[];
-extern constext txt_cannot_retrieve[];
+#ifdef NNTP_ABLE
+	extern constext txt_cannot_retrieve[];
+#endif /* NNTP_ABLE */
 extern constext txt_cannot_write_to_directory[];
 extern constext txt_catchup[];
 extern constext txt_catchup_group[];
@@ -606,13 +612,19 @@ extern constext txt_error_header_line_missing[];
 extern constext txt_error_header_line_not_7bit[];
 extern constext txt_error_header_line_space[];
 extern constext txt_error_insecure_permissions[];
-extern constext txt_error_invalid_response_to_group[];
-extern constext txt_error_locale[];
+#ifdef NNTP_ABLE
+	extern constext txt_error_invalid_response_to_group[];
+#endif /* NNTP_ABLE */
+#if defined(HAVE_SETLOCALE) && !defined(NO_LOCALE)
+	extern constext txt_error_locale[];
+#endif /* HAVE_SETLOCALE && !NO_LOCALE */
 extern constext txt_error_mime_end[];
 extern constext txt_error_mime_start[];
 extern constext txt_error_no_domain_name[];
 extern constext txt_error_no_enter_permission[];
-extern constext txt_error_no_from[];
+#ifdef NNTP_INEWS
+	extern constext txt_error_no_from[];
+#endif /* NNTP_INEWS */
 extern constext txt_error_no_read_permission[];
 extern constext txt_error_no_such_file[];
 extern constext txt_error_no_write_permission[];
@@ -685,7 +697,7 @@ extern constext txt_help_article_by_num[];
 	extern constext txt_help_article_followup_no_quote[];
 	extern constext txt_help_article_followup_with_header[];
 	extern constext txt_help_article_repost[];
-#endif /* NO_POSTING */
+#endif /* !NO_POSTING */
 extern constext txt_help_article_edit[];
 extern constext txt_help_article_first_in_thread[];
 extern constext txt_help_article_first_page[];
@@ -758,8 +770,10 @@ extern constext txt_help_global_page_up[];
 #ifndef DONT_HAVE_PIPING
 	extern constext txt_help_global_pipe[];
 #endif /* !DONT_HAVE_PIPING */
-extern constext txt_help_global_post[];
-extern constext txt_help_global_post_postponed[];
+#ifndef NO_POSTING
+	extern constext txt_help_global_post[];
+	extern constext txt_help_global_post_postponed[];
+#endif /* !NO_POSTING */
 extern constext txt_help_global_posting_history[];
 extern constext txt_help_global_previous_menu[];
 #ifndef DISABLE_PRINTING
@@ -985,7 +999,9 @@ extern constext txt_no_subject[];
 	extern constext txt_no_term_set[];
 #endif /* !USE_CURSES */
 extern constext txt_no_viewer_found[];
-extern constext txt_no_xover_support[];
+#ifdef NNTP_ABLE
+	extern constext txt_no_xover_support[];
+#endif /* NNTP_ABLE */
 extern constext txt_not_exist[];
 extern constext txt_not_in_active_file[];
 extern constext txt_nrctbl_create[];
@@ -1033,8 +1049,10 @@ extern constext txt_quit_edit_xpost[];
 extern constext txt_quit_no_write[];
 extern constext txt_quoted_printable[];
 extern constext txt_range_invalid[];
-extern constext txt_read_abort[];
-extern constext txt_read_exit[];
+#ifdef NNTP_ABLE
+	extern constext txt_read_abort[];
+	extern constext txt_read_exit[];
+#endif /* NNTP_ABLE */
 extern constext txt_reading_article[];
 extern constext txt_reading_arts[];
 extern constext txt_reading_attributes_file[];
@@ -1488,7 +1506,9 @@ extern char *input_history[HIST_MAXNUM + 1][HIST_SIZE + 1];
 #else
 	extern constext txt_art_cannot_cancel[];
 	extern constext txt_error_sender_in_header_not_allowed[];
+#	ifdef NNTP_INEWS
 	extern constext txt_invalid_sender[];
+#	endif /* NNTP_INEWS */
 #endif /* FORGERY */
 
 extern t_bool word_highlight;
@@ -1552,6 +1572,7 @@ extern constext txt_processing_saved_arts[];
 	extern t_bool force_auth_on_conn_open;
 #endif /* NNTP_ABLE */
 
+extern struct opttxt txt_abbreviate_groupname;
 extern struct opttxt txt_add_posted_to_filter;
 extern struct opttxt txt_advertising;
 extern struct opttxt txt_alternative_handling;

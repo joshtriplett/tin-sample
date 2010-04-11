@@ -3,7 +3,7 @@
  *  Module    : misc.c
  *  Author    : I. Lea & R. Skrenta
  *  Created   : 1991-04-01
- *  Updated   : 2010-01-16
+ *  Updated   : 2010-05-18
  *  Notes     :
  *
  * Copyright (c) 1991-2010 Iain Lea <iain@bricbrac.de>, Rich Skrenta <skrenta@pbm.com>
@@ -805,9 +805,6 @@ draw_percent_mark(
 {
 	char buf[32]; /* should be big enough */
 	int len;
-#if defined(MULTIBYTE_ABLE) && !defined(NO_LOCALE)
-	wchar_t *wbuf;
-#endif /* MULTIBYTE_ABLE && !NO_LOCALE */
 
 	if (NOTESLINES <= 0)
 		return;
@@ -817,13 +814,7 @@ draw_percent_mark(
 
 	clear_message();
 	snprintf(buf, sizeof(buf), "%s(%d%%) [%ld/%ld]", _(txt_more), (int) (cur_num * 100 / max_num), cur_num, max_num);
-#if defined(MULTIBYTE_ABLE) && !defined(NO_LOCALE)
-	if ((wbuf = char2wchar_t(buf)) != NULL) {
-		len = wcswidth(wbuf, wcslen(wbuf) + 1);
-		free(wbuf);
-	} else
-#endif /* MULTIBYTE_ABLE && !NO_LOCALE */
-		len = (int) strlen(buf);
+	len = strwidth(buf);
 	MoveCursor(cLINES, cCOLS - len - (1 + BLANK_PAGE_COLS));
 	StartInverse();
 	my_fputs(buf, stdout);
@@ -3219,8 +3210,14 @@ gnksa_check_domain(
 			}
 			if (disable_gnksa_domain_check)
 				result = GNKSA_OK;
-			if (GNKSA_OK != result)
-				return result;
+			if (GNKSA_OK != result) {
+#if 0 /* valid IDN ccTLDs are checked via gnksa_domain_list[] */
+				if (strlen(aux) >= 8 && !strncasecmp(aux, "xn--", 4)) /* hack for IDN ccTLDs like xn--wgbh1c (Egypt), xn--mgbaam7a8h (Emarat) or xn--mgberp4a5d4ar (AlSaudiah) */
+					result = GNKSA_OK;
+				else
+#endif /* 0 */
+					return result;
+			}
 			break;
 	}
 
@@ -3585,11 +3582,9 @@ utf8_valid(
 			numc++;
 		} while ((d <<= 1) & 0x80);	/* get sequence length */
 
-		d = 1;
-		while (d < numc) {
-			if (*(c + d) == '\0' || *(c + d) == '\n')
-				illegal = TRUE;
-			d--;
+		if (c + numc > line + strlen(line)) { /* sequence runs past end of string */
+			illegal = TRUE;
+			numc = line + strlen(line) - c;
 		}
 
 		if (!illegal) {
