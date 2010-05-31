@@ -3,7 +3,7 @@
  *  Module    : lang.c
  *  Author    : I. Lea
  *  Created   : 1991-04-01
- *  Updated   : 2010-05-09
+ *  Updated   : 2010-10-07
  *  Notes     :
  *
  * Copyright (c) 1991-2010 Iain Lea <iain@bricbrac.de>
@@ -74,7 +74,18 @@ constext txt_articles_mailed[] = N_("-- %d %s mailed --");
 constext txt_at_s[] = N_(" at %s");
 constext txt_attach[] = N_("%*s[-- %s/%s, encoding %s%s%s, %d lines%s%s --]\n");
 constext txt_attach_charset[] = N_(", charset: ");
+constext txt_attach_unsup_charset[] = N_("%*s[-- charset %s not supported --]\n");
 constext txt_attach_description[] = N_("%*s[-- Description: %s --]\n");
+constext txt_attachment_lines[] = N_("%d lines");
+constext txt_attachment_menu[] = N_("Attachment Menu");
+constext txt_attachment_menu_com[] = N_("Attachment Menu Commands");
+constext txt_attachment_no_name[] = N_("<no name>");
+constext txt_attachment_saved[] = N_("Attachment saved successfully. (%s)");
+constext txt_attachments_saved[] = N_("%d of %d attachments saved successfully.");
+constext txt_attachment_select[] = N_("Select attachment> ");
+constext txt_attachment_tagged[] = N_("Tagged attachment");
+constext txt_attachments_tagged[] = N_("%d attachments tagged");
+constext txt_attachment_untagged[] = N_("Untagged attachment");
 constext txt_attrib_menu_com[] = N_("Attributes Menu Commands");
 #ifdef NNTP_ABLE
 	constext txt_auth_failed[] = N_("%d Authentication failed");
@@ -144,10 +155,12 @@ constext txt_deleting[] = N_("Deleting temporary files...");
 
 constext txt_end_of_art[] = N_("*** End of article ***");
 constext txt_end_of_arts[] = N_("*** End of articles ***");
+constext txt_end_of_attachments[] = N_("*** End of attachments ***");
 constext txt_end_of_groups[] = N_("*** End of groups ***");
 constext txt_end_of_page[] = N_("*** End of page ***");
 constext txt_end_of_scopes[] = N_("*** End of scopes ***");
 constext txt_end_of_thread[] = N_("*** End of thread ***");
+constext txt_end_of_urls[] = N_("*** End of URLs ***");
 constext txt_enter_getart_limit[] = N_("Enter limit of articles to get> ");
 constext txt_enter_message_id[] = N_("Enter Message-ID to go to> ");
 constext txt_enter_next_thread[] = N_(" and enter next unread thread");
@@ -347,7 +360,23 @@ constext txt_help_article_toggle_rot13[] = N_("toggle ROT-13 (basic decode) for 
 constext txt_help_article_toggle_tabwidth[] = N_("toggle tabwidth 4 <-> 8");
 constext txt_help_article_toggle_tex2iso[] = N_("toggle german TeX style decoding for current article");
 constext txt_help_article_toggle_uue[] = N_("toggle display of uuencoded sections");
-constext txt_help_article_view_attachments[] = N_("View/save multimedia attachments");
+constext txt_help_article_view_attachments[] = N_("View/pipe/save multimedia attachments");
+constext txt_help_attachment_first[] = N_("choose first attachment in list");
+constext txt_help_attachment_goto[] = N_("0 - 9\t  choose attachment by number");
+constext txt_help_attachment_last[] = N_("choose last attachment in list");
+#ifndef DONT_HAVE_PIPING
+constext txt_help_attachment_pipe[] = N_("pipe attachment into command");
+constext txt_help_attachment_pipe_raw[] = N_("pipe raw attachment into command");
+#endif /* !DONT_HAVE_PIPING */
+constext txt_help_attachment_save[] = N_("save attachment to disk");
+constext txt_help_attachment_search_forwards[] = N_("search for attachments forwards");
+constext txt_help_attachment_search_backwards[] = N_("search for attachments backwards");
+constext txt_help_attachment_select[] = N_("view attachment");
+constext txt_help_attachment_tag[] = N_("tag attachment");
+constext txt_help_attachment_tag_pattern[] = N_("tag attachments that match user specified pattern");
+constext txt_help_attachment_toggle_tagged[] = N_("reverse tagging on all attachments (toggle)");
+constext txt_help_attachment_untag[] = N_("untag all tagged attachments");
+constext txt_help_attachment_toggle_info_line[] = N_("toggle info message in last line (name/description of attachment)");
 constext txt_help_attrib_first_opt[] = N_("choose first attribute in list");
 constext txt_help_attrib_goto_opt[] = N_("0 - 9\t  choose attribute by number");
 constext txt_help_attrib_last_opt[] = N_("choose last attribute in list");
@@ -476,9 +505,18 @@ constext txt_help_title_disp[] = N_("Display properties\n------------------");
 constext txt_help_title_misc[] = N_("Miscellaneous\n-------------");
 constext txt_help_title_navi[] = N_("Moving around\n-------------");
 constext txt_help_title_ops[] = N_("Group/thread/article operations\n-------------------------------");
+constext txt_help_title_attachment_ops[] = N_("Attachment operations\n---------------------");
 constext txt_help_title_attrib_ops[] = N_("Attribute operations\n--------------------");
 constext txt_help_title_config_ops[] = N_("Option operations\n-----------------");
 constext txt_help_title_scope_ops[] = N_("Scope operations\n----------------");
+constext txt_help_title_url_ops[] = N_("URL operations\n--------------");
+constext txt_help_url_first_url[] = N_("choose first URL in list");
+constext txt_help_url_goto_url[] = N_("0 - 9\t  choose URL by number");
+constext txt_help_url_last_url[] = N_("choose last URL in list");
+constext txt_help_url_search_forwards[] = N_("search for URLs forwards");
+constext txt_help_url_search_backwards[] = N_("search for URLs backwards");
+constext txt_help_url_select[] = N_("Open URL in browser");
+constext txt_help_url_toggle_info_line[] = N_("toggle info message in last line (URL)");
 
 constext txt_index_page_com[] = N_("Group Level Commands");
 constext txt_info_add_kill[] = N_("Kill filter added");
@@ -564,6 +602,13 @@ constext txt_mark_art_read[] = N_("Mark article as read%s?");
 constext txt_mark_group_read[] = N_("Mark group %s as read?");
 constext txt_mark_thread_read[] = N_("Mark thread as read%s?");
 constext txt_matching_cmd_line_groups[] = N_("Matching %s groups...");
+constext txt_mini_attachment_1[] = N_("<n>=set current to n; %s=line down; %s=line up; %s=help; %s=quit");
+#ifndef DONT_HAVE_PIPING
+constext txt_mini_attachment_2[] = N_("%s=view; %s=pipe; %s=pipe raw; %s=save; %s=tag; %s=tag pattern; %s=untag all");
+#else
+constext txt_mini_attachment_2[] = N_("%s=view; %s=save; %s=tag; %s=tag pattern; %s=untag all");
+#endif /* !DONT_HAVE_PIPING */
+constext txt_mini_attachment_3[] = N_("%s=reverse tagging; %s=search forwards; %s=search backwards; %s=repeat search");
 constext txt_mini_group_1[] = N_("<n>=set current to n; %s=next unread; %s=search pattern; %s=kill/select");
 constext txt_mini_group_2[] = N_("%s=author search; %s=catchup; %s=line down; %s=line up; %s=mark read; %s=list thread");
 constext txt_mini_info_1[] = N_("%s=line up; %s=line down; %s=page up; %s=page down; %s=top; %s=bottom");
@@ -577,6 +622,8 @@ constext txt_mini_select_2[] = N_("%s=line down; %s=line up; %s=help; %s=move; %
 constext txt_mini_select_3[] = N_("%s=subscribe; %s=sub pattern; %s=unsubscribe; %s=unsub pattern; %s=yank in/out");
 constext txt_mini_thread_1[] = N_("<n>=set current to n; %s=next unread; %s=catchup; %s=display toggle");
 constext txt_mini_thread_2[] = N_("%s=help; %s=line down; %s=line up; %s=quit; %s=tag; %s=mark unread");
+constext txt_mini_url_1[] = N_("<n>=set current to n; %s=line down; %s=line up; %s=help; %s=quit");
+constext txt_mini_url_2[] = N_("%s=search forwards; %s=search backwards; %s=repeat search");
 constext txt_more[] = N_("--More--");
 constext txt_moving[] = N_("Moving %s...");
 constext txt_msgid_line_last[] = N_("Message-ID: & last Reference  ");
@@ -595,6 +642,7 @@ constext txt_next_resp[] = N_("-- Next response --");
 constext txt_no[] = N_("No  ");
 constext txt_no_arts[] = N_("*** No articles ***");
 constext txt_no_arts_posted[] = N_("No articles have been posted");
+constext txt_no_attachments[] = N_("*** No attachments ***");
 constext txt_no_description[] = N_("*** No description ***");
 constext txt_no_filename[] = N_("No filename");
 constext txt_no_group[] = N_("No group");
@@ -608,6 +656,7 @@ constext txt_no_more_groups[] = N_("No more groups");
 constext txt_no_newsgroups[] = N_("No newsgroups");
 constext txt_no_next_unread_art[] = N_("No next unread article");
 constext txt_no_prev_group[] = N_("No previous group");
+constext txt_no_prev_search[] = N_("No previous search, nothing to repeat");
 constext txt_no_prev_unread_art[] = N_("No previous unread article");
 constext txt_no_responses[] = N_("No responses");
 constext txt_no_resps_in_thread[] = N_("No responses to list in current thread");
@@ -697,6 +746,7 @@ constext txt_refs_line_only[] = N_("References: line              ");
 	constext txt_remaining[] = N_("(%d:%02d remaining)");
 #endif /* HAVE_GETTIMEOFDAY */
 constext txt_remove_bogus[] = N_("Bogus group %s removed.");
+constext txt_removed_rule[] = N_("Removed from the previous rule: ");
 constext txt_rename_error[] = N_("Error: rename %s to %s");
 constext txt_reply_to_author[] = N_("Reply to author...");
 constext txt_repost[] = N_("Repost");
@@ -833,8 +883,11 @@ constext txt_updated[] = N_("Updated");
 	constext txt_unparseable_counts[] = N_("unparseable \"LIST COUNTS\" line: \"%s\"");
 #endif /* NNTP_ABLE */
 constext txt_updating[] = N_("Updating");
-constext txt_url_open[] = N_("Opening %s\n");
-constext txt_url_done[] = N_("No more URL's in this article");
+constext txt_url_menu[] = N_("URL Menu");
+constext txt_url_menu_com[] = N_("URL Menu Commands");
+constext txt_url_open[] = N_("Opening %s");
+constext txt_url_select[] = N_("Select URL> ");
+constext txt_url_done[] = N_("No URLs in this article");
 constext txt_use_mime[] = N_("Use MIME display program for this message?");
 constext txt_usage_catchup[] = N_("  -c       mark all news as read in subscribed newsgroups (batch mode)");
 constext txt_usage_check_for_unread_news[] = N_("  -Z       return status indicating if any unread news (batch mode)");
@@ -1951,9 +2004,9 @@ struct opttxt txt_mark_ignore_tags = {
 };
 
 struct opttxt txt_url_handler = {
-	N_("Program to run to open URL's, <CR> sets, <ESC> cancels."),
-	N_("Program that opens URL's"),
-	N_("# The program used to open URL's. The actual URL will be appended\n")
+	N_("Program to run to open URLs, <CR> sets, <ESC> cancels."),
+	N_("Program that opens URLs"),
+	N_("# The program used to open URLs. The actual URL will be appended\n")
 };
 
 struct opttxt txt_use_mouse = {
@@ -2350,7 +2403,7 @@ struct opttxt txt_mail_quote_format = {
 
 struct opttxt txt_advertising = {
 	N_("If ON, include User-Agent: header. <SPACE> toggles & <CR> sets."),
-	N_("Insert 'User-Agent:'-header"),
+	N_("Insert 'User-Agent:' header"),
 	N_("# If ON include advertising User-Agent: header\n")
 };
 
@@ -2803,6 +2856,6 @@ struct opttxt txt_x_headers = {
 
 struct opttxt txt_x_comment_to = {
 	N_("Automatically insert an X-Comment-To: header? <SPACE> toggles & <CR> sets."),
-	N_("Insert X-Comment-To: header"),
+	N_("Insert 'X-Comment-To:' header"),
 	NULL
 };

@@ -3,7 +3,7 @@
  *  Module    : thread.c
  *  Author    : I. Lea
  *  Created   : 1991-04-01
- *  Updated   : 2010-04-11
+ *  Updated   : 2010-10-07
  *  Notes     :
  *
  * Copyright (c) 1991-2010 Iain Lea <iain@bricbrac.de>
@@ -675,6 +675,10 @@ thread_page(
 			case GLOBAL_LOOKUP_MESSAGEID:
 				if ((n = prompt_msgid()) != ART_UNAVAILABLE)
 					ret_code = enter_pager(n, FALSE, THREAD_LEVEL);
+				break;
+
+			case GLOBAL_SEARCH_REPEAT:
+				info_message(_(txt_no_prev_search));
 				break;
 
 			case GLOBAL_SEARCH_BODY:			/* search article body */

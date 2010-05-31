@@ -86,7 +86,7 @@ U043) Urs Janssen <urs@tin.org>
       BUG. POST_EDIT was mssing from post_cancel_keys
       BUG. GLOBAL_QUIT was missing from post_edit_keys and
            post_edit_ext_keys and not rebindable in post_continue_keys
-      BUG. dublicated onlinehelp entries
+      BUG. duplicated onlinehelp entries
       BUG. FeedRepost didn't work
       BUG. digits were missing in option_menu_keys
       BUG. PGP_INCLUDE_KEY in the pgp-2 case didn't work
@@ -1331,7 +1331,7 @@ U089) Urs Janssen <urs@tin.org>
            local cached overviews
       BUG. missing From caused crashes when replying
       BUG. match_string() doesn't allow emtpy strings (U048)
-      BUG. dublicated Cancel-Lock in rare cases
+      BUG. duplicated Cancel-Lock in rare cases
       BUG. eat_re() could modify subject in aborted posts
       BUG. unknown Content-Transfer-Encodings defaulted to 7bit instead of
            binary

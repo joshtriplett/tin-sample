@@ -3,7 +3,7 @@
  *  Module    : options_menu.c
  *  Author    : Michael Bienia <michael@vorlon.ping.de>
  *  Created   : 2004-09-05
- *  Updated   : 2010-04-23
+ *  Updated   : 2010-10-29
  *  Notes     : Split from config.c
  *
  * Copyright (c) 2004-2010 Michael Bienia <michael@vorlon.ping.de>
@@ -101,7 +101,7 @@ static void draw_scope_arrow(void);
 static void free_scopes_and_attributes(void);
 static void highlight_option(enum option_enum option);
 static void initialize_attributes(void);
-static void print_any_option(enum option_enum the_option);
+static void print_any_option(enum option_enum option);
 static void redraw_screen(enum option_enum option);
 static void repaint_option(enum option_enum option);
 static void reset_state(enum option_enum option);
@@ -1135,18 +1135,19 @@ config_page(
 			case GLOBAL_SEARCH_SUBJECT_BACKWARD:
 			case GLOBAL_SEARCH_REPEAT:
 				if (func == GLOBAL_SEARCH_REPEAT && last_search != GLOBAL_SEARCH_SUBJECT_FORWARD && last_search != GLOBAL_SEARCH_SUBJECT_BACKWARD)
-					break;
-
-				old_option = option;
-				option = search_config((func == GLOBAL_SEARCH_SUBJECT_FORWARD), (func == GLOBAL_SEARCH_REPEAT), option, last_opt);
-				if (option != old_option) {
-					unhighlight_option(old_option);
-					if (!option_on_page(option)) {
-						first_option_on_screen = option;
-						set_last_option_on_screen(option);
-						redraw_screen(option);
-					} else
-						highlight_option(option);
+					info_message(_(txt_no_prev_search));
+				else {
+					old_option = option;
+					option = search_config((func == GLOBAL_SEARCH_SUBJECT_FORWARD), (func == GLOBAL_SEARCH_REPEAT), option, last_opt);
+					if (option != old_option) {
+						unhighlight_option(old_option);
+						if (!option_on_page(option)) {
+							first_option_on_screen = option;
+							set_last_option_on_screen(option);
+							redraw_screen(option);
+						} else
+							highlight_option(option);
+					}
 				}
 				break;
 
@@ -2564,15 +2565,25 @@ static void
 build_scope_line(
 	int i)
 {
-#ifdef USE_CURSES
-	char sptr[BUFSIZ];
-#else
-	char *sptr = screen[INDEX2SNUM(i)].col;
-#endif /* USE_CURSES */
+	char *sptr;
 	int len = cCOLS - 11;
 
-	snprintf(sptr, sizeof(sptr), "  %c %s  %-*.*s%s", (scopes[i + 1].global ? '!' : ' '), tin_ltoa(i + 1, 4), len, len, scopes[i + 1].scope, cCRLF);
+#ifdef USE_CURSES
+	/*
+	 * Allocate line buffer
+	 * make it the same size like in !USE_CURSES case to simplify some code
+	 */
+	sptr = my_malloc(cCOLS + 2);
+#else
+	sptr = screen[INDEX2SNUM(i)].col;
+#endif /* USE_CURSES */
+
+	snprintf(sptr, cCOLS, "  %c %s  %-*.*s%s", (scopes[i + 1].global ? '!' : ' '), tin_ltoa(i + 1, 4), len, len, scopes[i + 1].scope, cCRLF);
 	WriteLine(INDEX2LNUM(i), sptr);
+
+#ifdef USE_CURSES
+	free(sptr);
+#endif /* USE_CURSES */
 }
 
 

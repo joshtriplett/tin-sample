@@ -361,7 +361,7 @@ read_newsrc_active_file(
 #ifdef NNTP_ABLE
 			char buf[NNTP_STRLEN];
 			char line[NNTP_STRLEN];
-			if (window < NUM_SIMULTANEOUS_GROUP_COMMAND && ptr) {
+			if (window < NUM_SIMULTANEOUS_GROUP_COMMAND && ptr && (!list_active || (newsrc_active && list_active && group_find(ptr, FALSE)))) {
 				ngnames[index_i] = my_strdup(ptr);
 				snprintf(buf, sizeof(buf), "GROUP %s", ngnames[index_i]);
 #	ifdef DEBUG
@@ -765,6 +765,7 @@ read_news_active_file(
 			struct t_group *grpptr;
 			t_bool need_auth = FALSE;
 
+			*buff='\0';
 			/* we can't use for_each_group(i) yet, so we have to prase the newsrc */
 			if ((fp = fopen(newsrc, "r")) != NULL) {
 				while (tin_fgets(fp, FALSE) != NULL)

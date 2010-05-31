@@ -3,7 +3,7 @@
  *  Module    : select.c
  *  Author    : I. Lea & R. Skrenta
  *  Created   : 1991-04-01
- *  Updated   : 2010-05-20
+ *  Updated   : 2010-10-07
  *  Notes     :
  *
  * Copyright (c) 1991-2010 Iain Lea <iain@bricbrac.de>, Rich Skrenta <skrenta@pbm.com>
@@ -205,7 +205,7 @@ selection_page(
 			case GLOBAL_SEARCH_SUBJECT_BACKWARD:
 			case GLOBAL_SEARCH_REPEAT:
 				if (func == GLOBAL_SEARCH_REPEAT && last_search != GLOBAL_SEARCH_SUBJECT_FORWARD && last_search != GLOBAL_SEARCH_SUBJECT_BACKWARD)
-					info_message(_(txt_bad_command), printascii(key, key_to_func(GLOBAL_HELP, select_keys)));
+					info_message(_(txt_no_prev_search));
 				else {
 					if ((i = search_active((func == GLOBAL_SEARCH_SUBJECT_FORWARD), (func == GLOBAL_SEARCH_REPEAT))) != -1) {
 						move_to_item(i);

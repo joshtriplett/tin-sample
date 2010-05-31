@@ -161,7 +161,7 @@ enum f_type { OVER_T_ERROR, OVER_T_INT, OVER_T_STRING, OVER_T_FSTRING };
 
 /*
  * CAPABILITIES
- * remeber to update init.c and nntplib.c:check_extensions() if you change
+ * remember to update init.c and nntplib.c:check_extensions() if you change
  * t_capabilities
  */
 enum extension_type { NONE, CAPABILITIES, BROKEN };

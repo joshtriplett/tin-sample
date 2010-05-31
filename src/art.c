@@ -1423,6 +1423,10 @@ parse_headers(
 	/*
 	 * The son of RFC 1036 states that the following hdrs are mandatory. It
 	 * also states that Subject, Newsgroups and Path are too. Ho hum.
+	 *
+	 * What about readinng mail from local spool via ~/.tin/active.mail,
+	 * they might not have a Message-ID but got_received is very likely to
+	 * be true.
 	 */
 	if (got_from && h->date && h->msgid) {
 		if (!h->subject)
@@ -1604,7 +1608,7 @@ read_overview(
 					continue;
 			}
 
-			/* for dublicated headers this is last match counts */
+			/* for duplicated headers this is last match counts, INN >= 2.5.3 does first match counts */
 			if (expensive_over_parse) { /* strange order */
 				/* madatory fields */
 				if (ofmt[count].type == OVER_T_STRING) {
@@ -1782,7 +1786,7 @@ read_overview(
 				}
 			}
 
-			/* optional fields; for dublicated headers: last match counts */
+			/* optional fields; for duplicated headers: last match counts, INN >= 2.5.3 does first match counts */
 			if (ofmt[count].type == OVER_T_FSTRING) {
 				if (*ptr) {
 					if (!strcasecmp(ofmt[count].name, "Xref:")) {
@@ -1957,7 +1961,7 @@ write_overview(
 		article = &arts[i];
 
 		if (article->thread != ART_EXPIRED && article->artnum >= group->xmin) {
-			q = ref = NULL;
+			ref = NULL;
 			/*
 			 * TODO: instead of tinrc.mm_local_charset we'd better use UTF-8
 			 *       here and in print_from() in the CHARSET_CONVERSION case.

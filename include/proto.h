@@ -3,7 +3,7 @@
  *  Module    : proto.h
  *  Author    : Urs Janssen <urs@tin.org>
  *  Created   :
- *  Updated   : 2010-05-09
+ *  Updated   : 2010-10-31
  *  Notes     :
  *
  * Copyright (c) 1997-2010 Urs Janssen <urs@tin.org>
@@ -122,7 +122,7 @@ extern void write_config_file(char *file);
 /* cook.c */
 extern const char *get_filename(t_param *ptr);
 extern t_bool cook_article(t_bool wrap_lines, t_openartinfo *artinfo, int hide_uue);
-extern t_bool expand_ctrl_chars(char **line, size_t *length, size_t cook_width);
+extern t_bool expand_ctrl_chars(char **line, size_t *length, size_t lcook_width);
 
 /* curses.c */
 extern OUTC_RETTYPE outchar(OUTC_ARGS);
@@ -157,6 +157,9 @@ extern void word_highlight_string(int row, int col, int size, int color);
 	extern void MoveCursor(int row, int col);
 	extern void ScrollScreen(int lines_to_scroll);
 	extern void SetScrollRegion(int topline, int bottomline);
+#	ifdef HAVE_COLOR
+		extern void reset_screen_attr(void);
+#	endif /* HAVE_COLOR */
 #endif /* USE_CURSES */
 #if 0
 	extern void ToggleInverse(void);
@@ -353,7 +356,7 @@ extern t_bool invoke_editor(const char *filename, int lineno, struct t_group *gr
 extern t_bool mail_check(void);
 extern void append_file(char *old_filename, char *new_filename);
 extern void asfail(const char *file, int line, const char *cond);
-extern void base_name(const char *fullpath, char *program);
+extern void base_name(const char *fullpath, char *file);
 extern void cleanup_tmp_files(void);
 extern void copy_body(FILE *fp_ip, FILE *fp_op, char *prefix, char *initl, t_bool raw_data);
 extern void create_index_lock_file(char *the_lock_file);
@@ -446,7 +449,7 @@ extern void refresh_config_page(enum option_enum act_option);
 extern void show_menu_help(const char *help_message);
 
 /* page.c */
-extern int show_page(struct t_group *group, int respnum, int *threadnum);
+extern int show_page(struct t_group *group, int start_respnum, int *threadnum);
 extern void display_info_page(int part);
 extern void draw_page(const char *group, int part);
 extern void info_pager(FILE *info_fh, const char *title, t_bool wrap_at_ends);
@@ -473,6 +476,7 @@ extern time_t parsedate(char *p, TIMEINFO *now);
 #endif /* !HAVE_VSNPRINTF */
 
 /* post.c */
+extern char *backup_article_name(const char *the_article);
 extern char *checknadd_headers(const char *infile, struct t_group *group);
 extern int count_postponed_articles(void);
 extern int mail_to_author(const char *group, int respnum, t_bool copy_text, t_bool with_headers, t_bool raw_data);
@@ -487,6 +491,7 @@ extern t_bool reread_active_after_posting(void);
 extern t_bool user_posted_messages(void);
 extern void init_postinfo(void);
 extern void quick_post_article(t_bool postponed_only);
+extern void refresh_post_screen(int context);
 #ifdef USE_CANLOCK
 	extern char *build_canlock(const char *messageid, const char *secret);
 	extern char *get_secret(void);
@@ -564,8 +569,11 @@ extern void compose_mail_text_plain(const char *filename, struct t_group *group)
 /* save.c */
 extern int check_start_save_any_news(int function, t_bool catchup);
 extern t_bool create_path(const char *path);
-extern t_bool post_process_files(t_function proc_type_type, t_bool auto_delete);
+extern t_bool post_process_files(t_function proc_type_func, t_bool auto_delete);
 extern t_bool save_and_process_art(t_openartinfo *artinfo, struct t_article *artptr, t_bool is_mailbox, const char *inpath, int max, t_bool post_process);
+extern t_part *get_part(int n);
+extern t_url *find_url(int n);
+extern void attachment_page(t_openartinfo *art);
 extern void decode_save_mime(t_openartinfo *art, t_bool postproc);
 extern void print_art_separator_line(FILE *fp, t_bool is_mailbox);
 
@@ -592,6 +600,7 @@ extern int search(t_function func, int current_art, t_bool repeat);
 extern int search_active(t_bool forward, t_bool repeat);
 extern int search_article(t_bool forward, t_bool repeat, int start_line, int lines, t_lineinfo *line, int reveal_ctrl_l_lines, FILE *fp);
 extern int search_body(struct t_group *group, int current_art, t_bool repeat);
+extern int generic_search(t_bool forward, t_bool repeat, int current, int last, int level);
 extern void reset_srch_offsets(void);
 
 /* select.c */
@@ -603,7 +612,7 @@ extern void show_selection_page(void);
 extern void toggle_my_groups(const char *group);
 
 /* sigfile.c */
-extern void msg_write_signature(FILE *fp, t_bool flag, struct t_group *thisgroup);
+extern void msg_write_signature(FILE *fp, t_bool include_dot_signature, struct t_group *thisgroup);
 
 /* signal.c */
 extern RETSIGTYPE(*sigdisp (int signum, RETSIGTYPE (*func)(SIG_ARGS))) (SIG_ARGS);
@@ -618,7 +627,6 @@ extern void set_signal_handlers(void);
 extern size_t my_strftime(char *s, size_t maxsize, const char *format, struct tm *timeptr);
 
 /* string.c */
-extern char *abbr_groupname(const char *grpname, size_t len);
 extern char *eat_tab(char *s);
 extern char *fmt_string(const char *fmt, ...);
 extern char *my_strdup(const char *str);
@@ -673,6 +681,8 @@ extern void str_lwr(char *str);
 	extern wchar_t *char2wchar_t(const char *str);
 	extern wchar_t *wcspart(const wchar_t *wstr, int columns, t_bool pad);
 	extern wchar_t *wstrunc(const wchar_t *wmessage, int len);
+#else
+	extern char *abbr_groupname(const char *grpname, size_t len);
 #endif /* MULTIBYTE_ABLE && !NO_LOCALE */
 #if defined(HAVE_LIBICUUC) && defined(MULTIBYTE_ABLE) && defined(HAVE_UNICODE_UBIDI_H) && !defined(NO_LOCALE)
 	extern char *render_bidi(const char *str, t_bool *is_rtl);

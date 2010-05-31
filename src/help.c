@@ -3,7 +3,7 @@
  *  Module    : help.c
  *  Author    : I. Lea
  *  Created   : 1991-04-01
- *  Updated   : 2010-03-26
+ *  Updated   : 2010-10-07
  *  Notes     :
  *
  * Copyright (c) 1991-2010 Iain Lea <iain@bricbrac.de>
@@ -55,6 +55,49 @@ static void make_help_page(FILE *fp, const t_help_page *helppage, const struct k
 
 
 static constext txt_help_empty_line[] = "";
+
+static t_help_page attachment_help_page[] = {
+	{ txt_help_title_navi, NOT_ASSIGNED },
+	{ txt_help_global_page_down, GLOBAL_PAGE_DOWN },
+	{ txt_help_global_page_up, GLOBAL_PAGE_UP },
+	{ txt_help_global_line_down, GLOBAL_LINE_DOWN },
+	{ txt_help_global_line_up, GLOBAL_LINE_UP },
+	{ txt_help_global_scroll_down, GLOBAL_SCROLL_DOWN },
+	{ txt_help_global_scroll_up, GLOBAL_SCROLL_UP },
+	{ txt_help_empty_line, NOT_ASSIGNED },
+	{ txt_help_attachment_first, GLOBAL_FIRST_PAGE },
+	{ txt_help_attachment_last, GLOBAL_LAST_PAGE },
+	{ txt_help_attachment_goto, NOT_ASSIGNED },
+	{ txt_help_empty_line, NOT_ASSIGNED },
+	{ txt_help_title_disp, NOT_ASSIGNED },
+	{ txt_help_attachment_toggle_info_line, GLOBAL_TOGGLE_INFO_LAST_LINE },
+	{ txt_help_empty_line, NOT_ASSIGNED },
+	{ txt_help_title_attachment_ops, NOT_ASSIGNED },
+	{ txt_help_attachment_select, ATTACHMENT_SELECT },
+#ifndef DONT_HAVE_PIPING
+	{ txt_help_attachment_pipe, ATTACHMENT_PIPE },
+	{ txt_help_attachment_pipe_raw, GLOBAL_PIPE },
+#endif /* !DONT_HAVE_PIPING */
+	{ txt_help_attachment_save, ATTACHMENT_SAVE },
+	{ txt_help_attachment_tag, ATTACHMENT_TAG },
+	{ txt_help_attachment_tag_pattern, ATTACHMENT_TAG_PATTERN },
+	{ txt_help_attachment_toggle_tagged, ATTACHMENT_TOGGLE_TAGGED },
+	{ txt_help_attachment_untag, ATTACHMENT_UNTAG },
+	{ txt_help_empty_line, NOT_ASSIGNED },
+	{ txt_help_attachment_search_forwards, GLOBAL_SEARCH_SUBJECT_FORWARD },
+	{ txt_help_attachment_search_backwards, GLOBAL_SEARCH_SUBJECT_BACKWARD },
+	{ txt_help_global_search_repeat, GLOBAL_SEARCH_REPEAT },
+	{ txt_help_empty_line, NOT_ASSIGNED },
+	{ txt_help_title_misc, NOT_ASSIGNED },
+	{ txt_help_select_quit, GLOBAL_QUIT },
+	{ txt_help_global_help, GLOBAL_HELP },
+	{ txt_help_global_toggle_mini_help, GLOBAL_TOGGLE_HELP_DISPLAY },
+	{ txt_help_global_redraw_screen, GLOBAL_REDRAW_SCREEN },
+#ifndef NO_SHELL_ESCAPE
+	{ txt_help_global_shell_escape, GLOBAL_SHELL_ESCAPE },
+#endif /* !NO_SHELL_ESCAPE */
+	{ NULL, NOT_ASSIGNED }
+};
 
 static t_help_page attrib_help_page[] = {
 	{ txt_help_title_navi, NOT_ASSIGNED },
@@ -543,6 +586,41 @@ static t_help_page page_help_page[] = {
 	{ NULL, NOT_ASSIGNED }
 };
 
+static t_help_page url_help_page[] = {
+	{ txt_help_title_navi, NOT_ASSIGNED },
+	{ txt_help_global_page_down, GLOBAL_PAGE_DOWN },
+	{ txt_help_global_page_up, GLOBAL_PAGE_UP },
+	{ txt_help_global_line_down, GLOBAL_LINE_DOWN },
+	{ txt_help_global_line_up, GLOBAL_LINE_UP },
+	{ txt_help_global_scroll_down, GLOBAL_SCROLL_DOWN },
+	{ txt_help_global_scroll_up, GLOBAL_SCROLL_UP },
+	{ txt_help_empty_line, NOT_ASSIGNED },
+	{ txt_help_url_first_url, GLOBAL_FIRST_PAGE },
+	{ txt_help_url_last_url, GLOBAL_LAST_PAGE },
+	{ txt_help_url_goto_url, NOT_ASSIGNED },
+	{ txt_help_empty_line, NOT_ASSIGNED },
+	{ txt_help_title_url_ops, NOT_ASSIGNED },
+	{ txt_help_url_select, URL_SELECT },
+	{ txt_help_empty_line, NOT_ASSIGNED },
+	{ txt_help_url_search_forwards, GLOBAL_SEARCH_SUBJECT_FORWARD },
+	{ txt_help_url_search_backwards, GLOBAL_SEARCH_SUBJECT_BACKWARD },
+	{ txt_help_global_search_repeat, GLOBAL_SEARCH_REPEAT },
+	{ txt_help_empty_line, NOT_ASSIGNED },
+	{ txt_help_title_disp, NOT_ASSIGNED },
+	{ txt_help_url_toggle_info_line, GLOBAL_TOGGLE_INFO_LAST_LINE },
+	{ txt_help_empty_line, NOT_ASSIGNED },
+	{ txt_help_title_misc, NOT_ASSIGNED },
+	{ txt_help_select_quit, GLOBAL_QUIT },
+	{ txt_help_global_help, GLOBAL_HELP },
+	{ txt_help_global_toggle_mini_help, GLOBAL_TOGGLE_HELP_DISPLAY },
+	{ txt_help_global_esc, GLOBAL_ABORT },
+	{ txt_help_global_redraw_screen, GLOBAL_REDRAW_SCREEN },
+#ifndef NO_SHELL_ESCAPE
+	{ txt_help_global_shell_escape, GLOBAL_SHELL_ESCAPE },
+#endif /* !NO_SHELL_ESCAPE */
+	{ NULL, NOT_ASSIGNED }
+};
+
 
 static void
 make_help_page(
@@ -613,6 +691,10 @@ show_help_page(
 		return;
 
 	switch (level) {
+		case ATTACHMENT_LEVEL:
+			make_help_page(fp, attachment_help_page, attachment_keys);
+			break;
+
 		case ATTRIB_LEVEL:
 			make_help_page(fp, attrib_help_page, option_menu_keys);
 			break;
@@ -639,6 +721,10 @@ show_help_page(
 
 		case PAGE_LEVEL:
 			make_help_page(fp, page_help_page, page_keys);
+			break;
+
+		case URL_LEVEL:
+			make_help_page(fp, url_help_page, url_keys);
 			break;
 
 		case INFO_PAGER:
@@ -675,6 +761,32 @@ show_mini_help(
 #endif /* HAVE_COLOR */
 
 	switch (level) {
+		case ATTACHMENT_LEVEL:
+			snprintf(buf, bufs, _(txt_mini_attachment_1),
+				printascii(key[0], func_to_key(GLOBAL_LINE_DOWN, attachment_keys)),
+				printascii(key[1], func_to_key(GLOBAL_LINE_UP, attachment_keys)),
+				printascii(key[2], func_to_key(GLOBAL_HELP, attachment_keys)),
+				printascii(key[3], func_to_key(GLOBAL_QUIT, attachment_keys)));
+			center_line(line, FALSE, buf);
+			snprintf(buf, bufs, _(txt_mini_attachment_2),
+				printascii(key[0], func_to_key(ATTACHMENT_SELECT, attachment_keys)),
+#ifndef DONT_HAVE_PIPING
+				printascii(key[5], func_to_key(ATTACHMENT_PIPE, attachment_keys)),
+				printascii(key[6], func_to_key(GLOBAL_PIPE, attachment_keys)),
+#endif /* !DONT_HAVE_PIPING */
+				printascii(key[1], func_to_key(ATTACHMENT_SAVE, attachment_keys)),
+				printascii(key[2], func_to_key(ATTACHMENT_TAG, attachment_keys)),
+				printascii(key[3], func_to_key(ATTACHMENT_TAG_PATTERN, attachment_keys)),
+				printascii(key[4], func_to_key(ATTACHMENT_UNTAG, attachment_keys)));
+			center_line(line + 1, FALSE, buf);
+			snprintf(buf, bufs, _(txt_mini_attachment_3),
+				printascii(key[1], func_to_key(ATTACHMENT_TOGGLE_TAGGED, attachment_keys)),
+				printascii(key[2], func_to_key(GLOBAL_SEARCH_SUBJECT_FORWARD, attachment_keys)),
+				printascii(key[3], func_to_key(GLOBAL_SEARCH_SUBJECT_BACKWARD, attachment_keys)),
+				printascii(key[4], func_to_key(GLOBAL_SEARCH_REPEAT, attachment_keys)));
+			center_line(line + 2, FALSE, buf);
+			break;
+
 		case SCOPE_LEVEL:
 			snprintf(buf, bufs, _(txt_mini_scope_1),
 				printascii(key[0], func_to_key(SCOPE_ADD, scope_keys)),
@@ -787,6 +899,20 @@ show_mini_help(
 				printascii(key[6], func_to_key(PAGE_TAG, page_keys)),
 				printascii(key[7], func_to_key(GLOBAL_POST, page_keys)));
 			center_line(line + 2, FALSE, buf);
+			break;
+
+		case URL_LEVEL:
+			snprintf(buf, bufs, _(txt_mini_url_1),
+				printascii(key[0], func_to_key(GLOBAL_LINE_DOWN, url_keys)),
+				printascii(key[1], func_to_key(GLOBAL_LINE_UP, url_keys)),
+				printascii(key[2], func_to_key(GLOBAL_HELP, url_keys)),
+				printascii(key[3], func_to_key(GLOBAL_QUIT, url_keys)));
+			center_line(line, FALSE, buf);
+			snprintf(buf, bufs, _(txt_mini_url_2),
+				printascii(key[2], func_to_key(GLOBAL_SEARCH_SUBJECT_FORWARD, url_keys)),
+				printascii(key[3], func_to_key(GLOBAL_SEARCH_SUBJECT_BACKWARD, url_keys)),
+				printascii(key[4], func_to_key(GLOBAL_SEARCH_REPEAT, url_keys)));
+			center_line(line + 1, FALSE, buf);
 			break;
 
 		case INFO_PAGER:

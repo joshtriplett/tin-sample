@@ -3,7 +3,7 @@
  *  Module    : attrib.c
  *  Author    : I. Lea
  *  Created   : 1993-12-01
- *  Updated   : 2010-03-01
+ *  Updated   : 2010-08-27
  *  Notes     : Group attribute routines
  *
  * Copyright (c) 1993-2010 Iain Lea <iain@bricbrac.de>
@@ -89,7 +89,7 @@ set_default_attributes(
 	attributes->mailing_list = NULL;
 	attributes->x_headers = NULL;
 	attributes->x_body = NULL;
-	attributes->from = (scope ? scope->from :(global ? tinrc.mail_address : NULL));
+	attributes->from = (scope ? scope->from : (global ? tinrc.mail_address : NULL));
 	attributes->news_quote_format = (scope ? scope->news_quote_format : (global ? tinrc.news_quote_format : NULL));
 	attributes->quote_chars = (scope ? scope->quote_chars : (global ? tinrc.quote_chars : NULL));
 	attributes->mime_types_to_save = (scope ? scope->mime_types_to_save : (global ? my_strdup("*/*") : NULL));
@@ -1158,16 +1158,20 @@ write_attributes_file(
 	fprintf(fp, _("#  quick_kill_expire=ON/OFF\n"));
 	fprintf(fp, _("#  quick_kill_case=ON/OFF\n"));
 	fprintf(fp, _("#  quick_kill_header=NUM\n"));
-	fprintf(fp, _("#    0=subj (case sensitive) 1=subj (ignore case)\n"));
-	fprintf(fp, _("#    2=from (case sensitive) 3=from (ignore case)\n"));
-	fprintf(fp, _("#    4=msgid 5=lines\n"));
+	fprintf(fp, _("#    0=Subject: (case sensitive)  1=Subject: (ignore case)\n"));
+	fprintf(fp, _("#    2=From: (case sensitive)     3=From: (ignore case)\n"));
+	fprintf(fp, _("#    4=Message-ID: & full References: line\n"));
+	fprintf(fp, _("#    5=Message-ID: & last References: entry only\n"));
+	fprintf(fp, _("#    6=Message-ID: entry only     7=Lines:\n"));
 	fprintf(fp, _("#  quick_select_scope=STRING\n"));
 	fprintf(fp, _("#  quick_select_expire=ON/OFF\n"));
 	fprintf(fp, _("#  quick_select_case=ON/OFF\n"));
 	fprintf(fp, _("#  quick_select_header=NUM\n"));
-	fprintf(fp, _("#    0=subj (case sensitive) 1=subj (ignore case)\n"));
-	fprintf(fp, _("#    2=from (case sensitive) 3=from (ignore case)\n"));
-	fprintf(fp, _("#    4=msgid 5=lines\n"));
+	fprintf(fp, _("#    0=Subject: (case sensitive)  1=Subject: (ignore case)\n"));
+	fprintf(fp, _("#    2=From: (case sensitive)     3=From: (ignore case)\n"));
+	fprintf(fp, _("#    4=Message-ID: & full References: line\n"));
+	fprintf(fp, _("#    5=Message-ID: & last References: entry only\n"));
+	fprintf(fp, _("#    6=Message-ID: entry only     7=Lines:\n"));
 	fprintf(fp, _("#  quote_chars=STRING (%%s, %%S for initials)\n"));
 #ifndef DISABLE_PRINTING
 	fprintf(fp, _("#  print_header=ON/OFF\n"));

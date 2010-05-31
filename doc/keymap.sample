@@ -53,6 +53,16 @@ MarkFeedUnread			^W
 
 #####
 
+AttachPipe			p
+AttachSave			s
+AttachSelect			^J	^M
+AttachTag			t
+AttachTagPattern		=
+AttachToggleTagged		@
+AttachUntag			U
+
+#####
+
 ConfigToggleAttrib		TAB
 ConfigSelect			^J	^M
 ConfigLastPage			G
@@ -219,12 +229,12 @@ SelectMarkGrpUnread		z	Z
 
 #####
 
-ScopeSelect				^J	^M
-ScopeEditAttributesFile	E
-ScopeAdd				a
-ScopeDelete				d
-ScopeMove				m
-ScopeRename				r
+ScopeSelect			^J	^M
+ScopeEditAttributesFile		E
+ScopeAdd			a
+ScopeDelete			d
+ScopeMove			m
+ScopeRename			r
 
 #####
 
@@ -242,3 +252,7 @@ ThreadMail			m
 ThreadSave			s
 ThreadTag			t
 ThreadUndoSel			~
+
+#####
+
+UrlSelect			^J	^M

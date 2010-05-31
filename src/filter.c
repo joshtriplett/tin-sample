@@ -3,7 +3,7 @@
  *  Module    : filter.c
  *  Author    : I. Lea
  *  Created   : 1992-12-28
- *  Updated   : 2010-04-12
+ *  Updated   : 2010-11-13
  *  Notes     : Filter articles. Kill & auto selection are supported.
  *
  * Copyright (c) 1991-2010 Iain Lea <iain@bricbrac.de>
@@ -517,11 +517,11 @@ read_filter_file(
 							FreeIfNeeded(ptr[i].subj);
 							ptr[i].subj = my_strdup(subj);
 						}
-					}
 #ifdef DEBUG
-					if (debug & DEBUG_FILTER)
-						debug_print_file("FILTER","buf=[%s]  Gsubj=[%s]", ptr[i].subj, glob_filter.filter[i].subj);
+						if (debug & DEBUG_FILTER)
+							debug_print_file("FILTER","buf=[%s]  Gsubj=[%s]", ptr[i].subj, glob_filter.filter[i].subj);
 #endif /* DEBUG */
+					}
 					break;
 				}
 
@@ -599,17 +599,17 @@ read_filter_file(
 
 					if (match_string(buf + 1, "ref_max=", foo, LEN - 1)) {
 						/*
-						 * TODO: add to the right rule, give better explanation, -> lang.c
+						 * TODO: add to the right rule, give better explanation.
 						 */
-						snprintf(foo, HEADER_LEN, "%s%s", _("Removed from the previous rule: "), str_trim(buf));
+						snprintf(foo, HEADER_LEN, "%s%s", _(txt_removed_rule), str_trim(buf));
 						comment = add_filter_comment(comment, foo);
 						break;
 					}
 					if (match_string(buf + 1, "ref_score=", foo, LEN - 1)) {
 						/*
-						 * TODO: add to the right rule, give better explanation, -> lang.c
+						 * TODO: add to the right rule, give better explanation.
 						 */
-						snprintf(foo, HEADER_LEN, "%s%s", _("Removed from the previous rule: "), str_trim(buf));
+						snprintf(foo, HEADER_LEN, "%s%s", _(txt_removed_rule), str_trim(buf));
 						comment = add_filter_comment(comment, foo);
 					}
 				}

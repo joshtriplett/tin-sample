@@ -3,7 +3,7 @@
  *  Module    : rfc2047.c
  *  Author    : Chris Blum <chris@resolution.de>
  *  Created   : 1995-09-01
- *  Updated   : 2010-03-17
+ *  Updated   : 2010-09-15
  *  Notes     : MIME header encoding/decoding stuff
  *
  * Copyright (c) 1995-2010 Chris Blum <chris@resolution.de>
@@ -1197,8 +1197,11 @@ compose_mail_mime_forwarded(
 	}
 
 	/* Put it all together */
-	if ((fp = fopen(filename, "w")) == NULL)
+	if ((fp = fopen(filename, "w")) == NULL) {
+		fclose(headerfp);
+		fclose(entityfp);
 		return;
+	}
 
 	rewind(headerfp);
 	while ((line = tin_fgets(headerfp, TRUE))) {
