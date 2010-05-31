@@ -1,9 +1,6 @@
 #!/usr/bin/make -f
 SHELL=/bin/bash -e
 
-QUILT_STAMPFN := debian/.stamp-patched
-include /usr/share/quilt/quilt.make
-
 D := $(CURDIR)/debian/tin
 
 DEB_HOST_GNU_TYPE  ?= $(shell dpkg-architecture -qDEB_HOST_GNU_TYPE)
@@ -14,21 +11,21 @@ else
   configure_flags += --build $(DEB_BUILD_GNU_TYPE) --host $(DEB_HOST_GNU_TYPE)
 endif
 
-clean: unpatch
-	rm -f debian/.stamp-*
+clean:
+	rm -f debian/.stamp-* doc/CHANGES.tmp
 	$(MAKE) distclean
 	dh_clean
 
-configure: debian/.stamp-configure
-debian/.stamp-configure: $(QUILT_STAMPFN)
+configure: config.status
+config.status:
 	dh_testdir
-	ac_cv_header_unicode_unorm_h=no \
 	./configure $(configure_flags) \
 		--prefix=/usr --mandir=\$${prefix}/share/man \
 		--with-pcre=/usr --with-domain-name=/etc/mailname \
 		--with-mailbox=/var/mail \
 		--with-editor=/usr/bin/editor --with-ispell=ispell \
 		--without-pgp --without-pgpk --with-gpg=gpg \
+		--with-metamail=metamail --with-slrnface=slrnface \
 		--with-sum=sum --with-shell=bash \
 		--with-spool-dir=/var/spool/news \
 		--with-nov-dir=/var/spool/news/over.view \
@@ -38,17 +35,16 @@ debian/.stamp-configure: $(QUILT_STAMPFN)
 		--enable-included-msgs --enable-nls \
 		--enable-mh-mail-handling --enable-cancel-locks \
 		--with-mime-default-charset=ISO-8859-15
-	touch $@
 
 build: debian/.stamp-build
-debian/.stamp-build: debian/.stamp-configure
+debian/.stamp-build: config.status
 	dh_testdir
 	cd src && $(MAKE)
 	touch $@
 
 binary-arch: debian/.stamp-build checkroot
 	dh_testdir
-	dh_clean -k
+	dh_prep
 	dh_installdirs /etc/tin/ /usr/bin/ /usr/share/doc/tin/tools/
 
 	$(MAKE) -C src install_nls prefix=$D/usr
@@ -62,7 +58,8 @@ binary-arch: debian/.stamp-build checkroot
 	dh_installman doc/tin.1 doc/tin.5 
 	dh_link usr/share/man/man1/tin.1.gz usr/share/man/man1/rtin.1.gz \
 		usr/bin/tin usr/bin/rtin
-	cat doc/CHANGES doc/CHANGES.old | dh_installchangelogs /dev/fd/0
+	cat doc/CHANGES doc/CHANGES.old > doc/CHANGES.tmp
+	dh_installchangelogs doc/CHANGES.tmp
 	dh_installdebconf
 	dh_strip
 	dh_compress

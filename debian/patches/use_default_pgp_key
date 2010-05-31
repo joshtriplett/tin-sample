@@ -1,7 +1,6 @@
-diff -ruN tin-1.7.10.orig/src/pgp.c tin-1.7.10/src/pgp.c
---- tin-1.7.10.orig/src/pgp.c	2005-07-02 15:13:57.000000000 +0200
-+++ tin-1.7.10/src/pgp.c	2005-08-03 18:03:23.000000000 +0200
-@@ -243,8 +243,10 @@
+--- a/src/pgp.c
++++ b/src/pgp.c
+@@ -242,8 +242,10 @@ do_pgp(
  	/*
  	 * <mailfrom> is valid only when signing and a local address exists
  	 */

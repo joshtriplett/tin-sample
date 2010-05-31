@@ -1,6 +1,6 @@
---- tin-1.7.3+20031209.orig/src/post.c
-+++ tin-1.7.3+20031209/src/post.c
-@@ -823,7 +823,9 @@
+--- a/src/post.c
++++ b/src/post.c
+@@ -870,7 +870,9 @@ check_article_to_be_posted(
  			my_fprintf(stderr, _(txt_error_sender_in_header_not_allowed), cnt);
  			my_fflush(stderr);
  			EndInverse();
@@ -10,7 +10,7 @@
  		}
  #endif /* !FORGERY */
  
-@@ -910,7 +912,9 @@
+@@ -967,7 +969,9 @@ check_article_to_be_posted(
  				my_fflush(stderr);
  				EndInverse();
  #ifndef FORGERY
@@ -19,4 +19,4 @@
 +#endif
  #endif /* !FORGERY */
  			}
- 		}
+ 			if (damaged_id(cp))

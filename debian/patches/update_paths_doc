@@ -1,7 +1,6 @@
-diff -ruN tin-1.9.2.orig/doc/tin.1 tin-1.9.2/doc/tin.1
---- tin-1.9.2.orig/doc/tin.1	2006-10-09 11:50:46.000000000 +0200
-+++ tin-1.9.2/doc/tin.1	2006-10-22 12:27:54.000000000 +0200
-@@ -197,7 +197,7 @@
+--- a/doc/tin.1
++++ b/doc/tin.1
+@@ -188,7 +188,7 @@ equivalent to ''\fB\-nqd\fP''.
  .B \-r
  Read news remotely from the default NNTP server specified in the environment
  variable $\fBNNTPSERVER\fP or contained in the file
@@ -10,7 +9,7 @@ diff -ruN tin-1.9.2.orig/doc/tin.1 tin-1.9.2/doc/tin.1
  .TP
  .B \-R
  Read news saved by the ''\fB\-S\fP'' option.
-@@ -2778,7 +2778,7 @@
+@@ -2907,7 +2907,7 @@ For a detailed description see
  .IR /etc/mail/mailcap
  .PP
  
@@ -18,8 +17,8 @@ diff -ruN tin-1.9.2.orig/doc/tin.1 tin-1.9.2/doc/tin.1
 +.IR /etc/news/server
  .PP
  
- .IR ${TIN_HOMEDIR\-"$HOME"}/.cancelsecret
-@@ -2969,7 +2969,7 @@
+ .IR ${TIN_HOMEDIR:\-"$HOME"}/.cancelsecret
+@@ -3102,7 +3102,7 @@ is prepended to $\fBTIN_ACTIVEFILE\fP.
  .B NNTPSERVER
  The default NNTP server to remotely read news from. This variable only
  needs to be set if the ''\fB\-r\fP'' command-line option is specified and
@@ -28,10 +27,9 @@ diff -ruN tin-1.9.2.orig/doc/tin.1 tin-1.9.2/doc/tin.1
  line option overrides $\fBNNTPSERVER\fP.
  .TP
  .B NNTPPORT
-diff -ruN tin-1.9.2.orig/doc/tin.5 tin-1.9.2/doc/tin.5
---- tin-1.9.2.orig/doc/tin.5	2006-10-09 11:50:46.000000000 +0200
-+++ tin-1.9.2/doc/tin.5	2006-10-22 12:28:14.000000000 +0200
-@@ -214,7 +214,7 @@
+--- a/doc/tin.5
++++ b/doc/tin.5
+@@ -215,7 +215,7 @@ needsterminal
  .RE
  .PP
  

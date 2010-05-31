@@ -91,7 +91,7 @@ not able to read the spool of INN 2.x.
 +#subscriptionsfile=/var/lib/news/subscriptions
 --- a/src/init.c
 +++ b/src/init.c
-@@ -686,12 +686,11 @@ init_selfinfo(
+@@ -770,12 +770,11 @@ init_selfinfo(
  	if (!*subscriptions_file)
  		joinpath(subscriptions_file, sizeof(subscriptions_file), libdir, SUBSCRIPTIONS_FILE);
  	if (!*overviewfmt_file)

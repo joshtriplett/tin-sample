@@ -1,3 +1,10 @@
+tin (1:1.9.6~20100522-1) unstable; urgency=low
+
+  * New upstream snapshot.
+  * Added complexity to fix a kfreebsd FTBFS. (Closes: #577714)
+
+ -- Marco d'Itri <md@linux.it>  Tue, 01 Jun 2010 00:29:38 +0200
+
 tin (1:1.9.6~20100401-1) unstable; urgency=low
 
   * New upstream snapshot.

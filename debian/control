@@ -2,7 +2,7 @@ Source: tin
 Section: news
 Priority: optional
 Maintainer: Marco d'Itri <md@linux.it>
-Build-Depends: debhelper (>> 5), quilt (>= 0.40), bison, bzip2, libpcre3-dev, libncursesw5-dev, libidn11-dev, libcanlock2-dev, libuu-dev
+Build-Depends: debhelper (>> 7), bison, bzip2, libpcre3-dev, libncursesw5-dev, libidn11-dev, libcanlock2-dev, libuu-dev
 Standards-Version: 3.8.4
 
 Package: tin
