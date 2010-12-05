@@ -1,3 +1,13 @@
+tin (1:1.9.6-1) unstable; urgency=low
+
+  * New upstream release.
+    + Correctly postpones articles when the connection to the server
+      fails. (Closes: #204254)
+  * Stop suggesting metamail, which was removed from Debian. (Closes: #597427)
+  * Updated one or more debconf translations. (Closes: #601926, #603210)
+
+ -- Marco d'Itri <md@linux.it>  Sun, 05 Dec 2010 16:55:24 +0100
+
 tin (1:1.9.6~20100522-1) unstable; urgency=low
 
   * New upstream snapshot.

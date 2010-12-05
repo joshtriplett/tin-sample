@@ -1,22 +1,22 @@
 --- a/src/post.c
 +++ b/src/post.c
-@@ -870,7 +870,9 @@ check_article_to_be_posted(
+@@ -895,7 +895,9 @@ check_article_to_be_posted(
  			my_fprintf(stderr, _(txt_error_sender_in_header_not_allowed), cnt);
- 			my_fflush(stderr);
  			EndInverse();
+ 			my_fflush(stderr);
 +#ifdef NOT_DEBIAN
  			errors++;
 +#endif
  		}
  #endif /* !FORGERY */
  
-@@ -967,7 +969,9 @@ check_article_to_be_posted(
- 				my_fflush(stderr);
+@@ -966,7 +968,9 @@ check_article_to_be_posted(
  				EndInverse();
+ 				my_fflush(stderr);
  #ifndef FORGERY
 +#ifdef NOT_DEBIAN
  				errors++;
 +#endif
  #endif /* !FORGERY */
  			}
- 			if (damaged_id(cp))
+ 			free(cp2);
