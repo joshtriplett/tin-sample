@@ -69,8 +69,7 @@ TIN related:
   DEBUG                                   MATCH_TAR_PATTERN
   JUST_TESTING                            NEW_HASH_METHOD
   OPTIMIZE_JUST_STAR                      REREAD_ACTIVE_FILE_SECS
-  USE_UTF8_HORIZONTAL_ELLIPSIS            NO_LOCKING
-  FILE_MODE_BROKEN
+  NO_LOCKING                              FILE_MODE_BROKEN
 
 System related:
   --datadir                               --localstatedir
@@ -85,6 +84,7 @@ System related:
   --with-build-cppflags                   --with-build-ldflags
   --with-build-libs                       --build
   --host                                  --target
+  --with-pkg-config                       --with-textdomain
 
 News machine names
 ------------------
@@ -376,7 +376,7 @@ environment variable ISO2ASC.
 
 --with-curses-dir=dir (default: empty)
 If (n)curses is not installed in a standard location (i.e below /usr) you
-can specify it's installation directory here.
+can specify its installation directory here.
 
 --with-screen=type (default: termcap)
 This is a simpler way (than --with-ncurses and --enable-curses) to specify
@@ -390,7 +390,7 @@ Define this if you want to link with ncurses instead of termcap. Note: This
 is required on some Linux distributions (i.e., SuSE) where there is either a
 curses or termcap library which is not ncurses. If ncurses is installed as
 the curses library, this option is usually not needed. This option is
-depriciated, use --with-screen=ncurses (see above) instead.
+deprecated, use --with-screen=ncurses (see above) instead.
 
 --enable-curses (default: off)
 Enable this if you wish to use the curses screen optimizing rather than
@@ -399,7 +399,7 @@ termcap. This has been tested well starting with ncurses 4.1; it should work
 is known to have a bug in libc which prevents use of curses, ncurses works
 well on that platform). To build with ncurses screen optimizing, you must
 give both the --with-ncurses and --enable-curses options. This option is
-depriciated, use --with-screen=ncurses (see above) instead.
+deprecated, use --with-screen=ncurses (see above) instead.
 
 --enable-inverse-video (default: on)
 Disable if you want inverse video and highlighted bar disabled by default.

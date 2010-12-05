@@ -3,10 +3,10 @@
  *  Module    : init.c
  *  Author    : I. Lea
  *  Created   : 1991-04-01
- *  Updated   : 2010-10-07
+ *  Updated   : 2011-04-17
  *  Notes     :
  *
- * Copyright (c) 1991-2010 Iain Lea <iain@bricbrac.de>
+ * Copyright (c) 1991-2011 Iain Lea <iain@bricbrac.de>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -132,6 +132,10 @@ t_bool disable_sender;			/* disable generation of Sender: header */
 #else
 	t_bool force_no_post = FALSE;	/* don't force no posting mode */
 #endif /* NO_POSTING */
+#if defined(NNTP_ABLE) && defined(INET6)
+	t_bool force_ipv4 = FALSE;
+	t_bool force_ipv6 = FALSE;
+#endif /* NNTP_ABLE && INET6 */
 t_bool list_active;
 t_bool newsrc_active;
 t_bool no_write = FALSE;		/* do not write newsrc on quit (-X cmd-line flag) */
@@ -383,6 +387,9 @@ struct t_config tinrc = {
 	FALSE,		/* tex2iso_conv */
 	TRUE,		/* thread_catchup_on_exit */
 	TRUE,		/* unlink_article */
+#if defined(MULTIBYTE_ABLE) && !defined(NO_LOCALE)
+	FALSE,		/* utf8_graphics */
+#endif /* MULTIBYTE_ABLE && !NO_LOCALE */
 	TRUE,		/* verbatim_handling */
 	"",		/* inews_prog */
 	INTERACTIVE_NONE,		/* interactive_mailer */
@@ -565,7 +572,7 @@ static const struct {
 	{ &tinrc.col_quote3,      4 },
 	{ &tinrc.col_response,    2 },
 	{ &tinrc.col_signature,   4 },
-	{ &tinrc.col_urls,       -1 },
+	{ &tinrc.col_urls,       DFT_FORE },
 	{ &tinrc.col_verbatim,    5 },
 	{ &tinrc.col_subject,     6 },
 	{ &tinrc.col_text,       DFT_FORE },
@@ -586,12 +593,13 @@ preinit_colors(
 
 void
 postinit_colors(
-	void)
+	int last_color)
 {
 	size_t n;
 
 	for (n = 0; n < ARRAY_SIZE(our_colors); n++) {
-		if (*(our_colors[n].colorp) == DFT_INIT) {
+		if (*(our_colors[n].colorp) == DFT_INIT
+		 || *(our_colors[n].colorp) >= last_color) {
 			switch (our_colors[n].color_dft) {
 				case DFT_FORE:
 					*(our_colors[n].colorp) = default_fcol;
@@ -876,7 +884,7 @@ init_selfinfo(
 
 	if (stat(posted_info_file, &sb) == -1) {
 		if ((fp = fopen(posted_info_file, "w")) != NULL) {
-			fprintf(fp, _(txt_posted_info_file));
+			fprintf(fp, "%s", _(txt_posted_info_file));
 			fchmod(fileno(fp), (mode_t) (S_IRUSR|S_IWUSR));
 			fclose(fp);
 		}

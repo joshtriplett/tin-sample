@@ -3,7 +3,7 @@
  *  Module    : curses.c
  *  Author    : D. Taylor & I. Lea
  *  Created   : 1986-01-01
- *  Updated   : 2010-10-31
+ *  Updated   : 2011-04-17
  *  Notes     : This is a screen management library borrowed with permission
  *              from the Elm mail system. This library was hacked to provide
  *              what tin needs.
@@ -107,7 +107,7 @@ static char *_clearscreen, *_moveto, *_cleartoeoln, *_cleartoeos,
 			*_scrollregion, *_scrollfwd, *_scrollback,
 			*_reset, *_reversevideo, *_blink, *_dim, *_bold;
 
-static int _columns, _line, _lines;
+static int _columns, _line, _lines, _colors;
 
 #ifdef M_UNIX
 #	undef SET_TTY
@@ -173,6 +173,9 @@ setup_screen(
 	ScreenSize(&cLINES, &cCOLS);
 	cmd_line = FALSE;
 	Raw(TRUE);
+#ifdef HAVE_COLOR
+	bcol(tinrc.col_back);
+#endif /* HAVE_COLOR */
 	set_win_size(&cLINES, &cCOLS);
 }
 
@@ -276,6 +279,7 @@ get_termcaps(
 		*(table[n].value) = TGETSTR(table[n].capname, &ptr);
 	}
 	_lines = TGETNUM(dCAPNAME("li", "lines"));
+	_colors = TGETNUM(dCAPNAME("Co", "colors"));
 	_columns = TGETNUM(dCAPNAME("co", "cols"));
 	_hp_glitch = TGETFLAG(dCAPNAME("xs", "xhp"));
 
@@ -341,7 +345,7 @@ InitScreen(
 {
 	InitWin();
 #	ifdef HAVE_COLOR
-	postinit_colors();
+	postinit_colors(MAX(_colors, MAX_COLOR + 1)); /* postinit_colors(_colors) would be correct */
 #	endif /* HAVE_COLOR */
 	return TRUE;
 }
@@ -461,6 +465,10 @@ void
 ClearScreen(
 	void)
 {
+#ifdef HAVE_COLOR
+	fcol(tinrc.col_normal);
+	bcol(tinrc.col_back);
+#endif /* HAVE_COLOR */
 	tputs(_clearscreen, 1, outchar);
 	my_flush();		/* clear the output buffer */
 	_line = 1;

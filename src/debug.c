@@ -3,10 +3,10 @@
  *  Module    : debug.c
  *  Author    : I. Lea
  *  Created   : 1991-04-01
- *  Updated   : 2009-03-13
+ *  Updated   : 2011-04-12
  *  Notes     : debug routines
  *
- * Copyright (c) 1991-2010 Iain Lea <iain@bricbrac.de>
+ * Copyright (c) 1991-2011 Iain Lea <iain@bricbrac.de>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -366,9 +366,9 @@ debug_print_bitmap(
 					(art->status == ART_READ ? "READ" : "UNREAD"));
 			}
 			debug_print_newsrc(&group->newsrc, fp);
+			fchmod(fileno(fp), (S_IRUGO|S_IWUGO));
+			fclose(fp);
 		}
-		fchmod(fileno(fp), (S_IRUGO|S_IWUGO));
-		fclose(fp);
 	}
 }
 

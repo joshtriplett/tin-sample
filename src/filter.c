@@ -3,10 +3,10 @@
  *  Module    : filter.c
  *  Author    : I. Lea
  *  Created   : 1992-12-28
- *  Updated   : 2010-11-13
+ *  Updated   : 2011-04-17
  *  Notes     : Filter articles. Kill & auto selection are supported.
  *
- * Copyright (c) 1991-2010 Iain Lea <iain@bricbrac.de>
+ * Copyright (c) 1991-2011 Iain Lea <iain@bricbrac.de>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -660,14 +660,14 @@ write_filter_file(
 
 	/* TODO: -> lang.c */
 	fprintf(fp, "# Filter file V%s for the TIN newsreader\n#\n", FILTER_VERSION);
-	fprintf(fp, _(txt_filter_file));
+	fprintf(fp, "%s", _(txt_filter_file));
 
 	/* determine the file offset */
 	if (!batch_mode) {
 		fpos = ftell(fp);
 		rewind(fp);
 		filter_file_offset = 1;
-		while((i = fgetc(fp)) != EOF) {
+		while ((i = fgetc(fp)) != EOF) {
 			if (i == '\n')
 				filter_file_offset++;
 		}
@@ -1328,7 +1328,7 @@ filter_menu(
 	 * Expire time
 	 */
 	snprintf(double_time, sizeof(double_time), "2x %s", text_time);
-	snprintf(quat_time, sizeof(double_time), "4x %s", text_time);
+	snprintf(quat_time, sizeof(quat_time), "4x %s", text_time);
 	list = my_malloc(sizeof(char *) * 4);
 	list[0] = (char *) _(txt_unlimited_time);
 	list[1] = text_time;
@@ -1440,12 +1440,14 @@ quick_filter(
 	if (type == GLOBAL_QUICK_FILTER_KILL) {
 		header = group->attribute->quick_kill_header;
 		expire = group->attribute->quick_kill_expire;
-		icase = group->attribute->quick_kill_case;
+		/* ON=case sensitive, OFF=ignore case -> invert */
+		icase = bool_not(group->attribute->quick_kill_case);
 		scope = group->attribute->quick_kill_scope;
 	} else {	/* type == GLOBAL_QUICK_FILTER_SELECT */
 		header = group->attribute->quick_select_header;
 		expire = group->attribute->quick_select_expire;
-		icase = group->attribute->quick_select_case;
+		/* ON=case sensitive, OFF=ignore case -> invert */
+		icase = bool_not(group->attribute->quick_select_case);
 		scope = group->attribute->quick_select_scope;
 	}
 

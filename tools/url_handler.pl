@@ -117,9 +117,9 @@ Examples:
 
 B<url_handler.pl> was designed to work together with B<tin>(1) which only
 issues shell escaped absolute URLs thus B<url_handler.pl> does not try hard
-to shell escape it's input nor does it convert relative URLs into absolute
+to shell escape its input nor does it convert relative URLs into absolute
 ones! If you use B<url_handler.pl> from other applications be sure to at
-least shell escaped it's input!
+least shell escaped its input!
 
 =head1 AUTHOR
 

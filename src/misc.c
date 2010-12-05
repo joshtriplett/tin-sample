@@ -3,10 +3,10 @@
  *  Module    : misc.c
  *  Author    : I. Lea & R. Skrenta
  *  Created   : 1991-04-01
- *  Updated   : 2010-11-03
+ *  Updated   : 2011-04-30
  *  Notes     :
  *
- * Copyright (c) 1991-2010 Iain Lea <iain@bricbrac.de>, Rich Skrenta <skrenta@pbm.com>
+ * Copyright (c) 1991-2011 Iain Lea <iain@bricbrac.de>, Rich Skrenta <skrenta@pbm.com>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -56,7 +56,7 @@
 #endif /* HAVE_IDNA_H && !_IDNA_H */
 #if defined(HAVE_STRINGPREP_H) && !defined(_STRINGPREP_H)
 #	include <stringprep.h>
-#endif /* HAVE_STRINGPREP_H & !_STRINGPREP_H */
+#endif /* HAVE_STRINGPREP_H && !_STRINGPREP_H */
 
 
 /*
@@ -450,9 +450,13 @@ invoke_ispell(
 		fputs(buf, fp_head);
 		if (buf[0] == '\n' || buf[0] == '\r') {
 			fclose(fp_head);
+			fp_head = 0;
 			break;
 		}
 	}
+
+	if (fp_head)
+		fclose(fp_head);
 
 	while (fgets(buf, (int) sizeof(buf), fp_all) != NULL)
 		fputs(buf, fp_body);
@@ -505,7 +509,15 @@ shell_escape(
 
 	(void) invoke_cmd(p);
 
+#	ifndef USE_CURSES
+	EndWin();
+	Raw(FALSE);
+#	endif /* !USE_CURSES */
 	prompt_continue();
+#	ifndef USE_CURSES
+	Raw(TRUE);
+	InitWin();
+#	endif /* !USE_CURSES */
 
 	if (tinrc.draw_arrow)
 		ClearScreen();
@@ -601,7 +613,6 @@ tin_done(
 		}
 
 		write_input_history_file();
-		write_attributes_file(local_attributes_file);
 
 #ifdef HAVE_MH_MAIL_HANDLING
 		write_mail_active_file();
@@ -623,6 +634,9 @@ tin_done(
 	if (ret != -SIGUSR1) {
 #endif /* SIGUSR1 */
 #ifdef HAVE_COLOR
+#	ifndef USE_CURSES
+		reset_screen_attr();
+#	endif /* !USE_CURSES */
 		use_color = FALSE;
 		EndInverse();
 #else
@@ -675,7 +689,11 @@ my_mkdir(
 	snprintf(buf, sizeof(buf), "mkdir %s", path); /* redirect stderr to /dev/null? use invoke_cmd()? */
 	if (stat(path, &sb) == -1) {
 		system(buf);
+#	ifdef HAVE_CHMOD
 		return chmod(path, mode);
+#	else
+		return 0;
+#	endif /* HAVE_CHMOD */
 	} else
 		return -1;
 #else
@@ -816,6 +834,9 @@ draw_percent_mark(
 	snprintf(buf, sizeof(buf), "%s(%d%%) [%ld/%ld]", _(txt_more), (int) (cur_num * 100 / max_num), cur_num, max_num);
 	len = strwidth(buf);
 	MoveCursor(cLINES, cCOLS - len - (1 + BLANK_PAGE_COLS));
+#ifdef HAVE_COLOR
+	fcol(tinrc.col_normal);
+#endif /* HAVE_COLOR */
 	StartInverse();
 	my_fputs(buf, stdout);
 	EndInverse();
@@ -1054,15 +1075,20 @@ toggle_color(
 		use_color = FALSE;
 		info_message(_(txt_no_colorterm));
 		return FALSE;
-	} else
+	}
+	if (use_color)
+		reset_color();
 #	endif /* USE_CURSES */
-		use_color = bool_not(use_color);
+	use_color = bool_not(use_color);
 
-#	ifndef USE_CURSES
 	if (use_color) {
+#	ifdef USE_CURSES
 		fcol(tinrc.col_normal);
-		bcol(tinrc.col_normal);
-	} else
+#	endif /* USE_CURSES */
+		bcol(tinrc.col_back);
+	}
+#	ifndef USE_CURSES
+	else
 		reset_screen_attr();
 #	endif /* !USE_CURSES */
 
@@ -2014,21 +2040,16 @@ make_base_group_path(
 
 
 /*
- * Delete tmp index & local newsgroups file
+ * Delete index lock
  */
 void
 cleanup_tmp_files(
 	void)
 {
-#if 0
-	char acNovFile[PATH_LEN];
-
-	if (nntp_caps.over_cmd && !tinrc.cache_overview_files) {
-		snprintf(acNovFile, sizeof(acNovFile), "%s%ld.idx", TMPDIR, (long) process_id);
-		unlink(acNovFile);
-	}
-#endif /* 0 */
-
+	/*
+	 * only required if update_index == TRUE, but update_index is
+	 * unknown here
+	 */
 	if (batch_mode)
 		unlink(lock_file);
 }
@@ -2223,7 +2244,9 @@ write_input_history_file(
 	if ((his_w = ferror(fp)) || fclose(fp)) {
 		error_message(2, _(txt_filesystem_full), local_input_history_file);
 		/* fix modes for all pre 1.4.1 local_input_history_file files */
+#ifdef HAVE_CHMOD
 		chmod(local_input_history_file, (mode_t) (S_IRUSR|S_IWUSR));
+#endif /* HAVE_CHMOD */
 		if (his_w) {
 			clearerr(fp);
 			fclose(fp);

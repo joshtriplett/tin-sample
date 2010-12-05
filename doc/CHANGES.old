@@ -92,7 +92,7 @@ U043) Urs Janssen <urs@tin.org>
       BUG. PGP_INCLUDE_KEY in the pgp-2 case didn't work
       ADD. pcre update (5.0 -> 6.1)
       ADD. warning about lines exceeding 998 octets
-      ADD. try LIST MOTD at start and show it's output if any
+      ADD. try LIST MOTD at start and show its output if any
       ADD. merged GroupBugReport, SelectBugReport, ThreadBugReport to
            BugReport; GroupMarkArtUnread, PageMarkArtUnread,
            ThreadMarkArtUnread to MarkArticleUnread; GroupMarkThdUnread,
@@ -5611,7 +5611,7 @@ U001) Urs Janssen <urs@tin.org>
 
 151) Dirk Nimmich <nimmich@uni-muenster.de>
      ADD. rewrote options 'M'enu, add several configurable options
-     ADD. getline() now allows to set maximum number of characters to type
+     ADD. getline() now allows one to set maximum number of characters to type
           in.
      FIX. several supplied patches
 

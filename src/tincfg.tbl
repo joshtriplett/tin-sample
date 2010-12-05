@@ -2,10 +2,10 @@
 ;   Module    : tincfg.tbl
 ;   Author    : Thomas E. Dickey
 ;   Created   : 1996-11-01
-;   Updated   : 2010-04-11
+;   Updated   : 2011-04-16
 ;   Notes     : #defines and structs for config.c
 ;
-; Copyright (c) 1996-2010 Thomas E. Dickey <dickey@invisible-island.net>
+; Copyright (c) 1996-2011 Thomas E. Dickey <dickey@invisible-island.net>
 ; All rights reserved.
 ;
 ; Redistribution and use in source and binary forms, with or without
@@ -53,6 +53,9 @@
 	goto_next_unread		txt_goto_next_unread_options NUM_GOTO_NEXT_UNREAD
 	auto_list_thread		OPT_ON_OFF
 	wrap_on_next_unread		OPT_ON_OFF
+#if defined(MULTIBYTE_ABLE) && !defined(NO_LOCALE)
+	utf8_graphics			OPT_ON_OFF
+#endif
 	art_marked_deleted		OPT_CHAR
 	art_marked_inrange		OPT_CHAR
 	art_marked_return		OPT_CHAR
@@ -126,11 +129,11 @@
 	add_posted_to_filter		OPT_ON_OFF
 	attrib_add_posted_to_filter	OPT_ON_OFF
 	attrib_quick_kill_scope		OPT_STRING
-	attrib_quick_kill_header	OPT_NUM
+	attrib_quick_kill_header	txt_quick_ks_header_options FILTER_LINES
 	attrib_quick_kill_case		OPT_ON_OFF
 	attrib_quick_kill_expire	OPT_ON_OFF
 	attrib_quick_select_scope	OPT_STRING
-	attrib_quick_select_header	OPT_NUM
+	attrib_quick_select_header	txt_quick_ks_header_options FILTER_LINES
 	attrib_quick_select_case	OPT_ON_OFF
 	attrib_quick_select_expire	OPT_ON_OFF
 
@@ -139,8 +142,8 @@
 	color_options			OPT_TITLE
 	use_color			OPT_ON_OFF
 	col_normal			txt_colors	MAX_COLOR+1
-	col_back			txt_colors	MAX_COLOR+1
-	col_invers_bg			txt_colors	MAX_COLOR+1
+	col_back			txt_colors	MAX_BACKCOLOR+1
+	col_invers_bg			txt_colors	MAX_BACKCOLOR+1
 	col_invers_fg			txt_colors	MAX_COLOR+1
 	col_text			txt_colors	MAX_COLOR+1
 	col_minihelp			txt_colors	MAX_COLOR+1
@@ -212,8 +215,8 @@
 	attrib_mail_8bit_header		OPT_ON_OFF
 	attrib_mime_forward		OPT_ON_OFF
 	attrib_mailing_list		OPT_STRING
-	attrib_auto_cc_bcc				txt_auto_cc_bcc_options AUTO_CC_BCC+1
-	attrib_fcc				OPT_STRING
+	attrib_auto_cc_bcc		txt_auto_cc_bcc_options AUTO_CC_BCC+1
+	attrib_fcc			OPT_STRING
 	attrib_x_body			OPT_STRING
 	attrib_x_comment_to		OPT_ON_OFF
 	attrib_x_headers		OPT_STRING
@@ -224,7 +227,7 @@
 	post_8bit_header		OPT_ON_OFF
 	mail_mime_encoding		txt_mime_encodings	NUM_MIME_ENCODINGS
 	mail_8bit_header		OPT_ON_OFF
-	auto_cc_bcc				txt_auto_cc_bcc_options AUTO_CC_BCC+1
+	auto_cc_bcc			txt_auto_cc_bcc_options AUTO_CC_BCC+1
 	spamtrap_warning_addresses	OPT_STRING
 
 ; saving/printing options
@@ -248,7 +251,7 @@
 	attrib_post_process_type		txt_post_process_types	POST_PROC_YES+1
 	attrib_post_process_view		OPT_ON_OFF
 	attrib_process_only_unread		OPT_ON_OFF
-	attrib_mime_types_to_save				OPT_STRING
+	attrib_mime_types_to_save		OPT_STRING
 #ifndef DISABLE_PRINTING
 	print_header			OPT_ON_OFF
 	attrib_print_header			OPT_ON_OFF
