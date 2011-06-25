@@ -1,3 +1,9 @@
+tin (1:2.0.0~20110623-1) unstable; urgency=low
+
+  * New upstream snapshot.
+
+ -- Marco d'Itri <md@linux.it>  Sun, 26 Jun 2011 01:35:55 +0200
+
 tin (1:1.9.6-1) unstable; urgency=low
 
   * New upstream release.
