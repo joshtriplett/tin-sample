@@ -3,10 +3,11 @@
 # This file is distributed under the same license as the PACKAGE package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 # 
+#, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2011-06-23 18:52+0200\n"
+"POT-Creation-Date: 2011-08-22 00:19+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -23,7 +24,7 @@ msgstr ""
 # type: TH
 #: ../tin.1:12 ../tin.5:9
 #, no-wrap
-msgid "November 26th, 2010"
+msgid "August 23rd, 2011"
 msgstr ""
 
 # type: TH
@@ -7453,7 +7454,7 @@ msgstr ""
 
 # type: Plain text
 #: ../tin.1:3282
-msgid "Full path to the users mailbox."
+msgid "Full path to the user's mailbox."
 msgstr ""
 
 # type: TP
@@ -8477,7 +8478,7 @@ msgid ""
 "in doublequotes (\"). Usernames must not be enclosed in doublequotes and "
 "thus can't contain spaces or tabs. Any line that starts with \"#\" is a "
 "comment. Blank lines are ignored. This file should be readable only for the "
-"user as it contains the users uncrypted password for reading news!"
+"user as it contains the user's uncrypted password for reading news!"
 msgstr ""
 
 # type: TP
@@ -8499,7 +8500,7 @@ msgstr ""
 
 # type: Plain text
 #: ../tin.5:262
-msgid "users uncrypted password for reading news."
+msgid "user's uncrypted password for reading news."
 msgstr ""
 
 # type: TP
@@ -10072,7 +10073,7 @@ msgid ""
 "At startup, B<tin>(1)  reads in the configuration file. This contains a list "
 "of \"I<variable>=I<value>\" pairs that can be used to configure the way "
 "B<tin>(1)  works. If it exists, the global configuration file, "
-"I<${TIN_LIBDIR:-NEWSLIBDIR}/tinrc> is read first. After that, the users own "
+"I<${TIN_LIBDIR:-NEWSLIBDIR}/tinrc> is read first. After that, the user's own "
 "configuration file I<${TIN_HOMEDIR:-\"$HOME\"}/.tin/tinrc> is read.  The "
 "global file is useful for distributing system-wide defaults to new users who "
 "have no private tinrc yet (see also B</etc/tin/tin.defaults>)."

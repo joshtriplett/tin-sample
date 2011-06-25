@@ -3,7 +3,7 @@
  *  Module    : policy.h
  *  Author    : Ralf Doeblitz <doeblitz@gmx.de>
  *  Created   : 1999-01-12
- *  Updated   : 2011-05-10
+ *  Updated   : 2011-07-18
  *  Notes     : #defines and static data for policy configuration
  *
  * Copyright (c) 1999-2011 Ralf Doeblitz <doeblitz@gmx.de>
@@ -224,6 +224,7 @@
  *
  * requested new TLDs:
  * .ct  Catalonia
+ * .ss  South Sudan
  *
  * xccTLDs:
  * .hk  Hong Kong, now .cn
@@ -278,6 +279,7 @@ static const char *gnksa_domain_list[] = {
 	"org",	/* Organizations */
 	"pro",	/* Accountants, lawyers, and physicians */
 	"tel",	/* Internet communication */
+	"xxx",	/* For adult entertainment */
 	"aero",	/* Air-transport industry */
 	"arpa",	/* Address and Routing Parameter Area */
 	"asia",	/* Asia and the Pacific */
@@ -290,7 +292,7 @@ static const char *gnksa_domain_list[] = {
 	"travel",	/* Travel industry */
 	/*
 	 * more gTLDs to come, proposed are:
-	 *  .kids     .mail     .post     .xxx
+	 *  .kids     .mail     .post
 	 *  (.berlin) (.sco)    (.bzh)    (.cym)    (.gal)
 	 */
 #	if 0		/* $DEAD */

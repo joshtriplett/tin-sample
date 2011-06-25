@@ -1,4 +1,4 @@
--- 2.0.0 release 20110623 "" --
+-- 2.0.0 release 20110823 "Ardenistiel" --
 
 U029) Thomas E. Dickey <dickey@invisible-island.net>
       ADD. update configure macros; switch to 2.13.20110430
@@ -42,6 +42,7 @@ U027) Urs Janssen <urs@tin.org>
       BUG. tinrc.ask_for_metamail had no effect
       BUG. CHECK_SIGN for gpg was wrong (at least for gpg 1.4.x)
       BUG. .so TLD wasn't allowed but is in use since 11/2010
+      BUG. .xxx gTLD wasn't allowed but is in use since 04/2011
       BUG. .yu TLD was still allowed but is defunct since 04/2010
       BUG. forged supersedes (-DFORGERY) were only allowed via 'x'(repost)
            but not via 'D'(cancel)
@@ -51,6 +52,7 @@ U027) Urs Janssen <urs@tin.org>
       ADD. allow new IDN ccTLDs of Algeria, India, Korea, Morocco, Serbia
            Singapore and Syria
       REM. Kinyarwanda po files
+      REM. configure check for unused getpass(3)
       ADD. cache getenv("NNTPSERVER") result early
       ADD. -4 / -6 cmd. line switch
       ADD. config.guess, config.sub update

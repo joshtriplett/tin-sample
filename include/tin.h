@@ -3,7 +3,7 @@
  *  Module    : tin.h
  *  Author    : I. Lea & R. Skrenta
  *  Created   : 1991-04-01
- *  Updated   : 2011-03-27
+ *  Updated   : 2011-08-07
  *  Notes     : #include files, #defines & struct's
  *
  * Copyright (c) 1997-2011 Iain Lea <iain@bricbrac.de>, Rich Skrenta <skrenta@pbm.com>
@@ -419,8 +419,10 @@ enum rc_state { RC_IGNORE, RC_CHECK, RC_UPGRADE, RC_DOWNGRADE, RC_ERROR };
 #	endif /* !HAVE_MEMSET */
 #	ifndef HAVE_STRCHR
 #		define strchr(str, ch)	index(str, ch)
-#		define strrchr(str, ch)	rindex(str, ch)
 #	endif /* !HAVE_STRCHR */
+#	ifndef HAVE_STRRCHR
+#		define strrchr(str, ch)	rindex(str, ch)
+#	endif /* !HAVE_STRRCHR */
 #	if defined(__386BSD__) || defined(__bsdi__) || defined(__NetBSD__) || defined(__FreeBSD__) || defined(__OpenBSD__)
 #		define DEFAULT_PRINTER	"/usr/bin/lpr"
 #		define DEFAULT_SUM	"/usr/bin/cksum -o 1 <" /* use tailing <, otherwise get filename output too */

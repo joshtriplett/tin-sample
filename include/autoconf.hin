@@ -3,7 +3,7 @@
  *  Module    : autoconf.hin
  *  Author    : Thomas Dickey
  *  Created   : 1995-08-24
- *  Updated   : 2011-04-17
+ *  Updated   : 2011-08-07
  *  Notes     : #include files, #defines & struct's
  *
  * Copyright (c) 1995-2011 Thomas Dickey <dickey@invisible-island.net>
@@ -290,6 +290,7 @@
 #	undef HAVE_STRFTIME
 #	undef HAVE_STRNCASECMP
 #	undef HAVE_STRPBRK
+#	undef HAVE_STRRCHR
 #	undef HAVE_STRRSTR
 #	undef HAVE_STRSEP
 #	undef HAVE_STRSTR
@@ -356,7 +357,6 @@
 #	undef DECL_GETCWD
 #	undef DECL_GETHOSTNAME
 #	undef DECL_GETOPT
-#	undef DECL_GETPASS
 #	undef DECL_GETWD
 #	undef DECL_INET_ADDR
 #	undef DECL_INET_ATON
@@ -385,6 +385,7 @@
 #	undef DECL_STRCHR
 #	undef DECL_STRFTIME
 #	undef DECL_STRNCASECMP
+#	undef DECL_STRRCHR
 #	undef DECL_STRTOL
 #	undef DECL_SYSTEM
 #	undef DECL_TGETENT

@@ -2,7 +2,7 @@ dnl Project   : tin - a Usenet reader
 dnl Module    : configure.in
 dnl Author    : Thomas E. Dickey <dickey@invisible-island.net>
 dnl Created   : 1995-08-24
-dnl Updated   : 2011-06-18
+dnl Updated   : 2011-08-07
 dnl Notes     :
 dnl
 dnl Copyright (c) 1995-2011 Thomas E. Dickey <dickey@invisible-island.net>
@@ -971,6 +971,7 @@ AC_CHECK_FUNCS(\
 	strdup \
 	strftime \
 	strpbrk \
+	strrchr \
 	strrstr \
 	strsep \
 	strstr \
@@ -1148,7 +1149,6 @@ CF_CHECK_DECL(\
 	fwrite \
 	getcwd \
 	getopt \
-	getpass \
 	getwd \
 	ioctl \
 	isascii \

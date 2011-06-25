@@ -775,6 +775,14 @@ o  integrate doc/auth.txt into tin.1-manpage
 
 Not yet classified
 ------------------
+o  make --with-defaults-dir= default to $sysconfdir/tin
+   (=/usr/local/etc/tin)?
+   [20110809 Urs Janssen <urs@tin.org>]
+
+o  Supersedes (and repost) don't reuse the Reply-To: header of the original
+   article
+   [20110808 Urs Janssen <urs@tin.org>]
+
 o  what about !us-ascii chars in username/password when using
    AUTHINFO USER/PASS? Currently they are sent as is, RFC 3977 says
    "The character set for all NNTP commands is UTF-8", RFC 4643 doesn't
@@ -918,7 +926,7 @@ o  check_article_to_be_posted() needs a cleanup!
 
 o  update gettext stuff to > gettext-0.12.1
 
-o  clean up included pcre stuff and update to >= pcre-8.12
+o  clean up included pcre stuff and update to >= pcre-8.13
 
 o  shows up cross-postings multiple times even if read once before getting
    a resync/reread active/newsrc-file

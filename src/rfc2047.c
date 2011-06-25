@@ -928,7 +928,7 @@ do_rfc15211522_encode(
 	rewind(g);
 	rewind(f);
 #ifdef HAVE_FTRUNCATE
-	ftruncate(fileno(f), 0);
+	(void) ftruncate(fileno(f), 0);
 #endif /* HAVE_FTRUNCATE */
 
 	/* copy header */
