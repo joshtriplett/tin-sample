@@ -3,13 +3,13 @@
 .\" Module    : tin.1
 .\" Author    : I. Lea, U. Janssen
 .\" Created   : 1991-08-23
-.\" Updated   : 2011-08-23
+.\" Updated   : 2011-12-24
 .\" Notes     : use american english; still needs some work, e.g.:
 .\"             - document authorization (.newsauth)
 .\"             - document random organization feature
 .\"
 .\"
-.TH tin 1 "August 23rd, 2011" "2.0.0" "A Usenet newsreader"
+.TH tin 1 "December 24th, 2011" "2.1.0" "A Usenet newsreader"
 .\"
 .\"
 .SH NAME
@@ -157,7 +157,9 @@ might result in incorrect article counts but is usually faster than the
 default which is to read the
 \fI${TIN_LIBDIR:\-NEWSLIBDIR}"/"${TIN_ACTIVEFILE:\-active}\fR file
 (either directly or via LIST) and then check the article count via
-NNTP GROUP command (\fBRFC3977\fP) ''\fB\-ln\fP''.
+NNTP GROUP command (\fBRFC3977\fP) ''\fB\-ln\fP''. If reding via
+NNTP and LIST COUNTS (\fBRFC6048\fP) is available that is used instead
+as it gives more accurate article counts.
 .TP
 .BI \-m " dir"
 Mailbox directory to use. Default is \fI${TIN_HOMEDIR:\-"$HOME"}/Mail\fR.
@@ -171,7 +173,7 @@ Only load groups from the
 \fI${TIN_LIBDIR:\-NEWSLIBDIR}"/"${TIN_ACTIVEFILE:\-active}\fR file that are
 subscribed to in the user's \fI${TIN_HOMEDIR:\-"$HOME"}/.newsrc\fR. This
 allows a noticeable speedup when connecting via a slow line, but \fBtin\fP
-can not tell which groups are moderated. See also ''\fB\-l\fP''.
+may not be able detect which groups are moderated. See also ''\fB\-l\fP''.
 .TP
 .B \-N
 Mail unread articles to yourself for later reading. For more information
@@ -2002,6 +2004,10 @@ Format of quote line when posting/following up an article (%A=Address,
 %D=Date, %F=Fullname+Address, %G=Groupname, %M=Message\-ID, %N=Fullname,
 %C=Firstname, %I=Initials). Default is "%F wrote:".
 .TP
+.B NNTP read timeout in seconds (nntp_read_timeout_secs)
+Time in seconds to wait for a response from the server. Default is 120.
+Setting this to 0 means no timeout.
+.TP
 .B Unicode normalization form (normalization_form)
 The normalization form \fBtin\fP should use to normalize unicode input.
 The possible values are:
@@ -2043,7 +2049,9 @@ encoding. base64 and quoted\-printable are usually undesired on usenet.
 .B View post-processed files (post_process_view)
 If ON, then \fBtin\fP will start an appropriate viewer program to display
 any files that were post processed and uudecoded. The program is determined
-using the mailcap file. Default is ON.
+using the
+.BR mailcap (5)
+file. Default is ON.
 .TP
 .B Post process saved articles (post_process_type)
 This specifies whether to perform post processing on saved articles.
@@ -2970,10 +2978,8 @@ with the ''\fB\-u\fP'' option:
 .fi
 .RE
 .PP
-If you are low on local disk space you should consider using
-\fBgetart_limit\fP to limit the size of cached indexes and also
-manually purge cached data for groups you are not reading anymore
-with something like:
+If you are low on local disk space you should consider to manually purge
+cached data for groups you are not reading anymore with something like:
 .PP
 .RS
 .ft CW
@@ -3326,7 +3332,8 @@ A pathname of a directory made available for \fBtin\fP to create
 temporary files.
 .TP
 .B MAILCAPS
-This variable can be used to override the default path search for mailcap
+This variable can be used to override the default path search for
+.BR mailcap (5)
 files. See also
 .BR tin (5).
 .TP
@@ -3605,6 +3612,7 @@ Urs Janssen <urs@tin.org>
 .BR wildmat (3),
 .BR environ (5),
 .BR locale (5),
+.BR mailcap (5),
 .BR mbox (5),
 .BR mmdf (5),
 .BR newsoverview (5),

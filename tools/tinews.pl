@@ -4,7 +4,7 @@
 # signs the article and posts it.
 #
 #
-# Copyright (c) 2002-2011 Urs Janssen <urs@tin.org>,
+# Copyright (c) 2002-2012 Urs Janssen <urs@tin.org>,
 #                         Marc Brockschmidt <marc@marcbrockschmidt.de>
 #
 # Redistribution and use in source and binary forms, with or without
@@ -33,11 +33,9 @@
 #
 #
 # TODO: - add debug mode which doesn't delete tmp-files and is verbose
-#       - add pgp6 support
-#       - check for /etc/nntpserver (and /etc/news/server)
-#       - also check for ~/.nntpauth?
-#       - add $PGPOPTS, $PGPPATH, $GNUPGHOME support
 #       - add pid to pgptmpf to allow multiple simultaneous instances
+#       - check for /etc/nntpserver (and /etc/news/server)
+#       - add $PGPOPTS, $PGPPATH and $GNUPGHOME support
 #       - cleanup and remove duplicated code
 #
 
@@ -45,23 +43,23 @@ use strict;
 use warnings;
 
 # version Number
-my $version = "1.1.29";
+my $version = "1.1.32";
 
 my %config;
 
 # configuration, may be overwritten via ~/.tinewsrc
 $config{'NNTPServer'}	= 'news';	# your NNTP servers name, may be set via $NNTPSERVER
 $config{'NNTPPort'}		= 119;	# NNTP-port, may be set via $NNTPPORT
-$config{'NNTPUser'}		= '';	# username for nntp-auth, may be set via ~/.newsauth
-$config{'NNTPPass'}		= '';	# password for nntp-auth, may be set via ~/.newsauth
+$config{'NNTPUser'}		= '';	# username for nntp-auth, may be set via ~/.newsauth or ~/.nntpauth
+$config{'NNTPPass'}		= '';	# password for nntp-auth, may be set via ~/.newsauth or ~/.nntpauth
 
 $config{'PGPSigner'}	= '';	# sign as who?
 $config{'PGPPass'}		= '';	# pgp2 only
-$config{'PathtoPGPPass'}= '';	# pgp2, pgp5 and gpg
-$config{'PGPPassFD'}	= 9;	# file descriptor used for input redirection of PathtoPGPPass, GPG and PGP5 only
+$config{'PathtoPGPPass'}= '';	# pgp2, pgp5, pgp6 and gpg
+$config{'PGPPassFD'}	= 9;	# file descriptor used for input redirection of PathtoPGPPass, GPG, PGP5 and PGP6 only
 
 $config{'pgp'}			= '/usr/bin/pgp';	# path to pgp
-$config{'PGPVersion'}	= '2';	# Use 2 for 2.X, 5 for PGP > 2.X and GPG for GPG
+$config{'PGPVersion'}	= '2';	# Use 2 for 2.X, 5 for PGP5, 6 for PGP6 and GPG for GPG
 $config{'digest-algo'}	= 'MD5';# Digest Algorithm for GPG. Must be supported by your installation
 
 $config{'Interactive'}	= 'yes';# allow interactive usage
@@ -264,8 +262,8 @@ if ($config{'debug'}) {
 
 # try ~/.newsauth if no $config{'NNTPPass'} was set
 if (!$config{'NNTPPass'}) {
+	my ($l, $server, $pass, $user);
 	if (-r (glob("~/.newsauth"))[0]) {
-		my ($l, $server, $pass, $user);
 		open (my $NEWSAUTH, '<', (glob("~/.newsauth"))[0]) or die("Can't open ~/.newsauth: $!");
 		while ($l = <$NEWSAUTH>) {
 			chomp $l;
@@ -274,9 +272,28 @@ if (!$config{'NNTPPass'}) {
 			last if ($server =~ m/\Q$config{'NNTPServer'}\E/);
 		}
 		close($NEWSAUTH);
-		if ($pass) {
+		if ($pass && $server =~ m/\Q$config{'NNTPServer'}\E/) {
 			$config{'NNTPPass'} = $pass;
 			$config{'NNTPUser'} = $user || getlogin || getpwuid($<) || $ENV{USER};
+		} else {
+			$pass = $user = "";
+		}
+	}
+	# try ~/.nntpauth if we still got no password
+	if (!$pass) {
+		if (-r (glob("~/.nntpauth"))[0]) {
+			open (my $NNTPAUTH, '<', (glob("~/.nntpauth"))[0]) or die("Can't open ~/.nntpauth: $!");
+			while ($l = <$NNTPAUTH>) {
+				chomp $l;
+				next if ($l =~ m/^[#\s]/);
+				($server, $user, $pass) = split(/\s+\b/, $l);
+				last if ($server =~ m/\Q$config{'NNTPServer'}\E/);
+			}
+			close($NNTPAUTH);
+			if ($pass && $server =~ m/\Q$config{'NNTPServer'}\E/) {
+				$config{'NNTPPass'} = $pass;
+				$config{'NNTPUser'} = $user || getlogin || getpwuid($<) || $ENV{USER};
+			}
 		}
 	}
 }
@@ -553,9 +570,17 @@ sub getpgpcommand {
 		}
 	} elsif ($PGPVersion eq '5') {
 		if ($config{'PathtoPGPPass'}) {
-			$PGPCommand = "PGPPASSFD=".$config{'PGPPassFD'}." ".$config{'pgp'}."s -u \"".$config{'PGPSigner'}."\" -t --armor -o ".$config{'pgptmpf'}.".txt.asc -z -f < ".$config{'pgptmpf'}.".txt 42<".$config{'PathtoPGPPass'};
+			$PGPCommand = "PGPPASSFD=".$config{'PGPPassFD'}." ".$config{'pgp'}."s -u \"".$config{'PGPSigner'}."\" -t --armor -o ".$config{'pgptmpf'}.".txt.asc -z -f < ".$config{'pgptmpf'}.".txt ".$config{'PGPPassFD'}."<".$config{'PathtoPGPPass'};
 		} elsif ($config{'Interactive'}) {
 			$PGPCommand = $config{'pgp'}."s -u \"".$config{'PGPSigner'}."\" -t --armor -o ".$config{'pgptmpf'}.".txt.asc -z -f < ".$config{'pgptmpf'}.".txt";
+		} else {
+			die("$0: Passphrase is unknown!\n");
+		}
+	} elsif ($PGPVersion eq '6') { # this is untested
+		if ($config{'PathtoPGPPass'}) {
+			$PGPCommand = "PGPPASSFD=".$config{'PGPPassFD'}." ".$config{'pgp'}." -u \"".$config{'PGPSigner'}."\" -saft -o ".$config{'pgptmpf'}.".txt.asc < ".$config{'pgptmpf'}.".txt ".$config{'PGPPassFD'}."<".$config{'PathtoPGPPass'};
+		} elsif ($config{'Interactive'}) {
+			$PGPCommand = $config{'pgp'}." -u \"".$config{'PGPSigner'}."\" -saft -o ".$config{'pgptmpf'}.".txt.asc < ".$config{'pgptmpf'}.".txt";
 		} else {
 			die("$0: Passphrase is unknown!\n");
 		}
@@ -746,7 +771,7 @@ sub usage {
 	print "  -w string  set Followup-To:-header to string\n";
 	print "  -x string  set Path:-header to string\n";
 	print "  -H         show help\n";
-	print "  -L         do not add Cacenl-Lock: / Cancel-Key: headers\n";
+	print "  -L         do not add Cancel-Lock: / Cancel-Key: headers\n";
 	print "  -R         disallow control messages\n";
 	print "  -S         do not append " . $config{'sig_path'} . "\n";
 	print "  -X         do not sign article\n";
@@ -969,7 +994,16 @@ off by default.
 "nntpserver password [user]" pairs for NNTP servers that require
 authorization. Any line that starts with "#" is a comment. Blank lines are
 ignored. This file should be readable only for the user as it contains the
-user's uncrypted password for reading news.
+user's uncrypted password for reading news. First match counts. If no
+matching entry is found F<$HOME/.nntpauth> is checked.
+
+=item F<$HOME/.nntpauth>
+
+"nntpserver user password" pairs for NNTP servers that require
+authorization. First match counts. Lines starting with "#" are skipped and
+blank lines are ignored. This file should be readable only for the user as
+it contains the user's uncrypted password for reading news.
+F<$HOME/.newsauth> is checked first.
 
 =item F<$HOME/.tinewsrc>
 
@@ -989,13 +1023,13 @@ security is an issue, don't use this script.
 =head1 NOTES
 
 B<tinews.pl> is designed to be used with B<pgp>(1)-2.6.3,
-B<pgp>(1)-5 and B<gpg>(1).
+B<pgp>(1)-5, B<pgp>(1)-6 and B<gpg>(1).
 
 B<tinews.pl> requires the following standard modules to be installed:
 B<Getopt::Long>(3pm), B<Net::NNTP>(3pm), B<Time::Local>(3pm) and
 B<Term::Readline>(3pm).
 
-If the Cacenl-Lock feature is enabled the following additional modules
+If the Cancel-Lock feature is enabled the following additional modules
 must be installed: B<MIME::Base64>(3pm), B<Digest::SHA1>(3pm) and
 B<Digest::HMAC_SHA1>(3pm)
 

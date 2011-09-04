@@ -3,10 +3,10 @@
  *  Module    : page.c
  *  Author    : I. Lea & R. Skrenta
  *  Created   : 1991-04-01
- *  Updated   : 2011-04-17
+ *  Updated   : 2011-11-04
  *  Notes     :
  *
- * Copyright (c) 1991-2011 Iain Lea <iain@bricbrac.de>, Rich Skrenta <skrenta@pbm.com>
+ * Copyright (c) 1991-2012 Iain Lea <iain@bricbrac.de>, Rich Skrenta <skrenta@pbm.com>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -316,7 +316,7 @@ show_page(
 	char key[MAXKEYLEN];
 	int i, j, n = 0;
 	int art_type = GROUP_TYPE_NEWS;
-	long old_artnum = 0L;
+	t_artnum old_artnum = T_ARTNUM_CONST(0);
 	t_bool mouse_click_on = TRUE;
 	t_bool repeat_search;
 	t_function func;

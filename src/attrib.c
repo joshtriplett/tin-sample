@@ -3,10 +3,10 @@
  *  Module    : attrib.c
  *  Author    : I. Lea
  *  Created   : 1993-12-01
- *  Updated   : 2011-05-08
+ *  Updated   : 2011-09-18
  *  Notes     : Group attribute routines
  *
- * Copyright (c) 1993-2011 Iain Lea <iain@bricbrac.de>
+ * Copyright (c) 1993-2012 Iain Lea <iain@bricbrac.de>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -55,7 +55,7 @@ int attrib_file_offset;
 /*
  * Local prototypes
  */
-static void set_attrib(int type, const char *scope, void *data);
+static void set_attrib(int type, const char *scope, const char *line, void *data);
 static void set_default_attributes(struct t_attribute *attributes, struct t_attribute *scope, t_bool global);
 static void set_default_state(struct t_attribute_state *state);
 #ifdef DEBUG
@@ -245,25 +245,25 @@ set_default_state(
 #define MATCH_BOOLEAN(pattern, type) \
 	if (match_boolean(line, pattern, &flag)) { \
 		num = (flag != FALSE); \
-		set_attrib(type, scope, &num); \
+		set_attrib(type, scope, line, &num); \
 		found = TRUE; \
 		break; \
 	}
 #define MATCH_INTEGER(pattern, type, maxval) \
 	if (match_integer(line, pattern, &num, maxval)) { \
-		set_attrib(type, scope, &num); \
+		set_attrib(type, scope, line, &num); \
 		found = TRUE; \
 		break; \
 	}
 #define MATCH_STRING(pattern, type) \
 	if (match_string(line, pattern, buf, sizeof(buf) - strlen(pattern))) { \
-		set_attrib(type, scope, buf); \
+		set_attrib(type, scope, line, buf); \
 		found = TRUE; \
 		break; \
 	}
-#define MATCH_LIST(pattern, type, table, tablelen) \
-	if (match_list(line, pattern, table, tablelen, &num)) { \
-		set_attrib(type, scope, &num); \
+#define MATCH_LIST(pattern, type, table) \
+	if (match_list(line, pattern, table, &num)) { \
+		set_attrib(type, scope, line, &num); \
 		found = TRUE; \
 		break; \
 	}
@@ -374,7 +374,7 @@ read_attributes_file(
 
 				case 'm':
 					MATCH_BOOLEAN("mail_8bit_header=", OPT_ATTRIB_MAIL_8BIT_HEADER);
-					MATCH_LIST("mail_mime_encoding=", OPT_ATTRIB_MAIL_MIME_ENCODING, txt_mime_encodings, NUM_MIME_ENCODINGS);
+					MATCH_LIST("mail_mime_encoding=", OPT_ATTRIB_MAIL_MIME_ENCODING, txt_mime_encodings);
 					MATCH_STRING("maildir=", OPT_ATTRIB_MAILDIR);
 					MATCH_STRING("mailing_list=", OPT_ATTRIB_MAILING_LIST);
 					MATCH_BOOLEAN("mark_ignore_tags=", OPT_ATTRIB_MARK_IGNORE_TAGS);
@@ -382,7 +382,7 @@ read_attributes_file(
 					MATCH_BOOLEAN("mime_forward=", OPT_ATTRIB_MIME_FORWARD);
 					MATCH_STRING("mime_types_to_save=", OPT_ATTRIB_MIME_TYPES_TO_SAVE);
 #ifdef CHARSET_CONVERSION
-					MATCH_LIST("mm_network_charset=", OPT_ATTRIB_MM_NETWORK_CHARSET, txt_mime_charsets, NUM_MIME_CHARSETS);
+					MATCH_LIST("mm_network_charset=", OPT_ATTRIB_MM_NETWORK_CHARSET, txt_mime_charsets);
 #else
 					SKIP_ITEM("mm_network_charset=");
 #endif /* CHARSET_CONVERSION */
@@ -401,7 +401,7 @@ read_attributes_file(
 				case 'p':
 					MATCH_BOOLEAN("pos_first_unread=", OPT_ATTRIB_POS_FIRST_UNREAD);
 					MATCH_BOOLEAN("post_8bit_header=", OPT_ATTRIB_POST_8BIT_HEADER);
-					MATCH_LIST("post_mime_encoding=", OPT_ATTRIB_POST_MIME_ENCODING, txt_mime_encodings, NUM_MIME_ENCODINGS);
+					MATCH_LIST("post_mime_encoding=", OPT_ATTRIB_POST_MIME_ENCODING, txt_mime_encodings);
 					MATCH_BOOLEAN("post_process_view=", OPT_ATTRIB_POST_PROCESS_VIEW);
 					MATCH_INTEGER("post_process_type=", OPT_ATTRIB_POST_PROCESS_TYPE, POST_PROC_YES);
 #ifndef DISABLE_PRINTING
@@ -424,7 +424,7 @@ read_attributes_file(
 					MATCH_STRING("quick_select_scope=", OPT_ATTRIB_QUICK_SELECT_SCOPE);
 					if (match_string(line, "quote_chars=", buf, sizeof(buf))) {
 						quote_dash_to_space(buf);
-						set_attrib(OPT_ATTRIB_QUOTE_CHARS, scope, buf);
+						set_attrib(OPT_ATTRIB_QUOTE_CHARS, scope, line, buf);
 						found = TRUE;
 						break;
 					}
@@ -497,7 +497,7 @@ read_attributes_file(
 								auto_cc_bcc = (auto_bcc ? AUTO_CC_BCC : AUTO_CC);
 							else
 								auto_cc_bcc = (auto_bcc ? AUTO_BCC : 0);
-							set_attrib(OPT_ATTRIB_AUTO_CC_BCC, scope, &auto_cc_bcc);
+							set_attrib(OPT_ATTRIB_AUTO_CC_BCC, scope, line, &auto_cc_bcc);
 							found = TRUE;
 							break;
 						}
@@ -506,7 +506,7 @@ read_attributes_file(
 								auto_cc_bcc = (auto_cc ? AUTO_CC_BCC : AUTO_BCC);
 							else
 								auto_cc_bcc = (auto_cc ? AUTO_CC : 0);
-							set_attrib(OPT_ATTRIB_AUTO_CC_BCC, scope, &auto_cc_bcc);
+							set_attrib(OPT_ATTRIB_AUTO_CC_BCC, scope, line, &auto_cc_bcc);
 							found = TRUE;
 							break;
 						}
@@ -547,21 +547,21 @@ read_attributes_file(
 
 		add_scope("*");
 		snprintf(buf, sizeof(buf), "%s", "~/.tin/headers");
-		set_attrib(OPT_ATTRIB_X_HEADERS, "*", buf);
+		set_attrib(OPT_ATTRIB_X_HEADERS, "*", "", buf);
 
 		add_scope("*sources*");
 		num = POST_PROC_SHAR;
-		set_attrib(OPT_ATTRIB_POST_PROCESS_TYPE, "*sources*", &num);
+		set_attrib(OPT_ATTRIB_POST_PROCESS_TYPE, "*sources*", "", &num);
 
 		add_scope("*binaries*");
 		num = POST_PROC_YES;
-		set_attrib(OPT_ATTRIB_POST_PROCESS_TYPE, "*binaries*", &num);
+		set_attrib(OPT_ATTRIB_POST_PROCESS_TYPE, "*binaries*", "", &num);
 		num = FALSE;
-		set_attrib(OPT_ATTRIB_TEX2ISO_CONV, "*binaries*", &num);
+		set_attrib(OPT_ATTRIB_TEX2ISO_CONV, "*binaries*", "", &num);
 		num = TRUE;
-		set_attrib(OPT_ATTRIB_DELETE_TMP_FILES, "*binaries*", &num);
+		set_attrib(OPT_ATTRIB_DELETE_TMP_FILES, "*binaries*", "", &num);
 		snprintf(buf, sizeof(buf), "%s", "poster");
-		set_attrib(OPT_ATTRIB_FOLLOWUP_TO, "*binaries*", buf);
+		set_attrib(OPT_ATTRIB_FOLLOWUP_TO, "*binaries*", "", buf);
 
 		write_attributes_file(file);
 	}
@@ -589,13 +589,17 @@ static void
 set_attrib(
 	int type,
 	const char *scope,
+	const char *line,
 	void *data)
 {
 	struct t_scope *curr_scope;
 
 	if (scope == NULL || *scope == '\0') {	/* No active scope set yet */
-		/* TODO: include full line in error-message */
-		error_message(2, _("attribute with no scope: %s"), (char *) data); /* TODO: -> lang.c */
+		error_message(2, _(txt_attrib_no_scope), line);
+#ifdef DEBUG
+		if (debug & DEBUG_ATTRIB)
+			debug_print_file("ATTRIBUTES", txt_attrib_no_scope, line);
+#endif /* DEBUG */
 		return;
 	}
 
@@ -991,7 +995,7 @@ assign_attributes_to_groups(
 			 * or a 8bit charset but a !8bit encoding, update encoding if needed
 			 */
 			is_7bit = FALSE;
-			for (j = 0; *txt_mime_7bit_charsets[j]; j++) {
+			for (j = 0; txt_mime_7bit_charsets[j] != NULL; j++) {
 				if (!strcasecmp(txt_mime_charsets[group->attribute->mm_network_charset], txt_mime_7bit_charsets[j])) {
 					is_7bit = TRUE;
 					break;
@@ -1120,7 +1124,7 @@ write_attributes_file(
 	fprintf(fp, _("#  group_catchup_on_exit=ON/OFF\n"));
 	fprintf(fp, _("#  mail_8bit_header=ON/OFF\n"));
 	fprintf(fp, _("#  mail_mime_encoding=supported_encoding"));
-	for (i = 0; i < NUM_MIME_ENCODINGS; i++) {
+	for (i = 0; txt_mime_encodings[i] != NULL; i++) {
 		if (!(i % 5))
 			fprintf(fp, "\n#    ");
 		fprintf(fp, "%s, ", txt_mime_encodings[i]);
@@ -1137,7 +1141,7 @@ write_attributes_file(
 	fprintf(fp, _("#  mime_forward=ON/OFF\n"));
 #ifdef CHARSET_CONVERSION
 	fprintf(fp, _("#  mm_network_charset=supported_charset"));
-	for (i = 0; i < NUM_MIME_CHARSETS; i++) {
+	for (i = 0; txt_mime_charsets[i] != NULL; i++) {
 		if (!(i % 5)) /* start new line */
 			fprintf(fp, "\n#    ");
 		fprintf(fp, "%s, ", txt_mime_charsets[i]);
@@ -1152,7 +1156,7 @@ write_attributes_file(
 	fprintf(fp, _("#  pos_first_unread=ON/OFF\n"));
 	fprintf(fp, _("#  post_8bit_header=ON/OFF\n"));
 	fprintf(fp, _("#  post_mime_encoding=supported_encoding"));
-	for (i = 0; i < NUM_MIME_ENCODINGS; i++) {
+	for (i = 0; txt_mime_encodings[i] != NULL; i++) {
 		if (!(i % 5))
 			fprintf(fp, "\n#    ");
 		fprintf(fp, "%s, ", txt_mime_encodings[i]);

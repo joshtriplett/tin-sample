@@ -3,11 +3,11 @@
  *  Module    : tcurses.c
  *  Author    : Thomas Dickey <dickey@invisible-island.net>
  *  Created   : 1997-03-02
- *  Updated   : 2011-04-17
+ *  Updated   : 2011-11-29
  *  Notes     : This is a set of wrapper functions adapting the termcap
  *	             interface of tin to use SVr4 curses (e.g., ncurses).
  *
- * Copyright (c) 1997-2011 Thomas Dickey <dickey@invisible-island.net>
+ * Copyright (c) 1997-2012 Thomas Dickey <dickey@invisible-island.net>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -732,12 +732,15 @@ my_fputwc(
 	} else {
 #		ifdef HAVE_NCURSESW
 		cchar_t cc;
+		wchar_t wstr[2];
 
-		cc.attr = A_NORMAL;
-		cc.chars[0] = (wchar_t) wc;
-		cc.chars[1] = (wchar_t) '\0';
+		wstr[0] = (wchar_t) wc;
+		wstr[1] = (wchar_t) '\0';
 
-		add_wch(&cc);
+		if (setcchar(&cc, wstr, A_NORMAL, 0, NULL) != ERR)
+			add_wch(&cc);
+		else
+			addch('?');
 #	else
 		char *mbs;
 		int len;

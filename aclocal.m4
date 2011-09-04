@@ -2,10 +2,10 @@ dnl Project   : tin - a Usenet reader
 dnl Module    : aclocal.m4
 dnl Author    : Thomas E. Dickey <dickey@invisible-island.net>
 dnl Created   : 1995-08-24
-dnl Updated   : 2011-06-08
+dnl Updated   : 2011-10-03
 dnl Notes     :
 dnl
-dnl Copyright (c) 1995-2011 Thomas E. Dickey <dickey@invisible-island.net>
+dnl Copyright (c) 1995-2012 Thomas E. Dickey <dickey@invisible-island.net>
 dnl All rights reserved.
 dnl
 dnl Redistribution and use in source and binary forms, with or without
@@ -3770,6 +3770,9 @@ mingw32) # (vi
 
 	AC_CHECK_FUNCS(strcasecmp,,[
 		CF_RECHECK_FUNC(strcasecmp,resolv,cf_cv_netlibs)])
+
+	AC_CHECK_FUNCS(inet_ntoa,,[
+		CF_RECHECK_FUNC(inet_ntoa,nsl,cf_cv_netlibs)])
 	;;
 esac
 ])

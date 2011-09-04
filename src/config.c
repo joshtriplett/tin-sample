@@ -6,7 +6,7 @@
  *  Updated   : 2011-04-17
  *  Notes     : Configuration file routines
  *
- * Copyright (c) 1991-2011 Iain Lea <iain@bricbrac.de>
+ * Copyright (c) 1991-2012 Iain Lea <iain@bricbrac.de>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -264,7 +264,7 @@ read_config_file(
 			if (match_color(buf, "col_markstroke=", &tinrc.col_markstroke, MAX_COLOR))
 				break;
 #endif /* HAVE_COLOR */
-			if (match_list(buf, "confirm_choice=", txt_confirm_choices, NUM_CONFIRM_CHOICES, &tinrc.confirm_choice))
+			if (match_list(buf, "confirm_choice=", txt_confirm_choices, &tinrc.confirm_choice))
 				break;
 
 			break;
@@ -436,7 +436,7 @@ read_config_file(
 			if (match_string(buf, "mailer_format=", tinrc.mailer_format, sizeof(tinrc.mailer_format)))
 				break;
 
-			if (match_list(buf, "mail_mime_encoding=", txt_mime_encodings, NUM_MIME_ENCODINGS, &tinrc.mail_mime_encoding))
+			if (match_list(buf, "mail_mime_encoding=", txt_mime_encodings, &tinrc.mail_mime_encoding))
 				break;
 
 			if (match_boolean(buf, "mail_8bit_header=", &tinrc.mail_8bit_header))
@@ -446,9 +446,9 @@ read_config_file(
 			if (match_string(buf, "mm_charset=", tinrc.mm_charset, sizeof(tinrc.mm_charset)))
 				break;
 #else
-			if (match_list(buf, "mm_charset=", txt_mime_charsets, NUM_MIME_CHARSETS, &tinrc.mm_network_charset))
+			if (match_list(buf, "mm_charset=", txt_mime_charsets, &tinrc.mm_network_charset))
 				break;
-			if (match_list(buf, "mm_network_charset=", txt_mime_charsets, NUM_MIME_CHARSETS, &tinrc.mm_network_charset))
+			if (match_list(buf, "mm_network_charset=", txt_mime_charsets, &tinrc.mm_network_charset))
 				break;
 #	ifdef NO_LOCALE
 			if (match_string(buf, "mm_local_charset=", tinrc.mm_local_charset, sizeof(tinrc.mm_local_charset)))
@@ -468,7 +468,7 @@ read_config_file(
 			if (match_string(buf, "mail_quote_format=", tinrc.mail_quote_format, sizeof(tinrc.mail_quote_format)))
 				break;
 
-			if (match_list(buf, "mailbox_format=", txt_mailbox_formats, NUM_MAILBOX_FORMATS, &tinrc.mailbox_format))
+			if (match_list(buf, "mailbox_format=", txt_mailbox_formats, &tinrc.mailbox_format))
 				break;
 
 			if (match_string(buf, "metamail_prog=", tinrc.metamail_prog, sizeof(tinrc.metamail_prog)))
@@ -505,6 +505,12 @@ read_config_file(
 			if (match_string(buf, "news_quote_format=", tinrc.news_quote_format, sizeof(tinrc.news_quote_format)))
 				break;
 
+#if defined(HAVE_ALARM) && defined(SIGALRM)
+			/* the number of seconds is limited on some systems (e.g. Free/OpenBSD: 100000000) */
+			if (match_integer(buf, "nntp_read_timeout_secs=", &tinrc.nntp_read_timeout_secs, 16383))
+				break;
+#endif /* HAVE_ALARM && SIGALRM */
+
 #ifdef HAVE_UNICODE_NORMALIZATION
 #	ifdef HAVE_LIBICUUC
 			if (match_integer(buf, "normalization_form=", &tinrc.normalization_form, NORMALIZE_NFD))
@@ -520,7 +526,7 @@ read_config_file(
 			break;
 
 		case 'p':
-			if (match_list(buf, "post_mime_encoding=", txt_mime_encodings, NUM_MIME_ENCODINGS, &tinrc.post_mime_encoding))
+			if (match_list(buf, "post_mime_encoding=", txt_mime_encodings, &tinrc.post_mime_encoding))
 				break;
 
 			if (match_boolean(buf, "post_8bit_header=", &tinrc.post_8bit_header))
@@ -813,7 +819,7 @@ read_config_file(
 	 * or a 8bit charset but a !8bit encoding, update encoding if needed
 	 */
 	is_7bit = FALSE;
-	for (i = 0; *txt_mime_7bit_charsets[i]; i++) {
+	for (i = 0; txt_mime_7bit_charsets[i] != NULL; i++) {
 		if (!strcasecmp(txt_mime_charsets[tinrc.mm_network_charset], txt_mime_7bit_charsets[i])) {
 			is_7bit = TRUE;
 			break;
@@ -1034,6 +1040,11 @@ write_config_file(
 
 	fprintf(fp, "%s", _(txt_reread_active_file_secs.tinrc));
 	fprintf(fp, "reread_active_file_secs=%d\n\n", tinrc.reread_active_file_secs);
+
+#if defined(HAVE_ALARM) && defined(SIGALRM)
+	fprintf(fp, "%s", _(txt_nntp_read_timeout_secs.tinrc));
+	fprintf(fp, "nntp_read_timeout_secs=%d\n\n", tinrc.nntp_read_timeout_secs);
+#endif /* HAVE_ALARM && SIGALRM */
 
 	fprintf(fp, "%s", _(txt_quote_chars.tinrc));
 	fprintf(fp, "quote_chars=%s\n\n", quote_space_to_dash(tinrc.quote_chars));
@@ -1524,7 +1535,6 @@ match_list(
 	char *line,
 	constext *pat,
 	constext *const *table,
-	size_t tablelen,
 	int *dst)
 {
 	size_t patlen = strlen(pat);
@@ -1535,7 +1545,7 @@ match_list(
 
 		line += patlen;
 		*dst = 0;	/* default, if no match */
-		for (n = 0; n < tablelen; n++) {
+		for (n = 0; table[n] != NULL; n++) {
 			if (match_item(line, table[n], temp, sizeof(temp))) {
 				*dst = (int) n;
 				break;

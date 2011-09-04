@@ -3,10 +3,10 @@
  *  Module    : policy.h
  *  Author    : Ralf Doeblitz <doeblitz@gmx.de>
  *  Created   : 1999-01-12
- *  Updated   : 2011-07-18
+ *  Updated   : 2011-10-21
  *  Notes     : #defines and static data for policy configuration
  *
- * Copyright (c) 1999-2011 Ralf Doeblitz <doeblitz@gmx.de>
+ * Copyright (c) 1999-2012 Ralf Doeblitz <doeblitz@gmx.de>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -221,13 +221,11 @@
  * .gb  United Kingdom, use .uk
  * .nt  Neutral Zone
  * .sj  Svalbard and Jan Mayen Islands (Norway)
- *
- * requested new TLDs:
- * .ct  Catalonia
  * .ss  South Sudan
  *
+ * requested new TLDs:
+ *
  * xccTLDs:
- * .hk  Hong Kong, now .cn
  * .su  former USSR, now .ru
  * .tp  former East Timor, now .tl
  */
@@ -348,6 +346,8 @@ static const char *gnksa_domain_list[] = {
 	"xn--54b7fta0cc",	/* Bangladesh */
 	"xn--node",			/* Georgia */
 	"xn--mgba3a4f16a",	/* Iran */
+	"xn--80ao21a",		/* Kazakhstan */
+	"xn--mgbx4cd0ab",	/* Malaysia */
 	"xn--mgb9awbf",		/* Oman */
 	"xn--mgbai9azgqp6j",	/* Pakistan */
 	"xn--j1amh",		/* Ukraine */

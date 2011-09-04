@@ -3,10 +3,10 @@
  *  Module    : filter.c
  *  Author    : I. Lea
  *  Created   : 1992-12-28
- *  Updated   : 2011-04-17
+ *  Updated   : 2011-11-09
  *  Notes     : Filter articles. Kill & auto selection are supported.
  *
- * Copyright (c) 1991-2011 Iain Lea <iain@bricbrac.de>
+ * Copyright (c) 1991-2012 Iain Lea <iain@bricbrac.de>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -215,8 +215,15 @@ test_regex(
 			regex_errpos = pcre_exec(cache->re, cache->extra, string, strlen(string), 0, 0, NULL, 0);
 			if (regex_errpos >= 0)
 				return 1;
-			else if (regex_errpos != PCRE_ERROR_NOMATCH) {
+			else if (regex_errpos != PCRE_ERROR_NOMATCH) { /* also exclude PCRE_ERROR_BADUTF8 ? */
 				error_message(2, _(txt_pcre_error_num), regex_errpos);
+#ifdef DEBUG
+				if (debug & DEBUG_FILTER) {
+					debug_print_file("FILTER", _(txt_pcre_error_num), regex_errpos);
+					debug_print_file("FILTER", "\t regex: %s", regex);
+					debug_print_file("FILTER", "\tstring: %s", string);
+				}
+#endif /* DEBUG */
 				return -1;
 			}
 		}

@@ -3,10 +3,10 @@
  *  Module    : post.c
  *  Author    : I. Lea
  *  Created   : 1991-04-01
- *  Updated   : 2011-04-22
+ *  Updated   : 2011-12-23
  *  Notes     : mail/post/replyto/followup/repost & cancel articles
  *
- * Copyright (c) 1991-2011 Iain Lea <iain@bricbrac.de>
+ * Copyright (c) 1991-2012 Iain Lea <iain@bricbrac.de>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -107,6 +107,7 @@
 #define POST_NORMAL		2
 #define POST_RESPONSE	3
 #define POST_REPOST		4
+#define POST_SUPERSEDED	5
 
 /* When prompting for subject, display no more than 20 characters */
 #define DISPLAY_SUBJECT_LEN 20
@@ -1356,7 +1357,7 @@ check_article_to_be_posted(
 	/*
 	 * check for known 7bit charsets
 	 */
-	for (i = 0; *txt_mime_7bit_charsets[i]; i++) {
+	for (i = 0; txt_mime_7bit_charsets[i] != NULL; i++) {
 #ifdef CHARSET_CONVERSION
 		if (!strcasecmp(txt_mime_charsets[mmnwcharset], txt_mime_7bit_charsets[i]))
 #else
@@ -1821,7 +1822,7 @@ post_article_loop:
 				break;
 		}
 		signal_context = cPost;
-		if (type != POST_REPOST) {
+		if (type != POST_REPOST && type != POST_SUPERSEDED) {
 			char keyedit[MAXKEYLEN], keypost[MAXKEYLEN];
 			char keypostpone[MAXKEYLEN], keyquit[MAXKEYLEN];
 			char keymenu[MAXKEYLEN];
@@ -1984,6 +1985,7 @@ post_article_done:
 					break;
 
 				case POST_REPOST:
+				case POST_SUPERSEDED:
 					tag = 'x';
 					break;
 
@@ -2423,7 +2425,7 @@ pickup_postponed_articles(
 	char question[HEADER_LEN];
 	int count = count_postponed_articles();
 	int i;
-	t_function func;
+	t_function func = NOT_ASSIGNED;
 
 	if (!count) {
 		if (!ask)
@@ -3741,7 +3743,7 @@ cancel_article(
 		return redraw_screen;
 	} else
 #endif /* !FORGERY */
- {
+	{
 		char *smsg;
 		char buff[LEN];
 		char keycancel[MAXKEYLEN], keyquit[MAXKEYLEN], keysupersede[MAXKEYLEN];
@@ -4193,7 +4195,7 @@ repost_article(
 			"%s", sized_message(&smsg, buff, note_h.subj));
 		free(smsg);
 	}
-	return (post_loop(POST_REPOST, group, func, (Superseding ? _(txt_superseding_art) : _(txt_repost_an_article)), art_type, start_line_offset));
+	return (post_loop(Superseding ? POST_SUPERSEDED : POST_REPOST, group, func, (Superseding ? _(txt_superseding_art) : _(txt_repost_an_article)), art_type, start_line_offset));
 }
 
 
@@ -4559,8 +4561,8 @@ reread_active_after_posting(
 	void)
 {
 	int i;
-	long old_min;
-	long old_max;
+	t_artnum old_min;
+	t_artnum old_max;
 	struct t_group *group;
 	t_bool modified = FALSE;
 
@@ -4580,7 +4582,7 @@ reread_active_after_posting(
 					if (group->newsrc.num_unread > group->count) {
 #ifdef DEBUG
 						if (debug & DEBUG_NEWSRC) { /* TODO: is this the right debug-level? */
-							my_printf(cCRLF "Unread WRONG grp=[%s] unread=[%ld] count=[%ld]",
+							my_printf(cCRLF "Unread WRONG grp=[%s] unread=[%"T_ARTNUM_PFMT"] count=[%"T_ARTNUM_PFMT"]",
 								group->name, group->newsrc.num_unread, group->count);
 							my_flush();
 						}
@@ -4590,7 +4592,7 @@ reread_active_after_posting(
 					if (group->xmin != old_min || group->xmax != old_max) {
 #ifdef DEBUG
 						if (debug & DEBUG_NEWSRC) { /* TODO: is this the right debug-level? */
-							my_printf(cCRLF "Min/Max DIFF grp=[%s] old=[%ld-%ld] new=[%ld-%ld]",
+							my_printf(cCRLF "Min/Max DIFF grp=[%s] old=[%"T_ARTNUM_PFMT"-%"T_ARTNUM_PFMT"] new=[%"T_ARTNUM_PFMT"-%"T_ARTNUM_PFMT"]",
 								group->name, old_min, old_max, group->xmin, group->xmax);
 							my_flush();
 						}
