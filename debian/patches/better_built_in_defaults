@@ -29,12 +29,3 @@
  #endif /* HAVE_COLOR */
  	FALSE,		/* abbreviate_groupname */
  	TRUE,		/* add_posted_to_filter */
-@@ -391,7 +391,7 @@ struct t_config tinrc = {
- 	FALSE,		/* use_keypad */
- #endif /* HAVE_KEYPAD */
- 	TRUE,		/* wrap_on_next_unread */
--	FALSE,		/* ask_for_metamail */
-+	TRUE,		/* ask_for_metamail */
- 	FALSE,		/* default_filter_kill_case */
- 	FALSE,		/* default_filter_kill_expire */
- 	TRUE,		/* default_filter_kill_global */

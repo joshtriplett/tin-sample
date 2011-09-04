@@ -1,3 +1,11 @@
+tin (1:2.0.0-1) unstable; urgency=low
+
+  * New upstream release.
+  * Stop asking by default to use metamail, which has been removed from
+    Debian.
+
+ -- Marco d'Itri <md@linux.it>  Sun, 04 Sep 2011 11:35:38 +0200
+
 tin (1:2.0.0~20110623-1) unstable; urgency=low
 
   * New upstream snapshot.
