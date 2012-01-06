@@ -40,10 +40,10 @@
 
 #	define PRODUCT		"tin"
 #	ifndef TIN_AUTOCONF_H
-#		define VERSION		"2.1.0"
+#		define VERSION		"2.1.1"
 #	endif /* !TIN_AUTOCONF_H */
-#	define RELEASEDATE	"20111224"
-#	define RELEASENAME	"Bridgend"
+#	define RELEASEDATE	"20120623"
+#	define RELEASENAME	"Mulindry"
 /* config-file versions - must by dotted triples */
 #	define TINRC_VERSION	"1.3.11"
 #	define ATTRIBUTES_VERSION	"1.0.7"

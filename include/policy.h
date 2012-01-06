@@ -3,7 +3,7 @@
  *  Module    : policy.h
  *  Author    : Ralf Doeblitz <doeblitz@gmx.de>
  *  Created   : 1999-01-12
- *  Updated   : 2011-10-21
+ *  Updated   : 2012-06-23
  *  Notes     : #defines and static data for policy configuration
  *
  * Copyright (c) 1999-2012 Ralf Doeblitz <doeblitz@gmx.de>
@@ -72,8 +72,8 @@
  * .cm  Cameroon                       .cn  China
  * .co  Colombia                       .cr  Costa Rica
  * .cu  Cuba                           .cv  Cape Verde
- * .cx  Christmas Island               .cy  Cyprus
- * .cz  Czech Republic
+ * .cw  Curacao                        .cx  Christmas Island
+ * .cy  Cyprus                         .cz  Czech Republic
  *
  * .de  Germany                        .dj  Djibouti
  * .dk  Denmark                        .dm  Dominica
@@ -216,16 +216,20 @@
  * .aa, .qm, .qz, .xa, .xz, .zz
  *
  * unused TLDs:
+ * .bl  Saint Barthélemy
+ * .bq  Bonaire, Sint Eustatius and Saba
  * .bv  Bouvet Island (Norway)
  * .eh  Western Sahara
  * .gb  United Kingdom, use .uk
- * .nt  Neutral Zone
+ * .mf  Sint Maarten (French side)
  * .sj  Svalbard and Jan Mayen Islands (Norway)
  * .ss  South Sudan
+ * .sx  Sint Maarten (Dutch side)
  *
  * requested new TLDs:
  *
  * xccTLDs:
+ * .an  Netherlands Antilles, becomes .bq, .cw, and .sx
  * .su  former USSR, now .ru
  * .tp  former East Timor, now .tl
  */
@@ -234,7 +238,7 @@ static char gnksa_country_codes[26*26] = {
 /*      A B C D E  F G H I J  K L M N O  P Q R S T  U V W X Y Z */
 /* A */ 0,0,1,1,1, 1,1,0,1,0, 0,1,1,1,1, 0,1,1,1,1, 1,0,1,1,0,1,
 /* B */ 1,1,0,1,1, 1,1,1,1,1, 0,0,1,1,1, 0,0,1,1,1, 0,0,1,0,1,1,
-/* C */ 1,0,1,1,0, 1,1,1,1,0, 1,1,1,1,1, 0,0,1,0,0, 1,1,0,1,1,1,
+/* C */ 1,0,1,1,0, 1,1,1,1,0, 1,1,1,1,1, 0,0,1,0,0, 1,1,1,1,1,1,
 /* D */ 0,0,0,0,1, 0,0,0,0,1, 1,0,1,0,1, 0,0,0,0,0, 0,0,0,0,0,1,
 /* E */ 0,0,1,0,1, 0,1,0,0,0, 0,0,0,0,0, 0,0,1,1,1, 1,0,0,0,0,0,
 /* F */ 0,0,0,0,0, 0,0,0,1,1, 1,0,1,0,1, 0,0,1,0,0, 0,0,0,0,0,0,
@@ -324,6 +328,7 @@ static const char *gnksa_domain_list[] = {
 	"xn--fpcrj9c3d",	/* India, Telugu */
 	"xn--mgbbh1a71e",	/* India, Urdu */
 	"xn--mgbayh7gpa",	/* Jordan */
+	"xn--80ao21a",		/* Kazakhstan */
 	"xn--3e0b707e",		/* Korea, Republic of */
 	"xn--mgbc0a9azcg",	/* Morocco */
 	"xn--ygbi2ammx",	/* Palestinian Territory */
@@ -346,8 +351,8 @@ static const char *gnksa_domain_list[] = {
 	"xn--54b7fta0cc",	/* Bangladesh */
 	"xn--node",			/* Georgia */
 	"xn--mgba3a4f16a",	/* Iran */
-	"xn--80ao21a",		/* Kazakhstan */
 	"xn--mgbx4cd0ab",	/* Malaysia */
+	"xn--l1acc",		/* Mongolia */
 	"xn--mgb9awbf",		/* Oman */
 	"xn--mgbai9azgqp6j",	/* Pakistan */
 	"xn--j1amh",		/* Ukraine */

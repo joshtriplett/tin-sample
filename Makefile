@@ -1,15 +1,15 @@
 # Top level Makefile for tin
 # - for configuration options read the doc/INSTALL file.
 #
-# Updated: 2011-04-17
+# Updated: 2012-03-25
 #
 
 PROJECT	= tin
 LVER	= 2
 PVER	= 1
-SVER	= 0
+SVER	= 1
 VER	= $(LVER).$(PVER).$(SVER)
-DVER	= 20111224
+DVER	= 20120623
 EXE	= tin
 
 # directory structure
@@ -64,6 +64,7 @@ CFILES	= \
 	$(SRCDIR)/group.c \
 	$(SRCDIR)/hashstr.c \
 	$(SRCDIR)/header.c \
+	$(SRCDIR)/heapsort.c \
 	$(SRCDIR)/help.c\
 	$(SRCDIR)/inews.c \
 	$(SRCDIR)/init.c \
@@ -325,7 +326,9 @@ POFILES = \
 	$(PODIR)/sv.gmo \
 	$(PODIR)/sv.po \
 	$(PODIR)/tr.gmo \
-	$(PODIR)/tr.po
+	$(PODIR)/tr.po \
+	$(PODIR)/zh_TW.po \
+	$(PODIR)/zh_TW.gmo
 
 L10NFILES = \
 	$(L10NDIR)/de/tin.1 \
@@ -340,7 +343,7 @@ L10NFILES = \
 
 ALL_FILES = $(TOP) $(DOC) $(TOL) $(HFILES) $(CFILES) $(PCRE) $(MISC) $(CAN) $(INTLFILES) $(POFILES) $(L10NFILES)
 
-ALL_DIRS = $(TOPDIR) $(DOCDIR) $(SRCDIR) $(INCDIR) $(PCREDIR) $(PCREDIR)/doc $(PCREDIR)/testdata $(CANDIR) $(INTLDIR) $(PODIR) $(L10NDIR) $(L10NDIR)/de
+ALL_DIRS = $(TOPDIR) $(DOCDIR) $(SRCDIR) $(INCDIR) $(PCREDIR) $(PCREDIR)/doc $(PCREDIR)/testdata $(CANDIR) $(INTLDIR) $(PODIR) $(L10NDIR) $(L10NDIR)/de $(L10NDIR)/en_GB
 
 # standard commands
 CD	= cd

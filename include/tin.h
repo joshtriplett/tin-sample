@@ -3,7 +3,7 @@
  *  Module    : tin.h
  *  Author    : I. Lea & R. Skrenta
  *  Created   : 1991-04-01
- *  Updated   : 2011-11-06
+ *  Updated   : 2012-06-20
  *  Notes     : #include files, #defines & struct's
  *
  * Copyright (c) 1997-2012 Iain Lea <iain@bricbrac.de>, Rich Skrenta <skrenta@pbm.com>
@@ -44,10 +44,12 @@
 
 #ifdef HAVE_CONFIG_H
 #	ifndef TIN_AUTOCONF_H
-#		include	<autoconf.h>	/* FIXME: normally we use 'config.h' */
+#		include <autoconf.h>	/* FIXME: normally we use 'config.h' */
 #	endif /* !TIN_AUTOCONF_H */
 #else
-#	error "configure run missing"
+#	ifndef HAVE_CONFDEFS_H
+#		error "configure run missing"
+#	endif /* !HAVE_CONFDEFS_H */
 #endif /* HAVE_CONFIG_H */
 
 
@@ -95,7 +97,7 @@
 #	define SMALL_MEMORY_MACHINE
 #endif /* __amiga__ || __amiga */
 
-#include	<signal.h>
+#include <signal.h>
 
 enum context { cMain, cArt, cAttachment, cAttrib, cConfig, cFilter, cGroup, cHelp, cInfopager, cPage, cPost, cPostCancel, cPostFup, cReconnect, cScope, cSelect, cThread, cURL };
 enum icontext { cNone, cGetline, cPromptCONT, cPromptSLK, cPromptYN };
@@ -104,10 +106,10 @@ enum rc_state { RC_IGNORE, RC_CHECK, RC_UPGRADE, RC_DOWNGRADE, RC_ERROR };
 
 #include <stdio.h>
 #ifdef HAVE_ERRNO_H
-#	include	<errno.h>
+#	include <errno.h>
 #else
 #	ifdef HAVE_SYS_ERRNO_H
-#		include	<sys/errno.h>
+#		include <sys/errno.h>
 /*
 	#	else
 	#		error "No errno.h or sys/errno.h found"
@@ -162,7 +164,19 @@ enum rc_state { RC_IGNORE, RC_CHECK, RC_UPGRADE, RC_DOWNGRADE, RC_ERROR };
 #	include <sys/param.h>
 #endif /* HAVE_SYS_PARAM_H */
 
-#include	<ctype.h>
+#include <ctype.h>
+
+/*
+ * FIXME: make this autoconf
+ * get around broken tolower()/toupper() macros on
+ * ancient BSDs (at least on sony news os)
+ */
+#if defined(__bsd43__) && defined(__sony_news__)
+#	undef tolower
+#	undef toupper
+#	define tolower(c) ((isalpha(c) && isupper(c)) ? ((unsigned char) (c - 'A' + 'a')) : c)
+#	define toupper(c) ((isalpha(c) && islower(c)) ? ((unsigned char) (c - 'a' + 'A')) : c)
+#endif /* __bsd43__ && __sony_news__ */
 
 #ifdef HAVE_STDLIB_H
 #	include <stdlib.h>
@@ -341,7 +355,10 @@ enum rc_state { RC_IGNORE, RC_CHECK, RC_UPGRADE, RC_DOWNGRADE, RC_ERROR };
  */
 #ifdef HAVE_DIRENT_H
 #	include <dirent.h>
+/* #	define NAMLEN(dirent) strlen((dirent)->d_name) */
 #else
+#	define dirent direct
+/* #	define NAMLEN(dirent) (dirent)->d_namlen */
 #	ifdef HAVE_SYS_NDIR_H
 #		include <sys/ndir.h>
 #	endif /* HAVE_SYS_NDIR_H */
@@ -354,7 +371,7 @@ enum rc_state { RC_IGNORE, RC_CHECK, RC_UPGRADE, RC_DOWNGRADE, RC_ERROR };
 #endif /* HAVE_DIRENT_H */
 
 #ifndef DIR_BUF
-#	define DIR_BUF	struct dirent
+#	define DIR_BUF struct dirent
 #endif /* !DIR_BUF */
 
 #ifndef HAVE_UNLINK
@@ -564,11 +581,11 @@ enum rc_state { RC_IGNORE, RC_CHECK, RC_UPGRADE, RC_DOWNGRADE, RC_ERROR };
 #ifdef HAVE_LONG_FILE_NAMES
 #	define PATH_PART	"part"
 #	define PATH_PATCH	"patch"
-#	define INDEX_LOCK	"%stin.%s.LCK"
+#	define INDEX_LOCK	"tin.%s.LCK"
 #else
 #	define PATH_PART	""
 #	define PATH_PATCH	"p"
-#	define INDEX_LOCK	"%s%s.LCK"
+#	define INDEX_LOCK	"%s.LCK"
 #endif /* HAVE_LONG_FILE_NAMES */
 
 /*
@@ -741,7 +758,7 @@ enum rc_state { RC_IGNORE, RC_CHECK, RC_UPGRADE, RC_DOWNGRADE, RC_ERROR };
 #endif /* BOOL_H */
 
 /* Philip Hazel's Perl regular expressions library */
-#include	<pcre.h>
+#include <pcre.h>
 
 #ifdef HAVE_ICONV
 #	define CHARSET_CONVERSION 1
@@ -887,7 +904,7 @@ enum rc_state { RC_IGNORE, RC_CHECK, RC_UPGRADE, RC_DOWNGRADE, RC_ERROR };
 #endif /* !ART_MARK_READ_SELECTED */
 #ifndef ART_MARK_KILLED
 #	define ART_MARK_KILLED 'K'		/* art has been killed (kill_level >0) */
-#endif /*! ART_MARK_KILLED */
+#endif /* !ART_MARK_KILLED */
 #ifndef ART_MARK_DELETED
 #	define ART_MARK_DELETED	'D'	/* art has been marked for deletion (mailgroup) */
 #endif /* !ART_MARK_DELETED */
@@ -1382,32 +1399,52 @@ enum {
  */
 #if defined(MULTIBYTE_ABLE) && !defined(NO_LOCALE)
 #	ifdef HAVE_LIBICUUC
-#		define HAVE_UNICODE_NORMALIZATION 1
+#		define HAVE_UNICODE_NORMALIZATION 3
 #	else
-#		if defined(HAVE_LIBIDN) && defined(HAVE_STRINGPREP_H)
+#		ifdef HAVE_LIBUNISTRING
 #			define HAVE_UNICODE_NORMALIZATION 2
-#		endif /* HAVE_LIBIDN */
+#		else
+#			if defined(HAVE_LIBIDN) && defined(HAVE_STRINGPREP_H)
+#				define HAVE_UNICODE_NORMALIZATION 1
+#			endif /* HAVE_LIBIDN */
+#		endif /* HAVE_LIBUNISTRING */
 #	endif /* HAVE_LIBICUUC */
 #endif /* MULTIBYTE_ABLE && !NO_LOCALE */
 
 /*
- * normalization forms
+ * normalization forms, we prefer NFC (see RFC 6532) if possible
  */
 #ifdef HAVE_UNICODE_NORMALIZATION
 enum {
 	NORMALIZE_NONE = 0,
-#	ifdef HAVE_LIBICUUC
+#	if (HAVE_UNICODE_NORMALIZATION >= 2)
 	NORMALIZE_NFKC = 1,
 	NORMALIZE_NFKD = 2,
 	NORMALIZE_NFC = 3,
 	NORMALIZE_NFD = 4
+#		define DEFAULT_NORMALIZE NORMALIZE_NFC
 #	else
-#		ifdef HAVE_LIBIDN
 	NORMALIZE_NFKC = 1
-#		endif /* HAVE_LIBIDN */
-#	endif /* HAVE_LIBICUUC */
+#		define DEFAULT_NORMALIZE NORMALIZE_NFKC
+#	endif /* HAVE_UNICODE_NORMALIZATION >= 2 */
 };
 #endif /* HAVE_UNICODE_NORMALIZATION */
+
+#ifdef HAVE_LIBICUUC
+#	ifdef HAVE_UNICODE_USTRING_H
+#		include <unicode/ustring.h>
+#	endif /* HAVE_UNICODE_USTRING_H */
+#	ifdef HAVE_UNICODE_UNORM_H
+#		include <unicode/unorm.h>
+#	endif /* HAVE_UNICODE_UNORM_H */
+#	ifdef HAVE_UNICODE_UIDNA_H
+#		include <unicode/uidna.h>
+#	endif /* HAVE_UNICODE_UIDNA_H */
+#	ifdef HAVE_UNICODE_UBIDI_H
+#		include <unicode/ubidi.h>
+#	endif /* HAVE_UNICODE_UBIDI_H */
+#endif /* HAVE_LIBICUUC */
+
 
 /*
  * used in checking article header before posting
@@ -1999,8 +2036,16 @@ typedef struct urllist {
 
 /* Define a matching function pointer type */
 typedef int (*t_compfunc)(t_comptype, t_comptype);
+typedef void (*t_sortfunc)(void *, size_t, size_t, t_compfunc);
 
 #define _CDECL
+
+/* set to (void)heapsort or qsort */
+#ifndef USE_HEAPSORT
+#	define tin_sort qsort
+#else
+#	define MAX_SORT_FUNCS 1
+#endif /* !USE_HEAPSORT */
 
 /* Seperator between dir part of path & the filename */
 #define DIRSEP	'/'
@@ -2193,18 +2238,18 @@ typedef OUTC_RETTYPE (*OutcPtr) (OUTC_ARGS);
 typedef FILE TCP;
 
 #ifndef EXTERN_H
-#	include	"extern.h"
+#	include "extern.h"
 #endif /* !EXTERN_H */
 #ifndef TINRC_H
-#	include	"tinrc.h"
+#	include "tinrc.h"
 #endif /* !TINRC_H */
 #ifndef NNTPLIB_H
-#	include	"nntplib.h"
+#	include "nntplib.h"
 #endif /* !NNTPLIB_H */
 
 #ifndef __CPROTO__
 #	ifndef PROTO_H
-#		include	"proto.h"
+#		include "proto.h"
 #	endif /* !PROTO_H */
 #endif /* !__CPROTO__ */
 
@@ -2275,7 +2320,7 @@ typedef void (*BodyPtr) (char *, FILE *, int);
  */
 #ifdef USE_SOCKS5
 #	define SOCKS
-#	include	<socks.h>
+#	include <socks.h>
 /* socks.h doesn't define prototypes for use */
 extern size_t read(int, char *, size_t);
 extern int dup(int);

@@ -3,7 +3,7 @@
  *  Module    : nntplib.c
  *  Author    : S. Barber & I. Lea
  *  Created   : 1991-01-12
- *  Updated   : 2011-09-12
+ *  Updated   : 2012-05-30
  *  Notes     : NNTP client routines taken from clientlib.c 1.5.11 (1991-02-10)
  *  Copyright : (c) Copyright 1991-99 by Stan Barber & Iain Lea
  *              Permission is hereby granted to copy, reproduce, redistribute
@@ -833,7 +833,7 @@ reconnect(
 			unlink(backup_article_name(article_name));
 			rename_file(article_name, dead_article);
 			if (tinrc.keep_dead_articles)
-				append_file(dead_articles, dead_article);
+				append_file(dead_article, dead_articles);
 		}
 		tin_done(NNTP_ERROR_EXIT);		/* user said no to reconnect */
 	}
@@ -873,7 +873,7 @@ reconnect(
 			unlink(backup_article_name(article_name));
 			rename_file(article_name, dead_article);
 			if (tinrc.keep_dead_articles)
-				append_file(dead_articles, dead_article);
+				append_file(dead_article, dead_articles);
 		}
 		tin_done(NNTP_ERROR_EXIT);
 	}

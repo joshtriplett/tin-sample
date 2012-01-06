@@ -1009,7 +1009,7 @@ F<$HOME/.newsauth> is checked first.
 
 "option=value" configuration pairs. Lines that start with "#" are ignored.
 If the file contains uncrypted passwords (e.g. NNTPPass or PGPPass), it
-should be only readable for the user.
+should be readable for the user only.
 
 =back
 

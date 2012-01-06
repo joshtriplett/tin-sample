@@ -3,7 +3,7 @@
  *  Module    : debug.c
  *  Author    : I. Lea
  *  Created   : 1991-04-01
- *  Updated   : 2011-11-06
+ *  Updated   : 2012-05-30
  *  Notes     : debug routines
  *
  * Copyright (c) 1991-2012 Iain Lea <iain@bricbrac.de>
@@ -115,7 +115,7 @@ debug_print_header(
 
 	joinpath(file, sizeof(file), TMPDIR, "ARTS");
 
-	if ((fp = fopen(file, "a+")) != NULL) {
+	if ((fp = fopen(file, "a")) != NULL) {
 		fprintf(fp,"art=[%5"T_ARTNUM_PFMT"] tag=[%s] kill=[%s] selected=[%s]\n", s->artnum,
 			bool_unparse(s->tagged),
 			bool_unparse(s->killed),
@@ -229,7 +229,7 @@ debug_print_malloc(
 
 	if (debug & DEBUG_MEM) {
 		joinpath(file, sizeof(file), TMPDIR, "MALLOC");
-		if ((fp = fopen(file, "a+")) != NULL) {
+		if ((fp = fopen(file, "a")) != NULL) {
 			total += size;
 			/* sometimes size_t is long */
 			fprintf(fp, "%12s:%-4d %s(%6lu). Total %lu\n", xfile, line, is_malloc ? " malloc" : "realloc", (unsigned long) size, (unsigned long) total);
@@ -315,7 +315,7 @@ debug_print_file(
 
 	joinpath(file, sizeof(file), TMPDIR, fname);
 
-	if ((fp = fopen(file, "a+")) != NULL) {
+	if ((fp = fopen(file, "a")) != NULL) {
 		fprintf(fp,"%s\n", buf);
 		fchmod(fileno(fp), (S_IRUGO|S_IWUGO));
 		fclose(fp);
@@ -349,7 +349,7 @@ debug_print_bitmap(
 
 	joinpath(file, sizeof(file), TMPDIR, "BITMAP");
 	if (group != NULL) {
-		if ((fp = fopen(file, "a+")) != NULL) {
+		if ((fp = fopen(file, "a")) != NULL) {
 			fprintf(fp, "\nActive: Group=[%s] sub=[%c] min=[%"T_ARTNUM_PFMT"] max=[%"T_ARTNUM_PFMT"] count=[%"T_ARTNUM_PFMT"] num_unread=[%"T_ARTNUM_PFMT"]\n",
 				group->name, SUB_CHAR(group->subscribed),
 				group->xmin, group->xmax, group->count,
@@ -411,7 +411,7 @@ logtime(
 
 	if (tin_gettime(&log_time) == 0)
 	{
-		strftime(out, 39, " [%H:%M:%S.", gmtime(&(log_time.tv_sec)));
+		my_strftime(out, 39, " [%H:%M:%S.", gmtime(&(log_time.tv_sec)));
 		sprintf(out + 11, "%09ld", log_time.tv_nsec); /* strlen(" [hh:mm:ss.") */
 		out[17] = '\0'; /* strlen(" [hh:mm:ss.uuuuuu") */
 		strcat(out, "] ");

@@ -3,7 +3,7 @@
  *  Module    : tinrc.h
  *  Author    : Jason Faultless <jason@altarstone.com>
  *  Created   : 1999-04-13
- *  Updated   : 2011-01-29
+ *  Updated   : 2012-02-20
  *  Notes     :
  *
  * Copyright (c) 1999-2012 Jason Faultless <jason@altarstone.com>
@@ -43,7 +43,7 @@
  *        and could be nuked if tin comes with a prefilled .inputhistory
  *        which is installed automatically if no .inputhistory is found.
  *
- * TODO:  sort in a useful order (also needs reoerdering in init.c)
+ * TODO:  sort in a useful order (also needs reordering in init.c)
  */
 
 #ifndef TINRC_H
@@ -142,10 +142,13 @@ struct t_config {
 	int show_author;					/* show_author value from 'M' menu in tinrc */
 	int sort_article_type;				/* method used to sort arts[] */
 	int sort_threads_type;				/* method used to sort base[] */
+#	ifdef USE_HEAPSORT
+	int sort_function;					/* index into sort_function[] */
+#	endif /* USE_HEAPSORT */
 	int strip_bogus;
 	int thread_articles;				/* threading system for viewing articles */
 	int thread_perc;				/* how close the match needs to be for THREAD_PERC to recognize two articles as the same thread */
-	int thread_score;				/* how the score for threads is computed*/
+	int thread_score;				/* how the score for threads is computed */
 	int wildcard;						/* 0=wildmat, 1=regex */
 	int score_limit_kill;					/* score limit to kill articles */
 	int score_limit_select;					/* score limit to select articles */
@@ -159,7 +162,7 @@ struct t_config {
 		int col_help;						/* color of help pages */
 		int col_invers_bg;					/* color of inverse text (background) */
 		int col_invers_fg;					/* color of inverse text (foreground) */
-		int col_minihelp;					/* color of mini help menu*/
+		int col_minihelp;					/* color of mini help menu */
 		int col_normal;						/* standard foreground color */
 		int col_markdash;					/* text highlighting with _underdashes_ */
 		int col_markstar;					/* text highlighting with *stars* */
@@ -175,10 +178,10 @@ struct t_config {
 		int col_urls;						/* color of urls highlight */
 		int col_verbatim;					/* color of verbatim blocks */
 		int col_subject;					/* color of article subject */
-		int col_text;						/* color of textlines*/
+		int col_text;						/* color of textlines */
 		int col_title;						/* color of Help/Mail-Sign */
 #	endif /* HAVE_COLOR */
-	int word_h_display_marks;			/* display * or _ when highlighting or space or nothing*/
+	int word_h_display_marks;			/* display * or _ when highlighting or space or nothing */
 	int mono_markdash;				/* attribute for text highlighting with _underdashes_ */
 	int mono_markstar;				/* attribute for text highlighting with *stars* */
 	int mono_markslash;				/* attribute for text highlighting with /slashes/ */

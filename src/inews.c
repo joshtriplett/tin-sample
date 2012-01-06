@@ -3,7 +3,7 @@
  *  Module    : inews.c
  *  Author    : I. Lea
  *  Created   : 1992-03-17
- *  Updated   : 2009-04-07
+ *  Updated   : 2012-05-12
  *  Notes     : NNTP built in version of inews
  *
  * Copyright (c) 1991-2012 Iain Lea <iain@bricbrac.de>
@@ -54,7 +54,7 @@
 	static t_bool submit_inews(char *name, struct t_group *group, char *a_message_id);
 #endif /* NNTP_INEWS */
 #if defined(NNTP_INEWS) && !defined(FORGERY)
-	static int sender_needed(char *from, struct t_group *group, char *sender);
+	static int sender_needed(char *from, char *sender, const char *charset);
 #endif /* NNTP_INEWS && !FORGERY */
 
 #if 0
@@ -162,7 +162,13 @@ submit_inews(
 
 #	ifndef FORGERY
 		if (!disable_sender && (ptr = build_sender())) {
-			sender = sender_needed(from_name + 6, group, ptr);
+#		ifdef CHARSET_CONVERSION
+			const char *charset = group ? txt_mime_charsets[group->attribute->mm_network_charset] : txt_mime_charsets[tinrc.mm_network_charset];
+#		else
+			const char *charset = tinrc.mm_charset;
+#		endif /* CHARSET_CONVERSION */
+
+			sender = sender_needed(from_name + 6, ptr, charset);
 			switch (sender) {
 				case -2: /* can't build Sender: */
 					error_message(2, _(txt_invalid_sender), ptr);
@@ -184,12 +190,8 @@ submit_inews(
 					buffer_to_network(sender_hdr, group ? group->attribute->mm_network_charset : tinrc.mm_network_charset);
 #		endif /* CHARSET_CONVERSION */
 					if (!(group ? group->attribute->post_8bit_header : tinrc.post_8bit_header)) {
-						char *p;
-#		ifdef CHARSET_CONVERSION
-						p = rfc1522_encode(sender_hdr, group ? txt_mime_charsets[group->attribute->mm_network_charset] : txt_mime_charsets[tinrc.mm_network_charset], ismail);
-#		else
-						p = rfc1522_encode(sender_hdr, tinrc.mm_charset, ismail);
-#		endif /* CHARSET_CONVERSION */
+						char *p = rfc1522_encode(sender_hdr, charset, ismail);
+
 						STRCPY(sender_hdr, p);
 						free(p);
 					}
@@ -445,8 +447,8 @@ submit_news_file(
 static int
 sender_needed(
 	char *from,
-	struct t_group *group,
-	char *sender)
+	char *sender,
+	const char *charset)
 {
 	char *from_at_pos;
 	char *sender_at_pos;
@@ -469,11 +471,7 @@ sender_needed(
 
 	snprintf(sender_line, sizeof(sender_line), "Sender: %s", sender);
 
-#	ifdef CHARSET_CONVERSION
-	p = rfc1522_encode(sender_line, group ? txt_mime_charsets[group->attribute->mm_network_charset] : txt_mime_charsets[tinrc.mm_network_charset], FALSE);
-#	else
-	p = rfc1522_encode(sender_line, tinrc.mm_charset, FALSE);
-#	endif /* CHARSET_CONVERSION */
+	p = rfc1522_encode(sender_line, charset, FALSE);
 	if (GNKSA_OK != gnksa_do_check_from(p + 8, sender_addr, sender_name)) {
 		free(p);
 		return -2;

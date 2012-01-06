@@ -3,7 +3,7 @@
  *  Module    : post.c
  *  Author    : I. Lea
  *  Created   : 1991-04-01
- *  Updated   : 2011-12-23
+ *  Updated   : 2012-05-30
  *  Notes     : mail/post/replyto/followup/repost & cancel articles
  *
  * Copyright (c) 1991-2012 Iain Lea <iain@bricbrac.de>
@@ -306,7 +306,7 @@ repair_article(
 		if (invoke_editor(article_name, start_line_offset, group))
 			return TRUE;
 	} else if (func == GLOBAL_OPTION_MENU) {
-		config_page(group->name);
+		config_page(group->name, signal_context);
 		return TRUE;
 	}
 	return FALSE;
@@ -577,7 +577,7 @@ update_posted_info_file(
 		return;
 	}
 
-	if ((fp = fopen(posted_info_file, "a+")) != NULL) {
+	if ((fp = fopen(posted_info_file, "a")) != NULL) {
 		int err;
 
 		(void) time(&epoch);
@@ -1730,7 +1730,7 @@ post_article_loop:
 							unlink(backup_article_name(article_name));
 							rename_file(article_name, dead_article);
 							if (tinrc.keep_dead_articles)
-								append_file(dead_articles, dead_article);
+								append_file(dead_article, dead_articles);
 						}
 					}
 					goto post_article_postponed;
@@ -1753,7 +1753,7 @@ post_article_loop:
 				if (tinrc.unlink_article) {
 #if 0 /* useful? */
 					if (tinrc.keep_dead_articles)
-						append_file(dead_articles, dead_article);
+						append_file(dead_article, dead_articles);
 #endif /* 0 */
 					unlink(article_name);
 				}
@@ -1761,7 +1761,7 @@ post_article_loop:
 				return ret_code;
 
 			case GLOBAL_OPTION_MENU:
-				config_page(group->name);
+				config_page(group->name, signal_context);
 				while ((i = check_article_to_be_posted(article_name, art_type, &group, art_unchanged, FALSE)) == 1 && repair_article(&func, group))
 					;
 				break;
@@ -1808,7 +1808,7 @@ post_article_loop:
 						unlink(backup_article_name(article_name));
 						rename_file(article_name, dead_article);
 						if (tinrc.keep_dead_articles)
-							append_file(dead_articles, dead_article);
+							append_file(dead_article, dead_articles);
 						wait_message(2, _(txt_art_rejected), dead_article);
 					}
 				return ret_code;
