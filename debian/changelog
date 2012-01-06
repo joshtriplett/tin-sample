@@ -1,3 +1,9 @@
+tin (1:2.1.0-1) unstable; urgency=low
+
+  * New upstream release.
+
+ -- Marco d'Itri <md@linux.it>  Fri, 06 Jan 2012 15:04:11 +0100
+
 tin (1:2.0.0-1) unstable; urgency=low
 
   * New upstream release.
