@@ -1,3 +1,12 @@
+tin (1:2.1.1-1) unstable; urgency=low
+
+  * New upstream release.
+  * Enabled debugging support. (Closes: #671170)
+  * Switched from libidn to libicu.
+  * Updated one or more debconf translations. (Closes: #658462, #668447)
+
+ -- Marco d'Itri <md@linux.it>  Mon, 25 Jun 2012 02:31:17 +0200
+
 tin (1:2.1.0-1) unstable; urgency=low
 
   * New upstream release.

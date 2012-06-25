@@ -37,7 +37,7 @@ config.status:
 		--with-screen=ncursesw --enable-nntp --enable-ipv6 \
 		--enable-included-msgs --enable-nls \
 		--enable-mh-mail-handling --enable-cancel-locks \
-		--with-pkg-config \
+		--enable-heapsort --enable-debug --with-pkg-config \
 		--with-mime-default-charset=ISO-8859-15
 
 build: build-arch build-indep

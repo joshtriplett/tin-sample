@@ -2,13 +2,13 @@ Source: tin
 Section: news
 Priority: optional
 Maintainer: Marco d'Itri <md@linux.it>
-Build-Depends: debhelper (>> 7), pkg-config, bison, bzip2, libpcre3-dev, libncursesw5-dev, libidn11-dev, libcanlock2-dev, libuu-dev
-Standards-Version: 3.9.2
+Build-Depends: debhelper (>> 7), pkg-config, bison, libpcre3-dev, libncursesw5-dev, libicu-dev, libcanlock2-dev, libuu-dev
+Standards-Version: 3.9.3.1
 
 Package: tin
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}
-Recommends: exim4 | mail-transport-agent
+Recommends: default-mta | mail-transport-agent
 Suggests: gnupg, ispell
 Provides: news-reader
 Description: A full-screen easy to use Usenet newsreader
