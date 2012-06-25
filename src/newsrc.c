@@ -3,10 +3,10 @@
  *  Module    : newsrc.c
  *  Author    : I. Lea & R. Skrenta
  *  Created   : 1991-04-01
- *  Updated   : 2011-11-06
+ *  Updated   : 2013-12-04
  *  Notes     : ArtCount = (ArtMax - ArtMin) + 1  [could have holes]
  *
- * Copyright (c) 1991-2012 Iain Lea <iain@bricbrac.de>, Rich Skrenta <skrenta@pbm.com>
+ * Copyright (c) 1991-2014 Iain Lea <iain@bricbrac.de>, Rich Skrenta <skrenta@pbm.com>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -209,7 +209,10 @@ write_newsrc(
 		return -1L; /* can't open newsrc */
 
 	/* get size of original newsrc */
-	fstat(fileno(fp_ip), &note_stat_newsrc);
+	if (fstat(fileno(fp_ip), &note_stat_newsrc) != 0) {
+		fclose(fp_ip);
+		return -1L; /* can't access newsrc */
+	}
 
 	if (!note_stat_newsrc.st_size) {
 		fclose(fp_ip);
@@ -450,7 +453,7 @@ group_get_art_info(
 				return -1;
 		}
 #else
-		my_fprintf(stderr, _("Unreachable?\n"));
+		my_fprintf(stderr, _("Unreachable?\n")); /* TODO: -> lang.c */
 		return 0;
 #endif /* NNTP_ABLE */
 	} else {
@@ -1231,6 +1234,7 @@ pos_group_in_newsrc(
 
 	while ((line = tin_fgets(fp_in, FALSE)) != NULL) {
 		if (STRNCMPEQ(group->name, line, group_len) && line[group_len] == SUBSCRIBED) {
+			FreeAndNull(newsgroup);
 			newsgroup = my_strdup(line);		/* Take a copy of this line */
 			found = TRUE;
 			continue;
