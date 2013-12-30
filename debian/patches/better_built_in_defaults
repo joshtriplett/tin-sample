@@ -1,17 +1,17 @@
 --- a/src/attrib.c
 +++ b/src/attrib.c
-@@ -154,7 +154,7 @@ set_default_attributes(
+@@ -155,7 +155,7 @@ set_default_attributes(
  	attributes->fcc = NULL;
  #ifdef CHARSET_CONVERSION
  	attributes->mm_network_charset = tinrc.mm_network_charset;
 -	attributes->undeclared_charset = NULL;
-+	attributes->undeclared_charset = my_strdup("ISO-8859-1");
++	attributes->undeclared_charset = my_strdup("ISO-8859-15");
  #endif /* CHARSET_CONVERSION */
  }
  
 --- a/src/init.c
 +++ b/src/init.c
-@@ -271,7 +271,7 @@ struct t_config tinrc = {
+@@ -275,7 +275,7 @@ struct t_config tinrc = {
  	32,		/* groupname_max_length */
  	UUE_NO,	/* hide_uue */
  	KILL_UNREAD,		/* kill_level */
@@ -20,7 +20,7 @@
  	MIME_ENCODING_8BIT,		/* post_mime_encoding */
  	POST_PROC_NO,			/* post_process_type */
  	REREAD_ACTIVE_FILE_SECS,	/* reread_active_file_secs */
-@@ -324,7 +324,7 @@ struct t_config tinrc = {
+@@ -331,7 +331,7 @@ struct t_config tinrc = {
  	TRUE,		/* url_highlight */
  	0,		/* wrap_column */
  #ifdef HAVE_COLOR
@@ -29,3 +29,12 @@
  #endif /* HAVE_COLOR */
  	FALSE,		/* abbreviate_groupname */
  	TRUE,		/* add_posted_to_filter */
+@@ -713,7 +713,7 @@ init_selfinfo(
+ 
+ #ifdef HAVE_COLOR
+ 	preinit_colors();
+-	use_color = FALSE;
++	use_color = TRUE;
+ #endif /* HAVE_COLOR */
+ 
+ 	word_highlight = TRUE;

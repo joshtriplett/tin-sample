@@ -28,7 +28,7 @@ config.status:
 		--with-mailbox=/var/mail \
 		--with-editor=/usr/bin/editor --with-ispell=ispell \
 		--without-pgp --without-pgpk --with-gpg=gpg \
-		--with-metamail=metamail --with-slrnface=slrnface \
+		--without-metamail --with-slrnface=slrnface \
 		--with-sum=sum --with-shell=bash \
 		--with-spool-dir=/var/spool/news \
 		--with-nov-dir=/var/spool/news/over.view \

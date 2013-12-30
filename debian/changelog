@@ -1,3 +1,11 @@
+tin (1:2.2.0-1) unstable; urgency=medium
+
+  * New upstream release.
+  * Disable metamail by default. (Closes: #707005)
+  * Updated one or more debconf translations. (Closes: #723056)
+
+ -- Marco d'Itri <md@linux.it>  Mon, 30 Dec 2013 05:32:13 +0100
+
 tin (1:2.1.1-1) unstable; urgency=low
 
   * New upstream release.
