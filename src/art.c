@@ -3,7 +3,7 @@
  *  Module    : art.c
  *  Author    : I.Lea & R.Skrenta
  *  Created   : 1991-04-01
- *  Updated   : 2011-11-12
+ *  Updated   : 2012-05-20
  *  Notes     :
  *
  * Copyright (c) 1991-2012 Iain Lea <iain@bricbrac.de>, Rich Skrenta <skrenta@pbm.com>
@@ -52,10 +52,9 @@
 /*
  * TODO: fixup to remove CURR_GROUP dependency in all sort funcs
  */
-#define SortBy(func)	qsort(arts, (size_t) top_art, sizeof(struct t_article), func);
+#define SortBy(func)	tin_sort(arts, (size_t) top_art, sizeof(struct t_article), func);
 
 int top_art = 0;				/* # of articles in arts[] */
-
 
 /*
  * Local prototypes
@@ -64,7 +63,7 @@ static FILE *open_art_header(char *groupname, t_artnum art, t_artnum *next);
 static FILE *open_xover_fp(struct t_group *group, const char *mode, t_artnum min, t_artnum max, t_bool local);
 static char *find_nov_file(struct t_group *group, int mode);
 static char *print_date(time_t secs);
-static char *print_from(struct t_group *group, struct t_article *article);
+static char *print_from(struct t_group *group, struct t_article *article, int charset);
 static int artnum_comp(t_comptype p1, t_comptype p2);
 static int base_comp(t_comptype p1, t_comptype p2);
 static int date_comp_asc(t_comptype p1, t_comptype p2);
@@ -161,7 +160,7 @@ find_base(
 
 
 /*
- * Longword comparison routine for the qsort()
+ * Longword comparison routine for the tin_sort()
  */
 static int
 base_comp(
@@ -362,7 +361,7 @@ setup_hard_base(
 				}
 			}
 			CLOSEDIR(d);
-			qsort((char *) base, (size_t) grpmenu.max, sizeof(t_artnum), base_comp);
+			tin_sort((char *) base, (size_t) grpmenu.max, sizeof(t_artnum), base_comp);
 		}
 	}
 
@@ -1304,15 +1303,15 @@ sort_base(
 	switch (sort_threads_type) {
 		case SORT_THREADS_BY_SCORE_DESCEND:
 		case SORT_THREADS_BY_SCORE_ASCEND:
-			qsort(base, (size_t) grpmenu.max, sizeof(t_artnum), score_comp_base);
+			tin_sort(base, (size_t) grpmenu.max, sizeof(t_artnum), score_comp_base);
 			break;
 
 		case SORT_THREADS_BY_LAST_POSTING_DATE_DESCEND:
-			qsort(base, (size_t) grpmenu.max, sizeof(t_artnum), last_date_comp_base_desc);
+			tin_sort(base, (size_t) grpmenu.max, sizeof(t_artnum), last_date_comp_base_desc);
 			break;
 
 		case SORT_THREADS_BY_LAST_POSTING_DATE_ASCEND:
-			qsort(base, (size_t) grpmenu.max, sizeof(t_artnum), last_date_comp_base_asc);
+			tin_sort(base, (size_t) grpmenu.max, sizeof(t_artnum), last_date_comp_base_asc);
 			break;
 	}
 }
@@ -1981,6 +1980,9 @@ write_overview(
 	FILE *fp;
 	int i;
 	struct t_article *article;
+#ifdef CHARSET_CONVERSION
+	int c = -1;
+#endif /* CHARSET_CONVERSION */
 
 	/*
 	 * Can't write or caching is off or getart_limit is set
@@ -1999,6 +2001,18 @@ write_overview(
 	 */
 	fprintf(fp, "%s\n", group->name);
 
+#ifdef CHARSET_CONVERSION
+	/* get undeclared_charset number if required */
+	if (group->attribute->undeclared_charset) {
+		for (i = 0; txt_mime_charsets[i] != NULL; i++) {
+			if (!strcasecmp(group->attribute->undeclared_charset, txt_mime_charsets[i])) {
+				c = i;
+				break;
+			}
+		}
+	}
+#endif /* CHARSET_CONVERSION */
+
 	for_each_art(i) {
 		char *p;
 		char *q, *ref;
@@ -2007,19 +2021,28 @@ write_overview(
 
 		if (article->thread != ART_EXPIRED && article->artnum >= group->xmin) {
 			ref = NULL;
-			/*
-			 * TODO: instead of tinrc.mm_local_charset we'd better use UTF-8
-			 *       here and in print_from() in the CHARSET_CONVERSION case.
-			 *       note that this requires something like
-			 *          buffer_to_network(article->subject, "UTF-8");
-			 *       right bfore the rfc1522_encode() call.
-			 *
-			 *       if we would cache the original undecoded data, we could
-			 *       ignore stuff like this.
-			 */
-			p = rfc1522_encode(article->subject, tinrc.mm_local_charset, FALSE);
-			/* as the subject might now be folded we have to unfold it */
-			unfold_header(p);
+
+			if (!group->attribute->post_8bit_header) { /* write encoded data */
+				/*
+				 * TODO: instead of tinrc.mm_local_charset we'd better use UTF-8
+				 *       here and in print_from() in the CHARSET_CONVERSION case.
+				 *       note that this requires something like
+				 *          buffer_to_network(article->subject, "UTF-8");
+				 *       right bfore the rfc1522_encode() call.
+				 *
+				 *       if we would cache the original undecoded data, we could
+				 *       ignore stuff like this.
+				 */
+				p = rfc1522_encode(article->subject, tinrc.mm_local_charset, FALSE);
+				/* as the subject might now be folded we have to unfold it */
+				unfold_header(p);
+			} else { /* raw data */
+				 p = strdup(article->subject);
+#ifdef CHARSET_CONVERSION
+				 if (group->attribute->undeclared_charset) /* use undeclared_charset if set (otherwise local charset is used) */
+				 	buffer_to_network(p, c);
+#endif /* CHARSET_CONVERSION */
+			}
 
 			/*
 			 * replace any '\t's with ' ' in the references-data
@@ -2042,8 +2065,12 @@ write_overview(
 
 			fprintf(fp, "%"T_ARTNUM_PFMT"\t%s\t%s\t%s\t%s\t%s\t%d\t%d",
 				article->artnum,
-				group->attribute->post_8bit_header ? article->subject : p,
-				print_from(group, article),
+				p,
+#ifdef CHARSET_CONVERSION
+				print_from(group, article, c),
+#else
+				print_from(group, article, -1),
+#endif /* CHARSET_CONVERSION */
 				print_date(article->date),
 				BlankIfNull(article->msgid),
 				BlankIfNull(ref),
@@ -2713,22 +2740,30 @@ print_date(
 static char *
 print_from(
 	struct t_group *group,
-	struct t_article *article)
+	struct t_article *article,
+	int charset)
 {
-	char *p;
+	char *p, *q;
 	static char from[PATH_LEN];
 
 	*from = '\0';
 
 	if (article->name != NULL) {
+		q = strdup(article->name);
+#ifdef CHARSET_CONVERSION
+		if (charset != -1) {
+			buffer_to_network(q, charset);
+		}
+#endif /* CHARSET_CONVERSION */
 		p = rfc1522_encode(article->name, tinrc.mm_local_charset, FALSE);
 		unfold_header(p);
 		if (strpbrk(article->name, "\".:;<>@[]()\\") != NULL && article->name[0] != '"' && article->name[strlen(article->name)] != '"')
-			snprintf(from, sizeof(from), "\"%s\" <%s>", group->attribute->post_8bit_header ? article->name : p, article->from);
+			snprintf(from, sizeof(from), "\"%s\" <%s>", group->attribute->post_8bit_header ? q : p, article->from);
 		else
-			snprintf(from, sizeof(from), "%s <%s>", group->attribute->post_8bit_header ? article->name : p, article->from);
+			snprintf(from, sizeof(from), "%s <%s>", group->attribute->post_8bit_header ? q : p, article->from);
 
 		free(p);
+		free(q);
 	} else
 		STRCPY(from, article->from);
 
@@ -2775,3 +2810,31 @@ open_xover_fp(
 	}
 	return NULL;
 }
+
+#ifdef USE_HEAPSORT
+int
+tin_sort(
+	void *sbase,
+	size_t nel,
+	size_t width,
+	t_compfunc compar)
+{
+	int rc;
+
+	switch (tinrc.sort_function) {
+		case 0:
+			qsort(sbase, nel, width, compar);
+			rc = 0;
+			break;
+
+		case 1:
+			rc = heapsort(sbase, nel, width, compar);
+			break;
+
+		default:
+			rc = -1;
+			break;
+	}
+	return rc;
+}
+#endif /* USE_HEAPSORT */

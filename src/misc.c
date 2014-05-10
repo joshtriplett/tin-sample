@@ -3,7 +3,7 @@
  *  Module    : misc.c
  *  Author    : I. Lea & R. Skrenta
  *  Created   : 1991-04-01
- *  Updated   : 2011-12-21
+ *  Updated   : 2012-05-30
  *  Notes     :
  *
  * Copyright (c) 1991-2012 Iain Lea <iain@bricbrac.de>, Rich Skrenta <skrenta@pbm.com>
@@ -120,16 +120,16 @@ append_file(
 {
 	FILE *fp_old, *fp_new;
 
-	if ((fp_new = fopen(new_filename, "r")) == NULL) {
-		perror_message(_(txt_cannot_open), new_filename);
-		return;
-	}
-	if ((fp_old = fopen(old_filename, "a+")) == NULL) {
+	if ((fp_old = fopen(old_filename, "r")) == NULL) {
 		perror_message(_(txt_cannot_open), old_filename);
-		fclose(fp_new);
 		return;
 	}
-	copy_fp(fp_new, fp_old);
+	if ((fp_new = fopen(new_filename, "a")) == NULL) {
+		perror_message(_(txt_cannot_open), new_filename);
+		fclose(fp_old);
+		return;
+	}
+	copy_fp(fp_old, fp_new);
 	fclose(fp_old);
 	fclose(fp_new);
 }
@@ -471,7 +471,7 @@ invoke_ispell(
 	sh_format(buf, sizeof(buf), "%s %s", ispell, nam_body);
 	retcode = invoke_cmd(buf);
 
-	append_file(nam_head, nam_body);
+	append_file(nam_body, nam_head);
 	unlink(nam_body);
 	rename_file(nam_head, nam);
 	return retcode;
@@ -907,10 +907,10 @@ mail_check(
 
 	if (mailbox_name != 0 && stat(mailbox_name, &buf) >= 0) {
 		if ((int) (buf.st_mode & S_IFMT) == (int) S_IFDIR) { /* maildir setup */
-			DIR *dirp;
 			char *maildir_box;
 			size_t maildir_box_len = strlen(mailbox_name) + strlen(MAILDIR_NEW) + 2;
-			struct dirent *dp;
+			DIR *dirp;
+			DIR_BUF *dp;
 
 			maildir_box = my_malloc(maildir_box_len);
 			joinpath(maildir_box, maildir_box_len, mailbox_name, MAILDIR_NEW);
@@ -922,11 +922,11 @@ mail_check(
 			free(maildir_box);
 			while ((dp = readdir(dirp)) != NULL) {
 				if ((strcmp(dp->d_name, ".")) && (strcmp(dp->d_name, ".."))) {
-					closedir(dirp);
+					CLOSEDIR(dirp);
 					return TRUE;
 				}
 			}
-			closedir(dirp);
+			CLOSEDIR(dirp);
 		} else {
 			if (buf.st_atime < buf.st_mtime && buf.st_size > 0)
 				return TRUE;
@@ -3721,14 +3721,13 @@ utf8_valid(
 #endif /* CHARSET_CONVERSION || (MULTIBYTE_ABLE && !NO_LOCALE) */
 
 
-/*
- * TODO: add conversion via uidna_IDNToUnicode() #ifdef HAVE_LIBICUUC
- */
 char *idna_decode(
 	char *in)
 {
 	char *out = my_strdup(in);
-#if defined(HAVE_LIBIDNKIT) && defined(HAVE_IDN_DECODENAME) && defined(HAVE_SETLOCALE) && !defined(NO_LOCALE)
+#if defined(MULTIBYTE_ABLE) && !defined(NO_LOCALE)
+/* IDNA 2008 */
+#	if defined(HAVE_LIBIDNKIT) && defined(HAVE_IDN_DECODENAME)
 	idn_result_t res;
 	char *q, *r = NULL;
 
@@ -3746,13 +3745,42 @@ char *idna_decode(
 		free(out);
 		out = my_strdup(in);
 	}
-#	ifdef DEBUG
+#		ifdef DEBUG
 	if (debug & DEBUG_MISC)
 		wait_message(2, "idn_decodename(%s): %s", r, idn_result_tostring(res));
-#	endif /* DEBUG */
-#endif /*  HAVE_LIBIDNKIT && HAVE_IDN_DECODENAME && HAVE_SETLOCALE && !NO_LOCALE */
+#		endif /* DEBUG */
+#	endif /*  HAVE_LIBIDNKIT && HAVE_IDN_DECODENAME */
 
-#if defined(HAVE_LIBIDN) && defined(HAVE_IDNA_TO_UNICODE_LZLZ)
+/* IDNA 2003 */
+#	ifdef HAVE_LIBICUUC
+	{
+		UChar *src;
+		UChar dest[1024];
+		UErrorCode err = U_ZERO_ERROR;
+		char *s = NULL;
+
+		if ((s = strrchr(out, '@')))
+			s++;
+		else
+			s = out;
+
+		src = char2UChar(s);
+		uidna_IDNToUnicode(src, -1, dest, 1023, UIDNA_USE_STD3_RULES, NULL, &err);
+		free(src);
+		if (!(U_FAILURE(err))) {
+			char *t;
+
+			*s = '\0'; /* cut of domainpart */
+			s = UChar2char(dest); /* convert domainpart */
+			t = malloc(strlen(out) + strlen(s) + 1);
+			sprintf(t, "%s%s", out, s);
+			free(s);
+			free(out);
+			out = t;
+		}
+	}
+#	else
+#		if defined(HAVE_LIBIDN) && defined(HAVE_IDNA_TO_UNICODE_LZLZ)
 	if (stringprep_check_version("0.3.0")) {
 		char *t, *s = NULL;
 		int rs = IDNA_SUCCESS;
@@ -3762,26 +3790,27 @@ char *idna_decode(
 		else
 			t = out;
 
-#	ifdef HAVE_IDNA_USE_STD3_ASCII_RULES
+#			ifdef HAVE_IDNA_USE_STD3_ASCII_RULES
 		if ((rs = idna_to_unicode_lzlz(t, &s, IDNA_USE_STD3_ASCII_RULES)) == IDNA_SUCCESS)
-#	else
+#			else
 		if ((rs = idna_to_unicode_lzlz(t, &s, 0)) == IDNA_SUCCESS)
-#	endif /* HAVE_IDNA_USE_STD3_ASCII_RULES */
+#			endif /* HAVE_IDNA_USE_STD3_ASCII_RULES */
 			strcpy(t, s);
-#	ifdef DEBUG
+#			ifdef DEBUG
 		else {
 			if (debug & DEBUG_MISC)
-#		ifdef HAVE_IDNA_STRERROR
+#				ifdef HAVE_IDNA_STRERROR
 				wait_message(2, "idna_to_unicode_lzlz(%s): %s", t, idna_strerror(rs));
-#		else
+#				else
 				wait_message(2, "idna_to_unicode_lzlz(%s): %d", t, rs);
-#		endif /* HAVE_IDNA_STRERROR */
+#				endif /* HAVE_IDNA_STRERROR */
 		}
-#	endif /* DEBUG */
+#			endif /* DEBUG */
 		FreeIfNeeded(s);
 	}
-#endif /* HAVE_LIBIDN && HAVE_IDNA_TO_UNICODE_LZLZ */
-
+#		endif /* HAVE_LIBIDN && HAVE_IDNA_TO_UNICODE_LZLZ */
+#	endif /* HAVE_LIBICUUC */
+#endif /* MULTIBYTE_ABLE && !NO_LOCALE */
 	return out;
 }
 
@@ -3842,7 +3871,7 @@ tin_version_info(
 	wlines++;
 
 	fprintf(fp, "Characteristics:\n\t"
-/* TODO: complete list and do some useful grouping */
+/* TODO: complete list and do some useful grouping; show only in -vV case? */
 #ifdef DEBUG
 			"+DEBUG "
 #else
