@@ -1,15 +1,15 @@
 # Top level Makefile for tin
 # - for configuration options read the doc/INSTALL file.
 #
-# Updated: 2010-09-16
+# Updated: 2011-04-17
 #
 
 PROJECT	= tin
-LVER	= 1
-PVER	= 9
-SVER	= 6
+LVER	= 2
+PVER	= 0
+SVER	= 0
 VER	= $(LVER).$(PVER).$(SVER)
-DVER	= 20101126
+DVER	= 20110623
 EXE	= tin
 
 # directory structure
@@ -178,8 +178,7 @@ TOP	= \
 	$(TOPDIR)/config.sub \
 	$(TOPDIR)/configure \
 	$(TOPDIR)/configure.in \
-	$(TOPDIR)/install.sh \
-	$(TOPDIR)/mkdirs.sh \
+	$(TOPDIR)/install-sh \
 	$(TOPDIR)/tin.spec
 
 PCRE	= \
@@ -323,8 +322,6 @@ POFILES = \
 	$(PODIR)/fr.po \
 	$(PODIR)/ru.gmo \
 	$(PODIR)/ru.po \
-	$(PODIR)/rw.gmo \
-	$(PODIR)/rw.po \
 	$(PODIR)/sv.gmo \
 	$(PODIR)/sv.po \
 	$(PODIR)/tr.gmo \
@@ -434,8 +431,7 @@ chmod:
 	$(TOPDIR)/config.guess \
 	$(TOPDIR)/config.sub \
 	$(TOPDIR)/configure \
-	$(TOPDIR)/install.sh \
-	$(TOPDIR)/mkdirs.sh \
+	$(TOPDIR)/install-sh \
 	$(TOLDIR)/expiretover \
 	$(TOLDIR)/metamutt \
 	$(TOLDIR)/opt-case.pl \

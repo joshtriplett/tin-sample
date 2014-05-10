@@ -3,10 +3,10 @@
  *  Module    : active.c
  *  Author    : I. Lea
  *  Created   : 1992-02-16
- *  Updated   : 2010-03-15
+ *  Updated   : 2011-04-24
  *  Notes     :
  *
- * Copyright (c) 1992-2010 Iain Lea <iain@bricbrac.de>
+ * Copyright (c) 1992-2011 Iain Lea <iain@bricbrac.de>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -807,7 +807,7 @@ read_news_active_file(
 					for (i = 0; i < r && !did_reconnect; i++) {
 						if ((j = get_only_respcode(buff, sizeof(buff))) != OK_GROUPS) {
 							/* TODO: add 483 (RFC 3977) code */
-							if (j == ERR_NOAUTH || r == NEED_AUTHINFO)
+							if (j == ERR_NOAUTH || j == NEED_AUTHINFO)
 								need_auth = TRUE;
 #if 0 /* do we need something like this? */
 							if (j == ERR_CMDSYN)

@@ -4,7 +4,7 @@
 # signs the article and posts it.
 #
 #
-# Copyright (c) 2002-2010 Urs Janssen <urs@tin.org>,
+# Copyright (c) 2002-2011 Urs Janssen <urs@tin.org>,
 #                         Marc Brockschmidt <marc@marcbrockschmidt.de>
 #
 # Redistribution and use in source and binary forms, with or without
@@ -42,7 +42,7 @@
 #       - sign Injection-Date?
 #
 # version Number
-my $version = "1.1.24";
+my $version = "1.1.27";
 
 my %config;
 
@@ -55,6 +55,7 @@ $config{'NNTPPass'}		= '';	# password for nntp-auth, may be set via ~/.newsauth
 $config{'PGPSigner'}	= '';	# sign as who?
 $config{'PGPPass'}		= '';	# pgp2 only
 $config{'PathtoPGPPass'}= '';	# pgp2, pgp5 and gpg
+$config{'PGPPassFD'}	= 9;	# file descriptor used for input redirection of PathtoPGPPass, GPG and PGP5 only
 
 $config{'pgp'}			= '/usr/bin/pgp';	# path to pgp
 $config{'PGPVersion'}	= '2';	# Use 2 for 2.X, 5 for PGP > 2.X and GPG for GPG
@@ -103,12 +104,15 @@ my %cli_headers;
 if (-r glob('~/.tinewsrc')) {
 	open (TINEWSRC, glob('~/.tinewsrc'));
 	while (defined($_ = <TINEWSRC>)) {
-		if (m/^([^#\s]+)\s*=\s*(\S+)/io) {
-			$config{$1} = $2;
+		if (m/^([^#\s=]+)\s*=\s*(\S[^#]+)/io) {
+			chomp($config{$1} = $2);
 		}
 	}
 	close (TINEWSRC);
 }
+
+# digest-algo is case sensitive and should be all uppercase
+$config{'digest-algo'} = uc($config{'digest-algo'});
 
 # these env-vars have higher priority
 $config{'NNTPServer'} = $ENV{'NNTPSERVER'} if ($ENV{'NNTPSERVER'});
@@ -546,7 +550,7 @@ sub getpgpcommand {
 		}
 	} elsif ($PGPVersion eq '5') {
 		if ($config{'PathtoPGPPass'}) {
-			$PGPCommand = "PGPPASSFD=42 ".$config{'pgp'}."s -u \"".$config{'PGPSigner'}."\" -t --armor -o ".$config{'pgptmpf'}.".txt.asc -z -f < ".$config{'pgptmpf'}.".txt 42<".$config{'PathtoPGPPass'};
+			$PGPCommand = "PGPPASSFD=".$config{'PGPPassFD'}." ".$config{'pgp'}."s -u \"".$config{'PGPSigner'}."\" -t --armor -o ".$config{'pgptmpf'}.".txt.asc -z -f < ".$config{'pgptmpf'}.".txt 42<".$config{'PathtoPGPPass'};
 		} elsif ($config{'Interactive'}) {
 			$PGPCommand = $config{'pgp'}."s -u \"".$config{'PGPSigner'}."\" -t --armor -o ".$config{'pgptmpf'}.".txt.asc -z -f < ".$config{'pgptmpf'}.".txt";
 		} else {
@@ -554,7 +558,7 @@ sub getpgpcommand {
 		}
 	} elsif ($PGPVersion =~ m/GPG/io) {
 		if ($config{'PathtoPGPPass'}) {
-			$PGPCommand = $config{'pgp'}." --digest-algo $config{'digest-algo'} -a -u \"".$config{'PGPSigner'}."\" -o ".$config{'pgptmpf'}.".txt.asc --no-tty --batch --passphrase-fd 42 42<".$config{'PathtoPGPPass'}." --clearsign ".$config{'pgptmpf'}.".txt";
+			$PGPCommand = $config{'pgp'}." --digest-algo $config{'digest-algo'} -a -u \"".$config{'PGPSigner'}."\" -o ".$config{'pgptmpf'}.".txt.asc --no-tty --batch --passphrase-fd ".$config{'PGPPassFD'}." ".$config{'PGPPassFD'}."<".$config{'PathtoPGPPass'}." --clearsign ".$config{'pgptmpf'}.".txt";
 		} elsif ($config{'Interactive'}) {
 			$PGPCommand = $config{'pgp'}." --digest-algo $config{'digest-algo'} -a -u \"".$config{'PGPSigner'}."\" -o ".$config{'pgptmpf'}.".txt.asc --no-secmem-warning --no-batch --clearsign ".$config{'pgptmpf'}.".txt";
 		} else {

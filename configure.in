@@ -2,10 +2,10 @@ dnl Project   : tin - a Usenet reader
 dnl Module    : configure.in
 dnl Author    : Thomas E. Dickey <dickey@invisible-island.net>
 dnl Created   : 1995-08-24
-dnl Updated   : 2010-04-06
+dnl Updated   : 2011-06-18
 dnl Notes     :
 dnl
-dnl Copyright (c) 1995-2010 Thomas E. Dickey <dickey@invisible-island.net>
+dnl Copyright (c) 1995-2011 Thomas E. Dickey <dickey@invisible-island.net>
 dnl All rights reserved.
 dnl
 dnl Redistribution and use in source and binary forms, with or without
@@ -34,14 +34,14 @@ dnl SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 dnl
 dnl Process this file with autoconf to produce a configure script.
 
-AC_PREREQ(2.13.20020210)
+AC_PREREQ(2.13.20110430)
 AC_INIT(include/tin.h)
 AC_CONFIG_HEADER(include/autoconf.h:include/autoconf.hin)
 AC_PREFIX_DEFAULT(/usr/local)
 
 dnl PACKAGE is required for GNU gettext
 PACKAGE=tin
-VERSION=1.9.6
+VERSION=2.0.0
 AC_DEFINE_UNQUOTED(PACKAGE, "$PACKAGE")
 AC_DEFINE_UNQUOTED(VERSION, "$VERSION")
 AC_SUBST(PACKAGE)
@@ -79,7 +79,7 @@ case "$host_os" in
 esac
 
 ### Native Language Support
-ALL_LINGUAS="da de en_GB et fr ru rw sv tr"
+ALL_LINGUAS="da de en_GB et fr ru sv tr"
 
 ### Checks for programs
 save_CFLAGS="$CFLAGS"
@@ -358,9 +358,7 @@ AC_MSG_RESULT($cf_with_screen)
 use_curses=no
 use_ncurses=no
 
-AC_MSG_CHECKING(if you specified curses install-directory)
 CF_WITH_CURSES_DIR($cf_with_screen)
-AC_MSG_RESULT($cf_cv_curses_dir)
 
 case $cf_with_screen in #(vi
 termcap|terminfo) #(we will determine which it really is
@@ -382,14 +380,14 @@ pdcurses) #(vi
 none)
 	AC_MSG_CHECKING(if you want to use ncurses library)
 	AC_ARG_WITH(ncurses,
-		[  --with-ncurses          link with ncurses if available (depriciated)],
+		[  --with-ncurses          link with ncurses if available (deprecated)],
 		[use_ncurses=$withval],
 		[use_ncurses=no])
 	AC_MSG_RESULT($use_ncurses)
 
 	AC_MSG_CHECKING(if you want curses rather than termcap interface)
 	CF_ARG_ENABLE(curses,
-		[  --enable-curses         use curses interface (depriciated)],
+		[  --enable-curses         use curses interface (deprecated)],
 		[cf_with_screen=curses;  use_curses=$withval],
 		[cf_with_screen=termcap; use_curses=no])
 	AC_MSG_RESULT($enableval)
@@ -400,22 +398,17 @@ if test $use_curses != no ; then
 	AC_DEFINE(USE_CURSES)
 	case $cf_with_screen in #(vi
 	ncurses) #(vi
-		CF_NCURSES_CPPFLAGS
-		CF_NCURSES_LIBS
+		CF_NCURSES_CONFIG
 		;;
 	ncursesw) #(vi
 		CF_CHECK_HEADERS(stdlib.h wchar.h wctype.h)
 		AM_MULTIBYTE_ABLE
-		CF_NCURSES_CPPFLAGS(ncursesw)
-		CF_NCURSES_LIBS(ncursesw)
-		CF_NCURSES_VERSION
+		CF_NCURSES_CONFIG(ncursesw)
 		CF_XOPEN_CURSES
 		test "$cf_cv_need_xopen_extension" = unknown && AC_ERROR(X/Open curses not found)
 		;;
 	curses) #(vi
-		CF_CURSES_CPPFLAGS
-		CF_CURSES_LIBS
-		CF_NCURSES_VERSION
+		CF_CURSES_CONFIG
 		CF_XOPEN_CURSES
 		;;
 	esac
@@ -719,6 +712,7 @@ CF_CHECK_HEADERS(\
 	fcntl.h \
 	getopt.h \
 	ioctl.h \
+	inttypes.h \
 	langinfo.h \
 	libc.h \
 	locale.h \
@@ -738,6 +732,7 @@ CF_CHECK_HEADERS(\
 	stdarg.h \
 	stdbool.h \
 	stddef.h \
+	stdint.h \
 	stdlib.h \
 	string.h \
 	strings.h \
@@ -942,6 +937,7 @@ AC_CHECK_FUNCS(\
 	fork \
 	ftime \
 	ftruncate \
+	fsync \
 	getcwd \
 	gettimeofday \
 	getwd \
@@ -1005,7 +1001,7 @@ AC_TRY_COMPILE([
 #endif],
 [struct timeval *tv;
 struct timezone *tz;
-gettimeofday(tv, tz);],
+gettimeofday(&tv, &tz);],
 ac_cv_func_gettimeofday_2args=yes, ac_cv_func_gettimeofday_2args=no)
 AC_MSG_RESULT($ac_cv_func_gettimeofday_2args)
 if test $ac_cv_func_gettimeofday_2args = yes; then
@@ -1287,24 +1283,19 @@ case "$host_os" in
 		AC_CHECK_FUNC(link, AC_DEFINE(HAVE_LINK))
 esac
 
-# tin has mkdirs.sh instead of mkinstalldirs, overwrite the result of test
-# in gettext.m4
-MKINSTALLDIRS="\$(top_srcdir)/mkdirs.sh"
-AC_SUBST(MKINSTALLDIRS)
-
 if test "$cf_cv_termlib" = pdcurses ; then
 	CF_PDCURSES_X11
 fi
 
 ### sum up warnings
 if test "$cf_cv_termlib" = none ; then
-	AC_MSG_WARN(no term-lib found, you might run into trouble later.)
+	AC_MSG_WARN([no term-lib found, you might run into trouble later.])
 fi
 if test "$YACC" = "" ; then
-	AC_MSG_WARN(no yacc-parser found, you might run into trouble later.)
+	AC_MSG_WARN([no yacc-parser found, you might run into trouble later.])
 fi
 if test "$RANLIB" = "" ; then
-        AC_MSG_WARN(no library archive builder found, you might run into trouble later.)
+	AC_MSG_WARN([no library archive builder found, you might run into trouble later.])
 fi
 
 ### Finally, build autoconf.h and the makefiles

@@ -3,10 +3,10 @@
  *  Module    : lang.c
  *  Author    : I. Lea
  *  Created   : 1991-04-01
- *  Updated   : 2010-10-07
+ *  Updated   : 2011-01-30
  *  Notes     :
  *
- * Copyright (c) 1991-2010 Iain Lea <iain@bricbrac.de>
+ * Copyright (c) 1991-2011 Iain Lea <iain@bricbrac.de>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -355,6 +355,7 @@ constext txt_help_article_search_forwards[] = N_("search forwards within this ar
 constext txt_help_article_show_raw[] = N_("show article in raw-mode (including all headers)");
 constext txt_help_article_skip_quote[] = N_("skip next block of included text");
 constext txt_help_article_toggle_formfeed[] = N_("toggle display of sections hidden by a form-feed (^L) on/off");
+constext txt_help_article_toggle_headers[] = N_("toggle display of all headers");
 constext txt_help_article_toggle_highlight[] = N_("toggle word highlighting on/off");
 constext txt_help_article_toggle_rot13[] = N_("toggle ROT-13 (basic decode) for current article");
 constext txt_help_article_toggle_tabwidth[] = N_("toggle tabwidth 4 <-> 8");
@@ -631,7 +632,7 @@ constext txt_msgid_line_only[] = N_("Message-ID: line              ");
 constext txt_msgid_refs_line[] = N_("Message-ID: & References: line");
 
 constext txt_name[] = N_(", name: ");
-constext txt_newsgroup[] = N_("Goto newsgroup [%s]> ");
+constext txt_newsgroup[] = N_("Go to newsgroup [%s]> ");
 constext txt_newsgroup_plural[] = N_("newsgroups");
 constext txt_newsgroup_position[] = N_("Position %s in group list (1,2,..,$) [%d]> ");
 constext txt_newsgroup_singular[] = N_("newsgroup");
@@ -1076,7 +1077,7 @@ Warning: Posting is in %s and contains characters which are not\n\
 #endif /* HAVE_PGP_GPG */
 
 #ifdef M_UNIX
-	constext txt_copyright_notice[] = "%s (c) Copyright 1991-2010 Iain Lea.";
+	constext txt_copyright_notice[] = "%s (c) Copyright 1991-2011 Iain Lea.";
 #endif /* M_UNIX */
 
 #ifdef NNTP_ABLE
@@ -1099,6 +1100,8 @@ Warning: Posting is in %s and contains characters which are not\n\
 	constext txt_usage_read_only_active[] = N_("  -l       use only LIST instead of GROUP (-n) command");
 	constext txt_usage_read_only_subscribed[] = N_("  -n       only read subscribed .newsrc groups from NNTP server");
 #	ifdef INET6
+		constext txt_usage_force_ipv4[] = N_("  -4       force connecting via IPv4");
+		constext txt_usage_force_ipv6[] = N_("  -6       force connecting via IPv6");
 		constext txt_error_socket_or_connect_problem[] = N_("\nsocket or connect problem\n");
 #	else
 		constext txt_connection_to[] = N_("\nConnection to %s: ");
@@ -1358,6 +1361,18 @@ constext *txt_goto_next_unread_options[] = {
 	N_("PageDown"),
 	N_("PageNextUnread"),
 	N_("PageDown or PageNextUnread"),
+};
+
+/* different options for quick_kill_header / quick_select_header */
+constext *txt_quick_ks_header_options[] = {
+	N_("Subject: (case sensitive)"),
+	N_("Subject: (ignore case)"),
+	N_("From: (case sensitive)"),
+	N_("From: (ignore case)"),
+	N_("Msg-ID: & full References: line"),
+	N_("Msg-ID: & last References: only"),
+	N_("Message-ID: entry only"),
+	N_("Lines:"),
 };
 
 /* different options for trim_article_body */
@@ -1651,7 +1666,7 @@ struct opttxt txt_sort_threads_type = {
 
 struct opttxt txt_pos_first_unread = {
 	N_("Put cursor at first/last unread art in groups. <SPACE> toggles & <CR> sets."),
-	N_("Goto first unread article in group"),
+	N_("Go to first unread article in group"),
 	N_("# If ON put cursor at first unread art in group otherwise last art\n")
 };
 
@@ -2640,6 +2655,14 @@ struct opttxt txt_unlink_article = {
 	N_("# If ON remove ~/.article after posting.\n")
 };
 
+#if defined(MULTIBYTE_ABLE) && !defined(NO_LOCALE)
+struct opttxt txt_utf8_graphics = {
+	N_("<SPACE> toggles, <CR> sets, <ESC> cancels."),
+	N_("Use UTF-8 graphics (thrd tree etc.)"),
+	N_("# If ON use UTF-8 characters for indicator '->', tree and ellipsis '...'.\n")
+};
+#endif /* MULTIBYTE_ABLE && !NO_LOCALE */
+
 struct opttxt txt_posted_articles_file = {
 	N_("Filename for all posted articles, <CR> sets, no filename=do not save."),
 	N_("Filename for posted articles"),
@@ -2787,50 +2810,50 @@ struct opttxt txt_savefile = {
 };
 
 struct opttxt txt_quick_select_scope = {
-	NULL,
-	NULL,
+	N_("Scope for the filter rule. <CR> sets, <ESC> cancels."),
+	N_("Quick (1 key) select filter scope"),
 	NULL
 };
 
 struct opttxt txt_quick_select_header = {
-	NULL,
-	NULL,
+	N_("Header for filter rule. <CR> sets, <ESC> cancels."),
+	N_("Quick (1 key) select filter header"),
 	NULL
 };
 
 struct opttxt txt_quick_select_case = {
-	NULL,
-	NULL,
+	N_("ON = case sensitive, OFF = ignore case. <CR> sets, <ESC> cancels."),
+	N_("Quick (1 key) select filter case"),
 	NULL
 };
 
 struct opttxt txt_quick_select_expire = {
-	NULL,
-	NULL,
+	N_("ON = expire, OFF = don't ever expire. <CR> sets, <ESC> cancels."),
+	N_("Quick (1 key) select filter expire"),
 	NULL
 };
 
 struct opttxt txt_quick_kill_scope = {
-	NULL,
-	NULL,
+	N_("Scope for the filter rule. <CR> sets, <ESC> cancels."),
+	N_("Quick (1 key) kill filter scope"),
 	NULL
 };
 
 struct opttxt txt_quick_kill_header = {
-	NULL,
-	NULL,
+	N_("Header for filter rule. <CR> sets, <ESC> cancels."),
+	N_("Quick (1 key) kill filter header"),
 	NULL
 };
 
 struct opttxt txt_quick_kill_case = {
-	NULL,
-	NULL,
+	N_("ON = case sensitive, OFF = ignore case. <CR> sets, <ESC> cancels."),
+	N_("Quick (1 key) kill filter case"),
 	NULL
 };
 
 struct opttxt txt_quick_kill_expire = {
-	NULL,
-	NULL,
+	N_("ON = expire, OFF = don't ever expire. <CR> sets, <ESC> cancels."),
+	N_("Quick (1 key) kill filter expire"),
 	NULL
 };
 

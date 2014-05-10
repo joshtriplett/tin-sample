@@ -3,10 +3,10 @@
  *  Module    : newsrc.c
  *  Author    : I. Lea & R. Skrenta
  *  Created   : 1991-04-01
- *  Updated   : 2010-07-14
+ *  Updated   : 2011-04-16
  *  Notes     : ArtCount = (ArtMax - ArtMin) + 1  [could have holes]
  *
- * Copyright (c) 1991-2010 Iain Lea <iain@bricbrac.de>, Rich Skrenta <skrenta@pbm.com>
+ * Copyright (c) 1991-2011 Iain Lea <iain@bricbrac.de>, Rich Skrenta <skrenta@pbm.com>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -1193,6 +1193,7 @@ pos_group_in_newsrc(
 	t_bool ret_code = FALSE;
 	t_bool sub_created = FALSE;
 	t_bool unsub_created = FALSE;
+	t_bool fs_error = FALSE;
 
 	if (no_write)
 		goto rewrite_group_done;
@@ -1250,21 +1251,22 @@ pos_group_in_newsrc(
 			clearerr(fp_sub);
 			fclose(fp_sub);
 		}
-		fp_sub = NULL;
+		fs_error = TRUE;
 	}
 	if ((err = ferror(fp_unsub)) || fclose(fp_unsub)) {
-		if (fp_sub) /* didn't see and error above */
+		if (!fs_error) /* avoid repeatd error message */
 			error_message(2, _(txt_filesystem_full), NEWSRC_FILE);
 		if (err) {
 			clearerr(fp_unsub);
 			fclose(fp_unsub);
 		}
-		fp_unsub = NULL;
+		fs_error = TRUE;
 	}
-	if (fp_sub == NULL || fp_unsub == NULL)
+	fp_sub = fp_unsub = NULL;
+
+	if (fs_error)
 		goto rewrite_group_done;
 
-	fp_sub = fp_unsub = NULL;
 	fclose(fp_in);
 	fp_in = NULL;
 

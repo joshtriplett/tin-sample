@@ -3,9 +3,9 @@
  *  Module    : read.c
  *  Author    : Jason Faultless <jason@altarstone.com>
  *  Created   : 1997-04-10
- *  Updated   : 2006-09-02
+ *  Updated   : 2011-05-06
  *
- * Copyright (c) 1997-2010 Jason Faultless <jason@altarstone.com>
+ * Copyright (c) 1997-2011 Jason Faultless <jason@altarstone.com>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -60,17 +60,18 @@ static int offset = 0;
  * local prototypes
  */
 static char *tin_read(char *buffer, size_t len, FILE *fp, t_bool header);
-#ifdef NNTP_ABLE
+#if defined(NNTP_ABLE) && defined(HAVE_SELECT)
 	static t_bool wait_for_input(void);
-#endif /* NNTP_ABLE */
+#endif /* NNTP_ABLE && HAVE_SELECT */
 
 
-#ifdef NNTP_ABLE
+#if defined(NNTP_ABLE) && defined(HAVE_SELECT)
 /*
  * Used by the I/O read routine to look for keyboard input
  * Returns TRUE if user aborted with 'q' or 'z' (lynx-style)
  *         FALSE otherwise
  * TODO: document 'z' (, and allow it's remapping?) and 'Q'
+ *       add a !HAVE_SELECT code path
  */
 static t_bool
 wait_for_input(
@@ -92,7 +93,12 @@ wait_for_input(
 		tv.tv_usec = 0;
 
 /* DEBUG_IO((stderr, "waiting on %d and %d...", STDIN_FILENO, fileno(fd))); */
+#	ifdef HAVE_SELECT_INTP
+		if ((nfds = select(STDIN_FILENO + 1, (int *) &readfds, NULL, NULL, &tv)) == -1) {
+#	else
 		if ((nfds = select(STDIN_FILENO + 1, &readfds, NULL, NULL, &tv)) == -1) {
+#	endif /* HAVE_SELECT_INTP */
+
 			if (errno != EINTR) {
 				perror_message("select() failed");
 				giveup();
@@ -153,7 +159,7 @@ wait_for_input(
 
 	}
 }
-#endif /* NNTP_ABLE */
+#endif /* NNTP_ABLE && HAVE_SELECT */
 
 
 /*
@@ -186,6 +192,7 @@ tin_read(
 	partial_read = FALSE;
 
 #ifdef NNTP_ABLE
+#	ifdef HAVE_SELECT
 	if (wait_for_input()) {			/* Check if okay to read */
 		info_message(_("Aborting read, please wait..."));
 		drain_buffer(fp);
@@ -194,6 +201,7 @@ tin_read(
 		/* fflush(stdin); */
 		return NULL;
 	}
+#	endif /* HAVE_SELECT */
 
 	errno = 0;		/* To check errno after read, clear it here */
 
@@ -306,7 +314,6 @@ tin_fgets(
 	static char *dynbuf = NULL;
 	static int size = 0;
 
-	char *temp, *ptr;
 	int next;
 
 	tin_errno = 0;					/* Clear errors */
@@ -330,8 +337,8 @@ tin_fgets(
 	size = INIT;
 #endif /* 1 */
 
-	if ((ptr = tin_read(dynbuf, size, fp, header)) == NULL)
-		return ptr;
+	if (tin_read(dynbuf, size, fp, header) == NULL)
+		return NULL;
 
 	if (tin_errno != 0) {
 		DEBUG_IO((stderr, _("Aborted read\n")));
@@ -343,9 +350,8 @@ tin_fgets(
 	while (partial_read) {
 		if (next + RCHUNK > size)
 			size = next + RCHUNK;
-		temp = my_realloc(dynbuf, size * sizeof(*dynbuf));
-		dynbuf = temp;
-		temp = tin_read(dynbuf + next, size - next, fp, header); /* What if == 0? */
+		dynbuf = my_realloc(dynbuf, size * sizeof(*dynbuf));
+		(void) tin_read(dynbuf + next, size - next, fp, header); /* What if == NULL? */
 		next += offset;
 
 		if (tin_errno != 0)

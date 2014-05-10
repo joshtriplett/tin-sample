@@ -3,7 +3,7 @@
  *  Module    : nntplib.c
  *  Author    : S. Barber & I. Lea
  *  Created   : 1991-01-12
- *  Updated   : 2010-11-10
+ *  Updated   : 2011-05-27
  *  Notes     : NNTP client routines taken from clientlib.c 1.5.11 (1991-02-10)
  *  Copyright : (c) Copyright 1991-99 by Stan Barber & Iain Lea
  *              Permission is hereby granted to copy, reproduce, redistribute
@@ -522,7 +522,7 @@ get_tcp_socket(
 	}
 
 	if (x < 0) {
-		my_fprintf(stderr, _(txt_giving_up));
+		my_fprintf(stderr, "%s", _(txt_giving_up));
 		return -save_errno;					/* Return the last errno we got */
 	}
 #		else
@@ -615,9 +615,8 @@ get_tcp6_socket(
 #	endif /* AF_UNSPEC */
 	memset(&hints, 0, sizeof(hints));
 /*	hints.ai_flags = AI_CANONNAME; */
-	hints.ai_family = ADDRFAM;
+	hints.ai_family = (force_ipv4 ? AF_INET : (force_ipv6 ? AF_INET6 : ADDRFAM));
 	hints.ai_socktype = SOCK_STREAM;
-	res = (struct addrinfo *) 0;
 	res0 = (struct addrinfo *) 0;
 	if ((err = getaddrinfo(mymachine, myport, &hints, &res0))) {
 		my_fprintf(stderr, "\ngetaddrinfo: %s\n", gai_strerror(err));
@@ -628,7 +627,7 @@ get_tcp6_socket(
 		if ((s = socket(res->ai_family, res->ai_socktype, res->ai_protocol)) < 0)
 			continue;
 		if (connect(s, res->ai_addr, res->ai_addrlen) != 0)
-			close(s);
+			s_close(s);
 		else {
 			err = 0;
 			break;
@@ -640,7 +639,7 @@ get_tcp6_socket(
 		/*
 		 * TODO: issue a more useful error-message
 		 */
-		my_fprintf(stderr, _(txt_error_socket_or_connect_problem));
+		my_fprintf(stderr, "%s", _(txt_error_socket_or_connect_problem));
 		return -1;
 	}
 	return s;
@@ -712,7 +711,7 @@ get_dnet_socket(
 
 	if (connect(s, (struct sockaddr *) &sdn, sizeof(sdn)) < 0) {
 		nerror("connect");
-		close(s);
+		s_close(s);
 		return -1;
 	}
 
@@ -1063,7 +1062,7 @@ check_extensions(void)
 			nntp_caps.broken_listgroup = FALSE;
 #else
 			nntp_caps.broken_listgroup = TRUE;
-#endif /*! BROKEN_LISTGROUP */
+#endif /* !BROKEN_LISTGROUP */
 
 			while ((ptr = tin_fgets(FAKE_NNTP_FP, FALSE)) != NULL) {
 #		ifdef DEBUG
