@@ -4,6 +4,8 @@ Priority: optional
 Maintainer: Marco d'Itri <md@linux.it>
 Build-Depends: debhelper (>> 7), pkg-config, bison, libpcre3-dev, libncursesw5-dev, libicu-dev, libcanlock2-dev, libuu-dev
 Standards-Version: 3.9.5
+Vcs-Git: git://anonscm.debian.org/git/users/md/tin.git
+Vcs-Browser: http://anonscm.debian.org/gitweb/?p=users/md/tin.git
 
 Package: tin
 Architecture: any
