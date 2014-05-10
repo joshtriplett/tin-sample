@@ -76,7 +76,7 @@
 
 /*
  * special ltoa()
- * converts value into a string with a maxlen of digits (usualy should be
+ * converts value into a string with a maxlen of digits (usually should be
  * >=4), last char may be one of the following:
  * 'K'ilo, 'M'ega, 'G'iga, 'T'erra, 'P'eta, 'E'xa, 'Z'etta, 'Y'otta,
  * 'X'ona, 'W'eka, 'V'unda, 'U'da (these last 4 are no official SI-prefixes)
@@ -1051,7 +1051,7 @@ normalize(
 
 
 /*
- * returns a pointer to allocated buffer containing the formated string
+ * returns a pointer to allocated buffer containing the formatted string
  * must be freed if not needed anymore
  */
 char *

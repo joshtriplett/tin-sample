@@ -3,7 +3,7 @@
  *  Module    : group.c
  *  Author    : I. Lea & R. Skrenta
  *  Created   : 1991-04-01
- *  Updated   : 2010-03-08
+ *  Updated   : 2010-03-14
  *  Notes     :
  *
  * Copyright (c) 1991-2010 Iain Lea <iain@bricbrac.de>, Rich Skrenta <skrenta@pbm.com>
@@ -989,6 +989,14 @@ toggle_read_unread(
 {
 	int n, i = -1;
 
+	/*
+	 * Clear art->keep_in_base if switching to !show_only_unread_arts
+	 */
+	if (curr_group->attribute->show_only_unread_arts) {
+		for_each_art(n)
+			arts[n].keep_in_base = FALSE;
+	}
+
 	/* force currently is always false */
 	if (force)
 		curr_group->attribute->show_only_unread_arts = TRUE;	/* Yes - really, we change it in a bit */
@@ -1282,7 +1290,7 @@ build_sline(
 		tmp_from = wcspart(wc, len_from, TRUE);
 	}
 
-#	if 0 /* use additional space if !draw_arrow - usefull? */
+#	if 0 /* use additional space if !draw_arrow - useful? */
 	if (!tinrc.draw_arrow) {
 		if (curr_group->attribute->show_info == SHOW_INFO_SCORE || curr_group->attribute->show_info == SHOW_INFO_BOTH) {
 			mbstowcs(format, "%s %s %s%6d %-ls%s%-ls", ARRAY_SIZE(format) - 1);
@@ -1331,7 +1339,7 @@ build_sline(
 #else
 	arts_sub[len_subj - 12 + 1] = '\0';
 
-#	if 0 /* use additional space if !draw_arrow - usefull? */
+#	if 0 /* use additional space if !draw_arrow - useful? */
 	if (!tinrc.draw_arrow) {
 		if (curr_group->attribute->show_info == SHOW_INFO_SCORE || curr_group->attribute->show_info == SHOW_INFO_BOTH)
 			snprintf(buffer, cCOLS + 1, "%s %s %s%6d %-*.*s%s%-*.*s",
@@ -1694,7 +1702,7 @@ prompt_getart_limit(
 
 
 /*
- * Redraw all neccessary parts of the screen after FEED_MARK_(UN)READ
+ * Redraw all necessary parts of the screen after FEED_MARK_(UN)READ
  * Move cursor to next unread item if needed
  *
  * Returns TRUE when no next unread art, FALSE otherwise

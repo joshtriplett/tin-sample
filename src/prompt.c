@@ -335,7 +335,7 @@ prompt_list(
 		 *   0 = do nothing
 		 *  -1 = move to the previous list element
 		 *
-		 *  if an arrow key was pressed change ch to an other value
+		 *  if an arrow key was pressed change ch to another value
 		 *  otherwise we will exit the while loop
 		 */
 		switch (ch) {

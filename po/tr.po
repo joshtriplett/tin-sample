@@ -7,7 +7,7 @@
 msgid   ""
 msgstr  "Project-Id-Version: tin 1.7.7\n"
         "Report-Msgid-Bugs-To: \n"
-        "POT-Creation-Date: 2010-01-30 10:06+0100\n"
+        "POT-Creation-Date: 2010-04-02 14:29+0200\n"
         "PO-Revision-Date: 2005-03-06 09:25+0200\n"
         "Last-Translator: Þebnem Korkmaz <sebnem_k@hotmail.com>\n"
         "Language-Team: Turkish <gnu-tr-u12a@lists.sourceforge.net>\n"
@@ -22,451 +22,451 @@ msgstr  "Project-Id-Version: tin 1.7.7\n"
 msgid   "attribute with no scope: %s"
 msgstr  ""
 
-#: src/attrib.c:881
+#: src/attrib.c:882
 #, fuzzy
 msgid   "Processing attributes... "
 msgstr  "Öznitelikler dosylasýný yazýyor..."
 
-#: src/attrib.c:1089
+#: src/attrib.c:1092
 #, c-format
 msgid   "# Do not edit this comment block\n"
         "#\n"
 msgstr  "# Bu açýklama bloðunu düzenlemeyin\n"
         "#\n"
 
-#: src/attrib.c:1090
+#: src/attrib.c:1093
 #, fuzzy, c-format
 msgid   "#  scope=STRING (eg. alt.*,!alt.bin*) [mandatory]\n"
 msgstr  "#  scope=DÝZGE (kapsam, örn. alt.*,!alt.bin*) [zorunlu]\n"
 
-#: src/attrib.c:1091
+#: src/attrib.c:1094
 #, c-format
 msgid   "#  add_posted_to_filter=ON/OFF\n"
 msgstr  ""
 
-#: src/attrib.c:1092
+#: src/attrib.c:1095
 #, c-format
 msgid   "#  advertising=ON/OFF\n"
 msgstr  ""
 
-#: src/attrib.c:1093
+#: src/attrib.c:1096
 #, c-format
 msgid   "#  alternative_handling=ON/OFF\n"
 msgstr  ""
 
-#: src/attrib.c:1094
+#: src/attrib.c:1097
 #, c-format
 msgid   "#  ask_for_metamail=ON/OFF\n"
 msgstr  ""
 
-#: src/attrib.c:1095
+#: src/attrib.c:1098
 #, c-format
 msgid   "#  auto_cc_bcc=NUM\n"
 msgstr  ""
 
-#: src/attrib.c:1096
+#: src/attrib.c:1099
 #, c-format
 msgid   "#    0=No, 1=Cc, 2=Bcc, 3=Cc and Bcc\n"
 msgstr  ""
 
-#: src/attrib.c:1097
+#: src/attrib.c:1100
 #, c-format
 msgid   "#  auto_list_thread=ON/OFF\n"
 msgstr  ""
 
-#: src/attrib.c:1098
+#: src/attrib.c:1101
 #, c-format
 msgid   "#  auto_save=ON/OFF\n"
 msgstr  ""
 
-#: src/attrib.c:1099
+#: src/attrib.c:1102
 #, c-format
 msgid   "#  auto_select=ON/OFF\n"
 msgstr  ""
 
-#: src/attrib.c:1100
+#: src/attrib.c:1103
 #, c-format
 msgid   "#  batch_save=ON/OFF\n"
 msgstr  ""
 
-#: src/attrib.c:1101
+#: src/attrib.c:1104
 #, c-format
 msgid   "#  date_format=STRING (eg. %%a, %%d %%b %%Y %%H:%%M:%%S)\n"
 msgstr  ""
 
-#: src/attrib.c:1102
+#: src/attrib.c:1105
 #, c-format
 msgid   "#  delete_tmp_files=ON/OFF\n"
 msgstr  ""
 
-#: src/attrib.c:1103
+#: src/attrib.c:1106
 #, c-format
 msgid   "#  editor_format=STRING (eg. %%E +%%N %%F)\n"
 msgstr  ""
 
-#: src/attrib.c:1104
+#: src/attrib.c:1107
 #, c-format
 msgid   "#  fcc=STRING (eg. =mailbox)\n"
 msgstr  ""
 
-#: src/attrib.c:1105
+#: src/attrib.c:1108
 #, c-format
 msgid   "#  followup_to=STRING\n"
 msgstr  "#  followup_to=DÝZGE (cevap yönlendirmesi)\n"
 
-#: src/attrib.c:1106
+#: src/attrib.c:1109
 #, c-format
 msgid   "#  from=STRING (just append wanted From:-line, don't use quotes)\n"
 msgstr  ""
 
-#: src/attrib.c:1107
+#: src/attrib.c:1110
 #, c-format
 msgid   "#  group_catchup_on_exit=ON/OFF\n"
 msgstr  ""
 
-#: src/attrib.c:1108
+#: src/attrib.c:1111
 #, c-format
 msgid   "#  mail_8bit_header=ON/OFF\n"
 msgstr  ""
 
-#: src/attrib.c:1109
+#: src/attrib.c:1112
 #, c-format
 msgid   "#  mail_mime_encoding=supported_encoding"
 msgstr  ""
 
-#: src/attrib.c:1117
+#: src/attrib.c:1120
 #, fuzzy, c-format
 msgid   "#  ispell=STRING\n"
 msgstr  "#  ispell=DÝZGE\n"
 
-#: src/attrib.c:1119
+#: src/attrib.c:1122
 #, fuzzy, c-format
 msgid   "#  maildir=STRING (eg. ~/Mail)\n"
 msgstr  "#  maildir=DÝZGE (posta dizini, örn. ~/Mail)\n"
 
-#: src/attrib.c:1120
+#: src/attrib.c:1123
 #, fuzzy, c-format
 msgid   "#  mailing_list=STRING (eg. majordomo@example.org)\n"
 msgstr  "#  mailing_list=DÝZGE (posta listesi, örn. majordomo@example.org)\n"
 
-#: src/attrib.c:1121
+#: src/attrib.c:1124
 #, c-format
 msgid   "#  mime_types_to_save=STRING (eg. image/*,!image/bmp)\n"
 msgstr  ""
 
-#: src/attrib.c:1122
+#: src/attrib.c:1125
 #, c-format
 msgid   "#  mark_ignore_tags=ON/OFF\n"
 msgstr  ""
 
-#: src/attrib.c:1123
+#: src/attrib.c:1126
 #, c-format
 msgid   "#  mark_saved_read=ON/OFF\n"
 msgstr  ""
 
-#: src/attrib.c:1124
+#: src/attrib.c:1127
 #, c-format
 msgid   "#  mime_forward=ON/OFF\n"
 msgstr  ""
 
-#: src/attrib.c:1126
+#: src/attrib.c:1129
 #, c-format
 msgid   "#  mm_network_charset=supported_charset"
 msgstr  ""
 
-#: src/attrib.c:1133
+#: src/attrib.c:1136
 #, c-format
 msgid   "#  undeclared_charset=STRING (default is US-ASCII)\n"
 msgstr  ""
 
-#: src/attrib.c:1135
+#: src/attrib.c:1138
 #, fuzzy, c-format
 msgid   "#  news_headers_to_display=STRING\n"
 msgstr  "#  news_quote_format=DÝZGE\n"
 
-#: src/attrib.c:1136
+#: src/attrib.c:1139
 #, fuzzy, c-format
 msgid   "#  news_headers_to_not_display=STRING\n"
 msgstr  "#  news_quote_format=DÝZGE\n"
 
-#: src/attrib.c:1137
+#: src/attrib.c:1140
 #, fuzzy, c-format
 msgid   "#  news_quote_format=STRING\n"
 msgstr  "#  news_quote_format=DÝZGE\n"
 
-#: src/attrib.c:1138
+#: src/attrib.c:1141
 #, c-format
 msgid   "#  organization=STRING (if beginning with '/' read from file)\n"
 msgstr  "#  organization=DÝZGE (kurum; eðer / ile baþlýyor ise, dosyadan okunur)\n"
 
-#: src/attrib.c:1139
+#: src/attrib.c:1142
 #, c-format
 msgid   "#  pos_first_unread=ON/OFF\n"
 msgstr  ""
 
-#: src/attrib.c:1140
+#: src/attrib.c:1143
 #, c-format
 msgid   "#  post_8bit_header=ON/OFF\n"
 msgstr  ""
 
-#: src/attrib.c:1141
+#: src/attrib.c:1144
 #, c-format
 msgid   "#  post_mime_encoding=supported_encoding"
 msgstr  ""
 
-#: src/attrib.c:1148
+#: src/attrib.c:1151
 #, fuzzy, c-format
 msgid   "#  post_process_type=NUM\n"
 msgstr  "Makaleleri sýrala"
 
-#: src/attrib.c:1153
+#: src/attrib.c:1156
 #, c-format
 msgid   "#  post_process_view=ON/OFF\n"
 msgstr  ""
 
-#: src/attrib.c:1154
+#: src/attrib.c:1157
 #, c-format
 msgid   "#  quick_kill_scope=STRING (ie. talk.*)\n"
 msgstr  ""
 
-#: src/attrib.c:1155
+#: src/attrib.c:1158
 #, c-format
 msgid   "#  quick_kill_expire=ON/OFF\n"
 msgstr  ""
 
-#: src/attrib.c:1156
+#: src/attrib.c:1159
 #, c-format
 msgid   "#  quick_kill_case=ON/OFF\n"
 msgstr  ""
 
-#: src/attrib.c:1157
+#: src/attrib.c:1160
 #, c-format
 msgid   "#  quick_kill_header=NUM\n"
 msgstr  ""
 
-#: src/attrib.c:1158 src/attrib.c:1165
+#: src/attrib.c:1161 src/attrib.c:1168
 #, c-format
 msgid   "#    0=subj (case sensitive) 1=subj (ignore case)\n"
 msgstr  ""
 
-#: src/attrib.c:1159 src/attrib.c:1166
+#: src/attrib.c:1162 src/attrib.c:1169
 #, c-format
 msgid   "#    2=from (case sensitive) 3=from (ignore case)\n"
 msgstr  ""
 
-#: src/attrib.c:1160 src/attrib.c:1167
+#: src/attrib.c:1163 src/attrib.c:1170
 #, c-format
 msgid   "#    4=msgid 5=lines\n"
 msgstr  ""
 
-#: src/attrib.c:1161
+#: src/attrib.c:1164
 #, fuzzy, c-format
 msgid   "#  quick_select_scope=STRING\n"
 msgstr  "#  quick_select_scope=DÝZGE\n"
 
-#: src/attrib.c:1162
+#: src/attrib.c:1165
 #, c-format
 msgid   "#  quick_select_expire=ON/OFF\n"
 msgstr  ""
 
-#: src/attrib.c:1163
+#: src/attrib.c:1166
 #, c-format
 msgid   "#  quick_select_case=ON/OFF\n"
 msgstr  ""
 
-#: src/attrib.c:1164
+#: src/attrib.c:1167
 #, c-format
 msgid   "#  quick_select_header=NUM\n"
 msgstr  ""
 
-#: src/attrib.c:1168
+#: src/attrib.c:1171
 #, c-format
 msgid   "#  quote_chars=STRING (%%s, %%S for initials)\n"
 msgstr  ""
 
-#: src/attrib.c:1170
+#: src/attrib.c:1173
 #, c-format
 msgid   "#  print_header=ON/OFF\n"
 msgstr  ""
 
-#: src/attrib.c:1172
+#: src/attrib.c:1175
 #, c-format
 msgid   "#  process_only_unread=ON/OFF\n"
 msgstr  ""
 
-#: src/attrib.c:1173
+#: src/attrib.c:1176
 #, fuzzy, c-format
 msgid   "#  prompt_followupto=ON/OFF\n"
 msgstr  "#  followup_to=DÝZGE (cevap yönlendirmesi)\n"
 
-#: src/attrib.c:1174
+#: src/attrib.c:1177
 #, fuzzy, c-format
 msgid   "#  savedir=STRING (eg. ~user/News)\n"
 msgstr  "#  savedir=DÝZGE (saklama dizini, örn. ~user/News)\n"
 
-#: src/attrib.c:1175
+#: src/attrib.c:1178
 #, fuzzy, c-format
 msgid   "#  savefile=STRING (eg. =linux)\n"
 msgstr  "#  savefile=DÝZGE (saklama dosyasý, örn. =linux)\n"
 
-#: src/attrib.c:1176
+#: src/attrib.c:1179
 #, fuzzy, c-format
 msgid   "#  sigfile=STRING (eg. $var/sig)\n"
 msgstr  "#  sigfile=DÝZGE (imza dosyasý, örn. $var/sig)\n"
 
-#: src/attrib.c:1177
+#: src/attrib.c:1180
 #, c-format
 msgid   "#  show_author=NUM\n"
 msgstr  ""
 
-#: src/attrib.c:1183
+#: src/attrib.c:1186
 #, c-format
 msgid   "#  show_info=NUM\n"
 msgstr  ""
 
-#: src/attrib.c:1189
+#: src/attrib.c:1192
 #, c-format
 msgid   "#  show_signatures=ON/OFF\n"
 msgstr  ""
 
-#: src/attrib.c:1190
+#: src/attrib.c:1193
 #, c-format
 msgid   "#  show_only_unread_arts=ON/OFF\n"
 msgstr  ""
 
-#: src/attrib.c:1191
+#: src/attrib.c:1194
 #, c-format
 msgid   "#  sigdashes=ON/OFF\n"
 msgstr  ""
 
-#: src/attrib.c:1192
+#: src/attrib.c:1195
 #, c-format
 msgid   "#  signature_repost=ON/OFF\n"
 msgstr  ""
 
-#: src/attrib.c:1193
+#: src/attrib.c:1196
 #, fuzzy, c-format
 msgid   "#  sort_article_type=NUM\n"
 msgstr  "Makaleleri sýrala"
 
-#: src/attrib.c:1211
+#: src/attrib.c:1214
 #, c-format
 msgid   "#  sort_threads_type=NUM\n"
 msgstr  ""
 
-#: src/attrib.c:1220
+#: src/attrib.c:1223
 #, c-format
 msgid   "#  start_editor_offset=ON/OFF\n"
 msgstr  ""
 
-#: src/attrib.c:1221
+#: src/attrib.c:1224
 #, c-format
 msgid   "#  tex2iso_conv=ON/OFF\n"
 msgstr  ""
 
-#: src/attrib.c:1222
+#: src/attrib.c:1225
 #, c-format
 msgid   "#  thread_catchup_on_exit=ON/OFF\n"
 msgstr  ""
 
-#: src/attrib.c:1223
+#: src/attrib.c:1226
 #, fuzzy, c-format
 msgid   "#  thread_articles=NUM"
 msgstr  "Makaleleri sýrala"
 
-#: src/attrib.c:1230
+#: src/attrib.c:1233
 #, c-format
 msgid   "#  thread_perc=NUM\n"
 msgstr  ""
 
-#: src/attrib.c:1231
+#: src/attrib.c:1234
 #, fuzzy, c-format
 msgid   "#  trim_article_body=NUM\n"
 msgstr  "Makaleleri sýrala"
 
-#: src/attrib.c:1232
+#: src/attrib.c:1235
 #, fuzzy, c-format
 msgid   "#    0 = Don't trim article body\n"
 msgstr  "Makaleleri sýrala"
 
-#: src/attrib.c:1233
+#: src/attrib.c:1236
 #, c-format
 msgid   "#    1 = Skip leading blank lines\n"
 msgstr  ""
 
-#: src/attrib.c:1234
+#: src/attrib.c:1237
 #, c-format
 msgid   "#    2 = Skip trailing blank lines\n"
 msgstr  ""
 
-#: src/attrib.c:1235
+#: src/attrib.c:1238
 #, c-format
 msgid   "#    3 = Skip leading and trailing blank lines\n"
 msgstr  ""
 
-#: src/attrib.c:1236
-#, c-format
-msgid   "#    4 = Compact multiple blank lines between textblocks\n"
-msgstr  ""
-
-#: src/attrib.c:1237
-#, c-format
-msgid   "#    5 = Compact multiple blank lines between textblocks and skip\n"
-        "#        leading blank lines\n"
-msgstr  ""
-
-#: src/attrib.c:1238
-#, c-format
-msgid   "#    6 = Compact multiple blank lines between textblocks and skip\n"
-        "#        trailing blank lines\n"
-msgstr  ""
-
 #: src/attrib.c:1239
 #, c-format
-msgid   "#    7 = Compact multiple blank lines between textblocks and skip\n"
-        "#        leading and trailing blank lines\n"
+msgid   "#    4 = Compact multiple blank lines between text blocks\n"
 msgstr  ""
 
 #: src/attrib.c:1240
 #, c-format
-msgid   "#  verbatim_handling=ON/OFF\n"
+msgid   "#    5 = Compact multiple blank lines between text blocks and skip\n"
+        "#        leading blank lines\n"
 msgstr  ""
 
 #: src/attrib.c:1241
 #, c-format
-msgid   "#  wrap_on_next_unread=ON/OFF\n"
+msgid   "#    6 = Compact multiple blank lines between text blocks and skip\n"
+        "#        trailing blank lines\n"
 msgstr  ""
 
 #: src/attrib.c:1242
+#, c-format
+msgid   "#    7 = Compact multiple blank lines between text blocks and skip\n"
+        "#        leading and trailing blank lines\n"
+msgstr  ""
+
+#: src/attrib.c:1243
+#, c-format
+msgid   "#  verbatim_handling=ON/OFF\n"
+msgstr  ""
+
+#: src/attrib.c:1244
+#, c-format
+msgid   "#  wrap_on_next_unread=ON/OFF\n"
+msgstr  ""
+
+#: src/attrib.c:1245
 #, fuzzy, c-format
 msgid   "#  x_body=STRING (eg. ~/.tin/extra-body-text)\n"
 msgstr  "#  x_body=DÝZGE (extra gövde dosyasý, örn. ~/.tin/extra-body-text)\n"
 
-#: src/attrib.c:1243
+#: src/attrib.c:1246
 #, c-format
 msgid   "#  x_comment_to=ON/OFF\n"
 msgstr  ""
 
-#: src/attrib.c:1244
+#: src/attrib.c:1247
 #, fuzzy, c-format
 msgid   "#  x_headers=STRING (eg. ~/.tin/extra-headers)\n"
 msgstr  "#  x_headers=DÝZGE (ekstra baþlýk dosyasý, örn. ~/.tin/extra-headers)\n"
 
-#: src/attrib.c:1245
+#: src/attrib.c:1248
 #, fuzzy, c-format
 msgid   "#\n"
         "# Note that it is best to put general (global scoping)\n"
 msgstr  "#\n"
         "# Genel(küresel) kaplamýn en iyi olduðunu not ediniz.\n"
 
-#: src/attrib.c:1246
+#: src/attrib.c:1249
 #, fuzzy, c-format
 msgid   "# entries first followed by group specific entries.\n"
         "#\n"
 msgstr  "# Öncelikle özgül grup girdileri tarafýndan takip edilen girdiler\n"
         "#\n"
 
-#: src/attrib.c:1247
+#: src/attrib.c:1250
 #, fuzzy, c-format
 msgid   "############################################################################\n"
 msgstr  "############################################################################\n"
@@ -478,7 +478,7 @@ msgstr  "(bilinmiyor)"
 #.
 #. * TODO: add to the right rule, give better explanation, -> lang.c
 #.
-#: src/filter.c:603 src/filter.c:611
+#: src/filter.c:604 src/filter.c:612
 msgid   "Removed from the previous rule: "
 msgstr  "Önceki kuraldan kaldýrýldý: "
 
@@ -1161,7 +1161,7 @@ msgstr  "\n"
 #: src/lang.c:196
 #, c-format
 msgid   "\n"
-        "Error: Illegal formated %s.\n"
+        "Error: Illegal formatted %s.\n"
 msgstr  ""
 
 #. TODO: fixme, US-ASCII is not the only 7bit charset we know about
@@ -3879,8 +3879,8 @@ msgstr  "%d kilitlemeye çalýþýyor %s"
 
 #: src/lang.c:806
 #, fuzzy
-msgid   "           h=help\n"
-msgstr  "         h=yardým\n"
+msgid   "           h=help"
+msgstr  "         h=yardým"
 
 #: src/lang.c:808
 #, fuzzy
@@ -4207,7 +4207,7 @@ msgstr  "\n"
 
 #: src/lang.c:876
 msgid   "\n"
-        "Warning: \"example\" is a reserved hierarchie!\n"
+        "Warning: \"example\" is a reserved hierarchy!\n"
 msgstr  ""
 
 #: src/lang.c:877
@@ -5757,7 +5757,7 @@ msgstr  "Sonraki okunmamýþ makale yok"
 
 #: src/lang.c:1618
 #, fuzzy
-msgid   "# Go to the unread article with folling key(s)\n"
+msgid   "# Go to the unread article with following key(s)\n"
         "# Possible values are (the default is marked with *):\n"
         "#   0 = nothing\n"
         "#   1 = PAGE DOWN\n"
@@ -5772,18 +5772,18 @@ msgid   "How to treat blank lines"
 msgstr  "Boþ satýrlarý imle"
 
 #: src/lang.c:1629
-msgid   "# Trim the article body, remove unecessary blank lines.\n"
+msgid   "# Trim the article body, remove unnecessary blank lines.\n"
         "# Possible values are (the default is marked with *):\n"
         "# * 0 = Nothing special\n"
         "#   1 = Skip leading blank lines\n"
         "#   2 = Skip trailing blank lines\n"
         "#   3 = Skip leading and trailing blank lines\n"
-        "#   4 = Compact multiple blank lines between textblocks\n"
-        "#   5 = Compact multiple blank lines between textblocks and skip\n"
+        "#   4 = Compact multiple blank lines between text blocks\n"
+        "#   5 = Compact multiple blank lines between text blocks and skip\n"
         "#       leading blank lines\n"
-        "#   6 = Compact multiple blank lines between textblocks and skip\n"
+        "#   6 = Compact multiple blank lines between text blocks and skip\n"
         "#       trailing blank lines\n"
-        "#   7 = Compact multiple blank lines between textblocks and skip\n"
+        "#   7 = Compact multiple blank lines between text blocks and skip\n"
         "#       leading and trailing blank lines\n"
 msgstr  ""
 
@@ -5989,7 +5989,7 @@ msgstr  "Listelerdeki satýrlarý/skoru göster"
 
 #: src/lang.c:1722
 #, fuzzy
-msgid   "# What informations should be displayed in article/thread listing\n"
+msgid   "# What information should be displayed in article/thread listing\n"
         "# Possible values are (the default is marked with *):\n"
         "#   0 = nothing\n"
         "# * 1 = lines\n"
@@ -7873,7 +7873,7 @@ msgid   "Line %d is longer than 998 octets and should be folded, but\n"
         "encoding is not set to %s\n"
 msgstr  ""
 
-#: src/post.c:2140
+#: src/post.c:2139
 #, fuzzy, c-format
 msgid   "Posting: %.*s ..."
 msgstr  "Gönderiliyor: %.*s ..."
@@ -7906,7 +7906,7 @@ msgstr  "[- Kullanýlamýyor -]"
 #. * preamble
 #. * TODO: -> lang.c
 #.
-#: src/rfc2047.c:1275
+#: src/rfc2047.c:1284
 #, c-format
 msgid   "This message has been composed in the 'multipart/mixed' MIME-format. If you\n"
         "are reading this prefix, your mail reader probably has not yet been modified\n"
@@ -7926,7 +7926,7 @@ msgstr  "okunmamýþ"
 msgid   "all"
 msgstr  "Hepsi"
 
-#: src/select.c:552 src/select.c:554
+#: src/select.c:554 src/select.c:556
 msgid   " R"
 msgstr  " R"
 

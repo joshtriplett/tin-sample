@@ -3,7 +3,7 @@
  *  Module    : newsrc.c
  *  Author    : I. Lea & R. Skrenta
  *  Created   : 1991-04-01
- *  Updated   : 2009-11-17
+ *  Updated   : 2010-03-14
  *  Notes     : ArtCount = (ArtMax - ArtMin) + 1  [could have holes]
  *
  * Copyright (c) 1991-2010 Iain Lea <iain@bricbrac.de>, Rich Skrenta <skrenta@pbm.com>
@@ -163,7 +163,7 @@ write_newsrc_line(
 	group = group_find(line, FALSE);
 
 	if (tinrc.strip_bogus == BOGUS_REMOVE) {
-		if (group == NULL || group->bogus) { /* group dosen't exist */
+		if (group == NULL || group->bogus) { /* group doesn't exist */
 			wait_message(2, _(txt_remove_bogus), line);
 			return 0;
 		}
@@ -1000,7 +1000,7 @@ parse_get_seq(
 
 
 /*
- * Loop thru arts[] array marking state of each article READ/UNREAD
+ * Loop through arts[] array marking state of each article READ/UNREAD
  */
 void
 parse_unread_arts(
@@ -1167,7 +1167,7 @@ print_bitmap_seq(
 
 
 /*
- * rewrite .newsrc and position group at specifed position
+ * rewrite .newsrc and position group at specified position
  */
 t_bool
 pos_group_in_newsrc(
@@ -1582,8 +1582,13 @@ art_mark(
 			if ((art->status == ART_UNREAD) || (art->status == ART_WILL_RETURN)) {
 				art_mark_xref_read(art);
 
-				if (group != NULL && group->newsrc.num_unread)
-					group->newsrc.num_unread--;
+				if (group != NULL) {
+					if (group->newsrc.num_unread)
+						group->newsrc.num_unread--;
+
+					if (group->attribute->show_only_unread_arts)
+						art->keep_in_base = TRUE;
+				}
 
 				art->status = ART_READ;
 			}
@@ -1592,8 +1597,12 @@ art_mark(
 		case ART_UNREAD:
 		case ART_WILL_RETURN:
 			if (art->status == ART_READ) {
-				if (group != NULL)
+				if (group != NULL) {
 					group->newsrc.num_unread++;
+
+					if (group->attribute->show_only_unread_arts)
+						art->keep_in_base = FALSE;
+				}
 
 				art->status = flag;
 			}

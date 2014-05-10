@@ -608,7 +608,7 @@ sub savearticle {
 
 
 #-------- sub signarticle
-# signarticle signs an articel and returns a reference to an array
+# signarticle signs an article and returns a reference to an array
 # 	containing the whole signed Message.
 #
 # Receives:

@@ -5,7 +5,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: tin 1.9.5\n"
-"POT-Creation-Date: 2010-03-13 18:01+0100\n"
+"POT-Creation-Date: 2010-03-14 15:42+0100\n"
 "PO-Revision-Date: 2009-10-01 16:17+0200\n"
 "Last-Translator: Urs Janssen <urs@tin.org>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1999,9 +1999,9 @@ msgstr ""
 
 # type: TP
 #: ../tin.1:769
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "B<GroupCancel 'D'>"
-msgstr "B<GroupMail 'm'>"
+msgstr "B<GroupCancel 'D'>"
 
 # type: Plain text
 #: ../tin.1:774 ../tin.1:987 ../tin.1:1190
@@ -2420,9 +2420,9 @@ msgstr "B<ThreadToggleSubjDisplay 'd'>"
 
 # type: TP
 #: ../tin.1:982
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "B<ThreadCancel 'D'>"
-msgstr "B<ThreadMail 'm'>"
+msgstr "B<ThreadCancel 'D'>"
 
 # type: Plain text
 #: ../tin.1:993 ../tin.1:1212
@@ -8757,10 +8757,10 @@ msgid "B<mark_ignore_tags>"
 msgstr "B<mark_ignore_tags>"
 
 # type: TP
-#: ../tin.5:501
+#: ../tin.5:501 ../tin.5:1608
 #, no-wrap
-msgid "B<mark_saved_unread>"
-msgstr "B<mark_saved_unread>"
+msgid "B<mark_saved_read>"
+msgstr "B<mark_saved_read>"
 
 # type: TP
 #: ../tin.5:504
@@ -9412,7 +9412,7 @@ msgstr "B<xref>"
 msgid ""
 "Match against ''Xref:'' line. Before any matching is done the line is turned "
 "into the same format ''Newsgroups:'' has that is it is turned into a comma "
-"separated newsgroup list with all other informations (i.e.  the article "
+"separated newsgroup list with all other information (i.e.  the article "
 "counter) removed."
 msgstr ""
 
@@ -9603,7 +9603,7 @@ msgstr ""
 
 # type: Plain text
 #: ../tin.5:923
-#, fuzzy, no-wrap
+#, no-wrap
 msgid ""
 "B<GroupNextUnreadArtOrGrp>\tTAB\n"
 "B<GroupReadBasenote>\t^J\t^M\n"
@@ -9643,6 +9643,7 @@ msgstr ""
 "B<GroupSelThdIfUnreadSelected>\t;\n"
 "B<GroupSelPattern>\t=\n"
 "B<GroupReverseSel>\t@\n"
+"B<GroupCancel>\tD\n"
 "B<GroupToggleGetartLimit>\tG\n"
 "B<GroupMarkThdRead>\tK\n"
 "B<GroupNextUnreadArt>\tN\n"
@@ -9902,7 +9903,7 @@ msgstr ""
 
 # type: Plain text
 #: ../tin.5:1036
-#, fuzzy, no-wrap
+#, no-wrap
 msgid ""
 "B<ThreadReadNextArtOrThread>\tTAB\n"
 "B<ThreadReadArt>\t^J\t^M\n"
@@ -9924,6 +9925,7 @@ msgstr ""
 "B<ThreadSelArt>\t*\n"
 "B<ThreadToggleArtSel>\t.\n"
 "B<ThreadReverseSel>\t@\n"
+"B<ThreadCancel>\tD\n"
 "B<ThreadMarkArtRead>\tK\n"
 "B<ThreadAutoSave>\tS\n"
 "B<ThreadUntag>\tU\n"
@@ -10848,12 +10850,6 @@ msgid ""
 "%U\tusername\n"
 "%%\t%\n"
 msgstr ""
-
-# type: TP
-#: ../tin.5:1608
-#, no-wrap
-msgid "B<mark_saved_read>"
-msgstr "B<mark_saved_read>"
 
 # type: TP
 #: ../tin.5:1619
@@ -12048,3 +12044,7 @@ msgstr ""
 "B<mmdf>(5), B<newsoverview>(5), B<overview.fmt>(5), B<innd>(8), B<RFC1524>, "
 "B<RFC2045>, B<RFC2046>, B<RFC2047>, B<RFC2048>, B<RFC2980>, B<RFC3977>, "
 "B<RFC4643>, B<RFC5322>, B<RFC5536>, B<RFC5537>"
+
+# type: TP
+#~ msgid "B<mark_saved_unread>"
+#~ msgstr "B<mark_saved_unread>"

@@ -114,7 +114,7 @@ o  add user defined screen layout at different levels
 o  add TLS (RFC 4642), NNTPS support
    (<http://www.gnu.org/software/gnutls/>, <http://www.openssl.org/>
     might be useful (but unfortunately we use fputs()/fgets() instead of
-    read()/write() - BIO_*() may be usefull);
+    read()/write() - BIO_*() may be useful);
     "stunnel -c -d 1119 -r news.example.org:563; tin -g localhost -p 1119"
     can be used for NNTPS)
    [20031210 Urs Janssen <urs@tin.org>]
@@ -298,7 +298,7 @@ o  add feature show_new_newsgroups_since
 o  add new key which taggs articles based on a prompted regex, could be used
    for GROUP_MARK_THREAD_READ,PAGE_MARK_THREAD_READ,THREAD_MARK_ARTICLE_READ
    and/or something like GROUP_SELECT_THREAD/THREAD_SELECT_ARTICLE which
-   works on tagged arts (the later might be usefull in conjnction with
+   works on tagged arts (the later might be useful in conjnction with
    GROUP_MARK_UNSELECTED_ARTICLES_READ)
    [20051110 Urs Janssen <urs@tin.org>]
 
@@ -454,10 +454,16 @@ o  suppress hide_uue=2 checking unless first line in an article or following
 
 Internal Changes
 ----------------
+o  rewrite mini-help, remove the long strings and generate them dynamicly
+   one help text for each key makes translations more easy and uniq and can
+   use the available space on the screen much better if not running on 80
+   columns.
+   [20100326 Urs Janssen <urs@tin.org>]
+
 o  rewrite auth.c
 
 o  make article numbers (u)int_least64_t/PRI[iu]LEAST64 (on OSs where possible),
-   provide usefull fallbacks if system doesn't have <inttypes.h>/<stdint.h>
+   provide useful fallbacks if system doesn't have <inttypes.h>/<stdint.h>
    (check for long long and if present use "%lld";
    #ifdef int_least64_t typedef artnum_t int_least64_t #else ...).
    use atoll/strtoll for parsing article numbers. (#ifdef HAVE ATOLL
@@ -471,13 +477,13 @@ o  fix aclocal.m4:CF_FUNC_SYSTEM and/or misc.c:invoke_cmd() that
 o  tinrc.confirm_choice should be written/read as int, not string as users
    who edit the tinrc manually can't know the exact strings required.
    unfortunately rc_update() can't handle type changes (rc_update should
-   also get the splitted version number as arg so we can do specific
+   also get the split version number as arg so we can do specific
    changes).
    [20081112 Urs Janssen <urs@tin.org>]
 
 o  use read()/write() instead of fputs()/fgets()
 
-o  move serveral (server related) files into the per-server dir
+o  move several (server related) files into the per-server dir
    e.g.:
       ${TIN_INDEX_NEWSDIR-"${TIN_HOMEDIR-"$HOME"}/.tin"}/.news${NNTPSERVER+"-$NNTPSERVER"}/
    should be
@@ -487,7 +493,7 @@ o  move serveral (server related) files into the per-server dir
 o  upgrade configure-script to >= autoconf-2.61
    [20050728 Urs Janssen <urs@tin.org>]
 
-o  remove untranslateable constructs like txt_prefix_*
+o  remove untranslatable constructs like txt_prefix_*
    [20050413 Urs Janssen <urs@tin.org>]
 
 o  keys which could be renamed/merged:
@@ -507,7 +513,7 @@ o  read_overview() calls eat_re() which strips the "Re: " out of the
    [20050225 Urs Janssen <urs@tin.org>]
 
 o  use new_nntp_command() instead of nntp_command() in the rest of the
-   code (where usefull; if we do a global change, rename it to
+   code (where useful; if we do a global change, rename it to
    nntp_command()). see check_extensions() for a sample usage.
    [20050211 Urs Janssen <urs@tin.org>]
 
@@ -649,7 +655,7 @@ o  make mm_network_charset an user configurable item list
    [20050805 <urs@tin.org>]
 
 o  add IDNA support (RFC 3490ff.)
-   (<http://www.gnu.org/software/libidn/> might be usefull)
+   (<http://www.gnu.org/software/libidn/> might be useful)
    (added minimalistic IDNA decoding support if a recent libidn is found, urs)
    [20030917 Urs Janssen <urs@tin.org>]
 
@@ -765,7 +771,7 @@ o  rename prompt_followupto (to prompt_extra_headres) and make it an option
    "Followup-To & Summary"; "Followup-To & Keywords";
    "Summary & Keywords"; "Followup-To, Summary & Keywords"} or make it a
    user-definable text field like news_headers_to_display? or leave this
-   entirely to the user - he could tweak atributes accrodingly.
+   entirely to the user - he could tweak attributes accrodingly.
    [20060503 Urs Janssen <urs@tin.org>]
 
 o  in several places only the latest keybinding is shown in prompts
@@ -828,7 +834,7 @@ o  check_article_to_be_posted() needs a cleanup!
 
 o  update gettext stuff to > gettext-0.12.1
 
-o  clean up included pcre stuff and update to >= pcre-8.0.1
+o  clean up included pcre stuff and update to >= pcre-8.0.2
 
 o  what is with conflicting tinrc settings? should we disallow those, or leave
    it to the user to realise that e.g. strip_blanks=ON && inverse_okay=ON
@@ -864,5 +870,5 @@ o  cleanup main.c/init_selfinfo()
 
 o  re add innlib support? (the old one was dropped as the lib has retired
    all (which were not that many) features we used and our code didn't
-   use the innlibs code where ever it was possible (and usefull).
+   use the innlibs code where ever it was possible (and useful).
    [20080211 Urs Janssen <urs@tin.org>]

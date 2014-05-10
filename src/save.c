@@ -505,8 +505,8 @@ save_and_process_art(
 		 */
 	}
 
-	if (copy_fp(artinfo->raw, fp)) /* Write tailing newline or MMDF-mailbox seperator */
-		print_art_seperator_line(fp, is_mailbox);
+	if (copy_fp(artinfo->raw, fp)) /* Write tailing newline or MMDF-mailbox separator */
+		print_art_separator_line(fp, is_mailbox);
 	else {
 		fclose(fp);
 		unlink(path);
@@ -1050,7 +1050,7 @@ uudecode_line(
 /*
  * Unpack /bin/sh archives
  * There is no end-of-shar marker so the code reads everything after
- * the start marker. This is why shar is handled seperately.
+ * the start marker. This is why shar is handled separately.
  * The code assumes shar archives do not span articles
  */
 static void
@@ -1106,10 +1106,10 @@ post_process_sh(
 
 
 /*
- * write tailing (MMDF)-mailbox seperator
+ * write tailing (MMDF)-mailbox separator
  */
 void
-print_art_seperator_line(
+print_art_separator_line(
 	FILE *fp,
 	t_bool is_mailbox)
 {

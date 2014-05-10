@@ -3,7 +3,7 @@
  *  Module    : help.c
  *  Author    : I. Lea
  *  Created   : 1991-04-01
- *  Updated   : 2010-02-06
+ *  Updated   : 2010-03-26
  *  Notes     :
  *
  * Copyright (c) 1991-2010 Iain Lea <iain@bricbrac.de>
@@ -568,7 +568,7 @@ make_help_page(
 	while (helppage->helptext) {
 		if (helppage->func == NOT_ASSIGNED) {
 			/*
-			 * as expand_ctrl_chars() may has shrinked buf
+			 * as expand_ctrl_chars() may has shrunk buf
 			 * make sure buf is large enough to contain the helpline
 			 */
 			buf = my_realloc(buf, LEN);
@@ -668,7 +668,7 @@ show_mini_help(
 		return;
 
 	line = NOTESLINES + MINI_HELP_LINES - 2;
-	bufs = (size_t) MIN((unsigned) cCOLS, (sizeof(buf) - 1));
+	bufs = sizeof(buf) - 1;
 
 #ifdef HAVE_COLOR
 	fcol(tinrc.col_minihelp);

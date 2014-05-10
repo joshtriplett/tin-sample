@@ -105,7 +105,7 @@ init_alloc(
 	arts = my_malloc(sizeof(*arts) * max_art);
 	base = my_malloc(sizeof(long) * max_art);
 
-	ofmt = my_calloc(1, sizeof(*ofmt) * 9);	/* inital number of overview fields */
+	ofmt = my_calloc(1, sizeof(*ofmt) * 9);	/* initial number of overview fields */
 
 	/*
 	 * save file array

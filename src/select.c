@@ -650,7 +650,7 @@ build_gline(
 	 */
 	if (active[n].bogus)					/* Group is not in active list */
 		subs = 'D';
-	else if (active[n].subscribed)			/* Important that this preceeds Newgroup */
+	else if (active[n].subscribed)			/* Important that this precedes Newgroup */
 		subs = group_flag(active[n].moderated);
 	else
 		subs = ((active[n].newgroup) ? 'N' : 'u'); /* New (but unsubscribed) group or unsubscribed group */

@@ -1,7 +1,7 @@
 #! /usr/bin/perl -w
 # example of how to call the appropriate viewer
 #
-# URLs must start with a scheme and shell metas must be allready quoted
+# URLs must start with a scheme and shell metas must be already quoted
 # (tin doesn't recognize URLs without a scheme and it quotes the metas)
 
 use strict;
@@ -25,7 +25,7 @@ if ($ENV{BROWSER}) {
 	push(@try, 'galeon -n');
 	push(@try, 'lynx');	# prefer lynx over links as it can handle news:-urls
 	push(@try, qw('links2 -g' links w3m));
-	push(@try, 'kfmclient newTab'); # has no usefull return-value on error
+	push(@try, 'kfmclient newTab'); # has no useful return-value on error
 }
 
 if ($ENV{DISPLAY}) { # X running
@@ -42,7 +42,7 @@ if ($ENV{DISPLAY}) { # X running
 			$browser =~ s/%%/%/og;
 			# append URL if no %s expansion took place
 			$browser .= " ".$url if (!$match);
-			# leave loop if $browser was started successfull
+			# leave loop if $browser was started successful
 			last if (system("$browser 2>/dev/null") == 0);
 		}
 		exit 0;

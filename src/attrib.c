@@ -1236,10 +1236,10 @@ write_attributes_file(
 	fprintf(fp, _("#    1 = Skip leading blank lines\n"));
 	fprintf(fp, _("#    2 = Skip trailing blank lines\n"));
 	fprintf(fp, _("#    3 = Skip leading and trailing blank lines\n"));
-	fprintf(fp, _("#    4 = Compact multiple blank lines between textblocks\n"));
-	fprintf(fp, _("#    5 = Compact multiple blank lines between textblocks and skip\n#        leading blank lines\n"));
-	fprintf(fp, _("#    6 = Compact multiple blank lines between textblocks and skip\n#        trailing blank lines\n"));
-	fprintf(fp, _("#    7 = Compact multiple blank lines between textblocks and skip\n#        leading and trailing blank lines\n"));
+	fprintf(fp, _("#    4 = Compact multiple blank lines between text blocks\n"));
+	fprintf(fp, _("#    5 = Compact multiple blank lines between text blocks and skip\n#        leading blank lines\n"));
+	fprintf(fp, _("#    6 = Compact multiple blank lines between text blocks and skip\n#        trailing blank lines\n"));
+	fprintf(fp, _("#    7 = Compact multiple blank lines between text blocks and skip\n#        leading and trailing blank lines\n"));
 	fprintf(fp, _("#  verbatim_handling=ON/OFF\n"));
 	fprintf(fp, _("#  wrap_on_next_unread=ON/OFF\n"));
 	fprintf(fp, _("#  x_body=STRING (eg. ~/.tin/extra-body-text)\n"));

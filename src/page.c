@@ -3,7 +3,7 @@
  *  Module    : page.c
  *  Author    : I. Lea & R. Skrenta
  *  Created   : 1991-04-01
- *  Updated   : 2010-03-07
+ *  Updated   : 2010-04-01
  *  Notes     :
  *
  * Copyright (c) 1991-2010 Iain Lea <iain@bricbrac.de>, Rich Skrenta <skrenta@pbm.com>
@@ -680,12 +680,10 @@ page_goto_next_unread:
 					old_artnum = arts[this_resp].artnum;
 					unfilter_articles(group);
 					filter_articles(group);
-					arts[this_resp].status = ART_UNREAD;
 					make_threads(group, FALSE);
 					if ((n = find_artnum(old_artnum)) == -1 || which_thread(n) == -1) /* We have lost the thread */
 						return GRP_KILLED;
 					this_resp = n;
-					arts[this_resp].status = ART_READ;
 					draw_page(group->name, 0);
 					info_message((func == GLOBAL_QUICK_FILTER_KILL) ? _(txt_info_add_kill) : _(txt_info_add_select));
 				}
@@ -698,12 +696,10 @@ page_goto_next_unread:
 					old_artnum = arts[this_resp].artnum;
 					unfilter_articles(group);
 					filter_articles(group);
-					arts[this_resp].status = ART_UNREAD;
 					make_threads(group, FALSE);
 					if ((n = find_artnum(old_artnum)) == -1 || which_thread(n) == -1) /* We have lost the thread */
 						return GRP_KILLED;
 					this_resp = n;
-					arts[this_resp].status = ART_READ;
 				}
 				draw_page(group->name, 0);
 				break;
@@ -715,12 +711,10 @@ page_goto_next_unread:
 					unfilter_articles(group);
 					(void) read_filter_file(filter_file);
 					filter_articles(group);
-					arts[this_resp].status = ART_UNREAD;
 					make_threads(group, FALSE);
 					if ((n = find_artnum(old_artnum)) == -1 || which_thread(n) == -1) /* We have lost the thread */
 						return GRP_KILLED;
 					this_resp = n;
-					arts[this_resp].status = ART_READ;
 				}
 				draw_page(group->name, 0);
 				break;
@@ -995,6 +989,7 @@ return_to_index:
 					process_url();
 					resize_article(TRUE, &pgart); /* rebreak long lines */
 					draw_page(group->name, 0);
+					info_message(_(txt_url_done));
 					XFACE_SHOW();
 				}
 				break;
@@ -2053,7 +2048,6 @@ process_url(
 			ptr += offsets[1] + 1;
 		}
 	}
-	info_message(_(txt_url_done));
 }
 
 

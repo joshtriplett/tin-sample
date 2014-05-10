@@ -529,7 +529,7 @@ struct t_capabilities nntp_caps = {
 	FALSE /* LISTGROUP doesn't select group */
 #else
 	TRUE
-#endif /*! BROKEN_LISTGROUP */
+#endif /* !BROKEN_LISTGROUP */
 };
 
 static char libdir[PATH_LEN];			/* directory where news config files are (ie. active) */

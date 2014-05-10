@@ -7,7 +7,7 @@
 msgid   ""
 msgstr  "Project-Id-Version: tin 1.9.3\n"
         "Report-Msgid-Bugs-To: \n"
-        "POT-Creation-Date: 2010-01-30 10:06+0100\n"
+        "POT-Creation-Date: 2010-04-02 14:29+0200\n"
         "PO-Revision-Date: 2005-01-29 23:50+0100\n"
         "Last-Translator: Christian Garbs <tin-dev@cgarbs.de>\n"
         "Language-Team: German <translation-team-de@lists.sourceforge.net>\n"
@@ -22,116 +22,116 @@ msgstr  "Project-Id-Version: tin 1.9.3\n"
 msgid   "attribute with no scope: %s"
 msgstr  "Attribut ohne Gültigkeitsbereich: %s"
 
-#: src/attrib.c:881
+#: src/attrib.c:882
 msgid   "Processing attributes... "
 msgstr  "Verarbeite Attribute... "
 
-#: src/attrib.c:1089
+#: src/attrib.c:1092
 #, c-format
 msgid   "# Do not edit this comment block\n"
         "#\n"
 msgstr  "# Diesen Kommentarabschnitt nicht verändern\n"
         "#\n"
 
-#: src/attrib.c:1090
+#: src/attrib.c:1093
 #, c-format
 msgid   "#  scope=STRING (eg. alt.*,!alt.bin*) [mandatory]\n"
 msgstr  "#  scope=ZEICHENKETTE  [notwendig]\n"
         "#    Gültigkeitsbereich, z.B. alt.*,!alt.bin*\n"
 
-#: src/attrib.c:1091
+#: src/attrib.c:1094
 #, c-format
 msgid   "#  add_posted_to_filter=ON/OFF\n"
 msgstr  "#  add_posted_to_filter=ON/OFF\n"
         "#    Filtereintrag erzeugen für eigene Postings\n"
 
-#: src/attrib.c:1092
+#: src/attrib.c:1095
 #, c-format
 msgid   "#  advertising=ON/OFF\n"
 msgstr  "#  advertising=ON/OFF\n"
         "#    User-Agent:-Header einfuegen\n"
 
-#: src/attrib.c:1093
+#: src/attrib.c:1096
 #, c-format
 msgid   "#  alternative_handling=ON/OFF\n"
 msgstr  "#  alternative_handling=ON/OFF\n"
         "#    MIME multipart/alternative-Teile ausblenden\n"
 
-#: src/attrib.c:1094
+#: src/attrib.c:1097
 #, c-format
 msgid   "#  ask_for_metamail=ON/OFF\n"
 msgstr  "#  ask_for_metamail=ON/OFF\n"
         "#    Start des MIME-Viewers erst nach Bestätigung\n"
 
-#: src/attrib.c:1095
+#: src/attrib.c:1098
 #, c-format
 msgid   "#  auto_cc_bcc=NUM\n"
 msgstr  "#  auto_cc_bcc=ZAHL\n"
 
-#: src/attrib.c:1096
+#: src/attrib.c:1099
 #, c-format
 msgid   "#    0=No, 1=Cc, 2=Bcc, 3=Cc and Bcc\n"
 msgstr  "#    0=Nein, 1=Cc, 2=Bcc, 3=Cc und Bcc\n"
 
 # TRANSLATION MISSING
-#: src/attrib.c:1097
+#: src/attrib.c:1100
 #, c-format
 msgid   "#  auto_list_thread=ON/OFF\n"
 msgstr  ""
 
-#: src/attrib.c:1098
+#: src/attrib.c:1101
 #, c-format
 msgid   "#  auto_save=ON/OFF\n"
 msgstr  "#  auto_save=ON/OFF\n"
         "#    Artikel mit Archive-name:-Header automatisch in die darin\n"
         "#    angegebene Datei speichern\n"
 
-#: src/attrib.c:1099
+#: src/attrib.c:1102
 #, c-format
 msgid   "#  auto_select=ON/OFF\n"
 msgstr  "#  auto_select=ON/OFF\n"
         "#    Führe GroupMarkUnselArtRead Kommando automatisch beim Betreten\n"
         "#    der Gruppe aus\n"
 
-#: src/attrib.c:1100
+#: src/attrib.c:1103
 #, c-format
 msgid   "#  batch_save=ON/OFF\n"
 msgstr  "#  batch_save=ON/OFF\n"
         "#    Im Batch-Modus werden die Artikel beachtet\n"
 
-#: src/attrib.c:1101
+#: src/attrib.c:1104
 #, c-format
 msgid   "#  date_format=STRING (eg. %%a, %%d %%b %%Y %%H:%%M:%%S)\n"
 msgstr  "#  date_format=ZEICHENKETTE\n"
         "#    z.B. %%a, %%d %%b %%Y %%H:%%M:%%S\n"
 
-#: src/attrib.c:1102
+#: src/attrib.c:1105
 #, c-format
 msgid   "#  delete_tmp_files=ON/OFF\n"
 msgstr  "#  delete_tmp_files=ON/OFF\n"
         "#    Gespeicherte, zur Nachbearbeitung weitergegebene Artikel ohne\n"
         "#    Nachfrage löschen\n"
 
-#: src/attrib.c:1103
+#: src/attrib.c:1106
 #, c-format
 msgid   "#  editor_format=STRING (eg. %%E +%%N %%F)\n"
 msgstr  "#  editor_format=ZEICHENKETTE\n"
         "#    z.B. %%E +%%N %%F\n"
 
-#: src/attrib.c:1104
+#: src/attrib.c:1107
 #, c-format
 msgid   "#  fcc=STRING (eg. =mailbox)\n"
 msgstr  "#  fcc=ZEICHENKETTE\n"
         "#    Datei in der eine Kopie der Mail abgelegt werden soll,\n"
         "#    z.B.: =mailbox\n"
 
-#: src/attrib.c:1105
+#: src/attrib.c:1108
 #, c-format
 msgid   "#  followup_to=STRING\n"
 msgstr  "#  followup_to=ZEICHENKETTE\n"
         "#    Voreinstellung für den Followup-To:-Header\n"
 
-#: src/attrib.c:1106
+#: src/attrib.c:1109
 #, c-format
 msgid   "#  from=STRING (just append wanted From:-line, don't use quotes)\n"
 msgstr  "#  from=ZEICHENKETTE\n"
@@ -139,96 +139,96 @@ msgstr  "#  from=ZEICHENKETTE\n"
         "#    keine Anführungszeichen verwenden\n"
 
 # TRANSLATION MISSING
-#: src/attrib.c:1107
+#: src/attrib.c:1110
 #, c-format
 msgid   "#  group_catchup_on_exit=ON/OFF\n"
 msgstr  ""
 
 # TRANSLATION MISSING
-#: src/attrib.c:1108
+#: src/attrib.c:1111
 #, c-format
 msgid   "#  mail_8bit_header=ON/OFF\n"
 msgstr  ""
 
-#: src/attrib.c:1109
+#: src/attrib.c:1112
 #, c-format
 msgid   "#  mail_mime_encoding=supported_encoding"
 msgstr  "#  mail_mime_encoding=ZEICHENKETTE"
 
-#: src/attrib.c:1117
+#: src/attrib.c:1120
 #, c-format
 msgid   "#  ispell=STRING\n"
 msgstr  "#  ispell=ZEICHENKETTE\n"
         "#    Aufruf der Rechtschreibprüfung,\n"
         "#    z.B. ispell -C -ddeutsch -w äöüÄÖÜß@ -Tlatin1\n"
 
-#: src/attrib.c:1119
+#: src/attrib.c:1122
 #, c-format
 msgid   "#  maildir=STRING (eg. ~/Mail)\n"
 msgstr  "#  maildir=ZEICHENKETTE\n"
         "#    Verzeichnis der Mail-Ordner, z.B. ~/Mail\n"
 
-#: src/attrib.c:1120
+#: src/attrib.c:1123
 #, c-format
 msgid   "#  mailing_list=STRING (eg. majordomo@example.org)\n"
 msgstr  "#  mailing_list=ZEICHENKETTE\n"
         "#    Gruppe ist eine gegatete Mailingliste, z.B. majordomo@example.org\n"
 
-#: src/attrib.c:1121
+#: src/attrib.c:1124
 #, c-format
 msgid   "#  mime_types_to_save=STRING (eg. image/*,!image/bmp)\n"
 msgstr  "#  mime_types_to_save=ZEICHENKETTE\n"
         "#    z.B. image/*,!image/bmp\n"
 
 # TRANSLATION MISSING
-#: src/attrib.c:1122
+#: src/attrib.c:1125
 #, c-format
 msgid   "#  mark_ignore_tags=ON/OFF\n"
 msgstr  ""
 
 # TRANSLATION MISSING
-#: src/attrib.c:1123
+#: src/attrib.c:1126
 #, c-format
 msgid   "#  mark_saved_read=ON/OFF\n"
 msgstr  ""
 
-#: src/attrib.c:1124
+#: src/attrib.c:1127
 #, c-format
 msgid   "#  mime_forward=ON/OFF\n"
 msgstr  "#  mime_forward=ON/OFF\n"
         "#    Weitergeleitete Artikel als MIME-Anhang senden\n"
 
-#: src/attrib.c:1126
+#: src/attrib.c:1129
 #, c-format
 msgid   "#  mm_network_charset=supported_charset"
 msgstr  "#  mm_network_charset=Zeichensatz\n"
         "#    Erlaubt sind folgende:"
 
-#: src/attrib.c:1133
+#: src/attrib.c:1136
 #, c-format
 msgid   "#  undeclared_charset=STRING (default is US-ASCII)\n"
 msgstr  "#  undeclared_charset=Zeichensatz\n"
         "#    Voreinstellung ist US-ASCII\n"
 
-#: src/attrib.c:1135
+#: src/attrib.c:1138
 #, c-format
 msgid   "#  news_headers_to_display=STRING\n"
 msgstr  "#  news_headers_to_display=ZEICHENKETTE\n"
         "#    Voreinstellung ist: Newsgroups Followup-To Summary Keywords X-Comment-"
         "To\n"
 
-#: src/attrib.c:1136
+#: src/attrib.c:1139
 #, c-format
 msgid   "#  news_headers_to_not_display=STRING\n"
 msgstr  "#  news_headers_to_not_display=ZEICHENKETTE\n"
 
-#: src/attrib.c:1137
+#: src/attrib.c:1140
 #, c-format
 msgid   "#  news_quote_format=STRING\n"
 msgstr  "#  news_quote_format=ZEICHENKETTE\n"
         "#    Einleitungszeile, z.B. news_quote_format=In %%M, %%F wrote:\n"
 
-#: src/attrib.c:1138
+#: src/attrib.c:1141
 #, c-format
 msgid   "#  organization=STRING (if beginning with '/' read from file)\n"
 msgstr  "#  organization=ZEICHENKETTE\n"
@@ -236,317 +236,317 @@ msgstr  "#  organization=ZEICHENKETTE\n"
         "#    Wert aus dieser Datei gelesen.\n"
 
 # TRANSLATION MISSING
-#: src/attrib.c:1139
+#: src/attrib.c:1142
 #, c-format
 msgid   "#  pos_first_unread=ON/OFF\n"
 msgstr  ""
 
 # TRANSLATION MISSING
-#: src/attrib.c:1140
+#: src/attrib.c:1143
 #, c-format
 msgid   "#  post_8bit_header=ON/OFF\n"
 msgstr  ""
 
-#: src/attrib.c:1141
+#: src/attrib.c:1144
 #, c-format
 msgid   "#  post_mime_encoding=supported_encoding"
 msgstr  "#  post_mime_encoding=ZEICHENKETTE"
 
-#: src/attrib.c:1148
+#: src/attrib.c:1151
 #, c-format
 msgid   "#  post_process_type=NUM\n"
 msgstr  "#  post_process_type=ZAHL\n"
         "#    Nachbearbeitung\n"
 
-#: src/attrib.c:1153
+#: src/attrib.c:1156
 #, c-format
 msgid   "#  post_process_view=ON/OFF\n"
 msgstr  "#  post_process_view=ON/OFF\n"
         "#    Nachbearbeitete Artikel anzeigen\n"
 
-#: src/attrib.c:1154
+#: src/attrib.c:1157
 #, c-format
 msgid   "#  quick_kill_scope=STRING (ie. talk.*)\n"
 msgstr  "#  quick_kill_scope=ZEICHENKETTE\n"
         "#    Voreinstellung für Gültigkeitsbereich neuer Kill-Einträge,\n"
         "#    z.B. talk.*\n"
 
-#: src/attrib.c:1155
+#: src/attrib.c:1158
 #, c-format
 msgid   "#  quick_kill_expire=ON/OFF\n"
 msgstr  "#  quick_kill_expire=ON/OFF\n"
         "#    Kill verfällt automatisch\n"
 
-#: src/attrib.c:1156
+#: src/attrib.c:1159
 #, c-format
 msgid   "#  quick_kill_case=ON/OFF\n"
 msgstr  "#  quick_kill_case=ON/OFF\n"
         "#    Kill beachtet Gross/Kleinschreibung\n"
 
-#: src/attrib.c:1157
+#: src/attrib.c:1160
 #, c-format
 msgid   "#  quick_kill_header=NUM\n"
 msgstr  "#  quick_kill_header=ZAHL\n"
         "#    Killen nach:\n"
 
-#: src/attrib.c:1158 src/attrib.c:1165
+#: src/attrib.c:1161 src/attrib.c:1168
 #, c-format
 msgid   "#    0=subj (case sensitive) 1=subj (ignore case)\n"
 msgstr  "#    0=Subject (Gross/Kleinschreibung beachten), 1=Subject (G/K ignorieren)\n"
 
-#: src/attrib.c:1159 src/attrib.c:1166
+#: src/attrib.c:1162 src/attrib.c:1169
 #, c-format
 msgid   "#    2=from (case sensitive) 3=from (ignore case)\n"
 msgstr  "#    2=From (G/K beachten), 3=From (G/K ignorieren)\n"
 
-#: src/attrib.c:1160 src/attrib.c:1167
+#: src/attrib.c:1163 src/attrib.c:1170
 #, c-format
 msgid   "#    4=msgid 5=lines\n"
 msgstr  "#    4=Message-ID, 5=Zeilen\n"
 
-#: src/attrib.c:1161
+#: src/attrib.c:1164
 #, c-format
 msgid   "#  quick_select_scope=STRING\n"
 msgstr  "#  quick_select_scope=ZEICHENKETTE\n"
         "#    Voreinstellung für Gültigkeitsbereich neuer Auswahlregeln (Hochscoren)\n"
 
-#: src/attrib.c:1162
+#: src/attrib.c:1165
 #, c-format
 msgid   "#  quick_select_expire=ON/OFF\n"
 msgstr  "#  quick_select_expire=ON/OFF\n"
         "#    Regel verfällt automatisch\n"
 
-#: src/attrib.c:1163
+#: src/attrib.c:1166
 #, c-format
 msgid   "#  quick_select_case=ON/OFF\n"
 msgstr  "#  quick_select_case=ON/OFF\n"
         "#    Regel beachtet Gross/Kleinschreibung\n"
 
-#: src/attrib.c:1164
+#: src/attrib.c:1167
 #, c-format
 msgid   "#  quick_select_header=NUM\n"
 msgstr  "#  quick_select_header=NUM\n"
         "#    Auswählen (Hochscoren) nach:\n"
 
-#: src/attrib.c:1168
+#: src/attrib.c:1171
 #, c-format
 msgid   "#  quote_chars=STRING (%%s, %%S for initials)\n"
 msgstr  "#  quote_chars=ZEICHENKETTE\n"
         "#    Zeichen für Zitate in Antworten, %%s oder %%S ergibt Autoreninitialien\n"
 
-#: src/attrib.c:1170
+#: src/attrib.c:1173
 #, c-format
 msgid   "#  print_header=ON/OFF\n"
 msgstr  "#  print_header=ON/OFF\n"
         "#    Alle Header beim Drucken ausgeben\n"
 
 # TRANSLATION MISSING
-#: src/attrib.c:1172
+#: src/attrib.c:1175
 #, c-format
 msgid   "#  process_only_unread=ON/OFF\n"
 msgstr  ""
 
-#: src/attrib.c:1173
+#: src/attrib.c:1176
 #, c-format
 msgid   "#  prompt_followupto=ON/OFF\n"
 msgstr  "#  prompt_followupto=ON/OFF\n"
         "#    Leeren Followup-To:-Header anzeigen beim Erstellen eines Artikels\n"
 
-#: src/attrib.c:1174
+#: src/attrib.c:1177
 #, c-format
 msgid   "#  savedir=STRING (eg. ~user/News)\n"
 msgstr  "#  savedir=ZEICHENKETTE\n"
         "#    Verzeichnis zum Speichern, z.B. ~user/News\n"
 
-#: src/attrib.c:1175
+#: src/attrib.c:1178
 #, c-format
 msgid   "#  savefile=STRING (eg. =linux)\n"
 msgstr  "#  savefile=ZEICHENKETTE\n"
         "#    Datei zum Speichern, z.B. =linux\n"
 
-#: src/attrib.c:1176
+#: src/attrib.c:1179
 #, c-format
 msgid   "#  sigfile=STRING (eg. $var/sig)\n"
 msgstr  "#  sigfile=ZEICHENKETTE\n"
         "#    Signatur, z.B. $var/sig\n"
 
-#: src/attrib.c:1177
+#: src/attrib.c:1180
 #, c-format
 msgid   "#  show_author=NUM\n"
 msgstr  "#  show_author=ZAHL\n"
         "#    Anzeige des From-Felds\n"
 
-#: src/attrib.c:1183
+#: src/attrib.c:1186
 #, c-format
 msgid   "#  show_info=NUM\n"
 msgstr  "#  show_info=ZAHL\n"
 
-#: src/attrib.c:1189
+#: src/attrib.c:1192
 #, c-format
 msgid   "#  show_signatures=ON/OFF\n"
 msgstr  "#  show_signatures=ON/OFF\n"
         "#    Signaturen anzeigen\n"
 
-#: src/attrib.c:1190
+#: src/attrib.c:1193
 #, c-format
 msgid   "#  show_only_unread_arts=ON/OFF\n"
 msgstr  "#  show_only_unread_arts=ON/OFF\n"
         "#    nur ungelesene Artikel anzeigen\n"
 
-#: src/attrib.c:1191
+#: src/attrib.c:1194
 #, c-format
 msgid   "#  sigdashes=ON/OFF\n"
 msgstr  "#  sigdashes=ON/OFF\n"
         "#    Signatur mit '\\n-- \\n' abtrennen\n"
 
-#: src/attrib.c:1192
+#: src/attrib.c:1195
 #, c-format
 msgid   "#  signature_repost=ON/OFF\n"
 msgstr  "#  signature_repost=ON/OFF\n"
         "#    Signatur beim Reposten anhängen\n"
 
-#: src/attrib.c:1193
+#: src/attrib.c:1196
 #, c-format
 msgid   "#  sort_article_type=NUM\n"
 msgstr  "#  sort_article_type=ZAHL\n"
         "#    Artikel sortieren nach:\n"
 
-#: src/attrib.c:1211
+#: src/attrib.c:1214
 #, c-format
 msgid   "#  sort_threads_type=NUM\n"
 msgstr  "#  sort_threads_type=ZAHL\n"
         "#    Threads sortieren nach:\n"
 
 # TRANSLATION MISSING
-#: src/attrib.c:1220
+#: src/attrib.c:1223
 #, c-format
 msgid   "#  start_editor_offset=ON/OFF\n"
 msgstr  ""
 
-#: src/attrib.c:1221
+#: src/attrib.c:1224
 #, c-format
 msgid   "#  tex2iso_conv=ON/OFF\n"
 msgstr  "#  tex2iso_conv=ON/OFF\n"
         "#    Automatische Umwandlung von TeX-Umlauten\n"
 
 # TRANSLATION MISSING
-#: src/attrib.c:1222
+#: src/attrib.c:1225
 #, c-format
 msgid   "#  thread_catchup_on_exit=ON/OFF\n"
 msgstr  ""
 
-#: src/attrib.c:1223
+#: src/attrib.c:1226
 #, c-format
 msgid   "#  thread_articles=NUM"
 msgstr  "#  thread_articles=ZAHL\n"
         "#    Threading nach:"
 
-#: src/attrib.c:1230
+#: src/attrib.c:1233
 #, c-format
 msgid   "#  thread_perc=NUM\n"
 msgstr  "#  thread_perc=ZAHL\n"
         "#    Wieviel Prozent des Subjects müssen gleich sein?\n"
 
-#: src/attrib.c:1231
+#: src/attrib.c:1234
 #, c-format
 msgid   "#  trim_article_body=NUM\n"
 msgstr  "#  trim_article_body=ZAHL\n"
 
 # TRANSLATION MISSING
-#: src/attrib.c:1232
+#: src/attrib.c:1235
 #, c-format
 msgid   "#    0 = Don't trim article body\n"
 msgstr  ""
 
-#: src/attrib.c:1233
+#: src/attrib.c:1236
 #, c-format
 msgid   "#    1 = Skip leading blank lines\n"
 msgstr  "#    1 = Führende Leerzeilen überspringen\n"
 
-#: src/attrib.c:1234
+#: src/attrib.c:1237
 #, c-format
 msgid   "#    2 = Skip trailing blank lines\n"
 msgstr  "#    2 = Abschliessende Leerzeilen überspringen\n"
 
-#: src/attrib.c:1235
+#: src/attrib.c:1238
 #, c-format
 msgid   "#    3 = Skip leading and trailing blank lines\n"
 msgstr  "#    3 = Führende und abschliessende Leerzeilen überspringen\n"
 
 # TRANSLATION MISSING
-#: src/attrib.c:1236
+#: src/attrib.c:1239
 #, c-format
-msgid   "#    4 = Compact multiple blank lines between textblocks\n"
+msgid   "#    4 = Compact multiple blank lines between text blocks\n"
 msgstr  ""
 
 # TRANSLATION MISSING
-#: src/attrib.c:1237
+#: src/attrib.c:1240
 #, c-format
-msgid   "#    5 = Compact multiple blank lines between textblocks and skip\n"
+msgid   "#    5 = Compact multiple blank lines between text blocks and skip\n"
         "#        leading blank lines\n"
 msgstr  ""
 
 # TRANSLATION MISSING
-#: src/attrib.c:1238
+#: src/attrib.c:1241
 #, c-format
-msgid   "#    6 = Compact multiple blank lines between textblocks and skip\n"
+msgid   "#    6 = Compact multiple blank lines between text blocks and skip\n"
         "#        trailing blank lines\n"
 msgstr  ""
 
 # TRANSLATION MISSING
-#: src/attrib.c:1239
+#: src/attrib.c:1242
 #, c-format
-msgid   "#    7 = Compact multiple blank lines between textblocks and skip\n"
+msgid   "#    7 = Compact multiple blank lines between text blocks and skip\n"
         "#        leading and trailing blank lines\n"
 msgstr  ""
 
-#: src/attrib.c:1240
+#: src/attrib.c:1243
 #, c-format
 msgid   "#  verbatim_handling=ON/OFF\n"
 msgstr  "#  verbatim_handling=ON/OFF\n"
         "#    Wortgetreue Textblöcke erkennen\n"
 
 # TRANSLATION MISSING
-#: src/attrib.c:1241
+#: src/attrib.c:1244
 #, c-format
 msgid   "#  wrap_on_next_unread=ON/OFF\n"
 msgstr  ""
 
-#: src/attrib.c:1242
+#: src/attrib.c:1245
 #, c-format
 msgid   "#  x_body=STRING (eg. ~/.tin/extra-body-text)\n"
 msgstr  "#  x_body=ZEICHENKETTE\n"
         "#    Text wird automatisch zu Beginn des Artikels eingefügt,\n"
         "#    z.B. ~/.tin/extra-body-text\n"
 
-#: src/attrib.c:1243
+#: src/attrib.c:1246
 #, c-format
 msgid   "#  x_comment_to=ON/OFF\n"
 msgstr  "#  x_comment_to=ON/OFF\n"
         "#    X-Comment-To:-Header einfügen.\n"
         "#    (Nur sinnvoll in nach Fido Technology Network gegateten Gruppen.)\n"
 
-#: src/attrib.c:1244
+#: src/attrib.c:1247
 #, c-format
 msgid   "#  x_headers=STRING (eg. ~/.tin/extra-headers)\n"
 msgstr  "#  x_headers=ZEICHENKETTE\n"
         "#    Zusätzliche Header, z.B. ~/.tin/extra-headers\n"
 
-#: src/attrib.c:1245
+#: src/attrib.c:1248
 #, c-format
 msgid   "#\n"
         "# Note that it is best to put general (global scoping)\n"
 msgstr  "#\n"
         "# Es empfiehlt sich, zuerst allgemein gültige und danach spezielle,\n"
 
-#: src/attrib.c:1246
+#: src/attrib.c:1249
 #, c-format
 msgid   "# entries first followed by group specific entries.\n"
         "#\n"
 msgstr  "# nur für bestimmte Newsgruppen gültige Einträge aufzuführen.\n"
         "#\n"
 
-#: src/attrib.c:1247
+#: src/attrib.c:1250
 #, c-format
 msgid   "############################################################################\n"
 msgstr  "############################################################################\n"
@@ -558,7 +558,7 @@ msgstr  "(unbekannt)"
 #.
 #. * TODO: add to the right rule, give better explanation, -> lang.c
 #.
-#: src/filter.c:603 src/filter.c:611
+#: src/filter.c:604 src/filter.c:612
 msgid   "Removed from the previous rule: "
 msgstr  "Aus der vorigen Regel gelöscht: "
 
@@ -1186,7 +1186,7 @@ msgstr  "\n"
 #: src/lang.c:196
 #, c-format
 msgid   "\n"
-        "Error: Illegal formated %s.\n"
+        "Error: Illegal formatted %s.\n"
 msgstr  ""
 
 #. TODO: fixme, US-ASCII is not the only 7bit charset we know about
@@ -1745,33 +1745,28 @@ msgid   "View/save multimedia attachments"
 msgstr  "Multimedia-Anhänge anzeigen/speichern"
 
 #: src/lang.c:341
-#, fuzzy
 msgid   "choose first attribute in list"
-msgstr  "wähle ersten Artikel in der Liste"
+msgstr  "wähle erstes Attribut in der Liste"
 
 #: src/lang.c:342
-#, fuzzy
 msgid   "0 - 9\t  choose attribute by number"
-msgstr  "0 - 9\t  Wähle Artikel anhand der Nummer"
+msgstr  "0 - 9\t  Wähle Attribut anhand der Nummer"
 
 #: src/lang.c:343
-#, fuzzy
 msgid   "choose last attribute in list"
-msgstr  "wähle letzten Artikel in der Liste"
+msgstr  "wähle letztes Attribut in der Liste"
 
 #: src/lang.c:344
 msgid   "reset attribute to a default value"
 msgstr  ""
 
 #: src/lang.c:345
-#, fuzzy
 msgid   "search forwards for an attribute"
-msgstr  "suche vorwärts nach einer Gruppe"
+msgstr  "suche vorwärts nach einem Attribut"
 
 #: src/lang.c:346
-#, fuzzy
 msgid   "search backwards for an attribute"
-msgstr  "sucht rückwärts nach einem Gruppennamen"
+msgstr  "sucht rückwärts nach einem Attribut"
 
 #: src/lang.c:347
 msgid   "select attribute"
@@ -1992,14 +1987,12 @@ msgid   "mark article as unread"
 msgstr  "markiert Artikel als ungelesen"
 
 #: src/lang.c:401
-#, fuzzy
 msgid   "mark current thread, range or tagged threads as read"
-msgstr  "markiert den aktuellen Thread oder markierte Artikel als gelesen"
+msgstr  "markiert den aktuellen Thread, Bereich oder markierte Artikel als gelesen"
 
 #: src/lang.c:402
-#, fuzzy
 msgid   "mark current thread, range or tagged threads as unread"
-msgstr  "markiert den aktuellen Thread oder markierte Artikel als gelesen"
+msgstr  "markiert den aktuellen Thread, Bereich oder markierte Artikel als ungelesen"
 
 #: src/lang.c:403
 msgid   "mark current/range/selected/pattern/tagged as read after prompting"
@@ -2251,7 +2244,6 @@ msgid   "mark article, range or tagged articles as unread"
 msgstr  "markiert Artikel als ungelesen"
 
 #: src/lang.c:463
-#, fuzzy
 msgid   "mark current thread as unread"
 msgstr  "markiert den aktuellen Thread als ungelesen"
 
@@ -2654,9 +2646,9 @@ msgid   "%s=add; %s=move; %s=rename; %s=delete"
 msgstr  ""
 
 #: src/lang.c:564
-#, fuzzy, c-format
+#, c-format
 msgid   "<n>=set current to n; %s=line down; %s=line up; %s=help; %s=quit"
-msgstr  "<n>=Wähle n; %s=n. ungel.; %s=Catchup; %s=Infozeile"
+msgstr  ""
 
 #: src/lang.c:565
 #, c-format
@@ -3324,9 +3316,8 @@ msgid   "Delete scope?"
 msgstr  ""
 
 #: src/lang.c:734
-#, fuzzy
 msgid   "Enter scope> "
-msgstr  "Optionsnummer eingeben> "
+msgstr  ""
 
 #: src/lang.c:735
 msgid   "Select new position> "
@@ -3583,8 +3574,8 @@ msgid   "%d Trying to lock %s"
 msgstr  "%d Versuche %s zu locken"
 
 #: src/lang.c:806
-msgid   "           h=help\n"
-msgstr  "          h=Hilfe\n"
+msgid   "           h=help"
+msgstr  "          h=Hilfe"
 
 #: src/lang.c:808
 msgid   "Unlimited"
@@ -3873,7 +3864,7 @@ msgstr  "\n"
 
 #: src/lang.c:876
 msgid   "\n"
-        "Warning: \"example\" is a reserved hierarchie!\n"
+        "Warning: \"example\" is a reserved hierarchy!\n"
 msgstr  ""
 
 #: src/lang.c:877
@@ -5299,7 +5290,7 @@ msgid   "Go to the next unread article with"
 msgstr  "Zum nächsten ungelesenen Artikel springen mit"
 
 #: src/lang.c:1618
-msgid   "# Go to the unread article with folling key(s)\n"
+msgid   "# Go to the unread article with following key(s)\n"
         "# Possible values are (the default is marked with *):\n"
         "#   0 = nothing\n"
         "#   1 = PAGE DOWN\n"
@@ -5319,18 +5310,18 @@ msgstr  ""
 
 # TRANSLATION MISSING
 #: src/lang.c:1629
-msgid   "# Trim the article body, remove unecessary blank lines.\n"
+msgid   "# Trim the article body, remove unnecessary blank lines.\n"
         "# Possible values are (the default is marked with *):\n"
         "# * 0 = Nothing special\n"
         "#   1 = Skip leading blank lines\n"
         "#   2 = Skip trailing blank lines\n"
         "#   3 = Skip leading and trailing blank lines\n"
-        "#   4 = Compact multiple blank lines between textblocks\n"
-        "#   5 = Compact multiple blank lines between textblocks and skip\n"
+        "#   4 = Compact multiple blank lines between text blocks\n"
+        "#   5 = Compact multiple blank lines between text blocks and skip\n"
         "#       leading blank lines\n"
-        "#   6 = Compact multiple blank lines between textblocks and skip\n"
+        "#   6 = Compact multiple blank lines between text blocks and skip\n"
         "#       trailing blank lines\n"
-        "#   7 = Compact multiple blank lines between textblocks and skip\n"
+        "#   7 = Compact multiple blank lines between text blocks and skip\n"
         "#       leading and trailing blank lines\n"
 msgstr  ""
 
@@ -5488,7 +5479,7 @@ msgid   "Show lines/score in listings"
 msgstr  "Zeige Zeilenz./Bewert. in Übersicht"
 
 #: src/lang.c:1722
-msgid   "# What informations should be displayed in article/thread listing\n"
+msgid   "# What information should be displayed in article/thread listing\n"
         "# Possible values are (the default is marked with *):\n"
         "#   0 = nothing\n"
         "# * 1 = lines\n"
@@ -7270,7 +7261,7 @@ msgid   "Line %d is longer than 998 octets and should be folded, but\n"
 msgstr  "Zeile %d ist länger als 998 Oktets und sollte gefaltet werden,\n"
         "aber die Kodierung ist nicht auf %s gesetzt\n"
 
-#: src/post.c:2140
+#: src/post.c:2139
 #, c-format
 msgid   "Posting: %.*s ..."
 msgstr  "Poste: %.*s ..."
@@ -7300,7 +7291,7 @@ msgstr  "[- Nicht Verfügbar -]"
 #. * preamble
 #. * TODO: -> lang.c
 #.
-#: src/rfc2047.c:1275
+#: src/rfc2047.c:1284
 #, c-format
 msgid   "This message has been composed in the 'multipart/mixed' MIME-format. If you\n"
         "are reading this prefix, your mail reader probably has not yet been modified\n"
@@ -7323,7 +7314,7 @@ msgstr  "ungelesen"
 msgid   "all"
 msgstr  "Alle"
 
-#: src/select.c:552 src/select.c:554
+#: src/select.c:554 src/select.c:556
 msgid   " R"
 msgstr  " R"
 
@@ -7378,11 +7369,3 @@ msgstr  "Slrnface wurde mit Fehler %d beendet."
 #, c-format
 msgid   "Slrnface failed: %s."
 msgstr  "Fehler %s beim Aufruf von Slrnface."
-
-#~ msgid        "Mark %s=tagged articles, %s=current article, %s=quit: "
-#~ msgstr       "%s=markierte oder %s=aktuellen Artikel auf gelesen setzen. %"
-#~      "s=Abbrechen: "
-
-#~ msgid        "Mark %s=tagged articles/threads, %s=current thread, %s=quit: "
-#~ msgstr       "%s=markierte oder %s=aktuellen Artikel/Thread auf gelesen setzen. %"
-#~      "s=Abbrechen: "

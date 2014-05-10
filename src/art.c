@@ -3,7 +3,7 @@
  *  Module    : art.c
  *  Author    : I.Lea & R.Skrenta
  *  Created   : 1991-04-01
- *  Updated   : 2010-03-01
+ *  Updated   : 2010-03-15
  *  Notes     :
  *
  * Copyright (c) 1991-2010 Iain Lea <iain@bricbrac.de>, Rich Skrenta <skrenta@pbm.com>
@@ -140,12 +140,12 @@ find_base(
 			expand_art();
 
 		if (group->attribute->show_only_unread_arts) {
-			if (arts[i].status != ART_READ)
+			if (arts[i].status != ART_READ || arts[i].keep_in_base)
 				base[grpmenu.max++] = i;
 			else {
 				/* Find 1st unread art in thread */
 				for (j = i; j >= 0; j = arts[j].thread) {
-					if (arts[j].status != ART_READ) {
+					if (arts[j].status != ART_READ || arts[j].keep_in_base) {
 						base[grpmenu.max++] = i;
 						break;
 					}
@@ -231,7 +231,7 @@ setup_hard_base(
 		 *
 		 * think about something like:
 		 * if (nntp_caps.type == CAPABILITIES && tinrc.getart_limit != 0) {
-		 *    calculate some usefull min vals, eg. if getart_limit < 0
+		 *    calculate some useful min vals, eg. if getart_limit < 0
 		 *    use lowest unread art + 2*getart_limit (to include holes)
 		 *    snprintf(buf, sizeof(buf), "LISTGROUP %s %d-%d, group->name, min, max);
 		 * }
@@ -494,6 +494,8 @@ index_group(
 				debug_print_comment("art.c: index_group() purging...");
 #endif /* DEBUG */
 			art_mark(group, &arts[i], ART_READ);
+			if (group->attribute->show_only_unread_arts)
+				arts[i].keep_in_base = FALSE;
 		}
 	}
 
@@ -608,7 +610,7 @@ open_art_header(
 				if (nntp_command("NEXT", OK_NOTEXT, buf, sizeof(buf)))
 					*next = atoi(buf);
 				break;
-#	endif /*! BROKEN_LISTGROUP */
+#	endif /* !BROKEN_LISTGROUP */
 
 			default:
 				/*
@@ -622,10 +624,10 @@ open_art_header(
 				 * we set listgroup_broken = TRUE; once we saw a
 				 * ERR_NOARTIG / ERR_NONEXT or the like - even if
 				 * ERR_NOARTIG may occur on servers where listgroup
-				 * isnt't broken...
+				 * isn't broken...
 				 */
 				nntp_caps.broken_listgroup = TRUE;
-#	endif /*! BROKEN_LISTGROUP */
+#	endif /* !BROKEN_LISTGROUP */
 				break;
 		}
 
@@ -1664,13 +1666,13 @@ read_overview(
 						continue;
 					}
 				}
-				/* metadata fiels */
+				/* metadata fields */
 				if (ofmt[count].type == OVER_T_INT) {
 					if (!strcasecmp(ofmt[count].name, "Bytes:")) {
 						if (*ptr) {
 #ifdef DEBUG
 							if ((debug & DEBUG_NNTP) && !isdigit((unsigned char) *ptr))
-									debug_print_file("NNTP", "%s(%d) overview field %d (%s) missmatch: %s", nntp_caps.over_cmd, artnum, count, ofmt[count].name, ptr);
+									debug_print_file("NNTP", "%s(%d) overview field %d (%s) mismatch: %s", nntp_caps.over_cmd, artnum, count, ofmt[count].name, ptr);
 #endif /* DEBUG */
 						}
 						continue;
@@ -1684,7 +1686,7 @@ read_overview(
 								art->line_count = 0;
 #ifdef DEBUG
 								if (debug & DEBUG_NNTP)
-									debug_print_file("NNTP", "%s(%d) overview field %d (%s) missmatch: %s", nntp_caps.over_cmd, artnum, count, ofmt[count].name, ptr);
+									debug_print_file("NNTP", "%s(%d) overview field %d (%s) mismatch: %s", nntp_caps.over_cmd, artnum, count, ofmt[count].name, ptr);
 #endif /* DEBUG */
 							}
 						} else
@@ -1752,7 +1754,7 @@ read_overview(
 						if (*ptr) {
 #ifdef DEBUG
 							if ((debug & DEBUG_NNTP) && !isdigit((unsigned char) *ptr))
-								debug_print_file("NNTP", "%s(%d) overview field %d (%s) missmatch: %s", nntp_caps.over_cmd, artnum, count, ofmt[count].name, ptr);
+								debug_print_file("NNTP", "%s(%d) overview field %d (%s) mismatch: %s", nntp_caps.over_cmd, artnum, count, ofmt[count].name, ptr);
 #endif /* DEBUG */
 						}
 						break;
@@ -1765,7 +1767,7 @@ read_overview(
 								art->line_count = 0;
 #ifdef DEBUG
 								if (debug & DEBUG_NNTP)
-									debug_print_file("NNTP", "%s(%d) overview field %d (%s) missmatch: %s", nntp_caps.over_cmd, artnum, count, ofmt[count].name, ptr);
+									debug_print_file("NNTP", "%s(%d) overview field %d (%s) mismatch: %s", nntp_caps.over_cmd, artnum, count, ofmt[count].name, ptr);
 #endif /* DEBUG */
 							}
 						} else
@@ -1905,7 +1907,7 @@ read_overview(
  *       with a wrong charset and thus lose information. a simmiliar problem
  *       exists with the data for the from:-line, we don't store it in the
  *       original format, whenever our from-parser (partially) fails we'll
- *       lose informations in our overviews (but those couldn't be handeled
+ *       lose information in our overviews (but those couldn't be handeled
  *       by tin anyway, so this is not a real problem).
  *       long-term solution: store the original data in the overview
  *       (tin has to handle raw 8bit data and other ugly stuff in the
@@ -2059,7 +2061,7 @@ find_nov_file(
 			 */
 
 			/*
-			 * When reading via NNTP, system wide overviews are irrelevent, of
+			 * When reading via NNTP, system wide overviews are irrelevant, of
 			 * course, and the private overview filename will be the same for
 			 * both reading and writing.
 			 *
@@ -2557,7 +2559,7 @@ set_article(
 	art->refptr = NULL;
 	art->line_count = -1;
 	art->archive = NULL;
-	art->tagged = FALSE;
+	art->tagged = 0;
 	art->thread = ART_EXPIRED;
 	art->prev = ART_NORMAL;
 	art->score = 0;
@@ -2568,6 +2570,7 @@ set_article(
 	art->selected = FALSE;
 	art->inrange = FALSE;
 	art->matched = FALSE;
+	art->keep_in_base = FALSE;
 }
 
 

@@ -282,9 +282,9 @@ open_newsgroups_fp(
 			}
 		}
 		/*
-		 * TODO: test me, find a usefull limit,
+		 * TODO: test me, find a useful limit,
 		 *       optimize more than n groups (e.g. 5) of the same
-		 *       subhierarchie to a wildmat?
+		 *       subhierarchy to a wildmat?
 		 */
 		if (((nntp_caps.type == CAPABILITIES && nntp_caps.list_newsgroups) || nntp_caps.type != CAPABILITIES) && newsrc_active && !list_active && !no_more_wildmat && (PIPELINE_LIMIT > MAX(1, num_active))) {
 			char *ptr;

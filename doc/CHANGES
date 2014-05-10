@@ -1,4 +1,4 @@
--- 1.9.6 release 20100313 "" --
+-- 1.9.6 release 20100401 "" --
 
 U022) Thomas E. Dickey <dickey@invisible-island.net>
       BUG. _XOPEN_SOURCE was defined on darwin
@@ -10,11 +10,15 @@ U021) Dennis Preiser <onkelp@gmx.de>
       BUG. comments in references were not skipped
       ADD. cancel article 'D' to the group and thread level
       ADD. shell escape '!' to the 'M'enu
+      ADD. workaround for buggy isspace() implementations
       BUG. fixed several sorting/threading/filtering options which did not
            instantly reflect changes when not beeing in select level
+      BUG. help string was truncated at cCOLS without checking if inside a
+           multibyte sequence
       FIX. art.c, attrib.c, filter.c, group.c, help.c, init.c, keymap.c, main.c
-           nntplib.c, options_menu.c, page.c, refs.c, select.c, signal.c
-           thread.c, extern.h, keymap.h, proto.h, tin.h, tin.1, keymap.sample
+           newsrc.c, nntplib.c, options_menu.c, page.c, refs.c, rfc2047.c
+           screen.c, select.c, signal.c, tags.c, thread.c, extern.h, keymap.h
+           proto.h, tin.h, tin.1, tin.5, keymap.sample
 
 U020) Urs Janssen <urs@tin.org>
       ADD. minor manpage tweaking
@@ -27,8 +31,8 @@ U020) Urs Janssen <urs@tin.org>
       BUG. da.po was missing from the tarball
       BUG. x-posting to an unexisting group named first in Newsgroups caused
            a crash
-      FIX. active.c, config.c, init.c, misc.c, nntplib.c, post.c, nntplib.h
-           Makefile, tin.5, config.guess, config.sub
+      FIX. active.c, art.c, config.c, init.c, lang.c, misc.c, nntplib.c, post.c
+           extern.h, nntplib.h, Makefile, tin.5, config.guess, config.sub
 
 -- 1.9.5 release 20091224 "Lochruan" --
 
@@ -72,7 +76,7 @@ U015) Dennis Preiser <onkelp@gmx.de>
       BUG. savedirs starting with '+' caused tin to hang after 's'aving an
            article to a file
       BUG. in rare cases (aborted article load or '-' after cancel) one
-           article was incorrectly maked as unavailable
+           article was incorrectly marked as unavailable
       BUG. memleaks in canlock operations
       BUG. fix a long overflow in print_bitmap_seq() when xmax = __LONG_MAX__
       BUG. didn't create Message-ID when cancelling own article when
@@ -157,7 +161,7 @@ U012) Dennis Preiser <onkelp@gmx.de>
       BUG. unescaped metacharacter in DEFAULT_VERBATIM_BEGIN_REGEX
       BUG. rot13 does not rotate the verbatim_begin_regex line
       BUG. numeric attributes got lost on big-endian OSs
-      BUG. missing newline in multipart/mixed articles befor the very last
+      BUG. missing newline in multipart/mixed articles before the very last
            text/plain part
       FIX. active.c, art.c, attrib.c, color.c, config.c, cook.c, debug.c
            feed.c, filter.c, group.c, inews.c, init.c, lang.c, mail.c, main.c
@@ -170,14 +174,14 @@ U011) Urs Janssen <urs@tin.org>
       ADD. minor code cleanup
       ADD. workaround bogus XHDR response from SoftVelocity Discussions 2.5q
       ADD. configurable path via tin.defaults to overview.fmt file
-      ADD. send "LIST HEADES" befor doing "HDR" if server supports it
+      ADD. send "LIST HEADES" before doing "HDR" if server supports it
       ADD. config.guess, config.sub update
       ADD. started german manpage translation
       ADD. issue extra "GROUP" when NEXT receives 412
       ADD. issue a warning if attributes file has an unexpected version number
       ADD. check for 8bit chars in Newsgroups, Followup-To and Distribution
-           befor posting
-      ADD. check user supplied Message-ID, Date and Expires-header befor
+           before posting
+      ADD. check user supplied Message-ID, Date and Expires-header before
            posting
       ADD. speedup -S, -N, -M
       ADD. improved DEFAULT_STRIP_WAS_REGEX
@@ -186,7 +190,7 @@ U011) Urs Janssen <urs@tin.org>
       BUG. don't break long body-lines in original article when superseding
       BUG. don't send "LIST NEWSGROUPS" for mailgroups in the -n case
       BUG. empty but present Followup-To header (server bug) was used in f'ups
-      BUG. didn't recheck CAPABILITIES after successfull auth or after mode
+      BUG. didn't recheck CAPABILITIES after successful auth or after mode
            switching if received 500er response in the first pass
       BUG. don't prompt for authdata if we can't auth as the server doesn't
            offer any auth-method we can send
