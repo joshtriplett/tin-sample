@@ -13,7 +13,7 @@ Depends: ${shlibs:Depends}, ${misc:Depends}
 Recommends: default-mta | mail-transport-agent
 Suggests: gnupg, ispell
 Provides: news-reader
-Description: A full-screen easy to use Usenet newsreader
+Description: Full-screen easy to use Usenet newsreader
  tin can read news locally (i.e. from /var/spool/news) or remotely (rtin or
  tin -r option) via an NNTP (Network News Transport Protocol) server.
 Homepage: http://www.tin.org/
