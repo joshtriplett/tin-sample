@@ -3,7 +3,7 @@
  *  Module    : page.c
  *  Author    : I. Lea & R. Skrenta
  *  Created   : 1991-04-01
- *  Updated   : 2010-04-01
+ *  Updated   : 2010-05-09
  *  Notes     :
  *
  * Copyright (c) 1991-2010 Iain Lea <iain@bricbrac.de>, Rich Skrenta <skrenta@pbm.com>
@@ -323,8 +323,6 @@ show_page(
 
 	if (srch_lineno != -1)
 		process_search(&curr_line, artlines, ARTLINES, PAGE_LEVEL);
-
-	resize_article(TRUE, &pgart);
 
 	forever {
 		if ((func = handle_keypad(page_left, page_right, page_mouse_action, page_keys)) == GLOBAL_SEARCH_REPEAT) {
@@ -1178,19 +1176,9 @@ draw_page(
 	if (curr_line + ARTLINES >= artlines) {
 		char buf[LEN];
 		int len;
-#if defined(MULTIBYTE_ABLE) && !defined(NO_LOCALE)
-		wchar_t *wbuf;
-#endif /* MULTIBYTE_ABLE && !NO_LOCALE */
 
 		STRCPY(buf, (arts[this_resp].thread != -1) ? _(txt_next_resp) : _(txt_last_resp));
-#if defined(MULTIBYTE_ABLE) && !defined(NO_LOCALE)
-		if ((wbuf = char2wchar_t(buf)) != NULL) {
-			len = wcswidth(wbuf, wcslen(wbuf) + 1);
-			free(wbuf);
-		} else
-#endif /* MULTIBYTE_ABLE && !NO_LOCALE */
-			len = (int) strlen(buf);
-
+		len = strwidth(buf);
 		clear_message();
 		MoveCursor(cLINES, cCOLS - len - (1 + BLANK_PAGE_COLS));
 		StartInverse();
@@ -1335,7 +1323,12 @@ draw_page_header(
 	/* group name */
 	if ((wtmp = char2wchar_t(group)) != NULL) {
 		/* wconvert_to_printable(wtmp); */
-		if ((i = wcswidth(wtmp, wcslen(wtmp))) < len)
+		if (tinrc.abbreviate_groupname)
+			wtmp2 = abbr_wcsgroupname(wtmp, len);
+		else
+			wtmp2 = wstrunc(wtmp, len);
+
+		if ((i = wcswidth(wtmp2, wcslen(wtmp2))) < len)
 			len = i;
 
 		center_pos = (cCOLS - len) / 2;
@@ -1344,7 +1337,6 @@ draw_page_header(
 		for (; cur_pos < center_pos; cur_pos++)
 			my_fputc(' ', stdout);
 
-		wtmp2 = wstrunc(wtmp, len);
 		my_fputws(wtmp2, stdout);
 		cur_pos += wcswidth(wtmp2, wcslen(wtmp2));
 		free(wtmp2);
@@ -1541,7 +1533,12 @@ draw_page_header(
 	len = cCOLS - 2 * MAX(cur_pos, right_len) - 3;
 
 	/* group name */
-	if ((i = strlen(group)) < len)
+	if (tinrc.abbreviate_groupname)
+		tmp = abbr_groupname(group, len);
+	else
+		tmp = strunc(group, len);
+
+	if ((i = strlen(tmp)) < len)
 		len = i;
 
 	center_pos = (cCOLS - len) / 2;
@@ -1550,7 +1547,6 @@ draw_page_header(
 	for (; cur_pos < center_pos; cur_pos++)
 		my_fputc(' ', stdout);
 
-	tmp = strunc(group, len);
 	my_fputs(tmp, stdout);
 	cur_pos += strlen(tmp);
 	free(tmp);
@@ -1782,7 +1778,12 @@ load_article(
 	artline = pgart.cookl;
 	artlines = pgart.cooked_lines;
 	search_line = 0;
-	reset_srch_offsets();
+	/*
+	 * Reset offsets only if not invoked during 'body search' (srch_lineno != -1)
+	 * otherwise the found string will not be highlighted
+	 */
+	if (srch_lineno == -1)
+		reset_srch_offsets();
 	rotate = 0;			/* normal mode, not rot13 */
 	reveal_ctrl_l = FALSE;
 	reveal_ctrl_l_lines = -1;	/* all ^L's active */

@@ -3,7 +3,7 @@
  *  Module    : init.c
  *  Author    : I. Lea
  *  Created   : 1991-04-01
- *  Updated   : 2010-03-07
+ *  Updated   : 2010-04-11
  *  Notes     :
  *
  * Copyright (c) 1991-2010 Iain Lea <iain@bricbrac.de>
@@ -326,6 +326,7 @@ struct t_config tinrc = {
 #ifdef HAVE_COLOR
 	FALSE,		/* use_color */
 #endif /* HAVE_COLOR */
+	FALSE,		/* abbreviate_groupname */
 	TRUE,		/* add_posted_to_filter */
 	TRUE,		/* advertising */
 	TRUE,		/* alternative_handling */

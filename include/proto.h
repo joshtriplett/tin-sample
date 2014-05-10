@@ -3,7 +3,7 @@
  *  Module    : proto.h
  *  Author    : Urs Janssen <urs@tin.org>
  *  Created   :
- *  Updated   : 2010-03-08
+ *  Updated   : 2010-05-09
  *  Notes     :
  *
  * Copyright (c) 1997-2010 Urs Janssen <urs@tin.org>
@@ -130,7 +130,9 @@ extern int InitScreen(void);
 extern int RawState(void);
 extern int ReadCh(void);
 extern int get_arrow_key(int prech);
-extern int get_termcaps(void);
+#if defined(M_UNIX) && !defined(USE_CURSES)
+	extern int get_termcaps(void);
+#endif /* M_UNIX && !USE_CURSES */
 extern void EndInverse(void);
 extern void EndWin(void);
 extern void InitWin(void);
@@ -616,6 +618,7 @@ extern void set_signal_handlers(void);
 extern size_t my_strftime(char *s, size_t maxsize, const char *format, struct tm *timeptr);
 
 /* string.c */
+extern char *abbr_groupname(const char *grpname, size_t len);
 extern char *eat_tab(char *s);
 extern char *fmt_string(const char *fmt, ...);
 extern char *my_strdup(const char *str);
@@ -624,6 +627,7 @@ extern char *strunc(const char *message, int len);
 extern char *tin_ltoa(long value, int digits);
 extern char *tin_strtok(char *str, const char *delim);
 extern int sh_format(char *dst, size_t len, const char *fmt, ...);
+extern int strwidth(const char *str);
 extern size_t mystrcat(char **t, const char *s);
 extern void my_strncpy(char *p, const char *q, size_t n);
 extern void str_lwr(char *str);
@@ -663,7 +667,9 @@ extern void str_lwr(char *str);
 #	define strrstr(s,p)	my_strrstr(s,p)
 #endif /* !HAVE_STRRSTR */
 #if defined(MULTIBYTE_ABLE) && !defined(NO_LOCALE)
+	extern char *spart(const char *str, int columns, t_bool pad);
 	extern char *wchar_t2char(const wchar_t *wstr);
+	extern wchar_t *abbr_wcsgroupname(const wchar_t *grpname, int len);
 	extern wchar_t *char2wchar_t(const char *str);
 	extern wchar_t *wcspart(const wchar_t *wstr, int columns, t_bool pad);
 	extern wchar_t *wstrunc(const wchar_t *wmessage, int len);

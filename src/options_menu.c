@@ -3,7 +3,7 @@
  *  Module    : options_menu.c
  *  Author    : Michael Bienia <michael@vorlon.ping.de>
  *  Created   : 2004-09-05
- *  Updated   : 2010-03-14
+ *  Updated   : 2010-04-23
  *  Notes     : Split from config.c
  *
  * Copyright (c) 2004-2010 Michael Bienia <michael@vorlon.ping.de>
@@ -235,7 +235,7 @@ option_is_visible(
 		case OPT_GETART_LIMIT_OPTIONS:
 #ifdef HAVE_COLOR
 		case OPT_COLOR_OPTIONS:
-#endif
+#endif /* HAVE_COLOR */
 			return curr_scope ? FALSE : TRUE;
 
 		case OPT_DISPLAY_OPTIONS:
@@ -422,6 +422,9 @@ print_any_option(
 	char temp[LEN], *ptr, *ptr2;
 	int row = option_row(option);
 	size_t len = sizeof(temp) - 1;
+#if defined(MULTIBYTE_ABLE) && !defined(NO_LOCALE) && defined(USE_CURSES)
+	char *buf;
+#endif /* MULTIBYTE_ABLE && !NO_LOCALE && USE_CURSES */
 
 	MoveCursor(row, 0);
 
@@ -458,7 +461,13 @@ print_any_option(
 			break;
 	}
 #ifdef USE_CURSES
-	my_printf("%.*s", cCOLS - 1, temp);
+#	if defined(MULTIBYTE_ABLE) && !defined(NO_LOCALE)
+	if ((buf = spart(temp, cCOLS - 1, FALSE)) != NULL) {
+		my_printf("%s", buf);
+		free(buf);
+	} else
+#	endif /* MULTIBYTE_ABLE && !NO_LOCALE */
+		my_printf("%.*s", cCOLS - 1, temp);
 	{
 		int y, x;
 
@@ -1212,6 +1221,7 @@ config_page(
 			switch (option_table[option].var_type) {
 				case OPT_ON_OFF:
 					switch (option) {
+						case OPT_ABBREVIATE_GROUPNAME:
 						case OPT_AUTO_RECONNECT:
 						case OPT_CACHE_OVERVIEW_FILES:
 						case OPT_CATCHUP_READ_GROUPS:

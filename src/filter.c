@@ -3,7 +3,7 @@
  *  Module    : filter.c
  *  Author    : I. Lea
  *  Created   : 1992-12-28
- *  Updated   : 2010-03-14
+ *  Updated   : 2010-04-12
  *  Notes     : Filter articles. Kill & auto selection are supported.
  *
  * Copyright (c) 1991-2010 Iain Lea <iain@bricbrac.de>
@@ -839,9 +839,6 @@ get_choice(
 	int list_size)
 {
 	int ch, y, i = 0;
-#if defined(MULTIBYTE_ABLE) && !defined(NO_LOCALE)
-	wchar_t *wbuf;
-#endif /* MULTIBYTE_ABLE && !NO_LOCALE */
 
 	if (help)
 		show_menu_help(help);
@@ -849,16 +846,7 @@ get_choice(
 	if (list == NULL || list_size < 1)
 		return -1;
 
-#if defined(MULTIBYTE_ABLE) && !defined(NO_LOCALE)
-	if ((wbuf = char2wchar_t(prompt)) != NULL) {
-		wconvert_to_printable(wbuf);
-		if ((y = wcswidth(wbuf, wcslen(wbuf) + 1)) == -1) /* something went wrong, use wcslen() as fallback */
-			y = wcslen(wbuf);
-
-		free(wbuf);
-	} else
-#endif /* MULTIBYTE_ABLE && !NO_LOCALE */
-		y = (int) strlen(prompt);
+	y = strwidth(prompt);
 
 	do {
 		MoveCursor(x, y);
@@ -1026,14 +1014,11 @@ filter_menu(
 	char text_time[PATH_LEN];
 	char double_time[PATH_LEN];
 	char quat_time[PATH_LEN];
-	int i, len, clen = 0, flen = 0;
+	int i, len, clen, flen;
 	struct t_filter_rule rule;
 	t_bool proceed;
 	t_bool ret;
 	t_function func, default_func = FILTER_SAVE;
-#if defined(MULTIBYTE_ABLE) && !defined(NO_LOCALE)
-	wchar_t *wbuf;
-#endif /* MULTIBYTE_ABLE && !NO_LOCALE */
 
 	signal_context = cFilter;
 
@@ -1089,49 +1074,16 @@ filter_menu(
 	ptr_filter_comment = _(txt_filter_comment);
 	ptr_filter_groupname = group->name;
 
-#if defined(MULTIBYTE_ABLE) && !defined(NO_LOCALE)
-	if ((wbuf = char2wchar_t(_(txt_no))) != NULL) {
-		clen = MAX(clen, wcswidth(wbuf, wcslen(wbuf)));
-		free(wbuf);
-	}
-	if ((wbuf = char2wchar_t(_(txt_yes))) != NULL) {
-		clen = MAX(clen, wcswidth(wbuf, wcslen(wbuf)));
-		free(wbuf);
-	}
-	if ((wbuf = char2wchar_t(_(txt_full))) != NULL) {
-		clen = MAX(clen, wcswidth(wbuf, wcslen(wbuf)));
-		free(wbuf);
-	}
-	if ((wbuf = char2wchar_t(_(txt_last))) != NULL) {
-		clen = MAX(clen, wcswidth(wbuf, wcslen(wbuf)));
-		free(wbuf);
-	}
-	if ((wbuf = char2wchar_t(_(txt_only))) != NULL) {
-		clen = MAX(clen, wcswidth(wbuf, wcslen(wbuf)));
-		free(wbuf);
-	}
-	if ((wbuf = char2wchar_t(ptr_filter_subj)) != NULL) {
-		flen = MAX(flen, wcswidth(wbuf, wcslen(wbuf)) - 2);
-		free(wbuf);
-	}
-	if ((wbuf = char2wchar_t(ptr_filter_from)) != NULL) {
-		flen = MAX(flen, wcswidth(wbuf, wcslen(wbuf)) - 2);
-		free(wbuf);
-	}
-	if ((wbuf = char2wchar_t(ptr_filter_msgid)) != NULL) {
-		flen = MAX(flen, wcswidth(wbuf, wcslen(wbuf)) - 2);
-		free(wbuf);
-	}
-#else
-	clen = MAX(clen, (int) strlen(_(txt_no)));
-	clen = MAX(clen, (int) strlen(_(txt_yes)));
-	clen = MAX(clen, (int) strlen(_(txt_full)));
-	clen = MAX(clen, (int) strlen(_(txt_last)));
-	clen = MAX(clen, (int) strlen(_(txt_only)));
-	flen = MAX(flen, (int) strlen(ptr_filter_subj) - 2);
-	flen = MAX(flen, (int) strlen(ptr_filter_from) - 2);
-	flen = MAX(flen, (int) strlen(ptr_filter_msgid) - 2);
-#endif /* MULTIBYTE_ABLE && !NO_LOCALE */
+	clen = strwidth(_(txt_no));
+	clen = MAX(clen, strwidth(_(txt_yes)));
+	clen = MAX(clen, strwidth(_(txt_full)));
+	clen = MAX(clen, strwidth(_(txt_last)));
+	clen = MAX(clen, strwidth(_(txt_only)));
+
+	flen = strwidth(ptr_filter_subj) - 2;
+	flen = MAX(flen, strwidth(ptr_filter_from) - 2);
+	flen = MAX(flen, strwidth(ptr_filter_msgid) - 2);
+
 	len = cCOLS - flen - clen - 1 + 4;
 
 	snprintf(text_time, sizeof(text_time), _(txt_time_default_days), tinrc.filter_days);

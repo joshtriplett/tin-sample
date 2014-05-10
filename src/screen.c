@@ -3,7 +3,7 @@
  *  Module    : screen.c
  *  Author    : I. Lea & R. Skrenta
  *  Created   : 1991-04-01
- *  Updated   : 2010-03-26
+ *  Updated   : 2010-04-11
  *  Notes     :
  *
  * Copyright (c) 1991-2010 Iain Lea <iain@bricbrac.de>, Rich Skrenta <skrenta@pbm.com>
@@ -240,19 +240,8 @@ center_line(
 {
 	int pos;
 	int len;
-#if defined(MULTIBYTE_ABLE) && !defined(NO_LOCALE)
-	int width;
-	wchar_t *wbuffer;
-#endif /* MULTIBYTE_ABLE && !NO_LOCALE */
 
-	len = strlen(str);
-#if defined(MULTIBYTE_ABLE) && !defined(NO_LOCALE)
-	if ((wbuffer = char2wchar_t(str)) != NULL) {
-		if ((width = wcswidth(wbuffer, wcslen(wbuffer) + 1)) > 0)
-			len = width;
-		free(wbuffer);
-	}
-#endif /* MULTIBYTE_ABLE && !NO_LOCALE */
+	len = strwidth(str);
 
 	if (!cmd_line) {
 		if (cCOLS >= len)
@@ -355,20 +344,8 @@ show_title(
 	const char *title)
 {
 	int col;
-#if defined(MULTIBYTE_ABLE) && !defined(NO_LOCALE)
-	int width;
-	wchar_t *wbuf;
-#endif /* MULTIBYTE_ABLE && !NO_LOCALE */
 
-	col = cCOLS - (int) strlen(_(txt_type_h_for_help));
-#if defined(MULTIBYTE_ABLE) && !defined(NO_LOCALE)
-	if ((wbuf = char2wchar_t(_(txt_type_h_for_help))) != NULL) {
-		if ((width = wcswidth(wbuf, wcslen(wbuf))) > 0)
-			col = cCOLS - width;
-		free(wbuf);
-	}
-#endif /* MULTIBYTE_ABLE && !NO_LOCALE */
-
+	col = cCOLS - strwidth(_(txt_type_h_for_help));
 	if (col > 0) {
 		MoveCursor(0, col);
 #ifdef HAVE_COLOR

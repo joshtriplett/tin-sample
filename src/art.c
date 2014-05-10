@@ -3,7 +3,7 @@
  *  Module    : art.c
  *  Author    : I.Lea & R.Skrenta
  *  Created   : 1991-04-01
- *  Updated   : 2010-03-15
+ *  Updated   : 2010-05-18
  *  Notes     :
  *
  * Copyright (c) 1991-2010 Iain Lea <iain@bricbrac.de>, Rich Skrenta <skrenta@pbm.com>
@@ -1604,6 +1604,7 @@ read_overview(
 					continue;
 			}
 
+			/* for dublicated headers this is last match counts */
 			if (expensive_over_parse) { /* strange order */
 				/* madatory fields */
 				if (ofmt[count].type == OVER_T_STRING) {
@@ -1646,9 +1647,10 @@ read_overview(
 					}
 
 					if (!strcasecmp(ofmt[count].name, "Message-ID:")) {
-						if (*ptr)
+						if (*ptr) {
+							FreeIfNeeded(art->msgid); /* if field is listed more than once in overview.fmt */
 							art->msgid = my_strdup(ptr);
-						else {
+						} else {
 							art->msgid = NULL;
 #ifdef DEBUG
 							if (debug & DEBUG_NNTP)
@@ -1659,9 +1661,10 @@ read_overview(
 					}
 
 					if (!strcasecmp(ofmt[count].name, "References:")) {
-						if (*ptr)
+						if (*ptr) {
+							FreeIfNeeded(art->refs); /* if field is listed more than once in overview.fmt */
 							art->refs = my_strdup(ptr);
-						else
+						} else
 							art->refs = NULL;
 						continue;
 					}
@@ -1779,17 +1782,21 @@ read_overview(
 				}
 			}
 
-			/* optional fields */
+			/* optional fields; for dublicated headers: last match counts */
 			if (ofmt[count].type == OVER_T_FSTRING) {
-				if (!strcasecmp(ofmt[count].name, "Xref:")) {
-					if ((q = parse_header(ptr, "Xref", FALSE, FALSE)) != NULL)
-						art->xref = my_strdup(q);
+				if (*ptr) {
+					if (!strcasecmp(ofmt[count].name, "Xref:")) {
+						if ((q = parse_header(ptr, "Xref", FALSE, FALSE)) != NULL) {
+							FreeIfNeeded(art->xref); /* if field is listed more than once in overview.fmt */
+							art->xref = my_strdup(q);
+						}
 #ifdef DEBUG
-					else {
-						if (debug & DEBUG_NNTP)
-							debug_print_file("NNTP", "%s(%d) bogus overview-field %s %s", nntp_caps.over_cmd, artnum, ofmt[count].name, ptr);
-					}
+						else {
+							if (debug & DEBUG_NNTP)
+								debug_print_file("NNTP", "%s(%d) bogus overview-field %s %s", nntp_caps.over_cmd, artnum, ofmt[count].name, ptr);
+						}
 #endif /* DEBUG */
+					}
 				}
 				continue;
 			}

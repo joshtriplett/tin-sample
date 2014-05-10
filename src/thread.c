@@ -3,7 +3,7 @@
  *  Module    : thread.c
  *  Author    : I. Lea
  *  Created   : 1991-04-01
- *  Updated   : 2010-03-07
+ *  Updated   : 2010-04-11
  *  Notes     :
  *
  * Copyright (c) 1991-2010 Iain Lea <iain@bricbrac.de>
@@ -269,14 +269,7 @@ build_tline(
 		 * If we need to show the author, pad out to the start of the author field,
 		 */
 		if (len_from) {
-#if defined(MULTIBYTE_ABLE) && !defined(NO_LOCALE)
-			if ((wtmp = char2wchar_t(buffer)) != NULL) {
-				fill = cCOLS - len_from - wcswidth(wtmp, wcslen(wtmp) + 1);
-				free(wtmp);
-			} else
-#endif /* MULTIBYTE_ABLE && !NO_LOCALE */
-				fill = cCOLS - len_from - strlen(buffer);
-
+			fill = cCOLS - len_from - strwidth(buffer);
 			gap = strlen(buffer);
 			for (i = 0; i < fill; i++)
 				buffer[gap + i] = ' ';
@@ -322,17 +315,8 @@ build_tline(
 	convert_to_printable(buffer);
 
 	if (!tinrc.strip_blanks) {
-		/*
-		 * Pad to end of line so that inverse bar looks 'good'
-		 */
-#if defined(MULTIBYTE_ABLE) && !defined(NO_LOCALE)
-		if ((wtmp = char2wchar_t(buffer)) != NULL) {
-			fill = cCOLS - wcswidth(wtmp, wcslen(wtmp) + 1);
-			free(wtmp);
-		} else
-#endif /* MULTIBYTE_ABLE && !NO_LOCALE */
-			fill = cCOLS - strlen(buffer);
-
+		/* Pad to end of line so that inverse bar looks 'good' */
+		fill = cCOLS - strwidth(buffer);
 		gap = strlen(buffer);
 		for (i = 0; i < fill; i++)
 			buffer[gap + i] = ' ';

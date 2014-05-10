@@ -3,7 +3,7 @@
 .\" Module    : tin.1
 .\" Author    : I. Lea, U. Janssen
 .\" Created   : 1991-08-23
-.\" Updated   : 2010-02-06
+.\" Updated   : 2010-04-16
 .\" Notes     : use american english; still needs some work, e.g.:
 .\"             - document authorization (.newsauth)
 .\"             - document random organization feature
@@ -878,7 +878,7 @@ present, a prompt asks how to proceed.
 .\" this sections should be complete
 .TP  10
 \fB4\fP
-Select article 4 within thread.
+Artikel 4 aus dem Thread auswählen.
 .TP 
 \fBMenuFilterSelect '^A'\fP
 Auto select article(s) using a menu. Read the section "FILTERING ARTICLES"
@@ -1262,7 +1262,7 @@ Browse URLs in article. All URLs will be prompted in turn and opened using
 the \fBurl_handler\fP. '\fB<ESC>\fP' or no input will skip the URL.
 .TP 
 \fBPageViewAttach 'V'\fP
-View or save multimedia attachments.
+Multimediaanhänge speichern oder anzeigen.
 .TP 
 \fBPost 'w'\fP
 Post an article to the current group. If posting fails for some reason,
@@ -1325,6 +1325,11 @@ Here is a full list of all the available variables. The name in braces is
 the name of the corresponding setting in
 \fI${TIN_HOMEDIR:\-"$HOME"}/.tin/tinrc\fP.
 .TP  4
+\fBLange Newsgruppennamen abkürzen (abbreviate_groupname)\fP
+If ON abbreviate long newsgroup names at group selection level and article
+level (if necessary) like this: news.software.readers \->
+n.software.readers \-> n.s.readers \-> n.s.r.  Default is OFF.
+.TP 
 \fBFüge gepostete Artikel zum Filter (add_posted_to_filter)\fP
 If ON add posted articles which start a new thread to filter for
 highlighting follow\-ups. Default is ON.
@@ -1704,7 +1709,7 @@ articles are threaded as normal but they will be marked with
 therefore there is a processing overhead when using this option. Killed
 articles simply does not get displayed at all.
 .RE
-Default is 0 (\fBKill only unread arts\fP).
+Voreinstellung ist 0 (\fBKillt nur ungelesene Artikel\fP).
 .TP 
 \fBBenutze 8bit Zeichen im Mail Header (mail_8bit_header)\fP
 Allows 8bit characters unencoded in the header of mail message. Default is
@@ -3207,7 +3212,7 @@ and recompile.
 .\"
 Before mailing a bug\-report to <tin\-bugs@tin.org> please check if
 you are using the latest (stable) release, and if not, please upgrade first!
-Have a look a the doc/TODO file for known bugs. If you still think you've
+Have a look at the doc/TODO file for known bugs. If you still think you've
 found a bug, please use the \fBBugReport\fP ('\fBR\fP')  function and write in
 English. Please do NOT enclose a core\-file in your bugreport until we
 request it.

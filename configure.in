@@ -2,7 +2,7 @@ dnl Project   : tin - a Usenet reader
 dnl Module    : configure.in
 dnl Author    : Thomas E. Dickey <dickey@invisible-island.net>
 dnl Created   : 1995-08-24
-dnl Updated   : 2009-01-20
+dnl Updated   : 2010-04-06
 dnl Notes     :
 dnl
 dnl Copyright (c) 1995-2010 Thomas E. Dickey <dickey@invisible-island.net>
@@ -592,12 +592,7 @@ AC_MSG_RESULT($DEFAULT_ISO2ASC)
 AC_MSG_CHECKING(whether to enable locale support)
 CF_ARG_DISABLE(locale,
 	[  --disable-locale        disable locale support],
-	[AC_DEFINE(NO_LOCALE)])#, # TODO fixme!
-#	[ case "$host_os" in
-#	*cygwin*)
-#	AC_DEFINE(NO_LOCALE)
-#	;;
-#	esac])
+	[AC_DEFINE(NO_LOCALE)])
 AC_MSG_RESULT($enableval)
 
 AC_MSG_CHECKING(whether to enable posting)

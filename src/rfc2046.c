@@ -3,7 +3,7 @@
  *  Module    : rfc2046.c
  *  Author    : Jason Faultless <jason@altarstone.com>
  *  Created   : 2000-02-18
- *  Updated   : 2009-06-24
+ *  Updated   : 2010-05-09
  *  Notes     : RFC 2046 MIME article parsing
  *
  * Copyright (c) 2000-2010 Jason Faultless <jason@altarstone.com>
@@ -636,7 +636,7 @@ parse_header(
 
 /*
  * Read main article headers into a blank header structure.
- * Pass the data 'from' -> 'to'
+ * Pass the data 'from' -> 'to' when reading via NNTP
  * Return tin_errno (basically will be !=0 if reading was 'q'uit)
  * We have to guard against 'to' here since this function is exported
  */
@@ -654,7 +654,7 @@ parse_rfc822_headers(
 	hdr->ext = new_part(NULL);		/* Initialise MIME data */
 
 	while ((line = tin_fgets(from, TRUE)) != NULL) {
-		if (to)
+		if (read_news_via_nntp && to)
 			fprintf(to, "%s\n", line);		/* Put raw data */
 
 		/*
@@ -832,7 +832,7 @@ unfold_header(
 #define TIN_EOF		0xf00	/* Used internally for error recovery */
 
 /*
- * Handles multipart/ article types, write data to a raw stream
+ * Handles multipart/ article types, write data to a raw stream when reading via NNTP
  * artinfo is used for generic article pointers
  * part contains content info about the attachment we're parsing
  * depth is the number of levels by which the current part is embedded
@@ -861,7 +861,8 @@ parse_multipart_article(
 		 */
 		bnd = boundary_check(line, artinfo->hdr.ext);
 
-		fprintf(artinfo->raw, "%s\n", line);
+		if (read_news_via_nntp)
+			fprintf(artinfo->raw, "%s\n", line);
 
 		artinfo->hdr.ext->line_count += count_lines(line);
 		if (show_progress_meter)
@@ -872,7 +873,7 @@ parse_multipart_article(
 			 * When we have reached the end boundary of the outermost envelope
 			 * just log any trailing data for the raw article format.
 			 */
-			if (depth == 0)
+			if (read_news_via_nntp && depth == 0)
 				while ((line = tin_fgets(infile, FALSE)) != NULL)
 					fprintf(artinfo->raw, "%s\n", line);
 			return tin_errno;
@@ -976,7 +977,8 @@ parse_normal_article(
 	char *line;
 
 	while ((line = tin_fgets(in, FALSE)) != NULL) {
-		fprintf(artinfo->raw, "%s\n", line);
+		if (read_news_via_nntp)
+			fprintf(artinfo->raw, "%s\n", line);
 		++artinfo->hdr.ext->line_count;
 		if (show_progress_meter)
 			progress(artinfo->hdr.ext->line_count);
@@ -1051,7 +1053,9 @@ dump_art(
 
 /*
  * Core parser for all article types
- * Return NULL if we couldn't open an output stream
+ * Return NULL if we couldn't open an output stream when reading via NNTP
+ * When reading from local spool we assign the filehandle of the on-spool
+ * article directly to artinfo->raw
  */
 static int
 parse_rfc2045_article(
@@ -1062,8 +1066,11 @@ parse_rfc2045_article(
 {
 	int ret;
 
-	if (!infile || !(artinfo->raw = tmpfile()))
+	if (!infile || (read_news_via_nntp && !(artinfo->raw = tmpfile())))
 		return ART_ABORT;
+
+	if (!read_news_via_nntp)
+		artinfo->raw = infile;
 
 	art_lines = line_count;
 
@@ -1090,12 +1097,14 @@ parse_rfc2045_article(
 			goto error;
 	}
 
-	TIN_FCLOSE(infile);
+	if (read_news_via_nntp)
+		TIN_FCLOSE(infile);
 
 	return 0;
 
 error:
-	TIN_FCLOSE(infile);
+	if (read_news_via_nntp)
+		TIN_FCLOSE(infile);
 	art_close(artinfo);
 	return ret;
 }

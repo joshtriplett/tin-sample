@@ -2,7 +2,7 @@
 .\" Module    : tin.5
 .\" Author    : U. Janssen
 .\" Created   : 2000-07-10
-.\" Updated   : 2010-03-15
+.\" Updated   : 2010-04-29
 .\" Notes     : needs a some work
 .\"
 .\"
@@ -270,7 +270,7 @@ news.example.org geheim
 .br
 news.example.net verborgen gast
 .br
-news.example.com "streng geheim" james.bond
+news.example.com "streng geheim" james.bond@example.com
 .RE
 .RE
 .PP
@@ -373,7 +373,7 @@ just put a large number here, something higher than the highest message in
 the mailbox
 .TP 
 \fBminnum\fP
-put 0 here
+hier 0 angeben
 .TP 
 \fBmailspool\fP
 path of mail spool directory. This must be the full pathname to the root of
@@ -473,7 +473,7 @@ tinrc \fBmailbox_format\fP variable.
 Set \*(rqFollowup\-To:\*(rq header to the specified group(s).
 .TP 
 \fBfrom\fP
-Identical to the tinrc variable \fBmail_address\fP
+Identisch mit der tinrc\-Variable \fBmail_address\fP
 .TP 
 \fBgroup_catchup_on_exit\fP
 Identisch mit der tinrc\-Variable gleichen Namens
@@ -589,7 +589,7 @@ Identisch mit der tinrc\-Variable gleichen Namens
 Identisch mit der tinrc\-Variable gleichen Namens
 .TP 
 \fBsort_article_type\fP
-Identical to the tinrc variable \fBsort_article_type\fP
+Identisch mit der tinrc\-Variable \fBsort_article_type\fP
 .TP 
 \fBsort_threads_type\fP
 Identisch mit der tinrc\-Variable gleichen Namens
@@ -640,13 +640,13 @@ the filter rule added by \fBQuickFilterKill\fP will be applied.  If unset the
 default from the tinrc variable \fBdefault_filter_kill_global\fP will be used.
 .TP 
 \fBquick_kill_expire\fP
-Identical to the tinrc variable \fBdefault_filter_kill_expire\fP
+Identisch mit der tinrc\-Variable \fBdefault_filter_kill_expire\fP
 .TP 
 \fBquick_kill_case\fP
-Identical to the tinrc variable \fBdefault_filter_kill_case\fP
+Identisch mit der tinrc\-Variable \fBdefault_filter_kill_case\fP
 .TP 
 \fBquick_kill_header\fP
-Identical to the tinrc variable \fBdefault_filter_kill_header\fP
+Identisch mit der tinrc\-Variable \fBdefault_filter_kill_header\fP
 .TP 
 \fBquick_select_scope\fP
 A comma\-separated list of newsgroup patterns (wildmat\-style) to which groups
@@ -655,13 +655,13 @@ default from the tinrc variable \fBdefault_filter_select_global\fP will be
 used.
 .TP 
 \fBquick_select_expire\fP
-Identical to the tinrc variable \fBdefault_filter_select_expire\fP
+Identisch mit der tinrc\-Variable \fBdefault_filter_select_expire\fP
 .TP 
 \fBquick_select_case\fP
-Identical to the tinrc variable \fBdefault_filter_select_case\fP
+Identisch mit der tinrc\-Variable \fBdefault_filter_select_case\fP
 .TP 
 \fBquick_select_header\fP
-Identical to the tinrc variable \fBdefault_filter_select_header\fP
+Identisch mit der tinrc\-Variable \fBdefault_filter_select_header\fP
 .TP 
 \fBispell\fP
 Path and options for \fBispell\fP(1)\-like spell\-checker, e.g. "aspell
@@ -1140,6 +1140,11 @@ of "\fIvariable\fP=\fIvalue\fP" pairs that can be used to configure the way
 configuration file \fI${TIN_HOMEDIR:\-"$HOME"}/.tin/tinrc\fP is read.  The
 global file is useful for distributing system\-wide defaults to new users who
 have no private tinrc yet (see also \fB/etc/tin/tin.defaults\fP).
+.TP 
+\fBabbreviate_groupname\fP
+If ON abbreviate long newsgroup names at group selection level and article
+level (if necessary) like this: news.software.readers \->
+n.software.readers \-> n.s.readers \-> n.s.r.  Default is OFF.
 .TP 
 \fBadd_posted_to_filter\fP
 If ON add posted articles which start a new thread to filter for

@@ -2,7 +2,7 @@
 .\" Module    : tin.5
 .\" Author    : U. Janssen
 .\" Created   : 2000-07-10
-.\" Updated   : 2010-03-15
+.\" Updated   : 2010-04-29
 .\" Notes     : needs a some work
 .\"
 .\"
@@ -271,7 +271,7 @@ news.example.org  secret
 .br
 news.example.net  arcane  guest
 .br
-news.example.com  "top secret"  james.bond
+news.example.com  "top secret"  james.bond@example.com
 .RE
 .RE
 .PP
@@ -1164,6 +1164,12 @@ works. If it exists, the global configuration file,
 users own configuration file \fI${TIN_HOMEDIR:\-"$HOME"}/.tin/tinrc\fR is read.
 The global file is useful for distributing system-wide defaults to new
 users who have no private tinrc yet (see also \fB/etc/tin/tin.defaults\fP).
+.TP
+.B abbreviate_groupname
+If ON abbreviate long newsgroup names at group selection level and article
+level (if necessary) like this:
+news.software.readers \-> n.software.readers \-> n.s.readers \-> n.s.r.
+Default is OFF.
 .TP
 .B add_posted_to_filter
 If ON add posted articles which start a new thread to filter for
