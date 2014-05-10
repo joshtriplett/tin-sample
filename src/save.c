@@ -438,7 +438,7 @@ save_and_process_art(
 
 	/* The first task is to fixup the filename to be saved too. This is context dependent */
 	strncpy(path, inpath, sizeof(path) - 1);
-/*fprintf(stderr, "save_and_process_art max=%d num_save=%d starting path=(%s) postproc=%s\n", max, num_save, path, bool_unparse(post_process));*/
+/* fprintf(stderr, "save_and_process_art max=%d num_save=%d starting path=(%s) postproc=%s\n", max, num_save, path, bool_unparse(post_process)); */
 
 	/*
 	 * If using the auto-save feature on an article with Archive-Name,
@@ -487,7 +487,7 @@ save_and_process_art(
 		}
 	}
 
-/*fprintf(stderr, "save_and_process_art expanded path now=(%s)\n", path);*/
+/* fprintf(stderr, "save_and_process_art expanded path now=(%s)\n", path); */
 
 	if ((fp = open_save_filename(path, is_mailbox)) == NULL)
 		return FALSE;
@@ -523,7 +523,7 @@ save_and_process_art(
 	save[num_save].path = my_strdup(path);
 	save[num_save].file = strrchr(save[num_save].path, DIRSEP) + 1;	/* ptr to filename portion */
 	save[num_save].mailbox = is_mailbox;
-/*fprintf(stderr, "SAPA (%s) (%s) mbox=%s\n", save[num_save].path, save[num_save].file, bool_unparse(save[num_save].mailbox));*/
+/* fprintf(stderr, "SAPA (%s) (%s) mbox=%s\n", save[num_save].path, save[num_save].file, bool_unparse(save[num_save].mailbox)); */
 	num_save++;			/* NB: num_save is bumped here only */
 
 	/*

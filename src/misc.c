@@ -3,7 +3,7 @@
  *  Module    : misc.c
  *  Author    : I. Lea & R. Skrenta
  *  Created   : 1991-04-01
- *  Updated   : 2009-12-13
+ *  Updated   : 2010-01-16
  *  Notes     :
  *
  * Copyright (c) 1991-2010 Iain Lea <iain@bricbrac.de>, Rich Skrenta <skrenta@pbm.com>
@@ -3136,14 +3136,16 @@ gnksa_check_domain_literal(
 	if ((255 < x1) || (255 < x2) || (255 < x3) || (255 < x4))
 		return GNKSA_BAD_DOMAIN_LITERAL;
 
-	/* check for private ip or localhost */
+	/* check for private ip or localhost - see RFC 5735, RFC 5737 */
 	if ((!disable_gnksa_domain_check)
 	    && ((0 == x1)				/* local network */
 		|| (10 == x1)				/* private class A */
 		|| ((172 == x1) && (16 == (x2 & 0xf0)))	/* private /12 */
 		|| ((192 == x1) && (168 == x2))		/* private class B */
-		|| ((192 == x1) && (0 == x2) && (2 == x3)) /* private class C */
-		|| (127 == x1)))			/* localhost */
+		|| ((192 == x1) && (0 == x2) && (2 == x3)) /* TEST NET-1 */
+		|| ((198 == x1) && (51 == x2) && (100 == x3)) /* TEST NET-2 */
+		|| ((203 == x1) && (0 == x2) && (113 == x3)) /* TEST NET-3 */
+		|| (127 == x1)))			/* loopback */
 		return GNKSA_LOCAL_DOMAIN_LITERAL;
 
 	return GNKSA_OK;

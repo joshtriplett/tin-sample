@@ -2,7 +2,7 @@ dnl Project   : tin - a Usenet reader
 dnl Module    : configure.in
 dnl Author    : Thomas E. Dickey <dickey@invisible-island.net>
 dnl Created   : 1995-08-24
-dnl Updated   : 2009-12-19
+dnl Updated   : 2009-01-20
 dnl Notes     :
 dnl
 dnl Copyright (c) 1995-2010 Thomas E. Dickey <dickey@invisible-island.net>
@@ -41,7 +41,7 @@ AC_PREFIX_DEFAULT(/usr/local)
 
 dnl PACKAGE is required for GNU gettext
 PACKAGE=tin
-VERSION=1.9.5
+VERSION=1.9.6
 AC_DEFINE_UNQUOTED(PACKAGE, "$PACKAGE")
 AC_DEFINE_UNQUOTED(VERSION, "$VERSION")
 AC_SUBST(PACKAGE)
@@ -49,6 +49,7 @@ AC_SUBST(VERSION)
 
 CF_CHECK_CACHE
 
+CF_PATHSEP
 CF_WITH_PATH(install-prefix,
 	[  --with-install-prefix   prefixes actual install location],
 	DESTDIR,/)
@@ -90,6 +91,7 @@ CF_PROG_YACC
 AC_CHECK_PROGS(LINT, lint alint lclint tdlint splint, :)
 AC_AIX
 CF_XOPEN_SOURCE
+CF_SIGWINCH
 AC_ISC_POSIX
 CF_ANSI_CC_REQD
 CF_PROG_EXT
@@ -1265,14 +1267,14 @@ int main() {
 
 # FIXME / TESTME
 # locale is broken on cygwin < 1.7.0
-# locking doesn't work on cygwin < 1.7.0
 # group/other bits don't work on cygwin < 1.7.0
-# link(2) is detected but doesn't work on cygwin < 1.7.0
+# locking doesn't work on cygwin
+# link(2) is detected but doesn't work on cygwin
 case "$host_os" in
 	*cygwin*)
 		case `uname -r | sed 's,(.*,,'` in
 			1.7.*)
-				AC_CHECK_FUNC(link, AC_DEFINE(HAVE_LINK))
+				AC_DEFINE(NO_LOCKING)
 				;;
 			*)
 				# link does not work

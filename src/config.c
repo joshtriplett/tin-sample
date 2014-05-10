@@ -3,7 +3,7 @@
  *  Module    : config.c
  *  Author    : I. Lea
  *  Created   : 1991-04-01
- *  Updated   : 2009-07-17
+ *  Updated   : 2009-12-30
  *  Notes     : Configuration file routines
  *
  * Copyright (c) 1991-2010 Iain Lea <iain@bricbrac.de>
@@ -1429,11 +1429,12 @@ match_color(
 	int *dst,
 	int max)
 {
-	int n;
 	size_t patlen = strlen(pat);
 
 	if (STRNCMPEQ(line, pat, patlen)) {
+		int n;
 		t_bool found = FALSE;
+
 		for (n = 0; n < MAX_COLOR + 1; n++) {
 			if (!strcasecmp(&line[patlen], txt_colors[n])) {
 				found = TRUE;
@@ -1516,10 +1517,11 @@ match_list(
 	int *dst)
 {
 	size_t patlen = strlen(pat);
-	size_t n;
-	char temp[LEN];
 
 	if (STRNCMPEQ(line, pat, patlen)) {
+		char temp[LEN];
+		size_t n;
+
 		line += patlen;
 		*dst = 0;	/* default, if no match */
 		for (n = 0; n < tablelen; n++) {
@@ -1673,7 +1675,7 @@ ulBuildArgv(
 	new_argv[0] = NULL;
 
 	while (*tmp) {
-		if (!isspace((int) *tmp)) { /* found the begining of a word */
+		if (!isspace((int) *tmp)) { /* found the beginning of a word */
 			new_argv[i] = tmp;
 			for (; *tmp && !isspace((int) *tmp); tmp++)
 				;
@@ -1798,9 +1800,9 @@ rc_update(
 				break;
 
 			case 'q':
-				if (match_boolean(buf, "quote_signatures=" , &quote_signatures))
+				if (match_boolean(buf, "quote_signatures=", &quote_signatures))
 					break;
-				if (match_boolean(buf, "quote_empty_lines=" , &quote_empty_lines))
+				if (match_boolean(buf, "quote_empty_lines=", &quote_empty_lines))
 					break;
 				break;
 

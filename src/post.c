@@ -3,7 +3,7 @@
  *  Module    : post.c
  *  Author    : I. Lea
  *  Created   : 1991-04-01
- *  Updated   : 2009-12-01
+ *  Updated   : 2010-02-10
  *  Notes     : mail/post/replyto/followup/repost & cancel articles
  *
  * Copyright (c) 1991-2010 Iain Lea <iain@bricbrac.de>
@@ -684,6 +684,9 @@ append_mail(
  *   NNTP-Posting-Date, X-Trace, X-Complaints-To), Date-Received,
  *   Posting-Version, Relay-Version, Also-Control, Article-Names,
  *   Article-Updates, See-Also
+ * - check for special newsgroups: to, ctl, all, control, junk
+ *   [RFC 5536 3.1.4]
+ * - check for 'illegal' distribultion: all [RFC 5536 3.2.4]
  *
  * Check the article file for correct header syntax and if there
  * is a blank between the header information and the text.
@@ -708,30 +711,32 @@ append_mail(
  *     headers are uniq
  * 13. Display an 'are you sure' message before posting article
  */
-#define CA_ERROR_HEADER_LINE_BLANK        0x000001
-#define CA_ERROR_MISSING_BODY_SEPERATOT   0x000002
-#define CA_ERROR_MISSING_FROM             0x000004
-#define CA_ERROR_DUPLICATED_FROM          0x000008
-#define CA_ERROR_MISSING_SUBJECT          0x000010
-#define CA_ERROR_DUPLICATED_SUBJECT       0x000020
-#define CA_ERROR_EMPTY_SUBJECT            0x000040
-#define CA_ERROR_MISSING_NEWSGROUPS       0x000080
-#define CA_ERROR_DUPLICATED_NEWSGROUPS    0x000100
-#define CA_ERROR_EMPTY_NEWSGROUPS         0x000200
-#define CA_ERROR_DUPLICATED_FOLLOWUP_TO   0x000400
-#define CA_ERROR_BAD_CHARSET              0x000800
-#define CA_ERROR_BAD_ENCODING             0x001000
-#define CA_ERROR_BAD_MESSAGE_ID           0x002000
-#define CA_ERROR_BAD_DATE                 0x004000
-#define CA_ERROR_BAD_EXPIRES              0x008000
-#define CA_ERROR_NEWSGROUPS_NOT_7BIT      0x010000
-#define CA_ERROR_FOLLOWUP_TO_NOT_7BIT     0x020000
-#define CA_ERROR_DISTRIBUTIOIN_NOT_7BIT   0x040000
+#define CA_ERROR_HEADER_LINE_BLANK        0x0000001
+#define CA_ERROR_MISSING_BODY_SEPERATOT   0x0000002
+#define CA_ERROR_MISSING_FROM             0x0000004
+#define CA_ERROR_DUPLICATED_FROM          0x0000008
+#define CA_ERROR_MISSING_SUBJECT          0x0000010
+#define CA_ERROR_DUPLICATED_SUBJECT       0x0000020
+#define CA_ERROR_EMPTY_SUBJECT            0x0000040
+#define CA_ERROR_MISSING_NEWSGROUPS       0x0000080
+#define CA_ERROR_DUPLICATED_NEWSGROUPS    0x0000100
+#define CA_ERROR_EMPTY_NEWSGROUPS         0x0000200
+#define CA_ERROR_DUPLICATED_FOLLOWUP_TO   0x0000400
+#define CA_ERROR_BAD_CHARSET              0x0000800
+#define CA_ERROR_BAD_ENCODING             0x0001000
+#define CA_ERROR_BAD_MESSAGE_ID           0x0002000
+#define CA_ERROR_BAD_DATE                 0x0004000
+#define CA_ERROR_BAD_EXPIRES              0x0008000
+#define CA_ERROR_NEWSGROUPS_NOT_7BIT      0x0010000
+#define CA_ERROR_FOLLOWUP_TO_NOT_7BIT     0x0020000
+#define CA_ERROR_DISTRIBUTIOIN_NOT_7BIT   0x0040000
+#define CA_ERROR_NEWSGROUPS_POSTER        0x0080000
+#define CA_ERROR_FOLLOWUP_TO_POSTER       0x0100000
 #ifndef FOLLOW_USEFOR_DRAFT
-#	define CA_ERROR_SPACE_IN_NEWSGROUPS    0x080000
-#	define CA_ERROR_NEWLINE_IN_NEWSGROUPS  0x100000
-#	define CA_ERROR_SPACE_IN_FOLLOWUP_TO   0x200000
-#	define CA_ERROR_NEWLINE_IN_FOLLOWUP_TO 0x400000
+#	define CA_ERROR_SPACE_IN_NEWSGROUPS    0x0200000
+#	define CA_ERROR_NEWLINE_IN_NEWSGROUPS  0x0400000
+#	define CA_ERROR_SPACE_IN_FOLLOWUP_TO   0x0800000
+#	define CA_ERROR_NEWLINE_IN_FOLLOWUP_TO 0x1000000
 #endif /* !FOLLOW_USEFOR_DRAFT */
 #define CA_WARNING_SPACES_ONLY_SUBJECT      0x000001
 #define CA_WARNING_RE_WITHOUT_REFERENCES    0x000002
@@ -740,14 +745,16 @@ append_mail(
 #define CA_WARNING_WRONG_SIGDASHES          0x000010
 #define CA_WARNING_LONG_SIGNATURE           0x000020
 #define CA_WARNING_ENCODING_EXTERNAL_INEWS  0x000040
+#define CA_WARNING_NEWSGROUPS_EXAMPLE       0x000080
+#define CA_WARNING_FOLLOWUP_TO_EXAMPLE      0x000100
 #ifdef CHARSET_CONVERSION
-#	define CA_WARNING_CHARSET_CONVERSION    0x000080
+#	define CA_WARNING_CHARSET_CONVERSION    0x000200
 #endif /* CHARSET_CONVERSION */
 #ifdef FOLLOW_USEFOR_DRAFT
-#	define CA_WARNING_SPACE_IN_NEWSGROUPS    0x000100
-#	define CA_WARNING_NEWLINE_IN_NEWSGROUPS  0x000200
-#	define CA_WARNING_SPACE_IN_FOLLOWUP_TO   0x000400
-#	define CA_WARNING_NEWLINE_IN_FOLLOWUP_TO 0x000800
+#	define CA_WARNING_SPACE_IN_NEWSGROUPS    0x000400
+#	define CA_WARNING_NEWLINE_IN_NEWSGROUPS  0x000800
+#	define CA_WARNING_SPACE_IN_FOLLOWUP_TO   0x001000
+#	define CA_WARNING_NEWLINE_IN_FOLLOWUP_TO 0x002000
 #endif /* FOLLOW_USEFOR_DRAFT */
 
 /*
@@ -1024,17 +1031,36 @@ check_article_to_be_posted(
 			if (!ngcnt)
 				errors_catbp |= CA_ERROR_EMPTY_NEWSGROUPS;
 			else {
-				for (cp = line + 11; *cp ; cp++) {
+				for (cp = line + 11; *cp; cp++) {
 					if (!isascii(*cp)) {
 						errors_catbp |= CA_ERROR_NEWSGROUPS_NOT_7BIT;
 						break;
 					}
 				}
 			}
+			{ /* check for poster, example, example.* */
+				char *groups;
+
+				for (cp = line + 11; *cp == ' '; cp++)
+					;
+				cp2 = groups = my_strdup(cp);
+
+				cp = strtok(groups, ",");
+				do {
+					if (!strcmp(cp, "poster"))
+						errors_catbp |= CA_ERROR_NEWSGROUPS_POSTER;
+					if (!strcmp(cp, "example"))
+						warnings_catbp |= CA_WARNING_NEWSGROUPS_EXAMPLE;
+					if (!strncmp(cp, "example.", 8))
+						warnings_catbp |= CA_WARNING_NEWSGROUPS_EXAMPLE;
+					/* TODO: also check for to, ctl, all, control, junk */
+				} while ((cp = strtok(NULL, ",")) != NULL);
+				free(cp2);
+			}
 		}
 
 		if (cp - line == 12 && !strncasecmp(line, "Distribution", 12)) {
-			for (cp = line + 13; *cp ; cp++) {
+			for (cp = line + 13; *cp; cp++) {
 				if (!isascii(*cp)) {
 					errors_catbp |= CA_ERROR_DISTRIBUTIOIN_NOT_7BIT;
 					break;
@@ -1065,13 +1091,31 @@ check_article_to_be_posted(
 
 			followupto = build_nglist(cp, &ftngcnt);
 			if (followupto && ftngcnt) {
+				char *groups;
+
 				(void) stripped_double_ngs(followupto, &ftngcnt);
-				for (cp = line + 12; *cp ; cp++) {
+				for (cp = line + 12; *cp; cp++) {
 					if (!isascii(*cp)) {
 						errors_catbp |= CA_ERROR_FOLLOWUP_TO_NOT_7BIT;
 						break;
 					}
 				}
+
+				for (cp = line + 12; *cp == ' '; cp++)
+					;
+				cp2 = groups = my_strdup(cp);
+
+				cp = strtok(groups, ",");
+				do {
+					if (!strcmp(cp, "poster") && ftngcnt > 1)
+						errors_catbp |= CA_ERROR_FOLLOWUP_TO_POSTER;
+					if (!strcmp(cp, "example"))
+						warnings_catbp |= CA_WARNING_FOLLOWUP_TO_EXAMPLE;
+					if (!strncmp(cp, "example.", 8))
+						warnings_catbp |= CA_WARNING_FOLLOWUP_TO_EXAMPLE;
+					/* TODO: also check for to, ctl, all, control, junk */
+				} while ((cp = strtok(NULL, ",")) != NULL);
+				free(cp2);
 			}
 		}
 	}
@@ -1221,9 +1265,9 @@ check_article_to_be_posted(
 #	endif /* MIME_BREAK_LONG_LINES */
 		{
 			if ((*group ? (*group)->attribute->post_mime_encoding : tinrc.post_mime_encoding) == MIME_ENCODING_QP)
-				my_fprintf(stderr, _("Line %d is longer than 998 octets, and should be folded, but\nencoding is set to %s without enabling MIME_BREAK_LONG_LINES or\nposting doesn't contain any 8bit chars and thus folding won't happen\n"), must_break_line, txt_quoted_printable);
+				my_fprintf(stderr, _("Line %d is longer than 998 octets and should be folded, but\nencoding is set to %s without enabling MIME_BREAK_LONG_LINES or\nposting doesn't contain any 8bit chars and thus folding won't happen\n"), must_break_line, txt_quoted_printable);
 			else
-				my_fprintf(stderr, _("Line %d is longer than 998 octets, and should be folded, but\nencoding is not set to %s\n"), must_break_line, txt_base64);
+				my_fprintf(stderr, _("Line %d is longer than 998 octets and should be folded, but\nencoding is not set to %s\n"), must_break_line, txt_base64);
 		}
 		my_fflush(stderr);
 		warnings++;
@@ -1347,6 +1391,12 @@ check_article_to_be_posted(
 			my_fprintf(stderr, _(txt_error_header_line_groups_contd), "Followup-To");
 #endif /* !FOLLOW_USEFOR_DRAFT */
 
+		/* illegal group names / combinations */
+		if (errors_catbp & CA_ERROR_NEWSGROUPS_POSTER)
+			my_fprintf(stderr, _(txt_error_newsgroups_poster));
+		if (errors_catbp & CA_ERROR_FOLLOWUP_TO_POSTER)
+			my_fprintf(stderr, _(txt_error_followup_poster));
+
 		/* encoding/charset trouble */
 		if (errors_catbp & CA_ERROR_BAD_CHARSET)
 			my_fprintf(stderr, _(txt_error_header_line_bad_charset));
@@ -1382,6 +1432,9 @@ check_article_to_be_posted(
 			my_fprintf(stderr, _(txt_warn_re_but_no_references));
 		if (warnings_catbp & CA_WARNING_REFERENCES_WITHOUT_RE)
 			my_fprintf(stderr, _(txt_warn_references_but_no_re));
+
+		if ((warnings_catbp & CA_WARNING_NEWSGROUPS_EXAMPLE) || (warnings_catbp & CA_WARNING_FOLLOWUP_TO_EXAMPLE))
+			my_fprintf(stderr, _(txt_warn_example_hierarchie));
 
 #ifdef FOLLOW_USEFOR_DRAFT /* TODO: give useful warning */
 		if (warnings_catbp & CA_WARNING_SPACE_IN_NEWSGROUPS)
@@ -1772,11 +1825,13 @@ post_article_done:
 			 * actually in
 			 * FIXME: This logic is faithful to the original, but awful
 			 */
-			if (art_type == GROUP_TYPE_NEWS && group->attribute->add_posted_to_filter && (type == POST_QUICK || type == POST_POSTPONED || type == POST_NORMAL)) {
-				if ((group = group_find(header.newsgroups, FALSE)) && (type != POST_POSTPONED || (type == POST_POSTPONED && !strchr(header.newsgroups, ',')))) {
-					quick_filter_select_posted_art(group, header.subj, a_message_id);
-					if (type == POST_QUICK || (type == POST_POSTPONED && post_postponed_and_exit))
-						write_filter_file(filter_file);
+			if (group) { /* we might be (x-)posting to an unavailable group */
+				if (art_type == GROUP_TYPE_NEWS && group->attribute->add_posted_to_filter && (type == POST_QUICK || type == POST_POSTPONED || type == POST_NORMAL)) {
+					if ((group = group_find(header.newsgroups, FALSE)) && (type != POST_POSTPONED || (type == POST_POSTPONED && !strchr(header.newsgroups, ',')))) {
+						quick_filter_select_posted_art(group, header.subj, a_message_id);
+						if (type == POST_QUICK || (type == POST_POSTPONED && post_postponed_and_exit))
+							write_filter_file(filter_file);
+					}
 				}
 			}
 
@@ -1895,7 +1950,7 @@ check_moderated(
 			return NULL;
 		}
 
-		if (group->moderated == 'x' || group->moderated == 'n') {
+		if (group->moderated == 'x' || group->moderated == 'n' || group->moderated == 'j') {
 			error_message(2, _(txt_cannot_post_group), group->name);
 			return NULL;
 		}
@@ -1903,8 +1958,7 @@ check_moderated(
 		if (group->moderated == 'm') {
 			char *prompt = fmt_string(_(txt_group_is_moderated), groupname);
 			if (prompt_yn(prompt, TRUE) != 1) {
-/*				Raw(FALSE); */
-				error_message(2, failmsg);
+				error_message(*failmsg ? 2 : 0, failmsg);
 				free(prompt);
 				return NULL;
 			}
@@ -4124,7 +4178,7 @@ checknadd_headers(
 		snprintf(suffix, sizeof(suffix), " (%s/%s.%s)",
 			system_info.sysname, system_info.version, system_info.release);
 #	else
-#		if defined(SEIUX) || defined (__riscos)
+#		if defined(SEIUX) || defined(__riscos)
 			snprintf(suffix, sizeof(suffix), " (%s/%s)",
 				system_info.version, system_info.release);
 #		else

@@ -1,3 +1,35 @@
+-- 1.9.6 release 20100313 "" --
+
+U022) Thomas E. Dickey <dickey@invisible-island.net>
+      BUG. _XOPEN_SOURCE was defined on darwin
+      ADD. CF_SIGWINCH - compile check for SIGWINCH
+      FIX. aclocal.m4, configure[.in], Makefile[.in]
+
+U021) Dennis Preiser <onkelp@gmx.de>
+      BUG. SIGWINCH at page level after a connection timeout lead to a crash
+      BUG. comments in references were not skipped
+      ADD. cancel article 'D' to the group and thread level
+      ADD. shell escape '!' to the 'M'enu
+      BUG. fixed several sorting/threading/filtering options which did not
+           instantly reflect changes when not beeing in select level
+      FIX. art.c, attrib.c, filter.c, group.c, help.c, init.c, keymap.c, main.c
+           nntplib.c, options_menu.c, page.c, refs.c, select.c, signal.c
+           thread.c, extern.h, keymap.h, proto.h, tin.h, tin.1, keymap.sample
+
+U020) Urs Janssen <urs@tin.org>
+      ADD. minor manpage tweaking
+      ADD. config.guess, config.sub update
+      ADD. disallow postings to 'j' groups
+      ADD. disallow 198.51.100.0/24 and 203.0.113.0/24 in gnksa-checks
+      ADD. forbid "poster" in Newsgroups, warn about "example" in Newsgroups
+      ADD. forbid "poster" and a groupname in Followup-To, warn about "example"
+           in Followup-To
+      BUG. da.po was missing from the tarball
+      BUG. x-posting to an unexisting group named first in Newsgroups caused
+           a crash
+      FIX. active.c, config.c, init.c, misc.c, nntplib.c, post.c, nntplib.h
+           Makefile, tin.5, config.guess, config.sub
+
 -- 1.9.5 release 20091224 "Lochruan" --
 
 U019) Urs Janssen <urs@tin.org>
@@ -141,7 +173,7 @@ U011) Urs Janssen <urs@tin.org>
       ADD. send "LIST HEADES" befor doing "HDR" if server supports it
       ADD. config.guess, config.sub update
       ADD. started german manpage translation
-      ADD. issue extra "GROUP" when NEXT receives 411
+      ADD. issue extra "GROUP" when NEXT receives 412
       ADD. issue a warning if attributes file has an unexpected version number
       ADD. check for 8bit chars in Newsgroups, Followup-To and Distribution
            befor posting

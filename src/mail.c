@@ -3,7 +3,7 @@
  *  Module    : mail.c
  *  Author    : I. Lea
  *  Created   : 1992-10-02
- *  Updated   : 2009-11-19
+ *  Updated   : 2010-02-10
  *  Notes     : Mail handling routines for creating pseudo newsgroups
  *
  * Copyright (c) 1992-2010 Iain Lea <iain@bricbrac.de>
@@ -444,8 +444,7 @@ read_descriptions(
 
 /*
  * Read groups descriptions from opened file & make local backup copy
- * of all groups that don't have a 'x' in the active file moderated
- * field & if reading groups of type GROUP_TYPE_NEWS.
+ * of all groups if reading groups of type GROUP_TYPE_NEWS.
  * Aborting this early won't have any adverse affects, just some missing
  * descriptions.
  */

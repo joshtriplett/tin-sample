@@ -248,8 +248,6 @@ o  check if the articles Subject/From in the pager matches (minus
 o  attributes (still) needs some work; See doc/config-anomalies.
    [20030303 Dirk Nimmich <nimmich@muenster.de>]
 
-o  add 'make unproto'
-
 o  add IPv6 support
    (add protocol independent wrappers which use IPv6 (functions)
     whenever possible).
@@ -305,7 +303,6 @@ o  add new key which taggs articles based on a prompted regex, could be used
    [20051110 Urs Janssen <urs@tin.org>]
 
 o  Additions to the thread menu:
-     'D'  (cancel article)
      ']'  (GLOBAL_QUICK_FILTER_KILL)
      '['  (GLOBAL_QUICK_FILTER_SELECT)
      'r'  (reply to) /* not 'R' cause it conflicts with mail_bugreport */
@@ -333,7 +330,6 @@ o  Additions to the select menu:
 
 o  Add to the 'M'enu:
      'R'  (GLOBAL_BUGREPORT)
-     '!'  (GLOBAL_SHELL_ESCAPE)
      '&'  (GLOBAL_TOGGLE_COLOR)
      and maybe a way to change built in path like DEFAULT_MAILER, PATH_PGP, ...
 
@@ -703,6 +699,23 @@ o  integrate doc/auth.txt into tin.1-manpage
 
 Not yet classified
 ------------------
+o  add "COMPRESS DEFLATE" support once it's official? this would require a
+   rewrite of the code which reads data from the network (which should be
+   done anyway for TLS) as we must handle null-bytes in the stream.
+   <http://www.ietf.org/internet-drafts/draft-murchison-nntp-compress-01.txt>
+   [20100122 Urs Janssen <urs@tin.org>]
+
+o  the documentation suggests that novrootdir/$TIN_NOVROOTDIR defaults to
+   spooldir/$TIN_SPOOLDIR if unset, which is not exactly what happens as
+   this default is set at configure/compile time, not at runtime, so
+   setting $TIN_SPOOLDIR to something different than the default will not
+   automatically adjust $TIN_NOVROOTDIR at runtime. we should either
+   fix the documentation or the behaviour.
+   [20100103 Urs Janssen <urs@tin.org>]
+
+o  FOLLOW_USEFOR_DRAFT is a minomer as RFC 5536 is released
+   [20091225 Urs Janssen <urs@tin.org>]
+
 o  un/subscribe_pattern() is very slow on servers with a huge active file
    [20091223 Urs Janssen <urs@tin.org>]
 
@@ -815,7 +828,7 @@ o  check_article_to_be_posted() needs a cleanup!
 
 o  update gettext stuff to > gettext-0.12.1
 
-o  clean up included pcre stuff and update to >= pcre-8.0
+o  clean up included pcre stuff and update to >= pcre-8.0.1
 
 o  what is with conflicting tinrc settings? should we disallow those, or leave
    it to the user to realise that e.g. strip_blanks=ON && inverse_okay=ON

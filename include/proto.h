@@ -3,7 +3,7 @@
  *  Module    : proto.h
  *  Author    : Urs Janssen <urs@tin.org>
  *  Created   :
- *  Updated   : 2009-12-09
+ *  Updated   : 2010-03-08
  *  Notes     :
  *
  * Copyright (c) 1997-2010 Urs Janssen <urs@tin.org>
@@ -64,6 +64,7 @@ extern void create_save_active_file(void);
 extern void load_newnews_info(char *info);
 
 /* art.c */
+extern int find_artnum(long art);
 extern int global_get_multipart_info(int aindex, MultiPartInfo *setme);
 extern t_bool index_group(struct t_group *group);
 extern void do_update(t_bool catchup);
@@ -186,7 +187,7 @@ extern t_bool quick_filter_select_posted_art(struct t_group *group, const char *
 extern t_bool read_filter_file(const char *file);
 extern void free_filter_array(struct t_filters *ptr);
 extern void refresh_filter_menu(void);
-extern void unfilter_articles(void);
+extern void unfilter_articles(struct t_group *group);
 extern void write_filter_file(const char *filename);
 
 /* getline.c */
@@ -208,7 +209,6 @@ extern void scroll_up(void);
 extern void set_first_screen_item(void);
 
 /* group.c */
-extern int find_new_pos(int old_top, long old_artnum, int cur_pos);
 extern int group_page(struct t_group *group);
 extern t_bool group_mark_postprocess(int function, t_function feed_type, int respnum);
 extern void clear_note_area(void);

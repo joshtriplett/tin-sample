@@ -3,13 +3,13 @@
 .\" Module    : tin.1
 .\" Author    : I. Lea, U. Janssen
 .\" Created   : 1991-08-23
-.\" Updated   : 2009-12-24
+.\" Updated   : 2010-02-06
 .\" Notes     : use american english; still needs some work, e.g.:
 .\"             - document authorization (.newsauth)
 .\"             - document random organization feature
 .\"
 .\"
-.TH tin 1 "December 24th, 2009" "1.9.5" "A Usenet newsreader"
+.TH tin 1 "December 24th, 2009" "1.9.6" "A Usenet newsreader"
 .\"
 .\"
 .SH NAME
@@ -767,6 +767,11 @@ with unread news.
 Cycle the display of the author through all the possible options
 for the tinrc variable \fBshow_author\fP.
 .TP
+.B GroupCancel 'D'
+Cancel (delete) or supersede (overwrite) the current article. It must
+have been posted by the same user. The cancel message can be seen in
+the newsgroup 'control' or 'control.cancel'.
+.TP
 .B EditFilter 'E'
 Edit the filter file and reload it afterwards.
 .TP
@@ -974,6 +979,11 @@ containing unread news.
 .B ThreadToggleSubjDisplay 'd'
 Cycle the display of the author through all the possible options for the
 tinrc variable \fBshow_author\fP.
+.TP
+.B ThreadCancel 'D'
+Cancel (delete) or supersede (overwrite) the current article. It must
+have been posted by the same user. The cancel message can be seen in
+the newsgroup 'control' or 'control.cancel'.
 .TP
 .B EditFilter 'E'
 Edit the filter file and reload it afterwards.

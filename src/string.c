@@ -1015,11 +1015,11 @@ normalize(
 		if ((ustr = char2UChar(tmp)) == NULL) /* something went wrong, return the original string (as valid UTF8) */
 			return tmp;
 
-		needed = unorm_normalize(ustr, -1, mode, 0 , NULL, 0, &status);
+		needed = unorm_normalize(ustr, -1, mode, 0, NULL, 0, &status);
 		status = U_ZERO_ERROR;		/* reset status */
 		norm_len = needed + 1;
 		norm = my_malloc(sizeof(UChar) * norm_len);
-		needed = unorm_normalize(ustr, -1, mode, 0 , norm, norm_len, &status);
+		needed = unorm_normalize(ustr, -1, mode, 0, norm, norm_len, &status);
 		if (U_FAILURE(status)) {
 			/* something went wrong, return the original string (as valid UTF8) */
 			free(ustr);

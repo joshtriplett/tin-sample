@@ -3,7 +3,7 @@
  *  Module    : active.c
  *  Author    : I. Lea
  *  Created   : 1992-02-16
- *  Updated   : 2009-12-09
+ *  Updated   : 2010-02-09
  *  Notes     :
  *
  * Copyright (c) 1992-2010 Iain Lea <iain@bricbrac.de>
@@ -896,7 +896,8 @@ open_newgroups_fp(
 		if (idx == -1)
 			return (FILE *) 0;
 
-		ngtm = localtime(&newnews[idx].time);
+		if ((ngtm = localtime(&newnews[idx].time)) == NULL)
+			return (FILE *) 0;
 		/*
 		 * in the current draft, NEWGROUPS is allowed to take a 4 digit year
 		 * component - but even with a 2 digit year component it is y2k
@@ -1202,9 +1203,6 @@ find_newnews_index(
 /*
  * Get a single status char from the moderated field. Used on selection screen
  * and in header of group screen
- *
- * TODO: what about 'j' groups? active(5) says:
- *       "local postings to that group should not be generated"
  */
 char
 group_flag(
@@ -1216,6 +1214,7 @@ group_flag(
 
 		case 'x':
 		case 'n':
+		case 'j':
 			return 'X';
 
 		case '=':

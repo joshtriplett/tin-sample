@@ -7,9 +7,9 @@
 PROJECT	= tin
 LVER	= 1
 PVER	= 9
-SVER	= 5
+SVER	= 6
 VER	= $(LVER).$(PVER).$(SVER)
-DVER	= 20091224
+DVER	= 20100313
 EXE	= tin
 
 # directory structure
@@ -311,6 +311,8 @@ POFILES = \
 	$(PODIR)/Makefile.inn \
 	$(PODIR)/POTFILES.in \
 	$(PODIR)/$(PROJECT).pot \
+	$(PODIR)/da.gmo \
+	$(PODIR)/da.po \
 	$(PODIR)/de.gmo \
 	$(PODIR)/de.po \
 	$(PODIR)/en_GB.gmo \

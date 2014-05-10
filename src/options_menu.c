@@ -3,7 +3,7 @@
  *  Module    : options_menu.c
  *  Author    : Michael Bienia <michael@vorlon.ping.de>
  *  Created   : 2004-09-05
- *  Updated   : 2009-10-06
+ *  Updated   : 2010-03-10
  *  Notes     : Split from config.c
  *
  * Copyright (c) 2004-2010 Michael Bienia <michael@vorlon.ping.de>
@@ -881,15 +881,29 @@ config_page(
 {
 	char key[MAXKEYLEN];
 	enum option_enum option, old_option;
+	enum {
+		NO_CHANGES = 0,
+		DISPLAY_OPTS = 1,
+		SCORE_OPTS = 2,
+		THREAD_OPTS = 4,
+		THREAD_SCORE = 8
+	} changed = NO_CHANGES;
 	int i, scope_idx = 0;
 	t_bool change_option = FALSE;
 	t_function func;
 #ifdef CHARSET_CONVERSION
 	t_bool is_7bit;
 #endif /* CHARSET_CONVERSION */
+	unsigned old_sort_arts = 0, old_sort_threads = 0, old_show_unread = 0, old_thread_arts = 0;
 
 	if (curr_scope)
 		initialize_attributes();
+	if (grpname && curr_group) {
+		old_sort_arts = curr_group->attribute->sort_article_type;
+		old_sort_threads = curr_group->attribute->sort_threads_type;
+		old_show_unread = curr_group->attribute->show_only_unread_arts;
+		old_thread_arts = curr_group->attribute->thread_articles;
+	}
 	set_last_opt();
 	option = get_first_opt();
 	first_option_on_screen = 0;
@@ -910,13 +924,52 @@ config_page(
 					write_config_file(local_config_file);
 					write_attributes_file(local_attributes_file);
 				}
-				assign_attributes_to_groups();
 				/* FALLTHROUGH */
 			case CONFIG_NO_SAVE:
 				if (grpname && curr_scope) {
 					if (scope_is_empty())
 						do_delete_scope(scope_idx);
 					curr_scope = NULL;
+				}
+				assign_attributes_to_groups();
+				if (grpname && curr_group) {
+					if (old_sort_arts != curr_group->attribute->sort_article_type
+						|| old_sort_threads != curr_group->attribute->sort_threads_type
+						|| old_show_unread != curr_group->attribute->show_only_unread_arts
+						|| old_thread_arts != curr_group->attribute->thread_articles)
+						changed |= THREAD_OPTS;
+
+					if (changed) {
+						t_bool filtered = FALSE;
+
+						/*
+						 * recook if in an article is open
+						 */
+						if (changed & DISPLAY_OPTS) {
+							if (pgart.raw)
+								resize_article(TRUE, &pgart);
+						}
+
+						if (changed & SCORE_OPTS) {
+							unfilter_articles(curr_group);
+							read_filter_file(filter_file);
+							filtered = filter_articles(curr_group);
+						}
+						/*
+						 * If the sorting/threading strategy of threads or filter options have
+						 * changed, fix things so that resorting will occur
+						 *
+						 * If the scoring of a thread has changed, resort base[] (find_base() is
+						 * called inside make_threads() too, so do this only if make_threads() was
+						 * not called before)
+						 */
+						if (changed & THREAD_OPTS)
+							make_threads(curr_group, TRUE);
+						else if (filtered)
+							make_threads(curr_group, FALSE);
+						else if (changed & THREAD_SCORE)
+							find_base(curr_group);
+					}
 				}
 				clear_note_area();
 				return;
@@ -1051,6 +1104,13 @@ config_page(
 				} else
 					highlight_option(option);
 				break;
+
+#ifndef NO_SHELL_ESCAPE
+			case GLOBAL_SHELL_ESCAPE:
+				shell_escape();
+				redraw_screen(option);
+				break;
+#endif /* !NO_SHELL_ESCAPE */
 
 			case GLOBAL_SEARCH_SUBJECT_FORWARD:
 			case GLOBAL_SEARCH_SUBJECT_BACKWARD:
@@ -1279,10 +1339,11 @@ config_page(
 							 * option toggles visibility of other
 							 * options -> needs redraw_screen()
 							 */
-							if (prompt_option_on_off(option))
+							if (prompt_option_on_off(option)) {
 								UPDATE_INT_ATTRIBUTES(verbatim_handling);
-							set_last_option_on_screen(first_option_on_screen);
-							redraw_screen(option);
+								set_last_option_on_screen(first_option_on_screen);
+								redraw_screen(option);
+							}
 							break;
 
 						/* show mini help menu */
@@ -1293,34 +1354,30 @@ config_page(
 
 						/* show all arts or just new/unread arts */
 						case OPT_SHOW_ONLY_UNREAD_ARTS:
-							if (prompt_option_on_off(option)) {
+							if (prompt_option_on_off(option))
 								UPDATE_INT_ATTRIBUTES(show_only_unread_arts);
-								if (curr_group != NULL) {
-									curr_group->attribute->show_only_unread_arts = tinrc.show_only_unread_arts;
-									make_threads(curr_group, TRUE);
-									pos_first_unread_thread();
-								}
-							}
 							break;
 
 						/* draw -> / highlighted bar */
 						case OPT_DRAW_ARROW:
-							prompt_option_on_off(option);
-							unhighlight_option(option);
-							if (!tinrc.draw_arrow && !tinrc.inverse_okay) {
-								tinrc.inverse_okay = TRUE;
-								repaint_option(OPT_INVERSE_OKAY);
+							if (prompt_option_on_off(option)) {
+								unhighlight_option(option);
+								if (!tinrc.draw_arrow && !tinrc.inverse_okay) {
+									tinrc.inverse_okay = TRUE;
+									repaint_option(OPT_INVERSE_OKAY);
+								}
 							}
 							break;
 
 						/* draw inversed screen header lines */
 						/* draw inversed group/article/option line if draw_arrow is OFF */
 						case OPT_INVERSE_OKAY:
-							prompt_option_on_off(option);
-							unhighlight_option(option);
-							if (!tinrc.draw_arrow && !tinrc.inverse_okay) {
-								tinrc.draw_arrow = TRUE;	/* we don't want to navigate blindly */
-								repaint_option(OPT_DRAW_ARROW);
+							if (prompt_option_on_off(option)) {
+								unhighlight_option(option);
+								if (!tinrc.draw_arrow && !tinrc.inverse_okay) {
+									tinrc.draw_arrow = TRUE;	/* we don't want to navigate blindly */
+									repaint_option(OPT_DRAW_ARROW);
+								}
 							}
 							break;
 
@@ -1347,24 +1404,26 @@ config_page(
 
 						/* show newsgroup description text next to newsgroups */
 						case OPT_SHOW_DESCRIPTION:
-							prompt_option_on_off(option);
-							show_description = tinrc.show_description;
-							if (show_description)			/* force reread of newgroups file */
-								read_descriptions(FALSE);
+							if (prompt_option_on_off(option)) {
+								show_description = tinrc.show_description;
+								if (show_description)			/* force reread of newgroups file */
+									read_descriptions(FALSE);
+							}
 							break;
 
 #ifdef HAVE_COLOR
 						/* use ANSI color */
 						case OPT_USE_COLOR:
-							prompt_option_on_off(option);
+							if (prompt_option_on_off(option)) {
 #	ifdef USE_CURSES
-							if (!has_colors())
-								use_color = FALSE;
-							else
+								if (!has_colors())
+									use_color = FALSE;
+								else
 #	endif /* USE_CURSES */
-								use_color = tinrc.use_color;
-							set_last_option_on_screen(first_option_on_screen);
-							redraw_screen(option);
+									use_color = tinrc.use_color;
+								set_last_option_on_screen(first_option_on_screen);
+								redraw_screen(option);
+							}
 							break;
 #endif /* HAVE_COLOR */
 
@@ -1382,10 +1441,11 @@ config_page(
 
 						/* word_highlight */
 						case OPT_WORD_HIGHLIGHT:
-							prompt_option_on_off(option);
-							word_highlight = tinrc.word_highlight;
-							set_last_option_on_screen(first_option_on_screen);
-							redraw_screen(option);
+							if (prompt_option_on_off(option)) {
+								word_highlight = tinrc.word_highlight;
+								set_last_option_on_screen(first_option_on_screen);
+								redraw_screen(option);
+							}
 							break;
 
 #if defined(HAVE_LIBICUUC) && defined(MULTIBYTE_ABLE) && defined(HAVE_UNICODE_UBIDI_H) && !defined(NO_LOCALE)
@@ -1499,11 +1559,6 @@ config_page(
 						case OPT_ATTRIB_SHOW_ONLY_UNREAD_ARTS:
 							if (prompt_option_on_off(option))
 								SET_NUM_ATTRIBUTE(show_only_unread_arts);
-								if (curr_group != NULL) {
-									assign_attributes_to_groups();
-									make_threads(curr_group, TRUE);
-									pos_first_unread_thread();
-								}
 							break;
 
 						case OPT_ATTRIB_SHOW_SIGNATURES:
@@ -1610,27 +1665,8 @@ config_page(
 							break;
 
 						case OPT_THREAD_ARTICLES:
-							/*
-							 * If the threading strategy has changed, fix things
-							 * so that rethreading will occur
-							 */
-							if (prompt_option_list(option)) {
+							if (prompt_option_list(option))
 								UPDATE_INT_ATTRIBUTES(thread_articles);
-								if (curr_group != NULL) {
-									int old_base_art = base[grpmenu.curr];
-
-									curr_group->attribute->thread_articles = tinrc.thread_articles;
-									make_threads(curr_group, TRUE);
-									/* in non-empty groups update cursor position */
-									if (grpmenu.max > 0) {
-										if ((i = which_thread(old_base_art)) >= 0)
-											grpmenu.curr = i;
-									}
-								}
-							}
-							set_last_option_on_screen(first_option_on_screen);
-							redraw_screen(option);
-							clear_message();
 							break;
 
 						case OPT_SORT_ARTICLE_TYPE:
@@ -1639,28 +1675,13 @@ config_page(
 							break;
 
 						case OPT_SORT_THREADS_TYPE:
-							/*
-							 * If the sorting strategy of threads has changed, fix things
-							 * so that resorting will occur
-							 */
-							if (prompt_option_list(option)) {
+							if (prompt_option_list(option))
 								UPDATE_INT_ATTRIBUTES(sort_threads_type);
-								if (curr_group != NULL) {
-									curr_group->attribute->sort_threads_type = tinrc.sort_threads_type;
-									make_threads(curr_group, TRUE);
-								}
-							}
-							clear_message();
 							break;
 
 						case OPT_THREAD_SCORE:
-							/*
-							 * If the scoring of a thread has changed,
-							 * resort base[]
-							 */
-							if (prompt_option_list(option) && curr_group != NULL)
-								find_base(curr_group);
-							clear_message();
+							if (prompt_option_list(option))
+								changed |= THREAD_SCORE;
 							break;
 
 						case OPT_TRIM_ARTICLE_BODY:
@@ -1848,36 +1869,13 @@ config_page(
 							break;
 
 						case OPT_ATTRIB_SORT_THREADS_TYPE:
-							/*
-							 * If the threading strategy has changed, fix things
-							 * so that rethreading will occur
-							 */
 							if (prompt_option_list(option))
 								SET_NUM_ATTRIBUTE(sort_threads_type);
-								if (curr_group != NULL) {
-									assign_attributes_to_groups();
-									make_threads(curr_group, TRUE);
-								}
 							break;
 
 						case OPT_ATTRIB_THREAD_ARTICLES:
-							/*
-							 * If the threading strategy has changed, fix things
-							 * so that rethreading will occur
-							 */
 							if (prompt_option_list(option))
 								SET_NUM_ATTRIBUTE(thread_articles);
-								if (curr_group != NULL) {
-									int old_base_art = base[grpmenu.curr];
-
-									assign_attributes_to_groups();
-									make_threads(curr_group, TRUE);
-									/* in non-empty groups update cursor position */
-									if (grpmenu.max > 0) {
-										if ((i = which_thread(old_base_art)) >= 0)
-											grpmenu.curr = i;
-									}
-								}
 							break;
 
 						case OPT_ATTRIB_TRIM_ARTICLE_BODY:
@@ -1920,12 +1918,13 @@ config_page(
 
 #ifndef CHARSET_CONVERSION
 						case OPT_MM_CHARSET:
-							prompt_option_string(option);
-							/*
-							 * No charset conversion available, assume local charset
-							 * to be network charset.
-							 */
-							STRCPY(tinrc.mm_local_charset, tinrc.mm_charset);
+							if (prompt_option_string(option)) {
+								/*
+								 * No charset conversion available, assume local charset
+								 * to be network charset.
+								 */
+								STRCPY(tinrc.mm_local_charset, tinrc.mm_charset);
+							}
 							break;
 #else
 #	ifdef NO_LOCALE
@@ -1960,109 +1959,129 @@ config_page(
 
 #ifdef HAVE_COLOR
 						case OPT_QUOTE_REGEX:
-							prompt_option_string(option);
-							FreeIfNeeded(quote_regex.re);
-							FreeIfNeeded(quote_regex.extra);
-							if (!strlen(tinrc.quote_regex))
-								STRCPY(tinrc.quote_regex, DEFAULT_QUOTE_REGEX);
-							compile_regex(tinrc.quote_regex, &quote_regex, PCRE_CASELESS);
+							if (prompt_option_string(option)) {
+								FreeIfNeeded(quote_regex.re);
+								FreeIfNeeded(quote_regex.extra);
+								if (!strlen(tinrc.quote_regex))
+									STRCPY(tinrc.quote_regex, DEFAULT_QUOTE_REGEX);
+								compile_regex(tinrc.quote_regex, &quote_regex, PCRE_CASELESS);
+								changed |= DISPLAY_OPTS;
+							}
 							break;
 
 						case OPT_QUOTE_REGEX2:
-							prompt_option_string(option);
-							FreeIfNeeded(quote_regex2.re);
-							FreeIfNeeded(quote_regex2.extra);
-							if (!strlen(tinrc.quote_regex2))
-								STRCPY(tinrc.quote_regex2, DEFAULT_QUOTE_REGEX2);
-							compile_regex(tinrc.quote_regex2, &quote_regex2, PCRE_CASELESS);
+							if (prompt_option_string(option)) {
+								FreeIfNeeded(quote_regex2.re);
+								FreeIfNeeded(quote_regex2.extra);
+								if (!strlen(tinrc.quote_regex2))
+									STRCPY(tinrc.quote_regex2, DEFAULT_QUOTE_REGEX2);
+								compile_regex(tinrc.quote_regex2, &quote_regex2, PCRE_CASELESS);
+								changed |= DISPLAY_OPTS;
+							}
 							break;
 
 						case OPT_QUOTE_REGEX3:
-							prompt_option_string(option);
-							FreeIfNeeded(quote_regex3.re);
-							FreeIfNeeded(quote_regex3.extra);
-							if (!strlen(tinrc.quote_regex3))
-								STRCPY(tinrc.quote_regex3, DEFAULT_QUOTE_REGEX3);
-							compile_regex(tinrc.quote_regex3, &quote_regex3, PCRE_CASELESS);
+							if (prompt_option_string(option)) {
+								FreeIfNeeded(quote_regex3.re);
+								FreeIfNeeded(quote_regex3.extra);
+								if (!strlen(tinrc.quote_regex3))
+									STRCPY(tinrc.quote_regex3, DEFAULT_QUOTE_REGEX3);
+								compile_regex(tinrc.quote_regex3, &quote_regex3, PCRE_CASELESS);
+								changed |= DISPLAY_OPTS;
+							}
 							break;
 #endif /* HAVE_COLOR */
 
 						case OPT_SLASHES_REGEX:
-							prompt_option_string(option);
-							FreeIfNeeded(slashes_regex.re);
-							FreeIfNeeded(slashes_regex.extra);
-							if (!strlen(tinrc.slashes_regex))
-								STRCPY(tinrc.slashes_regex, DEFAULT_SLASHES_REGEX);
-							compile_regex(tinrc.slashes_regex, &slashes_regex, PCRE_CASELESS);
+							if (prompt_option_string(option)) {
+								FreeIfNeeded(slashes_regex.re);
+								FreeIfNeeded(slashes_regex.extra);
+								if (!strlen(tinrc.slashes_regex))
+									STRCPY(tinrc.slashes_regex, DEFAULT_SLASHES_REGEX);
+								compile_regex(tinrc.slashes_regex, &slashes_regex, PCRE_CASELESS);
+								changed |= DISPLAY_OPTS;
+							}
 							break;
 
 						case OPT_STARS_REGEX:
-							prompt_option_string(option);
-							FreeIfNeeded(stars_regex.re);
-							FreeIfNeeded(stars_regex.extra);
-							if (!strlen(tinrc.stars_regex))
-								STRCPY(tinrc.stars_regex, DEFAULT_STARS_REGEX);
-							compile_regex(tinrc.stars_regex, &stars_regex, PCRE_CASELESS);
+							if (prompt_option_string(option)) {
+								FreeIfNeeded(stars_regex.re);
+								FreeIfNeeded(stars_regex.extra);
+								if (!strlen(tinrc.stars_regex))
+									STRCPY(tinrc.stars_regex, DEFAULT_STARS_REGEX);
+								compile_regex(tinrc.stars_regex, &stars_regex, PCRE_CASELESS);
+								changed |= DISPLAY_OPTS;
+							}
 							break;
 
 						case OPT_STROKES_REGEX:
-							prompt_option_string(option);
-							FreeIfNeeded(strokes_regex.re);
-							FreeIfNeeded(strokes_regex.extra);
-							if (!strlen(tinrc.strokes_regex))
-								STRCPY(tinrc.strokes_regex, DEFAULT_STROKES_REGEX);
-							compile_regex(tinrc.strokes_regex, &strokes_regex, PCRE_CASELESS);
+							if (prompt_option_string(option)) {
+								FreeIfNeeded(strokes_regex.re);
+								FreeIfNeeded(strokes_regex.extra);
+								if (!strlen(tinrc.strokes_regex))
+									STRCPY(tinrc.strokes_regex, DEFAULT_STROKES_REGEX);
+								compile_regex(tinrc.strokes_regex, &strokes_regex, PCRE_CASELESS);
+								changed |= DISPLAY_OPTS;
+							}
 							break;
 
 						case OPT_UNDERSCORES_REGEX:
-							prompt_option_string(option);
-							FreeIfNeeded(underscores_regex.re);
-							FreeIfNeeded(underscores_regex.extra);
-							if (!strlen(tinrc.underscores_regex))
-								STRCPY(tinrc.underscores_regex, DEFAULT_UNDERSCORES_REGEX);
-							compile_regex(tinrc.underscores_regex, &underscores_regex, PCRE_CASELESS);
+							if (prompt_option_string(option)) {
+								FreeIfNeeded(underscores_regex.re);
+								FreeIfNeeded(underscores_regex.extra);
+								if (!strlen(tinrc.underscores_regex))
+									STRCPY(tinrc.underscores_regex, DEFAULT_UNDERSCORES_REGEX);
+								compile_regex(tinrc.underscores_regex, &underscores_regex, PCRE_CASELESS);
+								changed |= DISPLAY_OPTS;
+							}
 							break;
 
 						case OPT_STRIP_RE_REGEX:
-							prompt_option_string(option);
-							FreeIfNeeded(strip_re_regex.re);
-							FreeIfNeeded(strip_re_regex.extra);
-							if (!strlen(tinrc.strip_re_regex))
-								STRCPY(tinrc.strip_re_regex, DEFAULT_STRIP_RE_REGEX);
-							compile_regex(tinrc.strip_re_regex, &strip_re_regex, PCRE_ANCHORED);
+							if (prompt_option_string(option)) {
+								FreeIfNeeded(strip_re_regex.re);
+								FreeIfNeeded(strip_re_regex.extra);
+								if (!strlen(tinrc.strip_re_regex))
+									STRCPY(tinrc.strip_re_regex, DEFAULT_STRIP_RE_REGEX);
+								compile_regex(tinrc.strip_re_regex, &strip_re_regex, PCRE_ANCHORED);
+							}
 							break;
 
 						case OPT_STRIP_WAS_REGEX:
-							prompt_option_string(option);
-							FreeIfNeeded(strip_was_regex.re);
-							FreeIfNeeded(strip_was_regex.extra);
-							if (!strlen(tinrc.strip_was_regex)) {
+							if (prompt_option_string(option)) {
+								FreeIfNeeded(strip_was_regex.re);
+								FreeIfNeeded(strip_was_regex.extra);
+								if (!strlen(tinrc.strip_was_regex)) {
 #if defined(MULTIBYTE_ABLE) && !defined(NO_LOCALE)
-								if (IS_LOCAL_CHARSET("UTF-8") && utf8_pcre())
-									STRCPY(tinrc.strip_was_regex, DEFAULT_U8_STRIP_WAS_REGEX);
-								else
+									if (IS_LOCAL_CHARSET("UTF-8") && utf8_pcre())
+										STRCPY(tinrc.strip_was_regex, DEFAULT_U8_STRIP_WAS_REGEX);
+									else
 #endif /* MULTIBYTE_ABLE && !NO_LOCALE */
-									STRCPY(tinrc.strip_was_regex, DEFAULT_STRIP_WAS_REGEX);
+										STRCPY(tinrc.strip_was_regex, DEFAULT_STRIP_WAS_REGEX);
+								}
+								compile_regex(tinrc.strip_was_regex, &strip_was_regex, 0);
 							}
-							compile_regex(tinrc.strip_was_regex, &strip_was_regex, 0);
 							break;
 
 						case OPT_VERBATIM_BEGIN_REGEX:
-							prompt_option_string(option);
-							FreeIfNeeded(verbatim_begin_regex.re);
-							FreeIfNeeded(verbatim_begin_regex.extra);
-							if (!strlen(tinrc.verbatim_begin_regex))
-								STRCPY(tinrc.verbatim_begin_regex, DEFAULT_VERBATIM_BEGIN_REGEX);
-							compile_regex(tinrc.verbatim_begin_regex, &verbatim_begin_regex, PCRE_ANCHORED);
+							if (prompt_option_string(option)) {
+								FreeIfNeeded(verbatim_begin_regex.re);
+								FreeIfNeeded(verbatim_begin_regex.extra);
+								if (!strlen(tinrc.verbatim_begin_regex))
+									STRCPY(tinrc.verbatim_begin_regex, DEFAULT_VERBATIM_BEGIN_REGEX);
+								compile_regex(tinrc.verbatim_begin_regex, &verbatim_begin_regex, PCRE_ANCHORED);
+								changed |= DISPLAY_OPTS;
+							}
 							break;
 
 						case OPT_VERBATIM_END_REGEX:
-							prompt_option_string(option);
-							FreeIfNeeded(verbatim_end_regex.re);
-							FreeIfNeeded(verbatim_end_regex.extra);
-							if (!strlen(tinrc.verbatim_end_regex))
-								STRCPY(tinrc.verbatim_end_regex, DEFAULT_VERBATIM_END_REGEX);
-							compile_regex(tinrc.verbatim_end_regex, &verbatim_end_regex, PCRE_ANCHORED);
+							if (prompt_option_string(option)) {
+								FreeIfNeeded(verbatim_end_regex.re);
+								FreeIfNeeded(verbatim_end_regex.extra);
+								if (!strlen(tinrc.verbatim_end_regex))
+									STRCPY(tinrc.verbatim_end_regex, DEFAULT_VERBATIM_END_REGEX);
+								compile_regex(tinrc.verbatim_end_regex, &verbatim_end_regex, PCRE_ANCHORED);
+								changed |= DISPLAY_OPTS;
+							}
 							break;
 
 						case OPT_DATE_FORMAT:
@@ -2194,42 +2213,42 @@ config_page(
 							break;
 
 						case OPT_REREAD_ACTIVE_FILE_SECS:
-							prompt_option_num(option);
-							if (tinrc.reread_active_file_secs < 0)
-								tinrc.reread_active_file_secs = 0;
+							if (prompt_option_num(option)) {
+								if (tinrc.reread_active_file_secs < 0)
+									tinrc.reread_active_file_secs = 0;
+							}
 							break;
 
 						case OPT_RECENT_TIME:
-							prompt_option_num(option);
-							if (tinrc.recent_time < 0)
-								tinrc.recent_time = 0;
+							if (prompt_option_num(option)) {
+								if (tinrc.recent_time < 0)
+									tinrc.recent_time = 0;
+							}
 							break;
 
 						case OPT_GROUPNAME_MAX_LENGTH:
-							prompt_option_num(option);
-							if (tinrc.groupname_max_length < 0)
-								tinrc.groupname_max_length = 0;
+							if (prompt_option_num(option)) {
+								if (tinrc.groupname_max_length < 0)
+									tinrc.groupname_max_length = 0;
+							}
 							break;
 
 						case OPT_FILTER_DAYS:
-							prompt_option_num(option);
-							if (tinrc.filter_days <= 0)
-								tinrc.filter_days = 1;
+							if (prompt_option_num(option)) {
+								if (tinrc.filter_days <= 0)
+									tinrc.filter_days = 1;
+							}
 							break;
 
 						case OPT_SCORE_LIMIT_KILL:
 						case OPT_SCORE_KILL:
 						case OPT_SCORE_LIMIT_SELECT:
 						case OPT_SCORE_SELECT:
-							prompt_option_num(option);
-							check_score_defaults();
-							if (curr_group != NULL) {
-								unfilter_articles();
-								read_filter_file(filter_file);
-								if (filter_articles(curr_group))
-									make_threads(curr_group, FALSE);
+							if (prompt_option_num(option)) {
+								check_score_defaults();
+								redraw_screen(option);
+								changed |= SCORE_OPTS;
 							}
-							redraw_screen(option);
 							break;
 
 						case OPT_THREAD_PERC:
@@ -2241,10 +2260,8 @@ config_page(
 							break;
 
 						case OPT_WRAP_COLUMN:
-							prompt_option_num(option);
-							/* recook if in an article is open */
-							if (pgart.raw)
-								resize_article(TRUE, &pgart);
+							if (prompt_option_num(option))
+								changed |= DISPLAY_OPTS;
 							break;
 
 						case OPT_ATTRIB_THREAD_PERC:
@@ -2384,6 +2401,12 @@ scope_page(
 				if (scopemenu.max)
 					prompt_item_num(func_to_key(func, scope_keys), _(txt_scope_select));
 				break;
+
+#ifndef NO_SHELL_ESCAPE
+			case GLOBAL_SHELL_ESCAPE:
+				do_shell_escape();
+				break;
+#endif /* !NO_SHELL_ESCAPE */
 
 			case GLOBAL_HELP:
 				show_help_page(SCOPE_LEVEL, _(txt_scopes_menu_com));

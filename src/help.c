@@ -3,7 +3,7 @@
  *  Module    : help.c
  *  Author    : I. Lea
  *  Created   : 1991-04-01
- *  Updated   : 2009-09-27
+ *  Updated   : 2010-02-06
  *  Notes     :
  *
  * Copyright (c) 1991-2010 Iain Lea <iain@bricbrac.de>
@@ -75,15 +75,18 @@ static t_help_page attrib_help_page[] = {
 	{ txt_help_global_search_repeat, GLOBAL_SEARCH_REPEAT },
 	{ txt_help_empty_line, NOT_ASSIGNED },
 	{ txt_help_title_attrib_ops, NOT_ASSIGNED },
-	{ txt_help_attrib_reset_attrib , CONFIG_RESET_ATTRIB },
-	{ txt_help_attrib_select , CONFIG_SELECT },
-	{ txt_help_attrib_toggle_attrib , CONFIG_TOGGLE_ATTRIB },
+	{ txt_help_attrib_reset_attrib, CONFIG_RESET_ATTRIB },
+	{ txt_help_attrib_select, CONFIG_SELECT },
+	{ txt_help_attrib_toggle_attrib, CONFIG_TOGGLE_ATTRIB },
 	{ txt_help_empty_line, NOT_ASSIGNED },
 	{ txt_help_title_misc, NOT_ASSIGNED },
 	{ txt_help_select_quit, GLOBAL_QUIT },
 	{ txt_help_select_quit_no_write, CONFIG_NO_SAVE },
 	{ txt_help_global_help, GLOBAL_HELP },
 	{ txt_help_global_redraw_screen, GLOBAL_REDRAW_SCREEN },
+#ifndef NO_SHELL_ESCAPE
+	{ txt_help_global_shell_escape, GLOBAL_SHELL_ESCAPE },
+#endif /* !NO_SHELL_ESCAPE */
 	{ txt_help_empty_line, NOT_ASSIGNED },
 	{ txt_help_global_version, GLOBAL_VERSION },
 	{ NULL, NOT_ASSIGNED }
@@ -108,15 +111,18 @@ static t_help_page config_help_page[] = {
 	{ txt_help_global_search_repeat, GLOBAL_SEARCH_REPEAT },
 	{ txt_help_empty_line, NOT_ASSIGNED },
 	{ txt_help_title_config_ops, NOT_ASSIGNED },
-	{ txt_help_config_select , CONFIG_SELECT },
-	{ txt_help_config_toggle_attrib , CONFIG_TOGGLE_ATTRIB },
-	{ txt_help_config_scope_menu , CONFIG_SCOPE_MENU },
+	{ txt_help_config_select, CONFIG_SELECT },
+	{ txt_help_config_toggle_attrib, CONFIG_TOGGLE_ATTRIB },
+	{ txt_help_config_scope_menu, CONFIG_SCOPE_MENU },
 	{ txt_help_empty_line, NOT_ASSIGNED },
 	{ txt_help_title_misc, NOT_ASSIGNED },
 	{ txt_help_select_quit, GLOBAL_QUIT },
 	{ txt_help_select_quit_no_write, CONFIG_NO_SAVE },
 	{ txt_help_global_help, GLOBAL_HELP },
 	{ txt_help_global_redraw_screen, GLOBAL_REDRAW_SCREEN },
+#ifndef NO_SHELL_ESCAPE
+	{ txt_help_global_shell_escape, GLOBAL_SHELL_ESCAPE },
+#endif /* !NO_SHELL_ESCAPE */
 	{ txt_help_empty_line, NOT_ASSIGNED },
 	{ txt_help_global_version, GLOBAL_VERSION },
 	{ NULL, NOT_ASSIGNED }
@@ -149,6 +155,9 @@ static t_help_page scope_help_page[] = {
 	{ txt_help_global_help, GLOBAL_HELP },
 	{ txt_help_global_toggle_mini_help, GLOBAL_TOGGLE_HELP_DISPLAY },
 	{ txt_help_global_redraw_screen, GLOBAL_REDRAW_SCREEN },
+#ifndef NO_SHELL_ESCAPE
+	{ txt_help_global_shell_escape, GLOBAL_SHELL_ESCAPE },
+#endif /* !NO_SHELL_ESCAPE */
 	{ NULL, NOT_ASSIGNED }
 };
 
@@ -276,6 +285,7 @@ static t_help_page group_help_page[] = {
 	{ txt_help_global_post, GLOBAL_POST },
 	{ txt_help_global_post_postponed, GLOBAL_POSTPONED },
 	{ txt_help_article_repost, GROUP_REPOST },
+	{ txt_help_article_cancel, GROUP_CANCEL },
 #endif /* NO_POSTING */
 	{ txt_help_empty_line, NOT_ASSIGNED },
 	{ txt_help_global_article_range, GLOBAL_SET_RANGE },
@@ -371,6 +381,7 @@ static t_help_page thread_help_page[] = {
 #ifndef NO_POSTING
 	{ txt_help_global_post, GLOBAL_POST },
 	{ txt_help_global_post_postponed, GLOBAL_POSTPONED },
+	{ txt_help_article_cancel, THREAD_CANCEL },
 #endif /* NO_POSTING */
 	{ txt_help_empty_line, NOT_ASSIGNED },
 	{ txt_help_global_article_range, GLOBAL_SET_RANGE },

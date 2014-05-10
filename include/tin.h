@@ -3,7 +3,7 @@
  *  Module    : tin.h
  *  Author    : I. Lea & R. Skrenta
  *  Created   : 1991-04-01
- *  Updated   : 2009-11-30
+ *  Updated   : 2010-01-01
  *  Notes     : #include files, #defines & struct's
  *
  * Copyright (c) 1997-2010 Iain Lea <iain@bricbrac.de>, Rich Skrenta <skrenta@pbm.com>
@@ -97,7 +97,7 @@
 
 #include	<signal.h>
 
-enum context { cMain, cArt, cAttrib, cConfig, cFilter, cGroup, cHelp, cInfopager, cPage, cScope, cSelect, cThread };
+enum context { cMain, cArt, cAttrib, cConfig, cFilter, cGroup, cHelp, cInfopager, cPage, cReconnect, cScope, cSelect, cThread };
 enum icontext { cNone, cGetline, cPromptCONT, cPromptSLK, cPromptYN };
 enum resizer { cNo, cYes, cRedraw };
 enum rc_state { RC_IGNORE, RC_CHECK, RC_UPGRADE, RC_DOWNGRADE, RC_ERROR };
@@ -2161,6 +2161,7 @@ typedef void (*BodyPtr) (char *, FILE *, int);
 	extern void	no_leaks(void);
 #endif /* DOALLOC */
 
+#if 0 /* unused */
 #ifndef my_tmpfile_only
 /*
  * shortcut if we aren't interested in the tmpfiles filename/location
@@ -2169,6 +2170,7 @@ typedef void (*BodyPtr) (char *, FILE *, int);
  */
 #	define my_tmpfile_only(a)	my_tmpfile(a, sizeof(a) - 1, FALSE, (char *) 0)
 #endif /* !my_tmpfile_only */
+#endif /* 0 */
 
 
 /* define some standard places to look for a tin.defaults file */
