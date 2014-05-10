@@ -3,7 +3,7 @@
  *  Module    : misc.c
  *  Author    : I. Lea & R. Skrenta
  *  Created   : 1991-04-01
- *  Updated   : 2013-12-06
+ *  Updated   : 2014-02-17
  *  Notes     :
  *
  * Copyright (c) 1991-2014 Iain Lea <iain@bricbrac.de>, Rich Skrenta <skrenta@pbm.com>
@@ -330,10 +330,10 @@ copy_body(
 				} else	/* line was not already quoted (no >) */
 					retcode = fprintf(fp_op, "%s%s", prefixbuf, buf);
 			} else	/* line is empty */
-					retcode = fprintf(fp_op, "%s\n", ((tinrc.quote_style & QUOTE_EMPTY) ? prefixbuf : ""));
+				retcode = fprintf(fp_op, "%s\n", ((tinrc.quote_style & QUOTE_EMPTY) ? prefixbuf : ""));
 		} else {		/* no initials in quote_string, just copy */
 			if ((buf[0] != '\n') || (tinrc.quote_style & QUOTE_EMPTY))
-				retcode = fprintf(fp_op, "%s%s", ((buf[0] == '>' || buf[0] == ' ') ? prefixbuf : prefix), buf);	/* use blank-stripped quote string if line is already quoted or beginns with a space */
+				retcode = fprintf(fp_op, "%s%s", (buf[0] == '>' ? prefixbuf : prefix), buf);	/* use blank-stripped quote string if line is already quoted */
 			else
 				retcode = fprintf(fp_op, "\n");
 		}
@@ -3614,7 +3614,7 @@ utf8_valid(
 
 	c = line;
 
-	while (*c != '\0' && *c != '\n') {
+	while (*c != '\0') {
 		if (!(*c & 0x80)) { /* plain US-ASCII? */
 			c++;
 			continue;
@@ -4154,5 +4154,3 @@ stat_article(
 	}
 }
 #endif /* 0 */
-
-

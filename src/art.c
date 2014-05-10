@@ -959,7 +959,7 @@ global_get_multipart_info(
 
 
 /*
- * Again this was taken from tags.c, but works on global indicies into arts
+ * Again this was taken from tags.c, but works on global indices into arts
  * rather then on base_index.
  */
 static int
@@ -1007,7 +1007,7 @@ global_look_for_multipart_info(
 
 
 /*
- * Taken from tags.c but changed to use indicies into arts[] instead of
+ * Taken from tags.c but changed to use indices into arts[] instead of
  * base_index. Changed so that even when we don't have all the parts we
  * return a valid array.
  *

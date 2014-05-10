@@ -4,9 +4,9 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: tin-man 2.2.0\n"
+"Project-Id-Version: tin-man 2.2.1\n"
 "Report-Msgid-Bugs-To: translation@tin.org\n"
-"POT-Creation-Date: 2013-12-21 01:42+0100\n"
+"POT-Creation-Date: 2014-05-04 12:47+0300\n"
 "PO-Revision-Date: 2013-11-28 22:55+0100\n"
 "Last-Translator: Urs Janssen <urs@tin.org>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -23,14 +23,15 @@ msgstr "tin"
 
 #. type: TH
 #: doc/tin.1:12 doc/tin.5:9
-msgid "December 24th, 2013"
-msgstr "December 24th, 2013"
+#, no-wrap
+msgid "May 4th, 2014"
+msgstr ""
 
 #. type: TH
 #: doc/tin.1:12 doc/tin.5:9
 #, no-wrap
-msgid "2.2.0"
-msgstr "2.2.0"
+msgid "2.2.1"
+msgstr "2.2.1"
 
 #. type: TH
 #: doc/tin.1:12 doc/tin.5:9

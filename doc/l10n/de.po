@@ -4,10 +4,10 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: tin-man 2.2.0\n"
+"Project-Id-Version: tin-man 2.2.1\n"
 "Report-Msgid-Bugs-To: translation@tin.org\n"
-"POT-Creation-Date: 2013-12-21 01:42+0100\n"
-"PO-Revision-Date: 2013-12-21 18:15+0100\n"
+"POT-Creation-Date: 2014-05-04 12:47+0300\n"
+"PO-Revision-Date: 2013-12-25 14:15+0100\n"
 "Last-Translator: Urs Janssen <urs@tin.org>\n"
 "Language-Team: German <translation-team-de@lists.sourceforge.net>\n"
 "Language: de\n"
@@ -23,14 +23,15 @@ msgstr "tin"
 
 #. type: TH
 #: doc/tin.1:12 doc/tin.5:9
-msgid "December 24th, 2013"
-msgstr "24. Dezember 2013"
+#, no-wrap
+msgid "May 4th, 2014"
+msgstr "4. Mai 2014"
 
 #. type: TH
 #: doc/tin.1:12 doc/tin.5:9
 #, no-wrap
-msgid "2.2.0"
-msgstr "2.2.0"
+msgid "2.2.1"
+msgstr "2.2.1"
 
 #. type: TH
 #: doc/tin.1:12 doc/tin.5:9
@@ -338,7 +339,7 @@ msgstr "B<-h>"
 #. type: Plain text
 #: doc/tin.1:141
 msgid "Help listing all command-line options."
-msgstr "Kurzübersicht der verfügbaren Komandozeilenoptionen."
+msgstr "Kurzübersicht der verfügbaren Kommandozeilenoptionen."
 
 #. type: TP
 #: doc/tin.1:141
@@ -730,7 +731,7 @@ msgid ""
 "Command-line options have higher priority than attributes and tinrc "
 "options.  Thus, command-line option takes precedence over configured values."
 msgstr ""
-"Komandozeilenoptionen haben eine höhere Priorität als attributes und tinrc "
+"Kommandozeilenoptionen haben eine höhere Priorität als attributes und tinrc "
 "Optionen und übersteuern daher die konfigurierten Werte."
 
 #. type: SH
@@ -991,7 +992,7 @@ msgstr ""
 #. type: Plain text
 #: doc/tin.1:414
 msgid "At the Article level the page header has the following format:"
-msgstr ""
+msgstr "In der Artikelebene hat der Kopf der Seite folgendes Format:"
 
 #. type: Plain text
 #: doc/tin.1:420
@@ -1168,7 +1169,7 @@ msgstr "B<E<lt>ESCE<gt>>"
 #. type: Plain text
 #: doc/tin.1:482
 msgid "aborts the present editing operation."
-msgstr ""
+msgstr "bricht den gegenwärtigen Bearbeitungsvorgang ab."
 
 #. type: SS
 #: doc/tin.1:482
@@ -1288,7 +1289,7 @@ msgstr "B<ToggleHelpDisplay 'H'>"
 #. type: Plain text
 #: doc/tin.1:526 doc/tin.1:1364 doc/tin.1:1418
 msgid "Toggle the display of help mini menu at the bottom of the screen."
-msgstr "Mini-Hilfe am unterem Bildschirrand ein-/ausschalten."
+msgstr "Mini-Hilfe am unterem Bildschirmrand ein-/ausschalten."
 
 #. type: TP
 #: doc/tin.1:526
@@ -1563,7 +1564,7 @@ msgstr "B<SelectNextUnreadGrp 'N'>"
 #. type: Plain text
 #: doc/tin.1:608
 msgid "Positions the cursor on the next group with unread articles in it."
-msgstr ""
+msgstr "Setzt den Cursor auf die nächste Gruppe mit ungelesenen Artikeln."
 
 #. type: TP
 #: doc/tin.1:608 doc/tin.1:850 doc/tin.1:1036 doc/tin.1:1274
@@ -4399,7 +4400,7 @@ msgid ""
 "\"CUSTOMIZING THE SCREEN FORMAT\". Default is \"%n\\ %m\\ %R\\ %L\\ \\ %s\\ "
 "\\ %F\"."
 msgstr ""
-"Diese Formatanweisung wird von \fBtin\fP zur Darstellung der Gruppenebene "
+"Diese Formatanweisung wird von B<tin> zur Darstellung der Gruppenebene "
 "benutzt. Für weitere Informationen sei auf den Abschnitt \"ANSICHTEN ANPASSEN"
 "\" verwiesen. Voreingestellt ist \"%n\\ %m\\ %R\\ %L\\ \\ %s\\ \\ %F\"."
 
@@ -5332,7 +5333,7 @@ msgid ""
 "\"CUSTOMIZING THE SCREEN FORMAT\". Default is \"%f\\ %n\\ %U\\ \\ %G\\ \\ %d"
 "\"."
 msgstr ""
-"Diese Formatanweisung wird von \fBtin\fP zur Darstellung der Auswahlebene "
+"Diese Formatanweisung wird von B<tin> zur Darstellung der Auswahlebene "
 "benutzt. Für weitere Informationen sei auf den Abschnitt \"ANSICHTEN ANPASSEN"
 "\" verwiesen. Voreingestellt ist \"%f\\ %n\\ %U\\ \\ %G\\ \\ %d\"."
 
@@ -5891,7 +5892,7 @@ msgid ""
 "\"CUSTOMIZING THE SCREEN FORMAT\". Default is \"%n\\ %m\\ \\ [%L]\\ \\ %T\\ "
 "\\ %F\"."
 msgstr ""
-"Diese Formatanweisung wird von \fBtin\fP zur Darstellung der Threadebene "
+"Diese Formatanweisung wird von B<tin> zur Darstellung der Threadebene "
 "benutzt. Für weitere Informationen sei auf den Abschnitt \"ANSICHTEN ANPASSEN"
 "\" verwiesen. Voreingestellt ist \"%n\\ %m\\ \\ [%L]\\ \\ %T\\ \\ %F\"."
 
@@ -12598,6 +12599,8 @@ msgid ""
 "A regular expression that tin will use to find the begin of a verbatim "
 "block.  Default is #v+"
 msgstr ""
+"Ein regulärer Ausdruck, der den Beginn eines wortgetreu wiederzugebenden "
+"Absatzes findet. Voreinstellung ist #v+"
 
 #. type: TP
 #: doc/tin.5:2290
@@ -12611,11 +12614,15 @@ msgid ""
 "A regular expression that tin will use to find the end of a verbatim block.  "
 "Default is #v-"
 msgstr ""
+"Ein regulärer Ausdruck, der das Ende eines wortgetreu wiederzugebenden "
+"Absatzes findet. Voreinstellung ist #v-"
 
 #. type: Plain text
 #: doc/tin.5:2298
 msgid "If ON verbatim blocks will be detected.  Default is ON"
 msgstr ""
+"Falls ON werden wortgetreue Textblöcke in Artiklen erkannt. Voreinstellung "
+"ist ON."
 
 #. type: TP
 #: doc/tin.5:2298

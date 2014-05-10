@@ -2,7 +2,7 @@
 .\" Module    : tin.5
 .\" Author    : U. Janssen
 .\" Created   : 2000-07-10
-.\" Updated   : 2013-12-24
+.\" Updated   : 2014-05-04
 .\" Notes     : needs a some work
 .\"
 .\"
@@ -11,7 +11,7 @@
 .\" This file was generated with po4a. Translate the source file.
 .\"
 .\"*******************************************************************
-.TH tin 5 "24. Dezember 2013" 2.2.0 "Usenet Newsreader"
+.TH tin 5 "4. Mai 2014" 2.2.1 "Usenet Newsreader"
 
 .SH NAME
 tin, rtin \- zugehörige Dateien
@@ -2180,15 +2180,16 @@ If ON use UTF\-8 characters for indicator ('\->'), thread/attachment tree
 and ellipsis ('...'). Default is OFF.
 .TP 
 \fBverbatim_begin_regex\fP
-A regular expression that tin will use to find the begin of a verbatim
-block.  Default is #v+
+Ein regulärer Ausdruck, der den Beginn eines wortgetreu wiederzugebenden
+Absatzes findet. Voreinstellung ist #v+
 .TP 
 \fBverbatim_end_regex\fP
-A regular expression that tin will use to find the end of a verbatim block.
-Default is #v\-
+Ein regulärer Ausdruck, der das Ende eines wortgetreu wiederzugebenden
+Absatzes findet. Voreinstellung ist #v\-
 .TP 
 \fBverbatim_handling\fP
-If ON verbatim blocks will be detected.  Default is ON
+Falls ON werden wortgetreue Textblöcke in Artiklen erkannt. Voreinstellung
+ist ON.
 .TP 
 \fBwildcard\fP
 Allows you to select how \fB\%tin\fP(1)  matches strings. The default is 0 and

@@ -3,7 +3,7 @@
  *  Module    : select.c
  *  Author    : I. Lea & R. Skrenta
  *  Created   : 1991-04-01
- *  Updated   : 2013-11-30
+ *  Updated   : 2014-02-01
  *  Notes     :
  *
  * Copyright (c) 1991-2014 Iain Lea <iain@bricbrac.de>, Rich Skrenta <skrenta@pbm.com>
@@ -531,7 +531,7 @@ selection_page(
 				else {
 					size_t j = 0;
 
-					while(j < sel_fmt.len_ucnt)
+					while (j < sel_fmt.len_ucnt)
 						buf[j++] = ' ';
 					buf[j] = '\0';
 				}
@@ -627,7 +627,7 @@ static void
 build_gline(
 	int i)
 {
-	char *fmt, *buf;
+	char *sptr, *fmt, *buf;
 	char subs;
 	int n;
 	size_t j;
@@ -638,10 +638,19 @@ build_gline(
 #else
 	char *active_name;
 #endif /* MULTIBYTE_ABLE && !NO_LOCALE */
+
 #ifdef USE_CURSES
-	char sptr[BUFSIZ];
+	/*
+	 * Allocate line buffer
+	 * make it the same size like in !USE_CURSES case to simplify the code
+	 */
+#	if defined(MULTIBYTE_ABLE) && !defined(NO_LOCALE)
+		sptr = my_malloc(cCOLS * MB_CUR_MAX + 2);
+#	else
+		sptr = my_malloc(cCOLS + 2);
+#	endif /* MULTIBYTE_ABLE && !NO_LOCALE */
 #else
-	char *sptr = screen[INDEX2SNUM(i)].col;
+	sptr = screen[INDEX2SNUM(i)].col;
 #endif /* USE_CURSES */
 
 	sptr[0] = '\0';
@@ -786,6 +795,10 @@ build_gline(
 		strcat(strip_line(sptr), cCRLF);
 
 	WriteLine(INDEX2LNUM(i), sptr);
+
+#ifdef USE_CURSES
+	free(sptr);
+#endif /* USE_CURSES */
 }
 
 

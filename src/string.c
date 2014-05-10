@@ -3,7 +3,7 @@
  *  Module    : string.c
  *  Author    : Urs Janssen <urs@tin.org>
  *  Created   : 1997-01-20
- *  Updated   : 2013-11-30
+ *  Updated   : 2014-01-30
  *  Notes     :
  *
  * Copyright (c) 1997-2014 Urs Janssen <urs@tin.org>
@@ -780,15 +780,25 @@ wchar_t *
 char2wchar_t(
 	const char *str)
 {
-	size_t len;
+	char *test = my_strdup(str);
+	size_t len = (size_t) (-1);
+	size_t pos = strlen(test);
 	wchar_t *wstr;
 
-	len = mbstowcs(NULL, str, 0);
-	if (len == (size_t) (-1))
+	/* check for illegal sequences */
+	while (len == (size_t) (-1) && pos) {
+		if ((len = mbstowcs(NULL, test, 0)) == (size_t) (-1))
+			test[--pos] = '?';
+	}
+	/* shouldn't happen anymore */
+	if (len == (size_t) (-1)) {
+		free(test);
 		return NULL;
+	}
 
 	wstr = my_malloc(sizeof(wchar_t) * (len + 1));
-	mbstowcs(wstr, str, len + 1);
+	mbstowcs(wstr, test, len + 1);
+	free(test);
 
 	return wstr;
 }
@@ -1340,7 +1350,6 @@ parse_format_string(
 	const char *fmtstr,
 	struct t_fmt *fmt)
 {
-	char tmp[BUFSIZ];
 	char tmp_date_str[LEN];
 	char *out, *d_fmt, *buf;
 	const char *in;
@@ -1368,6 +1377,7 @@ parse_format_string(
 	};
 	int flags = NO_FLAGS;
 #if defined(MULTIBYTE_ABLE) && !defined(NO_LOCALE)
+	char tmp[BUFSIZ];
 	wchar_t *wtmp;
 #endif /* MULTIBYTE_ABLE && !NO_LOCALE */
 

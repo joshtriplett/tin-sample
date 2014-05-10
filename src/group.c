@@ -3,7 +3,7 @@
  *  Module    : group.c
  *  Author    : I. Lea & R. Skrenta
  *  Created   : 1991-04-01
- *  Updated   : 2013-12-06
+ *  Updated   : 2014-01-11
  *  Notes     :
  *
  * Copyright (c) 1991-2014 Iain Lea <iain@bricbrac.de>, Rich Skrenta <skrenta@pbm.com>
@@ -142,7 +142,7 @@ group_page(
 	char key[MAXKEYLEN];
 	int i, n, ii;
 	int thread_depth;	/* Starting depth in threads we enter */
-	t_artnum old_artnum;
+	t_artnum old_artnum = T_ARTNUM_CONST(0);
 	struct t_art_stat sbuf;
 	t_bool flag;
 	t_bool xflag = FALSE;	/* 'X'-flag */

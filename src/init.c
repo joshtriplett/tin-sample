@@ -1059,7 +1059,7 @@ postinit_regexp(
 	compile_regex(tinrc.stars_regex, &stars_regex, PCRE_CASELESS);
 	if (!strlen(tinrc.strokes_regex))
 		STRCPY(tinrc.strokes_regex, DEFAULT_STROKES_REGEX);
-	compile_regex(tinrc.strokes_regex,&strokes_regex, PCRE_CASELESS);
+	compile_regex(tinrc.strokes_regex, &strokes_regex, PCRE_CASELESS);
 	if (!strlen(tinrc.underscores_regex))
 		STRCPY(tinrc.underscores_regex, DEFAULT_UNDERSCORES_REGEX);
 	compile_regex(tinrc.underscores_regex, &underscores_regex, PCRE_CASELESS);

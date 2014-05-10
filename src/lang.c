@@ -3,7 +3,7 @@
  *  Module    : lang.c
  *  Author    : I. Lea
  *  Created   : 1991-04-01
- *  Updated   : 2013-11-28
+ *  Updated   : 2014-01-10
  *  Notes     :
  *
  * Copyright (c) 1991-2014 Iain Lea <iain@bricbrac.de>
@@ -942,7 +942,7 @@ Warning: You are using a non-plain transfer encoding (such as base64 or\n\
          quoted-printable) and an external inews program to submit your\n\
          article. If a signature is appended by that inews program it will\n\
          not be encoded properly.\n");
-constext txt_warn_example_hierarchy[]= N_("\nWarning: \"example\" is a reserved hierarchy!\n");
+constext txt_warn_example_hierarchy[] = N_("\nWarning: \"example\" is a reserved hierarchy!\n");
 constext txt_warn_update[] = N_("\n\nYou are upgrading to tin %s from an earlier version.\n\
 Some values in your %s file have changed!\nRead WHATSNEW, etc...\n");
 constext txt_warn_downgrade[] = N_("\n\nYou are downgrading to tin %s from a more recent version!\n\
@@ -1656,6 +1656,7 @@ struct opttxt txt_thread_articles = {
 struct opttxt txt_thread_perc = {
 	N_("Enter percentage match required to thread together. <CR> sets."),
 	N_("Thread percentage match"),
+	/* xgettext:no-c-format */
 	N_("# Thread percentage match...\n\
 # the percentage of characters in the subject of an article that must match\n\
 # a base article for both those articles to be considered to belong to the\n\

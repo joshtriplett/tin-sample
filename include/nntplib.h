@@ -72,11 +72,11 @@
  *	x4x  Posting
  */
 #if 0 /* unused */
-#	define	CHAR_INF		'1'
-#	define	CHAR_OK		'2'
-#	define	CHAR_CONT		'3'
-#	define	CHAR_ERR		'4'
-#	define	CHAR_FATAL		'5'
+#	define CHAR_INF		'1'
+#	define CHAR_OK		'2'
+#	define CHAR_CONT	'3'
+#	define CHAR_ERR		'4'
+#	define CHAR_FATAL	'5'
 #endif /* 0 */
 
 /* TODO: cleanup against RFC 2980, RFC 3977 */

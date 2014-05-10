@@ -121,7 +121,7 @@ get_domain_name(
 
 
 #ifdef HAVE_GETHOSTBYNAME
-#	define MAXLINELEN   1024
+#	define MAXLINELEN	1024
 #	define WS	" \f\t\v"
 /* find FQDN - gethostbyaddr() */
 const char *
