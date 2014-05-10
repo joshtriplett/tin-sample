@@ -1,10 +1,10 @@
 Name: tin
 Summary: easy-to-use USENET news reader
-Version: 2.2.0
+Version: 2.2.1
 Release: 1
-Copyright: BSD
+License: BSD
 Group: Applications/News
-Source: ftp://ftp.tin.org/pub/news/clients/tin/v2.0/%{name}-%{version}.tar.bz2
+Source: ftp://ftp.tin.org/pub/news/clients/tin/v2.2/%{name}-%{version}.tar.bz2
 Buildroot: /var/tmp/%{name}-%{version}-%{release}
 Packager: Dirk Nimmich <nimmich@muenster.de>
 

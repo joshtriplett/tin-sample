@@ -3,7 +3,7 @@
  *  Module    : post.c
  *  Author    : I. Lea
  *  Created   : 1991-04-01
- *  Updated   : 2013-12-06
+ *  Updated   : 2014-04-24
  *  Notes     : mail/post/replyto/followup/repost & cancel articles
  *
  * Copyright (c) 1991-2014 Iain Lea <iain@bricbrac.de>
@@ -408,7 +408,7 @@ msg_add_header(
 		/*
 		 * if header does not exist then add it
 		 */
-		if (!(done || msg_headers[i].name)) {
+		if (i < MAX_MSG_HEADERS && !(done || msg_headers[i].name)) {
 			msg_headers[i].name = my_strdup(new_name);
 			if (text) {
 				for (p = text; *p && (*p == ' ' || *p == '\t'); p++)
@@ -4270,8 +4270,7 @@ msg_add_x_headers(
 			if (line[0] != '\n' && line[0] != '#') {
 				if (line[0] != ' ' && line[0] != '\t') {
 					x_hdrs = my_realloc(x_hdrs, (num_x_hdrs + 1) * sizeof(char *));
-					x_hdrs[num_x_hdrs] = my_malloc(strlen(line) + 1);
-					strcpy(x_hdrs[num_x_hdrs++], line);
+					x_hdrs[num_x_hdrs++] = my_strdup(line);
 				} else {
 					if (!num_x_hdrs) /* folded line, but no previous header */
 						continue;

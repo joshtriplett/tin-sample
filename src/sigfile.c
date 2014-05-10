@@ -164,7 +164,7 @@ open_random_sig(
 {
 	srand((unsigned int) time(NULL));
 
-	if (chdir(sigdir) == 0)  {
+	if (chdir(sigdir) == 0) {
 		if (thrashdir(sigdir) || !*sigfile) {
 #ifdef DEBUG
 			if (debug & DEBUG_MISC)

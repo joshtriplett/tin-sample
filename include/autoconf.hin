@@ -628,7 +628,7 @@
 /*
  * define if gettimeofday() takes the timezone as 2nd argument
  */
-#	undef	GETTIMEOFDAY_2ARGS
+#	undef GETTIMEOFDAY_2ARGS
 
 /*
  * define if your NNTP server needs an extra GROUP command before

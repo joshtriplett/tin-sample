@@ -3,7 +3,7 @@
  *  Module    : feed.c
  *  Author    : I. Lea
  *  Created   : 1991-08-31
- *  Updated   : 2013-12-06
+ *  Updated   : 2014-04-26
  *  Notes     : provides same interface to mail,pipe,print,save & repost commands
  *
  * Copyright (c) 1991-2014 Iain Lea <iain@bricbrac.de>
@@ -607,8 +607,10 @@ feed_articles(
 	}
 
 	set_xclick_off();		/* TODO: there is no corresponding set_xclick_on()? */
-	thread_base = which_thread(respnum);
-	stat_thread(thread_base, &sbuf);
+	if ((thread_base = which_thread(respnum)) >= 0)
+		stat_thread(thread_base, &sbuf);
+	else /* TODO: error message? */
+		return -1;
 
 	switch (type) {
 		case FEED_ARTICLE:

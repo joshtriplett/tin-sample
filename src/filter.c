@@ -526,7 +526,7 @@ read_filter_file(
 						}
 #ifdef DEBUG
 						if (debug & DEBUG_FILTER)
-							debug_print_file("FILTER","buf=[%s]  Gsubj=[%s]", ptr[i].subj, glob_filter.filter[i].subj);
+							debug_print_file("FILTER", "buf=[%s]  Gsubj=[%s]", ptr[i].subj, glob_filter.filter[i].subj);
 #endif /* DEBUG */
 					}
 					break;
@@ -539,7 +539,7 @@ read_filter_file(
 					score = atoi(scbuf);
 #ifdef DEBUG
 					if (debug & DEBUG_FILTER)
-						debug_print_file("FILTER","score=[%d]", score);
+						debug_print_file("FILTER", "score=[%d]", score);
 #endif /* DEBUG */
 					if (ptr && !expired_time) {
 						if (score > SCORE_MAX)

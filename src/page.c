@@ -3,7 +3,7 @@
  *  Module    : page.c
  *  Author    : I. Lea & R. Skrenta
  *  Created   : 1991-04-01
- *  Updated   : 2013-11-30
+ *  Updated   : 2014-04-26
  *  Notes     :
  *
  * Copyright (c) 1991-2014 Iain Lea <iain@bricbrac.de>, Rich Skrenta <skrenta@pbm.com>
@@ -316,7 +316,7 @@ show_page(
 	char key[MAXKEYLEN];
 	int i, j, n = 0;
 	int art_type = GROUP_TYPE_NEWS;
-	t_artnum old_artnum;
+	t_artnum old_artnum = T_ARTNUM_CONST(0);
 	t_bool mouse_click_on = TRUE;
 	t_bool repeat_search;
 	t_function func;
@@ -1871,7 +1871,7 @@ prompt_response(
 	int ch,
 	int curr_respnum)
 {
-	int num;
+	int i, num;
 
 	clear_message();
 
@@ -1880,7 +1880,10 @@ prompt_response(
 		return -1;
 	}
 
-	return find_response(which_thread(curr_respnum), num);
+	if ((i = which_thread(curr_respnum)) >= 0)
+		return find_response(i, num);
+	else
+		return -1;
 }
 
 
@@ -2536,7 +2539,7 @@ process_url(
 	t_url *lptr;
 
 	lptr = find_url(n);
-	len = strlen(lptr->url);
+	len = strlen(lptr->url) << 1; /* double size; room for editing URL */
 	url = my_malloc(len + 1);
 	if (prompt_default_string("URL:", url, len, lptr->url, HIST_URL)) {
 		if (!*url) {			/* Don't try and open nothing */
