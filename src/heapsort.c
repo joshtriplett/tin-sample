@@ -37,8 +37,7 @@
 #	include <stdlib.h>
 #else
 #	ifndef TIN_H
-#       include "tin.h"
-#	else
+#		include "tin.h"
 #	endif /* !TIN_H */
 #endif /* 0 */
 
@@ -156,12 +155,12 @@ heapsort(
 		return (-1);
 	}
 
-#if 0
+#if !defined(TIN_H)
 	if ((k = malloc(size)) == NULL)
 		return (-1);
 #else
 	k = my_malloc(size);
-#endif /* 0 */
+#endif /* !TIN_H */
 
 	/*
 	 * Items are numbered from 1 to nmemb, so offset from size bytes

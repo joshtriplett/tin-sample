@@ -3,10 +3,10 @@
  *  Module    : prompt.c
  *  Author    : I. Lea
  *  Created   : 1991-04-01
- *  Updated   : 2011-03-25
+ *  Updated   : 2013-11-30
  *  Notes     :
  *
- * Copyright (c) 1991-2012 Iain Lea <iain@bricbrac.de>
+ * Copyright (c) 1991-2014 Iain Lea <iain@bricbrac.de>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -165,7 +165,7 @@ prompt_yn(
 {
 	char *keyprompt;
 	char keyno[MAXKEYLEN], keyyes[MAXKEYLEN];
-	int keyyes_len = 0, keyno_len = 0, maxlen, prompt_len;
+	int keyyes_len, keyno_len, maxlen, prompt_len;
 	t_function func;
 #if defined(MULTIBYTE_ABLE) && !defined(NO_LOCALE)
 	wint_t yes, no, prompt_ch, ch;
@@ -425,7 +425,7 @@ prompt_option_on_off(
 
 	fmt_option_prompt(prompt, sizeof(prompt), TRUE, option);
 	*variable = prompt_list(option_row(option), 0, *variable, option_table[option].txt->help, prompt, txt_onoff, 2) ? TRUE : FALSE;
-	return *variable != old_value;
+	return bool_not(bool_equal(*variable, old_value));
 }
 
 

@@ -3,10 +3,10 @@
  *  Module    : extern.h
  *  Author    : I. Lea
  *  Created   : 1991-04-01
- *  Updated   : 2012-02-20
+ *  Updated   : 2013-11-20
  *  Notes     :
  *
- * Copyright (c) 1997-2012 Iain Lea <iain@bricbrac.de>
+ * Copyright (c) 1997-2014 Iain Lea <iain@bricbrac.de>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -224,11 +224,9 @@
 #ifdef DECL_SELECT
 	extern int select(int, fd_set *, fd_set *, fd_set *, struct timeval *);
 #endif /* DECL_SELECT */
-#ifndef HAVE_PUTENV
-#	ifdef DECL_SETENV
-		extern int setenv(const char *, const char *, int);
-#	endif /* DECL_SETENV */
-#endif /* !HAVE_PUTENV */
+#ifdef DECL_SETENV
+	extern int setenv(const char *, const char *, int);
+#endif /* DECL_SETENV */
 #ifdef DECL_SOCKET
 	extern int socket(int, int, int);
 #endif /* DECL_SOCKET */
@@ -266,7 +264,7 @@
 	extern int system(const char *);
 #endif /* DECL_SYSTEM */
 #ifdef DECL_TMPFILE
-	extern  FILE *tmpfile(void);
+	extern FILE *tmpfile(void);
 #endif /* DECL_TMPFILE */
 #ifdef DECL_TGETENT
 	extern int tgetent(char *, char *);
@@ -361,6 +359,7 @@
 extern char *OPT_CHAR_list[];
 extern char *OPT_STRING_list[];
 extern char *nntp_server;
+extern char *tin_progname;
 extern char active_times_file[PATH_LEN];
 extern char article_name[PATH_LEN];
 extern char bug_addr[LEN];
@@ -403,7 +402,6 @@ extern char newsrc[PATH_LEN];
 extern char page_header[LEN];
 extern char posted_info_file[PATH_LEN];
 extern char postponed_articles_file[PATH_LEN];
-extern char tin_progname[PATH_LEN];
 extern char rcdir[PATH_LEN];
 extern char save_active_file[PATH_LEN];
 extern char spooldir[PATH_LEN];
@@ -444,7 +442,6 @@ extern constext *txt_post_process_types[];
 extern constext *txt_quick_ks_header_options[];
 extern constext *txt_quote_style_type[];
 extern constext *txt_show_from[];
-extern constext *txt_show_info_type[];
 extern constext *txt_sort_a_type[];	/* a=articles */
 extern constext *txt_sort_t_type[];	/* t=threads */
 extern constext *txt_strip_bogus_type[];
@@ -460,6 +457,7 @@ extern constext txt_all[];
 extern constext txt_all_groups[];
 extern constext txt_append_overwrite_quit[];
 extern constext txt_art_cancel[];
+extern constext txt_art_mailgroups[];
 extern constext txt_art_newsgroups[];
 extern constext txt_art_not_posted[];
 extern constext txt_art_not_saved[];
@@ -601,8 +599,9 @@ extern constext txt_error_approved[];
 extern constext txt_error_asfail[];
 extern constext txt_error_bad_approved[];
 extern constext txt_error_bad_from[];
-extern constext txt_error_bad_replyto[];
 extern constext txt_error_bad_msgidfqdn[];
+extern constext txt_error_bad_replyto[];
+extern constext txt_error_bad_to[];
 #ifndef NO_LOCKING
 	extern constext txt_error_cant_unlock[];
 	extern constext txt_error_couldnt_dotlock[];
@@ -1398,6 +1397,7 @@ extern int filter_file_offset;
 extern int input_context;
 extern int iso2asc_supported;
 extern int last_resp;
+extern int mark_offset;
 extern int max_active;
 extern int max_art;
 extern int max_base;
@@ -1707,6 +1707,7 @@ extern struct opttxt txt_getart_limit;
 extern struct opttxt txt_getart_limit_options;
 extern struct opttxt txt_goto_next_unread;
 extern struct opttxt txt_group_catchup_on_exit;
+extern struct opttxt txt_group_format;
 extern struct opttxt txt_groupname_max_length;
 extern struct opttxt txt_hide_uue;
 extern struct opttxt txt_inews_prog;
@@ -1781,9 +1782,9 @@ extern struct opttxt txt_score_limit_select;
 extern struct opttxt txt_score_kill;
 extern struct opttxt txt_score_select;
 extern struct opttxt txt_scroll_lines;
+extern struct opttxt txt_select_format;
 extern struct opttxt txt_show_author;
 extern struct opttxt txt_show_description;
-extern struct opttxt txt_show_info;
 extern struct opttxt txt_show_only_unread_arts;
 extern struct opttxt txt_show_only_unread_groups;
 extern struct opttxt txt_show_signatures;
@@ -1806,6 +1807,7 @@ extern struct opttxt txt_tex2iso_conv;
 extern struct opttxt txt_thread_articles;
 extern struct opttxt txt_thread_perc;
 extern struct opttxt txt_thread_catchup_on_exit;
+extern struct opttxt txt_thread_format;
 extern struct opttxt txt_thread_score;
 extern struct opttxt txt_trim_article_body;
 extern struct opttxt txt_underscores_regex;

@@ -3,10 +3,10 @@
  *  Module    : inews.c
  *  Author    : I. Lea
  *  Created   : 1992-03-17
- *  Updated   : 2012-05-12
+ *  Updated   : 2013-11-27
  *  Notes     : NNTP built in version of inews
  *
- * Copyright (c) 1991-2012 Iain Lea <iain@bricbrac.de>
+ * Copyright (c) 1991-2014 Iain Lea <iain@bricbrac.de>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -92,7 +92,7 @@ submit_inews(
 	char response[NNTP_STRLEN];
 	int auth_error = 0;
 	int respcode;
-	t_bool leave_loop = FALSE;
+	t_bool leave_loop;
 	t_bool id_in_article = FALSE;
 	t_bool ret_code = FALSE;
 #	ifndef FORGERY
@@ -228,7 +228,7 @@ submit_inews(
 					*++ptr2 = '\0';
 					/* check for @ and no whitespaces */
 					if ((strchr(ptr, '@') != NULL) && (strpbrk(ptr, " \t") == NULL))
-						strcpy(message_id, ptr);	/* copy Message-ID */
+						my_strncpy(message_id, ptr, sizeof(message_id) - 1);	/* copy Message-ID */
 				}
 			}
 		}
@@ -482,6 +482,9 @@ sender_needed(
 	if ((sender_at_pos = strchr(sender_addr, '@')))
 		sender_dot_pos = strchr(sender_at_pos, '.');
 	else /* this case is catched by the gnksa_do_check_from() code above; anyway ... */
+		return -2;
+
+	if (from_at_pos == NULL || sender_dot_pos == NULL) /* as we build From and check Sender above this shouldn't happen at all */
 		return -2;
 
 	if (strncasecmp(from_addr, sender_addr, (from_at_pos - from_addr)))

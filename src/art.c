@@ -3,10 +3,10 @@
  *  Module    : art.c
  *  Author    : I.Lea & R.Skrenta
  *  Created   : 1991-04-01
- *  Updated   : 2012-05-20
+ *  Updated   : 2013-11-10
  *  Notes     :
  *
- * Copyright (c) 1991-2012 Iain Lea <iain@bricbrac.de>, Rich Skrenta <skrenta@pbm.com>
+ * Copyright (c) 1991-2014 Iain Lea <iain@bricbrac.de>, Rich Skrenta <skrenta@pbm.com>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -213,7 +213,7 @@ setup_hard_base(
 		char buf[NNTP_STRLEN];
 		char line[NNTP_STRLEN];
 		int getart_limit = cmdline.args & CMDLINE_GETART_LIMIT ? cmdline.getart_limit : tinrc.getart_limit;
-		FILE *fp = NULL;
+		FILE *fp;
 		t_artnum last, start, count = 0, j = 0;
 		static t_bool skip_listgroup = FALSE;
 
@@ -345,11 +345,6 @@ setup_hard_base(
 
 		make_base_group_path(group->spooldir, group->name, group_path, sizeof(group_path));
 
-		if (access(group_path, R_OK) != 0) {
-			error_message(2, _(txt_not_exist));
-			return -1;
-		}
-
 		if ((d = opendir(group_path)) != NULL) {
 			while ((e = readdir(d)) != NULL) {
 				art = atoartnum(e->d_name);
@@ -362,6 +357,13 @@ setup_hard_base(
 			}
 			CLOSEDIR(d);
 			tin_sort((char *) base, (size_t) grpmenu.max, sizeof(t_artnum), base_comp);
+		} else {
+			perror_message(_(txt_cannot_open), group_path);
+#if 0
+			if (access(group_path, R_OK) != 0)
+				error_message(2, _(txt_not_exist));
+#endif /* 0 */
+			return -1;
 		}
 	}
 
@@ -716,7 +718,7 @@ read_art_headers(
 
 		get_cwd(dir);
 		make_base_group_path(group->spooldir, group->name, buf, sizeof(buf));
-		my_chdir(buf);
+		chdir(buf);
 	}
 
 	group_msg = fmt_string(_(txt_group), cCOLS - strlen(_(txt_group)) + 2 - 3, group->name);
@@ -780,7 +782,7 @@ read_art_headers(
 	 * Change back to previous dir before indexing started
 	 */
 	if (!read_news_via_nntp || group->type != GROUP_TYPE_NEWS)
-		my_chdir(dir);
+		chdir(dir);
 
 	return modified;
 }
@@ -957,8 +959,8 @@ global_get_multipart_info(
 
 
 /*
- *	Again this was taken from tags.c, but works on global indicies into arts
- *	rather then on base_index.
+ * Again this was taken from tags.c, but works on global indicies into arts
+ * rather then on base_index.
  */
 static int
 global_look_for_multipart_info(
@@ -1844,7 +1846,17 @@ read_overview(
 								debug_print_file("NNTP", "%s(%"T_ARTNUM_PFMT") bogus overview-field %s %s", nntp_caps.over_cmd, artnum, ofmt[count].name, ptr);
 						}
 #endif /* DEBUG */
+						continue;
 					}
+#if 0 /* code example for hadnling addition overview fields */
+					if (!strcasecmp(ofmt[count].name, "Path:")) {
+#ifdef DEBUG
+						if (debug & DEBUG_NNTP)
+							debug_print_file("NNTP", "%s(%"T_ARTNUM_PFMT") extra overview-field \"%s\" at position %d %s", nntp_caps.over_cmd, artnum, ofmt[count].name, count, ptr);
+#endif /* DEBUG */
+						continue;
+					}
+#endif /* 0 */
 				}
 				continue;
 			}
@@ -2037,10 +2049,10 @@ write_overview(
 				/* as the subject might now be folded we have to unfold it */
 				unfold_header(p);
 			} else { /* raw data */
-				 p = strdup(article->subject);
+				p = my_strdup(article->subject);
 #ifdef CHARSET_CONVERSION
-				 if (group->attribute->undeclared_charset) /* use undeclared_charset if set (otherwise local charset is used) */
-				 	buffer_to_network(p, c);
+				if (group->attribute->undeclared_charset && c != -1) /* use undeclared_charset if set (otherwise local charset is used) */
+					buffer_to_network(p, c);
 #endif /* CHARSET_CONVERSION */
 			}
 
@@ -2613,7 +2625,8 @@ last_date_comp_base_asc(
 }
 
 
-static time_t get_last_posting_date(
+static time_t
+get_last_posting_date(
 	long n)
 {
 	long i;
@@ -2749,7 +2762,7 @@ print_from(
 	*from = '\0';
 
 	if (article->name != NULL) {
-		q = strdup(article->name);
+		q = my_strdup(article->name);
 #ifdef CHARSET_CONVERSION
 		if (charset != -1) {
 			buffer_to_network(q, charset);
@@ -2810,6 +2823,7 @@ open_xover_fp(
 	}
 	return NULL;
 }
+
 
 #ifdef USE_HEAPSORT
 int

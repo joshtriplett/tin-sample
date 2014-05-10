@@ -3,10 +3,10 @@
  *  Module    : pgp.c
  *  Author    : Steven J. Madsen
  *  Created   : 1995-05-12
- *  Updated   : 2012-06-20
+ *  Updated   : 2013-11-12
  *  Notes     : PGP support
  *
- * Copyright (c) 1995-2012 Steven J. Madsen <steve@erinet.com>
+ * Copyright (c) 1995-2014 Steven J. Madsen <steve@erinet.com>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -450,7 +450,11 @@ pgp_check_article(
 		info_message(_(txt_cannot_open), artfile);
 		return FALSE;
 	}
-	fseek(artinfo->raw, artinfo->hdr.ext->offset, SEEK_SET);		/* -> start of body */
+	/* -> start of body */
+	if (fseek(artinfo->raw, artinfo->hdr.ext->offset, SEEK_SET) != 0) {
+		fclose(art);
+		return FALSE;
+	}
 
 	fgets(buf, LEN, artinfo->raw);		/* Copy the body whilst looking for SIG/KEY tags */
 	while (!feof(artinfo->raw)) {

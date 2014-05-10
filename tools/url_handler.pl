@@ -74,7 +74,9 @@ viewer found in either B<$BROWSER_I<SCHEME>> or B<$BROWSER>.
 
 =item B<$BROWSER_I<SCHEME>>
 
-The user's preferred utility to browse URLs of tye I<SCHEME>. May actually
+=back
+
+The user's preferred utility to browse URLs of type I<SCHEME>. May actually
 consist of a sequence of colon-separated browser commands to be tried in
 order until one succeeds. If a command part contains %s, the URL is
 substituted there, otherwise the browser command is simply called with the
@@ -82,7 +84,7 @@ URL as its last argument. %% is replaced by a single percent sign (%), and
 %c is replaced by a colon (:).
 Examples:
 
-=over 4
+=over 2
 
 =item $BROWSER_FTP="wget:ncftp"
 
@@ -98,7 +100,11 @@ Examples:
 
 Z<>
 
+=over 4
+
 =item B<$BROWSER>
+
+=back
 
 The user's preferred utility to browse URLs for which there is no special
 viewer defined via B<$BROWSER_I<SCHEME>>. Again it may actually consist of a

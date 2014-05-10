@@ -3,10 +3,10 @@
  *  Module    : main.c
  *  Author    : I. Lea & R. Skrenta
  *  Created   : 1991-04-01
- *  Updated   : 2011-04-17
+ *  Updated   : 2013-11-27
  *  Notes     :
  *
- * Copyright (c) 1991-2012 Iain Lea <iain@bricbrac.de>, Rich Skrenta <skrenta@pbm.com>
+ * Copyright (c) 1991-2014 Iain Lea <iain@bricbrac.de>, Rich Skrenta <skrenta@pbm.com>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -77,9 +77,8 @@ main(
 	int argc,
 	char *argv[])
 {
-	int count;
+	int count, start_groupnum;
 	int num_cmd_line_groups = 0;
-	int start_groupnum = 0;
 	t_bool tmp_no_write;
 
 	cmd_line = TRUE;
@@ -118,6 +117,7 @@ main(
 
 	debug = 0;	/* debug OFF */
 
+	tin_progname = my_malloc(strlen(argv[0]) + 1);
 	base_name(argv[0], tin_progname);
 
 #ifdef NNTP_ONLY
@@ -131,6 +131,7 @@ main(
 		read_news_via_nntp = TRUE;
 #	else
 		error_message(2, _(txt_option_not_enabled), "-DNNTP_ABLE");
+		free(tin_progname);
 		giveup();
 #	endif /* NNTP_ABLE */
 	}
@@ -168,6 +169,7 @@ main(
 #	ifndef USE_CURSES
 		if (!get_termcaps()) {
 			error_message(2, _(txt_screen_init_failed), tin_progname);
+			free_all_arrays();
 			giveup();
 		}
 #	endif /* !USE_CURSES */
@@ -178,6 +180,7 @@ main(
 		 */
 		if (!InitScreen()) {
 			error_message(2, _(txt_screen_init_failed), tin_progname);
+			free_all_arrays();
 			giveup();
 		}
 
@@ -197,8 +200,10 @@ main(
 	 */
 	if (!nntp_server || !*nntp_server)
 		nntp_server = getserverbyfile(NNTP_SERVER_FILE);
-	if (read_news_via_nntp && !read_saved_news && nntp_open())
+	if (read_news_via_nntp && !read_saved_news && nntp_open()) {
+		free_all_arrays();
 		giveup();
+	}
 
 	read_server_config();
 
@@ -212,6 +217,7 @@ main(
 	 */
 	if (update_index && nntp_caps.over_cmd && !tinrc.cache_overview_files) {
 		error_message(2, _(txt_batch_update_unavail), tin_progname);
+		free_all_arrays();
 		giveup();
 	}
 
@@ -353,8 +359,10 @@ main(
 
 	if (start_any_unread) {
 		batch_mode = TRUE;			/* Suppress some unwanted on-screen garbage */
-		if ((start_groupnum = check_start_save_any_news(START_ANY_NEWS, catchup)) == -1)
+		if ((start_groupnum = check_start_save_any_news(START_ANY_NEWS, catchup)) == -1) {
+			free_all_arrays();
 			giveup();				/* No new/unread news so exit */
+		}
 		batch_mode = FALSE;
 	}
 
@@ -443,6 +451,7 @@ read_cmd_line_options(
 #	else
 				error_message(2, _(txt_option_not_enabled), "-DNNTP_ABLE");
 #	endif /* NNTP_ABLE*/
+				free_all_arrays();
 				giveup();
 				/* keep lint quiet: */
 				/* NOTREACHED */
@@ -459,6 +468,7 @@ read_cmd_line_options(
 #	else
 				error_message(2, _(txt_option_not_enabled), "-DNNTP_ABLE");
 #	endif /* NNTP_ABLE*/
+				free_all_arrays();
 				giveup();
 				/* keep lint quiet: */
 				/* NOTREACHED */
@@ -470,6 +480,7 @@ read_cmd_line_options(
 				cmdline.args |= CMDLINE_USE_COLOR;
 #else
 				error_message(2, _(txt_option_not_enabled), "-DHAVE_COLOR");
+				free_all_arrays();
 				giveup();
 				/* keep lint quiet: */
 				/* NOTREACHED */
@@ -482,6 +493,7 @@ read_cmd_line_options(
 				read_news_via_nntp = TRUE;
 #else
 				error_message(2, _(txt_option_not_enabled), "-DNNTP_ABLE");
+				free_all_arrays();
 				giveup();
 				/* keep lint quiet: */
 				/* NOTREACHED */
@@ -503,6 +515,7 @@ read_cmd_line_options(
 				debug_delete_files();
 #else
 				error_message(2, _(txt_option_not_enabled), "-DDEBUG");
+				free_all_arrays();
 				giveup();
 				/* keep lint quiet: */
 				/* NOTREACHED */
@@ -526,6 +539,7 @@ read_cmd_line_options(
 				read_news_via_nntp = TRUE;
 #else
 				error_message(2, _(txt_option_not_enabled), "-DNNTP_ABLE");
+				free_all_arrays();
 				giveup();
 				/* keep lint quiet: */
 				/* NOTREACHED */
@@ -534,6 +548,7 @@ read_cmd_line_options(
 
 			case 'H':
 				show_intro_page();
+				free_all_arrays();
 				exit(EXIT_SUCCESS);
 				/* keep lint quiet: */
 				/* FALLTHROUGH */
@@ -577,6 +592,7 @@ read_cmd_line_options(
 				check_for_new_newsgroups = FALSE;
 #else
 				error_message(2, _(txt_option_not_enabled), "-UNO_POSTING");
+				free_all_arrays();
 				giveup();
 				/* keep lint quiet: */
 				/* NOTREACHED */
@@ -590,6 +606,7 @@ read_cmd_line_options(
 					nntp_tcp_port = (unsigned short) atoi(optarg);
 #else
 				error_message(2, _(txt_option_not_enabled), "-DNNTP_ABLE");
+				free_all_arrays();
 				giveup();
 				/* keep lint quiet: */
 				/* NOTREACHED */
@@ -611,6 +628,7 @@ read_cmd_line_options(
 				read_news_via_nntp = TRUE;
 #else
 				error_message(2, _(txt_option_not_enabled), "-DNNTP_ABLE");
+				free_all_arrays();
 				giveup();
 				/* keep lint quiet: */
 				/* NOTREACHED */
@@ -646,6 +664,7 @@ read_cmd_line_options(
 
 			case 'V':
 				tin_version_info(stderr);
+				free_all_arrays();
 				exit(EXIT_SUCCESS);
 				/* keep lint quiet: */
 				/* FALLTHROUGH */
@@ -656,6 +675,7 @@ read_cmd_line_options(
 				check_for_new_newsgroups = FALSE;
 #else
 				error_message(2, _(txt_option_not_enabled), "-UNO_POSTING");
+				free_all_arrays();
 				giveup();
 				/* keep lint quiet: */
 				/* NOTREACHED */
@@ -688,6 +708,7 @@ read_cmd_line_options(
 			case '?':
 			default:
 				usage(tin_progname);
+				free_all_arrays();
 				exit(EXIT_SUCCESS);
 		}
 	}

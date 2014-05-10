@@ -3,10 +3,10 @@
  *  Module    : tin.h
  *  Author    : I. Lea & R. Skrenta
  *  Created   : 1991-04-01
- *  Updated   : 2012-06-20
+ *  Updated   : 2013-11-23
  *  Notes     : #include files, #defines & struct's
  *
- * Copyright (c) 1997-2012 Iain Lea <iain@bricbrac.de>, Rich Skrenta <skrenta@pbm.com>
+ * Copyright (c) 1997-2014 Iain Lea <iain@bricbrac.de>, Rich Skrenta <skrenta@pbm.com>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -945,18 +945,9 @@ enum rc_state { RC_IGNORE, RC_CHECK, RC_UPGRADE, RC_DOWNGRADE, RC_ERROR };
 #	define TREE_VERT_RIGHT	'+'
 #endif /* MULTIBYTE_ABLE && !NO_LOCALE */
 
-/*
- * position of the unread/will_return/hot-mark
- * (used in group.c/thread.c)
- */
-#define MARK_OFFSET	9
-
-#define SELECT_MISC_COLS	21
 #ifdef USE_INVERSE_HACK
-#	define BLANK_GROUP_COLS	2
 #	define BLANK_PAGE_COLS	2
 #else
-#	define BLANK_GROUP_COLS	0
 #	define BLANK_PAGE_COLS	0
 #endif /* USE_INVERSE_HACK */
 
@@ -1162,14 +1153,6 @@ enum {
 #define SHOW_FROM_ADDR		1
 #define SHOW_FROM_NAME		2
 #define SHOW_FROM_BOTH		3
-
-/*
- * Values for show_infos
- */
-#define SHOW_INFO_NOTHING	0
-#define SHOW_INFO_LINES		1
-#define SHOW_INFO_SCORE		2
-#define SHOW_INFO_BOTH		3
 
 /*
  * Values for thread_score
@@ -1390,9 +1373,14 @@ enum {
 #define FILTER_LINES_GT		3
 
 /*
- * default date format for display in the page header
+ * default format strings for selection, group, thread level
+ * and the date display in the page header.
+ * Don't change without adjusting rc_update() and the like accordingly!
  */
-#define DEFAULT_DATE_FORMAT	"%a, %d %b %Y %H:%M:%S"
+#define DEFAULT_SELECT_FORMAT	"%f %n %U  %G  %d"
+#define DEFAULT_GROUP_FORMAT	"%n %m %R %L  %s  %F"
+#define DEFAULT_THREAD_FORMAT	"%n %m  [%L]  %T  %F"
+#define DEFAULT_DATE_FORMAT		"%a, %d %b %Y %H:%M:%S"
 
 /*
  * unicode normalization
@@ -1556,6 +1544,8 @@ struct t_attribute {
 	char *savedir;				/* save dir if other than ~/News */
 	char *savefile;				/* save articles to specified file */
 	char *sigfile;				/* sig file if other than ~/.Sig */
+	char *group_format;			/* format string for group level */
+	char *thread_format;		/* format string for thread level */
 	char *date_format;			/* format string for the date display */
 	char *editor_format;		/* editor + parameters  %E +%N %F */
 	char *organization;			/* organization name */
@@ -1620,7 +1610,6 @@ struct t_attribute {
 	unsigned thread_catchup_on_exit:1;	/* catchup thread with left arrow key or not */
 	unsigned thread_perc:7;			/* percentage threading threshold */
 	unsigned show_author:2;			/* 0=none, 1=name, 2=addr, 3=both */
-	unsigned show_info:2;			/* 0=none, 1=lines, 2=score, 3=both */
 	unsigned show_signatures:1;		/* 0=none, 1=show signatures */
 	unsigned trim_article_body:3;	/* 0=Don't trim article body, 1=Skip leading blank lines,
 						2=Skip trailing blank lines, 3=Skip leading and trailing blank lines,
@@ -1664,6 +1653,7 @@ struct t_attribute_state {
 	unsigned followup_to:1;
 	unsigned from:1;
 	unsigned group_catchup_on_exit:1;
+	unsigned group_format:1;
 #ifdef HAVE_ISPELL
 	unsigned ispell:1;
 #endif /* HAVE_ISPELL */
@@ -1701,7 +1691,6 @@ struct t_attribute_state {
 	unsigned savedir:1;
 	unsigned savefile:1;
 	unsigned show_author:1;
-	unsigned show_info:1;
 	unsigned show_only_unread_arts:1;
 	unsigned show_signatures:1;
 	unsigned sigdashes:1;
@@ -1713,6 +1702,7 @@ struct t_attribute_state {
 	unsigned tex2iso_conv:1;
 	unsigned thread_articles:1;
 	unsigned thread_catchup_on_exit:1;
+	unsigned thread_format:1;
 	unsigned thread_perc:1;
 	unsigned trim_article_body:1;
 #ifdef CHARSET_CONVERSION
@@ -1780,6 +1770,38 @@ struct t_hashnode {
 	struct t_hashnode *next;	/* chain for spillover */
 	int aptr;			/* used in subject threading */
 	char txt[1];			/* stub for the string data, \0 terminated */
+};
+
+/*
+ * used for variable screen layout
+ *
+ * holds a preparsed format string, a date format string and some
+ * precalculated length
+ */
+struct t_fmt {
+	char str[LEN];
+	char date_str[LEN];
+	size_t len_date;		/* %D Date */
+	size_t len_date_max;
+	size_t len_grpdesc;		/* %d newsgroup description */
+	size_t len_from;		/* %F From */
+	size_t len_grpname;		/* %G groupname */
+	size_t len_grpname_max;
+	size_t len_initials;	/* %I initials */
+	size_t len_linenumber;	/* %n linenumber on screen */
+	size_t len_linecnt;		/* %L line count (article) */
+	size_t len_msgid;		/* %M message-id */
+	size_t len_respcnt;		/* %R count, number of responses */
+	size_t len_score;		/* %S score */
+	size_t len_subj;		/* %s subject */
+	size_t len_ucnt;		/* %U unread count */
+	size_t flags_offset;
+	size_t mark_offset;
+	size_t ucnt_offset;
+	t_bool d_before_f;
+	t_bool g_before_f;
+	t_bool d_before_u;
+	t_bool g_before_u;
 };
 
 /*
@@ -2047,7 +2069,7 @@ typedef void (*t_sortfunc)(void *, size_t, size_t, t_compfunc);
 #	define MAX_SORT_FUNCS 1
 #endif /* !USE_HEAPSORT */
 
-/* Seperator between dir part of path & the filename */
+/* Separator between dir part of path & the filename */
 #define DIRSEP	'/'
 
 /*
@@ -2291,18 +2313,6 @@ typedef void (*BodyPtr) (char *, FILE *, int);
 	extern void	show_alloc(void);
 	extern void	no_leaks(void);
 #endif /* DOALLOC */
-
-#if 0 /* unused */
-#ifndef my_tmpfile_only
-/*
- * shortcut if we aren't interested in the tmpfiles filename/location
- * argument can't be a pointer and if argument is changed on return
- * we must unlink the tmp-file ourself
- */
-#	define my_tmpfile_only(a)	my_tmpfile(a, sizeof(a) - 1, FALSE, (char *) 0)
-#endif /* !my_tmpfile_only */
-#endif /* 0 */
-
 
 /* define some standard places to look for a tin.defaults file */
 #define TIN_DEFAULTS_BUILTIN "/etc/opt/tin","/etc/tin","/etc","/usr/local/lib/tin","/usr/local/lib","/usr/local/etc/tin","/usr/local/etc","/usr/lib/tin","/usr/lib",NULL
