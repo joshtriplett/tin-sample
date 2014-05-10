@@ -11,7 +11,7 @@
  *  Notes     : This are the basic function for ansi-color
  *              and word highlighting
  *
- * Copyright (c) 1995-2011 Roland Rosenfeld <roland@spinnaker.rhein.de>
+ * Copyright (c) 1995-2012 Roland Rosenfeld <roland@spinnaker.rhein.de>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -329,7 +329,7 @@ draw_pager_line(
 				c++;
 			}
 #endif /* MULTIBYTE_ABLE && !NO_LOCALE */
-			else if (IS_LOCAL_CHARSET("Big5") && (unsigned char) *c >= 0xa1 &&(unsigned char) *c <= 0xfe && *(c + 1)) {
+			else if (IS_LOCAL_CHARSET("Big5") && (unsigned char) *c >= 0xa1 && (unsigned char) *c <= 0xfe && *(c + 1)) {
 				/*
 				 * Big5: ASCII chars are handled by the normal code
 				 * check only for 2-byte chars

@@ -6,7 +6,7 @@
  *  Updated   : 2010-09-15
  *  Notes     : MIME header encoding/decoding stuff
  *
- * Copyright (c) 1995-2011 Chris Blum <chris@resolution.de>
+ * Copyright (c) 1995-2012 Chris Blum <chris@resolution.de>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -939,7 +939,7 @@ do_rfc15211522_encode(
 		/*
 		 * 7bit charsets except US-ASCII also need mime headers
 		 */
-		for (i = 1; *txt_mime_7bit_charsets[i]; i++) {
+		for (i = 1; txt_mime_7bit_charsets[i] != NULL; i++) {
 #ifdef CHARSET_CONVERSION
 			if (!strcasecmp(txt_mime_charsets[mmnwcharset], txt_mime_7bit_charsets[i])) {
 				mime_headers_needed = TRUE;

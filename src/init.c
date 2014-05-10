@@ -6,7 +6,7 @@
  *  Updated   : 2011-04-17
  *  Notes     :
  *
- * Copyright (c) 1991-2011 Iain Lea <iain@bricbrac.de>
+ * Copyright (c) 1991-2012 Iain Lea <iain@bricbrac.de>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -448,6 +448,9 @@ struct t_config tinrc = {
 	FILTER_SUBJ_CASE_SENSITIVE,		/* attrib_quick_kill_header */
 	FILTER_SUBJ_CASE_SENSITIVE,		/* attrib_quick_select_header */
 	MIME_ENCODING_QP,		/* attrib_mail_mime_encoding */
+#if defined(HAVE_ALARM) && defined(SIGALRM)
+	120,	/* nntp_read_timeout_secs */
+#endif /* HAVE_ALARM && SIGALRM */
 	MIME_ENCODING_8BIT,		/* attrib_post_mime_encoding */
 	POST_PROC_NO,			/* attrib_post_process_type */
 	SHOW_FROM_NAME,			/* attrib_show_author */
@@ -810,7 +813,7 @@ init_selfinfo(
 		strncat(ptr, get_val("MM_CHARSET", MM_CHARSET), space);
 		if ((space -= strlen(ptr)) > 0) {
 			strncat(ptr, "\n", space);
-			match_list(ptr, "mm_network_charset=", txt_mime_charsets, NUM_MIME_CHARSETS, &tinrc.mm_network_charset);
+			match_list(ptr, "mm_network_charset=", txt_mime_charsets, &tinrc.mm_network_charset);
 		}
 		free(ptr);
 	}
@@ -965,12 +968,12 @@ read_site_config(
 		if (match_string(buf, "mm_charset=", tinrc.mm_charset, sizeof(tinrc.mm_charset)))
 			continue;
 #else
-		if (match_list(buf, "mm_charset=", txt_mime_charsets, NUM_MIME_CHARSETS, &tinrc.mm_network_charset))
+		if (match_list(buf, "mm_charset=", txt_mime_charsets, &tinrc.mm_network_charset))
 			continue;
 #endif /* !CHARSET_CONVERSION */
-		if (match_list(buf, "post_mime_encoding=", txt_mime_encodings, NUM_MIME_ENCODINGS, &tinrc.post_mime_encoding))
+		if (match_list(buf, "post_mime_encoding=", txt_mime_encodings, &tinrc.post_mime_encoding))
 			continue;
-		if (match_list(buf, "mail_mime_encoding=", txt_mime_encodings, NUM_MIME_ENCODINGS, &tinrc.mail_mime_encoding))
+		if (match_list(buf, "mail_mime_encoding=", txt_mime_encodings, &tinrc.mail_mime_encoding))
 			continue;
 		if (match_boolean(buf, "disable_gnksa_domain_check=", &disable_gnksa_domain_check))
 			continue;

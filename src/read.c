@@ -5,7 +5,7 @@
  *  Created   : 1997-04-10
  *  Updated   : 2011-05-06
  *
- * Copyright (c) 1997-2011 Jason Faultless <jason@altarstone.com>
+ * Copyright (c) 1997-2012 Jason Faultless <jason@altarstone.com>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without

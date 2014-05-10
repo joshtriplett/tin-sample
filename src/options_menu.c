@@ -3,10 +3,10 @@
  *  Module    : options_menu.c
  *  Author    : Michael Bienia <michael@vorlon.ping.de>
  *  Created   : 2004-09-05
- *  Updated   : 2011-05-14
+ *  Updated   : 2011-10-27
  *  Notes     : Split from config.c
  *
- * Copyright (c) 2004-2011 Michael Bienia <michael@vorlon.ping.de>
+ * Copyright (c) 2004-2012 Michael Bienia <michael@vorlon.ping.de>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -218,15 +218,21 @@ option_is_visible(
 #endif /* HAVE_COLOR */
 
 		case OPT_WORD_H_DISPLAY_MARKS:
-		case OPT_MONO_MARKSTAR:
-		case OPT_MONO_MARKDASH:
-		case OPT_MONO_MARKSLASH:
-		case OPT_MONO_MARKSTROKE:
 		case OPT_SLASHES_REGEX:
 		case OPT_STARS_REGEX:
 		case OPT_STROKES_REGEX:
 		case OPT_UNDERSCORES_REGEX:
 			return curr_scope ? FALSE : tinrc.word_highlight;
+
+		case OPT_MONO_MARKSTAR:
+		case OPT_MONO_MARKDASH:
+		case OPT_MONO_MARKSLASH:
+		case OPT_MONO_MARKSTROKE:
+#ifdef HAVE_COLOR
+			return curr_scope ? FALSE : (tinrc.word_highlight && !tinrc.use_color);
+#else
+			return curr_scope ? FALSE : tinrc.word_highlight;
+#endif /* HAVE_COLOR */
 
 #if defined(MULTIBYTE_ABLE) && !defined(NO_LOCALE)
 		case OPT_UTF8_GRAPHICS:
@@ -1767,7 +1773,7 @@ config_page(
 								 * or a !8bit encoding but a 8bit network charset, update encoding if needed
 								 */
 								is_7bit = FALSE;
-								for (i = 0; *txt_mime_7bit_charsets[i]; i++) {
+								for (i = 0; txt_mime_7bit_charsets[i] != NULL; i++) {
 									if (!strcasecmp(txt_mime_charsets[tinrc.mm_network_charset], txt_mime_7bit_charsets[i])) {
 										is_7bit = TRUE;
 										break;
@@ -1803,7 +1809,7 @@ config_page(
 								 * or a !8bit encoding but a 8bit network charset, update encoding if needed
 								 */
 								is_7bit = FALSE;
-								for (i = 0; *txt_mime_7bit_charsets[i]; i++) {
+								for (i = 0; txt_mime_7bit_charsets[i] != NULL; i++) {
 									if (!strcasecmp(txt_mime_charsets[tinrc.mm_network_charset], txt_mime_7bit_charsets[i])) {
 										is_7bit = TRUE;
 										break;
@@ -1842,7 +1848,7 @@ config_page(
 								 */
 								is_7bit = FALSE;
 								UPDATE_INT_ATTRIBUTES(mm_network_charset);
-								for (i = 0; *txt_mime_7bit_charsets[i]; i++) {
+								for (i = 0; txt_mime_7bit_charsets[i] != NULL; i++) {
 									if (!strcasecmp(txt_mime_charsets[tinrc.mm_network_charset], txt_mime_7bit_charsets[i])) {
 										is_7bit = TRUE;
 										break;
@@ -2286,6 +2292,15 @@ config_page(
 						case OPT_SCROLL_LINES:
 							prompt_option_num(option);
 							break;
+
+#if defined(HAVE_ALARM) && defined(SIGALRM)
+						case OPT_NNTP_READ_TIMEOUT_SECS:
+							if (prompt_option_num(option)) {
+								if (tinrc.nntp_read_timeout_secs < 0)
+									tinrc.nntp_read_timeout_secs = 0;
+							}
+							break;
+#endif /* HAVE_ALARM && SIGALRM */
 
 						case OPT_REREAD_ACTIVE_FILE_SECS:
 							if (prompt_option_num(option)) {
