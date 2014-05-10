@@ -3,7 +3,7 @@
  *  Module    : init.c
  *  Author    : I. Lea
  *  Created   : 1991-04-01
- *  Updated   : 2010-04-11
+ *  Updated   : 2010-10-07
  *  Notes     :
  *
  * Copyright (c) 1991-2010 Iain Lea <iain@bricbrac.de>
@@ -111,7 +111,7 @@ char userid[PATH_LEN];
 	char novrootdir[PATH_LEN];		/* root directory of nov index files */
 #endif /* !NNTP_ONLY */
 
-t_function last_search;	/* for repeated search */
+t_function last_search = GLOBAL_SEARCH_REPEAT;	/* for repeated search */
 int hist_last[HIST_MAXNUM + 1];
 int hist_pos[HIST_MAXNUM + 1];
 int iso2asc_supported;			/* Convert ISO-Latin1 to Ascii */

@@ -3,7 +3,7 @@
  *  Module    : newsrc.c
  *  Author    : I. Lea & R. Skrenta
  *  Created   : 1991-04-01
- *  Updated   : 2010-03-14
+ *  Updated   : 2010-07-14
  *  Notes     : ArtCount = (ArtMax - ArtMin) + 1  [could have holes]
  *
  * Copyright (c) 1991-2010 Iain Lea <iain@bricbrac.de>, Rich Skrenta <skrenta@pbm.com>
@@ -331,8 +331,10 @@ auto_subscribe_groups(
 	if (!batch_mode)
 		wait_message(0, _(txt_autosubscribing_groups));
 
-	if ((fp_newsrc = fopen(newsrc_file, "w")) == NULL)
+	if ((fp_newsrc = fopen(newsrc_file, "w")) == NULL) {
+		TIN_FCLOSE(fp_subs);
 		return;
+	}
 
 	if (newsrc_mode)
 		fchmod(fileno(fp_newsrc), newsrc_mode);

@@ -3,7 +3,7 @@
  *  Module    : group.c
  *  Author    : I. Lea & R. Skrenta
  *  Created   : 1991-04-01
- *  Updated   : 2010-03-14
+ *  Updated   : 2010-10-07
  *  Notes     :
  *
  * Copyright (c) 1991-2010 Iain Lea <iain@bricbrac.de>, Rich Skrenta <skrenta@pbm.com>
@@ -281,6 +281,10 @@ group_page(
 					range_active = TRUE;
 					show_group_page();
 				}
+				break;
+
+			case GLOBAL_SEARCH_REPEAT:
+				info_message(_(txt_no_prev_search));
 				break;
 
 			case GLOBAL_SEARCH_AUTHOR_FORWARD:

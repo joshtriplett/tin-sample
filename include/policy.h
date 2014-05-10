@@ -3,7 +3,7 @@
  *  Module    : policy.h
  *  Author    : Ralf Doeblitz <doeblitz@gmx.de>
  *  Created   : 1999-01-12
- *  Updated   : 2010-05-11
+ *  Updated   : 2010-10-11
  *  Notes     : #defines and static data for policy configuration
  *
  * Copyright (c) 1999-2010 Ralf Doeblitz <doeblitz@gmx.de>
@@ -311,25 +311,25 @@ static const char *gnksa_domain_list[] = {
 	"bofh",	/* There Is No Cabal */
 #	endif /* TINC_DNS */
 	/* active IDN ccTLDs */
+	"xn--fiqs8s",		/* China, Simplified Chinese */
+	"xn--fiqz9s",		/* China, Traditional Chinese */
 	"xn--wgbh1c",		/* Egypt */
-	"xn--mgberp4a5d4ar",	/* Saudi Arabia */
-	"xn--mgbaam7a8h",	/* United Arab Emirates */
-#	if 0
-	/* purposed IDN ccTLDs */
-	"xn--fiqs8S",		/* China, Simplified Chinese */
-	"xn--fiqz9S",		/* China, Traditional Chinese */
 	"xn--j6w193g",		/* Hong Kong, Han */
 	"xn--mgbayh7gpa",	/* Jordan */
 	"xn--ygbi2ammx",	/* Palestinian Territory */
-	"xn--wgbl6a",		/* Qatar */
 	"xn--p1ai",			/* Russian Federation */
+	"xn--mgberp4a5d4ar",	/* Saudi Arabia */
 	"xn--fzc2c9e2c",	/* Sri Lanka, Sinhala */
 	"xn--xkc2al3hye2a",	/* Sri Lanka, Tamil */
 	"xn--kpry57d",		/* Taiwan, Simplified Chinese */
 	"xn--kprw13d",		/* Taiwan, Traditional Chinese */
 	"xn--o3cw4h",		/* Thailand */
 	"xn--pgbs0dh",		/* Tunisia */
-	"xn--mgbaam7a8h",	/* United Arab Emirates */	
+	"xn--mgbaam7a8h",	/* United Arab Emirates */
+#	if 0
+	/* purposed IDN ccTLDs */
+	"xn--wgbl6a",		/* Qatar */
+	"xn--mgbtf8fl",		/* Syria */
 #	endif /* 0 */
 #	if 0
 	/* Desired Variant String(s) */

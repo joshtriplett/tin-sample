@@ -3,7 +3,7 @@
  *  Module    : tin.h
  *  Author    : I. Lea & R. Skrenta
  *  Created   : 1991-04-01
- *  Updated   : 2010-03-14
+ *  Updated   : 2010-10-01
  *  Notes     : #include files, #defines & struct's
  *
  * Copyright (c) 1997-2010 Iain Lea <iain@bricbrac.de>, Rich Skrenta <skrenta@pbm.com>
@@ -97,7 +97,7 @@
 
 #include	<signal.h>
 
-enum context { cMain, cArt, cAttrib, cConfig, cFilter, cGroup, cHelp, cInfopager, cPage, cReconnect, cScope, cSelect, cThread };
+enum context { cMain, cArt, cAttachment, cAttrib, cConfig, cFilter, cGroup, cHelp, cInfopager, cPage, cPost, cPostCancel, cPostFup, cReconnect, cScope, cSelect, cThread, cURL };
 enum icontext { cNone, cGetline, cPromptCONT, cPromptSLK, cPromptYN };
 enum resizer { cNo, cYes, cRedraw };
 enum rc_state { RC_IGNORE, RC_CHECK, RC_UPGRADE, RC_DOWNGRADE, RC_ERROR };
@@ -607,8 +607,8 @@ enum rc_state { RC_IGNORE, RC_CHECK, RC_UPGRADE, RC_DOWNGRADE, RC_ERROR };
 #define SHAR_REGEX	"\\#(?:!\\s?(?:/usr)?/bin/sh|\\s?(?i)this\\sis\\sa\\sshell\\sarchive)"
 
 /* slrn verbatim marks, case sensitive & ^-anchored */
-#define DEFAULT_VERBATIM_BEGIN_REGEX	"#v\\+"
-#define DEFAULT_VERBATIM_END_REGEX	"#v-"
+#define DEFAULT_VERBATIM_BEGIN_REGEX	"#v\\+\\s$"
+#define DEFAULT_VERBATIM_END_REGEX	"#v-\\s$"
 
 /*
  * URL related regexs:
@@ -642,6 +642,7 @@ enum rc_state { RC_IGNORE, RC_CHECK, RC_UPGRADE, RC_DOWNGRADE, RC_ERROR };
 #define MAIL_REGEX	"\\b(?:mailto:(?:[-\\w$.+!*'(),;/?:@&=]|%[\\da-f]{2})+)"
 /*
  * case insensitive
+ * TODO: check against RFC 5538
  */
 #if 1 /* complex */
 #	define NEWS_REGEX "\\b(?:s?news|nntp):(?:(?:(?://(?:(?:[^\\W_](?:(?:-(?!-)|[^\\W_]){0,61}[^\\W_])?|xn--[^\\W_](?:-(?!-)|[^\\W_]){1,57}[^\\W_])\\.)+[a-z]{2,6}\\.?|localhost|(?:(?:2[0-4]\\d|25[0-5]|[01]?\\d\\d?)\\.){3}(?:2[0-4]\\d|25[0-5]|[01]?\\d\\d?))(?::\\d+)?(?(?=[/])[^()\\^\\[\\]{}\\|\\x00-\\x1f\\x7f\\s\"<>'\\\\:,;]+|$))|[^\\^\\[\\]{}\\|\\x00-\\x1f\\x7f\\s<>\"():,;\\\\'/]+)\\b"
@@ -1030,6 +1031,8 @@ enum {
 #define SCOPE_LEVEL	6
 #define CONFIG_LEVEL	7
 #define ATTRIB_LEVEL	8
+#define ATTACHMENT_LEVEL	9
+#define URL_LEVEL	10
 
 #define MINI_HELP_LINES		5
 
@@ -1888,6 +1891,12 @@ typedef struct {
 	t_bool needsterminal:1;
 	t_bool copiousoutput:1;
 } t_mailcap;
+
+
+typedef struct urllist {
+	char *url;
+	struct urllist *next;
+} t_url;
 
 
 /*

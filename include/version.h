@@ -42,8 +42,8 @@
 #	ifndef TIN_AUTOCONF_H
 #		define VERSION		"1.9.6"
 #	endif /* !TIN_AUTOCONF_H */
-#	define RELEASEDATE	"20100522"
-#	define RELEASENAME	"Lochruan"
+#	define RELEASEDATE	"20101126"
+#	define RELEASENAME	"Burnside"
 /* config-file versions - must by dotted triples */
 #	define TINRC_VERSION	"1.3.11"
 #	define ATTRIBUTES_VERSION	"1.0.7"

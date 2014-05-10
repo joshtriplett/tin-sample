@@ -3,7 +3,7 @@
  *  Module    : extern.h
  *  Author    : I. Lea
  *  Created   : 1991-04-01
- *  Updated   : 2010-05-09
+ *  Updated   : 2010-10-07
  *  Notes     :
  *
  * Copyright (c) 1997-2010 Iain Lea <iain@bricbrac.de>
@@ -460,6 +460,17 @@ extern constext txt_articles_mailed[];
 extern constext txt_attach[];
 extern constext txt_attach_charset[];
 extern constext txt_attach_description[];
+extern constext txt_attachment_lines[];
+extern constext txt_attachment_menu[];
+extern constext txt_attachment_menu_com[];
+extern constext txt_attachment_no_name[];
+extern constext txt_attachment_saved[];
+extern constext txt_attachments_saved[];
+extern constext txt_attachment_select[];
+extern constext txt_attachment_tagged[];
+extern constext txt_attachments_tagged[];
+extern constext txt_attachment_untagged[];
+extern constext txt_attach_unsup_charset[];
 extern constext txt_attrib_menu_com[];
 extern constext txt_uue[];
 extern constext txt_at_s[];
@@ -548,10 +559,12 @@ extern constext txt_deleting[];
 #endif /* NNTP_ABLE */
 extern constext txt_end_of_art[];
 extern constext txt_end_of_arts[];
+extern constext txt_end_of_attachments[];
 extern constext txt_end_of_groups[];
 extern constext txt_end_of_page[];
 extern constext txt_end_of_scopes[];
 extern constext txt_end_of_thread[];
+extern constext txt_end_of_urls[];
 extern constext txt_enter_getart_limit[];
 extern constext txt_enter_message_id[];
 extern constext txt_enter_next_thread[];
@@ -730,6 +743,22 @@ extern constext txt_help_article_toggle_tabwidth[];
 extern constext txt_help_article_toggle_tex2iso[];
 extern constext txt_help_article_toggle_uue[];
 extern constext txt_help_article_view_attachments[];
+extern constext txt_help_attachment_first[];
+extern constext txt_help_attachment_goto[];
+extern constext txt_help_attachment_last[];
+#ifndef DONT_HAVE_PIPING
+	extern constext txt_help_attachment_pipe[];
+	extern constext txt_help_attachment_pipe_raw[];
+#endif /* !DONT_HAVE_PIPING */
+extern constext txt_help_attachment_save[];
+extern constext txt_help_attachment_search_forwards[];
+extern constext txt_help_attachment_search_backwards[];
+extern constext txt_help_attachment_select[];
+extern constext txt_help_attachment_tag[];
+extern constext txt_help_attachment_tag_pattern[];
+extern constext txt_help_attachment_toggle_tagged[];
+extern constext txt_help_attachment_untag[];
+extern constext txt_help_attachment_toggle_info_line[];
 extern constext txt_help_attrib_first_opt[];
 extern constext txt_help_attrib_goto_opt[];
 extern constext txt_help_attrib_last_opt[];
@@ -880,9 +909,18 @@ extern constext txt_help_title_disp[];
 extern constext txt_help_title_misc[];
 extern constext txt_help_title_navi[];
 extern constext txt_help_title_ops[];
+extern constext txt_help_title_attachment_ops[];
 extern constext txt_help_title_attrib_ops[];
 extern constext txt_help_title_config_ops[];
 extern constext txt_help_title_scope_ops[];
+extern constext txt_help_title_url_ops[];
+extern constext txt_help_url_first_url[];
+extern constext txt_help_url_goto_url[];
+extern constext txt_help_url_last_url[];
+extern constext txt_help_url_search_forwards[];
+extern constext txt_help_url_search_backwards[];
+extern constext txt_help_url_select[];
+extern constext txt_help_url_toggle_info_line[];
 extern constext txt_incomplete[];
 extern constext txt_index_page_com[];
 extern constext txt_info_add_kill[];
@@ -940,6 +978,9 @@ extern constext txt_marked_as_unread[];
 extern constext txt_marked_arts_as_read[];
 extern constext txt_marked_arts_as_unread[];
 extern constext txt_matching_cmd_line_groups[];
+extern constext txt_mini_attachment_1[];
+extern constext txt_mini_attachment_2[];
+extern constext txt_mini_attachment_3[];
 extern constext txt_mini_group_1[];
 extern constext txt_mini_group_2[];
 extern constext txt_mini_group_3[];
@@ -955,6 +996,8 @@ extern constext txt_mini_select_2[];
 extern constext txt_mini_select_3[];
 extern constext txt_mini_thread_1[];
 extern constext txt_mini_thread_2[];
+extern constext txt_mini_url_1[];
+extern constext txt_mini_url_2[];
 extern constext txt_more[];
 extern constext txt_moving[];
 extern constext txt_msgid_line_last[];
@@ -972,6 +1015,7 @@ extern constext txt_next_resp[];
 extern constext txt_no[];
 extern constext txt_no_arts[];
 extern constext txt_no_arts_posted[];
+extern constext txt_no_attachments[];
 extern constext txt_no_description[];
 extern constext txt_no_filename[];
 extern constext txt_no_group[];
@@ -985,6 +1029,7 @@ extern constext txt_no_more_groups[];
 extern constext txt_no_newsgroups[];
 extern constext txt_no_next_unread_art[];
 extern constext txt_no_prev_group[];
+extern constext txt_no_prev_search[];
 extern constext txt_no_prev_unread_art[];
 extern constext txt_no_responses[];
 extern constext txt_no_resps_in_thread[];
@@ -1073,6 +1118,7 @@ extern constext txt_refs_line_only[];
 	extern constext txt_remaining[];
 #endif /* HAVE_GETTIMEOFDAY */
 extern constext txt_remove_bogus[];
+extern constext txt_removed_rule[];
 extern constext txt_rename_error[];
 extern constext txt_reply_to_author[];
 extern constext txt_repost[];
@@ -1187,7 +1233,10 @@ extern constext txt_unsubscribing[];
 extern constext txt_unthreading_arts[];
 extern constext txt_updated[];
 extern constext txt_updating[];
+extern constext txt_url_menu[];
+extern constext txt_url_menu_com[];
 extern constext txt_url_open[];
+extern constext txt_url_select[];
 extern constext txt_url_done[];
 extern constext txt_usage_catchup[];
 extern constext txt_usage_check_for_unread_news[];

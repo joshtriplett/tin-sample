@@ -3,7 +3,7 @@
  *  Module    : post.c
  *  Author    : I. Lea
  *  Created   : 1991-04-01
- *  Updated   : 2010-02-10
+ *  Updated   : 2010-11-13
  *  Notes     : mail/post/replyto/followup/repost & cancel articles
  *
  * Copyright (c) 1991-2010 Iain Lea <iain@bricbrac.de>
@@ -129,9 +129,8 @@ static struct msg_header {
 static FILE *create_mail_headers(char *filename, size_t filename_len, const char *suffix, const char *to, const char *subject, struct t_header *extra_hdrs);
 static char **build_nglist(char *ngs_list, int *ngcnt);
 static char **split_address_list(const char *addresses, unsigned int *cnt);
-static char *backup_article_name(const char *the_article);
 static int add_mail_quote(FILE *fp, int respnum);
-static int check_article_to_be_posted(const char *the_article, int art_type, struct t_group **group, t_bool art_unchanged);
+static int check_article_to_be_posted(const char *the_article, int art_type, struct t_group **group, t_bool art_unchanged, t_bool use_cache);
 static int mail_loop(const char *filename, t_function func, char *subject, const char *groupname, const char *prompt, FILE *articlefp);
 static int msg_add_x_body(FILE *fp_out, const char *body);
 static int msg_write_headers(FILE *fp);
@@ -165,11 +164,15 @@ static void msg_init_headers(void);
 static void post_postponed_article(int ask, const char *subject, const char *newsgroups);
 static void postpone_article(const char *the_article);
 static void setup_check_article_screen(int *init);
+static void show_followup_info(void);
 static void strip_double_ngs(char *ngs_list);
 static void update_active_after_posting(char *newsgroups);
 static void update_posted_info_file(const char *group, int action, const char *subj, const char *a_message_id);
 #ifdef FORGERY
 	static void make_path_header(char *line);
+	static void show_cancel_info(t_bool author, t_bool use_cache);
+#else
+	static void show_cancel_info(void);
 #endif /* FORGERY */
 #ifdef EVIL_INSIDE
 	static const char *build_messageid(void);
@@ -295,7 +298,7 @@ repair_article(
  * submit_news_file adds headers, does q-p conversion etc
  * TODO: why not use BACKUP_FILE_EXT like in misc.c?
  */
-static char *
+char *
 backup_article_name(
 	const char *the_article)
 {
@@ -415,10 +418,11 @@ msg_write_headers(
 		if (msg_headers[i].name) {
 			fprintf(fp, "%s: %s\n", msg_headers[i].name, BlankIfNull(msg_headers[i].text));
 			wrote++;
-			p = msg_headers[i].text;
-			while((p = strchr(p, '\n'))) {
-				p++;
-				wrote++;
+			if ((p = msg_headers[i].text)) {
+				while((p = strchr(p, '\n'))) {
+					p++;
+					wrote++;
+				}
 			}
 		}
 	}
@@ -770,7 +774,8 @@ check_article_to_be_posted(
 	const char *the_article,
 	int art_type,
 	struct t_group **group,
-	t_bool art_unchanged)
+	t_bool art_unchanged,
+	t_bool use_cache)
 {
 	FILE *fp;
 	char **newsgroups = NULL;
@@ -804,14 +809,34 @@ check_article_to_be_posted(
 	t_bool contains_8bit = FALSE;
 #ifdef CHARSET_CONVERSION
 	t_bool charset_conversion_fails = FALSE;
-	int mmnwcharset = *group ? (*group)->attribute->mm_network_charset : tinrc.mm_network_charset;
+	int mmnwcharset;
+#endif /* CHARSET_CONVERSION */
+	static const char *c_article;
+	static int c_art_type;
+	static struct t_group **c_group;
+	static t_bool c_art_unchanged;
+
+	/*
+	 * Cache values for the case when called
+	 * from refresh_post_screen()
+	 */
+	if (!use_cache) {
+		c_article = the_article;
+		c_art_type = art_type;
+		c_group = group;
+		c_art_unchanged = art_unchanged;
+	}
+
+#ifdef CHARSET_CONVERSION
+	mmnwcharset = *c_group ? (*c_group)->attribute->mm_network_charset : tinrc.mm_network_charset;
 #endif /* CHARSET_CONVERSION */
 
-	if ((fp = fopen(the_article, "r")) == NULL) {
-		perror_message(_(txt_cannot_open), the_article);
+	if ((fp = fopen(c_article, "r")) == NULL) {
+		perror_message(_(txt_cannot_open), c_article);
 		return 0;
 	}
 	oldraw = RawState();	/* save state */
+	subject[0] = '\0';
 
 	/* check the header of the article */
 	while ((line = tin_fgets(fp, TRUE)) != NULL) {
@@ -843,8 +868,8 @@ check_article_to_be_posted(
 			setup_check_article_screen(&init);
 			StartInverse();
 			my_fprintf(stderr, _(txt_error_header_line_colon), cnt, line);
-			my_fflush(stderr);
 			EndInverse();
+			my_fflush(stderr);
 			errors++;
 			continue;
 		}
@@ -852,8 +877,8 @@ check_article_to_be_posted(
 			setup_check_article_screen(&init);
 			StartInverse();
 			my_fprintf(stderr, _(txt_error_header_line_space), cnt, line);
-			my_fflush(stderr);
 			EndInverse();
+			my_fflush(stderr);
 			errors++;
 		}
 
@@ -868,8 +893,8 @@ check_article_to_be_posted(
 			setup_check_article_screen(&init);
 			StartInverse();
 			my_fprintf(stderr, _(txt_error_sender_in_header_not_allowed), cnt);
-			my_fflush(stderr);
 			EndInverse();
+			my_fflush(stderr);
 			errors++;
 		}
 #endif /* !FORGERY */
@@ -879,8 +904,8 @@ check_article_to_be_posted(
 				setup_check_article_screen(&init);
 				/* StartInverse(); */
 				my_fprintf(stderr, _(txt_error_approved)); /* this is only a Warning: */
-				my_fflush(stderr);
 				/* EndInverse(); */
+				my_fflush(stderr);
 #ifdef HAVE_FASCIST_NEWSADMIN
 				errors++;
 #else
@@ -897,8 +922,8 @@ check_article_to_be_posted(
 				StartInverse();
 				my_fprintf(stderr, _(txt_error_bad_approved), i);
 				my_fprintf(stderr, gnksa_strerror(i), i);
-				my_fflush(stderr);
 				EndInverse();
+				my_fflush(stderr);
 #ifndef FORGERY
 				errors++;
 #endif /* !FORGERY */
@@ -918,8 +943,8 @@ check_article_to_be_posted(
 				StartInverse();
 				my_fprintf(stderr, _(txt_error_bad_from), i);
 				my_fprintf(stderr, gnksa_strerror(i), i);
-				my_fflush(stderr);
 				EndInverse();
+				my_fflush(stderr);
 #ifndef FORGERY
 				errors++;
 #endif /* !FORGERY */
@@ -938,8 +963,8 @@ check_article_to_be_posted(
 				StartInverse();
 				my_fprintf(stderr, _(txt_error_bad_replyto), i);
 				my_fprintf(stderr, gnksa_strerror(i), i);
-				my_fflush(stderr);
 				EndInverse();
+				my_fflush(stderr);
 #ifndef FORGERY
 				errors++;
 #endif /* !FORGERY */
@@ -964,8 +989,8 @@ check_article_to_be_posted(
 				StartInverse();
 				my_fprintf(stderr, _(txt_error_bad_msgidfqdn), i);
 				my_fprintf(stderr, gnksa_strerror(i), i);
-				my_fflush(stderr);
 				EndInverse();
+				my_fflush(stderr);
 #ifndef FORGERY
 				errors++;
 #endif /* !FORGERY */
@@ -1156,7 +1181,7 @@ check_article_to_be_posted(
 			errors_catbp |= CA_ERROR_DUPLICATED_FROM;
 	}
 
-	if (!found_newsgroups_lines && art_type == GROUP_TYPE_NEWS)
+	if (!found_newsgroups_lines && c_art_type == GROUP_TYPE_NEWS)
 		errors_catbp |= CA_ERROR_MISSING_NEWSGROUPS;
 
 	if (found_newsgroups_lines > 1)
@@ -1255,16 +1280,16 @@ check_article_to_be_posted(
 /*
  * TODO: cleanup, test me, move to the right location, strings -> lang.c, ...
  */
-	if (must_break_line && ((*group ? (*group)->attribute->post_mime_encoding : tinrc.post_mime_encoding) != MIME_ENCODING_BASE64)) {
+	if (must_break_line && ((*c_group ? (*c_group)->attribute->post_mime_encoding : tinrc.post_mime_encoding) != MIME_ENCODING_BASE64)) {
 		setup_check_article_screen(&init);
 #	ifdef MIME_BREAK_LONG_LINES
 		if (contains_8bit) {
-			if ((*group ? (*group)->attribute->post_mime_encoding : tinrc.post_mime_encoding) != MIME_ENCODING_QP)
+			if ((*c_group ? (*c_group)->attribute->post_mime_encoding : tinrc.post_mime_encoding) != MIME_ENCODING_QP)
 				my_fprintf(stderr, _("Line %d is longer than 998 octets and should be folded, but\nencoding is neither set to %s nor to %s\n"), must_break_line, txt_quoted_printable, txt_base64);
 		} else
 #	endif /* MIME_BREAK_LONG_LINES */
 		{
-			if ((*group ? (*group)->attribute->post_mime_encoding : tinrc.post_mime_encoding) == MIME_ENCODING_QP)
+			if ((*c_group ? (*c_group)->attribute->post_mime_encoding : tinrc.post_mime_encoding) == MIME_ENCODING_QP)
 				my_fprintf(stderr, _("Line %d is longer than 998 octets and should be folded, but\nencoding is set to %s without enabling MIME_BREAK_LONG_LINES or\nposting doesn't contain any 8bit chars and thus folding won't happen\n"), must_break_line, txt_quoted_printable);
 			else
 				my_fprintf(stderr, _("Line %d is longer than 998 octets and should be folded, but\nencoding is not set to %s\n"), must_break_line, txt_base64);
@@ -1307,7 +1332,7 @@ check_article_to_be_posted(
 	 * Is this correct for crosspostings?
 	 */
 	if (ngcnt)
-		*group = group_find(newsgroups[0], FALSE);
+		*c_group = group_find(newsgroups[0], FALSE);
 
 	/*
 	 * check for known 7bit charsets
@@ -1323,7 +1348,7 @@ check_article_to_be_posted(
 			break;
 		}
 	}
-	if ((*group ? (*group)->attribute->post_mime_encoding : tinrc.post_mime_encoding) != MIME_ENCODING_7BIT)
+	if ((*c_group ? (*c_group)->attribute->post_mime_encoding : tinrc.post_mime_encoding) != MIME_ENCODING_7BIT)
 		mime_7bit = FALSE;
 	if (contains_8bit && mime_usascii)
 #ifndef CHARSET_CONVERSION
@@ -1341,7 +1366,7 @@ check_article_to_be_posted(
 	 * signature it will not be encoded. We might additionally check if there's
 	 * a file named ~/.signature and skip the warning if it is not present.
 	 */
-	if ((((*group ? (*group)->attribute->post_mime_encoding : tinrc.post_mime_encoding) == MIME_ENCODING_QP) || ((*group ? (*group)->attribute->post_mime_encoding : tinrc.post_mime_encoding) == MIME_ENCODING_BASE64)) && 0 != strcasecmp(tinrc.inews_prog, INTERNAL_CMD))
+	if ((((*c_group ? (*c_group)->attribute->post_mime_encoding : tinrc.post_mime_encoding) == MIME_ENCODING_QP) || ((*c_group ? (*c_group)->attribute->post_mime_encoding : tinrc.post_mime_encoding) == MIME_ENCODING_BASE64)) && 0 != strcasecmp(tinrc.inews_prog, INTERNAL_CMD))
 		warnings_catbp |= CA_WARNING_ENCODING_EXTERNAL_INEWS;
 
 	/* give most error messages */
@@ -1417,8 +1442,8 @@ check_article_to_be_posted(
 		if (errors_catbp & CA_ERROR_BAD_EXPIRES)
 			my_fprintf(stderr, _(txt_error_header_format), "Expires");
 
-		my_fflush(stderr);
 		EndInverse();
+		my_fflush(stderr);
 		errors += errors_catbp;
 	}
 
@@ -1471,7 +1496,7 @@ check_article_to_be_posted(
 		 * Print a note about each newsgroup
 		 */
 		setup_check_article_screen(&init);
-		if (art_unchanged)
+		if (c_art_unchanged)
 			my_fprintf(stderr, _(txt_warn_article_unchanged));
 		my_fprintf(stderr, _(txt_art_newsgroups), subject, PLURAL(ngcnt, txt_newsgroup));
 		for (i = 0; i < ngcnt; i++) {
@@ -1481,8 +1506,8 @@ check_article_to_be_posted(
 					StartInverse();
 					errors++;
 					my_fprintf(stderr, N_(txt_error_grp_renamed), newsgroups[i], psGrp->aliasedto);
-					my_fflush(stderr);
 					EndInverse();
+					my_fflush(stderr);
 #else
 					my_fprintf(stderr, N_(txt_warn_grp_renamed), newsgroups[i], psGrp->aliasedto);
 					warnings++;
@@ -1494,8 +1519,8 @@ check_article_to_be_posted(
 				StartInverse();
 				errors++;
 				my_fprintf(stderr, _(txt_error_not_valid_newsgroup), newsgroups[i]);
-				my_fflush(stderr);
 				EndInverse();
+				my_fflush(stderr);
 #else
 				my_fprintf(stderr, (!list_active ? /* did we read the whole active file? */ _(txt_warn_not_in_newsrc) : _(txt_warn_not_valid_newsgroup)), newsgroups[i]);
 				warnings++;
@@ -1506,8 +1531,8 @@ check_article_to_be_posted(
 #ifdef HAVE_FASCIST_NEWSADMIN
 			StartInverse();
 			my_fprintf(stderr, _(txt_error_missing_followup_to), ngcnt);
-			my_fflush(stderr);
 			EndInverse();
+			my_fflush(stderr);
 			errors++;
 #else
 			my_fprintf(stderr, _(txt_warn_missing_followup_to), ngcnt);
@@ -1520,8 +1545,8 @@ check_article_to_be_posted(
 #ifdef HAVE_FASCIST_NEWSADMIN
 				StartInverse();
 				my_fprintf(stderr, _(txt_error_followup_to_several_groups));
-				my_fflush(stderr);
 				EndInverse();
+				my_fflush(stderr);
 				errors++;
 #else
 				my_fprintf(stderr, _(txt_warn_followup_to_several_groups));
@@ -1539,8 +1564,8 @@ check_article_to_be_posted(
 							StartInverse();
 							errors++;
 							my_fprintf(stderr, N_(txt_error_grp_renamed), followupto[i], psGrp->aliasedto);
-							my_fflush(stderr);
 							EndInverse();
+							my_fflush(stderr);
 #else
 							my_fprintf(stderr, N_(txt_warn_grp_renamed), followupto[i], psGrp->aliasedto);
 							warnings++;
@@ -1554,8 +1579,8 @@ check_article_to_be_posted(
 #ifdef HAVE_FASCIST_NEWSADMIN
 							StartInverse();
 							my_fprintf(stderr, _(txt_error_not_valid_newsgroup), followupto[i]);
-							my_fflush(stderr);
 							EndInverse();
+							my_fflush(stderr);
 							errors++;
 #else
 							my_fprintf(stderr, (!list_active ? /* did we read the whole active file? */ _(txt_warn_not_in_newsrc) : _(txt_warn_not_valid_newsgroup)), followupto[i]);
@@ -1607,6 +1632,45 @@ setup_check_article_screen(
 }
 
 
+void
+refresh_post_screen(
+	int context)
+{
+	switch (context) {
+		case cPost:
+			ClearScreen();
+			center_line(0, TRUE, _(txt_check_article));
+			MoveCursor(INDEX_TOP, 0);
+			check_article_to_be_posted(NULL, 0, NULL, FALSE, TRUE);
+			break;
+
+		case cPostCancel:
+			{
+				int oldraw = RawState();
+
+				ClearScreen();
+				center_line(0, TRUE, _(txt_check_article));
+				MoveCursor(INDEX_TOP, 0);
+				Raw(FALSE);
+#ifdef FORGERY
+				show_cancel_info(FALSE, TRUE);
+#else
+				show_cancel_info();
+#endif /* FORGERY */
+				Raw(oldraw);
+			}
+			break;
+
+		case cPostFup:
+			show_followup_info();
+			break;
+
+		default:
+			break;
+	}
+}
+
+
 /*
  * edit/present an article, perform spell/PGP etc., operations if required
  * submit the article and perform all necessary backend processing
@@ -1623,6 +1687,7 @@ post_loop(
 	char a_message_id[HEADER_LEN];	/* Message-ID of the article if known */
 	int ret_code = POSTED_NONE;
 	int i = 1;
+	int save_signal_context = signal_context;
 	long artchanged;		/* artchanged work was not done in post_postponed_article */
 	struct t_group *ogroup = curr_group;
 	t_bool art_unchanged;
@@ -1656,7 +1721,7 @@ post_article_loop:
 				if (file_size(article_name) > 0L) {
 					if (artchanged == file_mtime(article_name))
 						art_unchanged = TRUE;
-					while ((i = check_article_to_be_posted(article_name, art_type, &group, art_unchanged)) == 1 && repair_article(&func, group))
+					while ((i = check_article_to_be_posted(article_name, art_type, &group, art_unchanged, FALSE)) == 1 && repair_article(&func, group))
 						;
 					if (func == POST_EDIT || func == GLOBAL_OPTION_MENU)
 						break;
@@ -1677,7 +1742,7 @@ post_article_loop:
 
 			case GLOBAL_OPTION_MENU:
 				config_page(group->name);
-				while ((i = check_article_to_be_posted(article_name, art_type, &group, art_unchanged) == 1) && repair_article(&func, group))
+				while ((i = check_article_to_be_posted(article_name, art_type, &group, art_unchanged, FALSE) == 1) && repair_article(&func, group))
 					;
 				break;
 
@@ -1736,6 +1801,7 @@ post_article_loop:
 			default:
 				break;
 		}
+		signal_context = cPost;
 		if (type != POST_REPOST) {
 			char keyedit[MAXKEYLEN], keypost[MAXKEYLEN];
 			char keypostpone[MAXKEYLEN], keyquit[MAXKEYLEN];
@@ -1792,6 +1858,7 @@ post_article_loop:
 						"" /* TODO: was note_h.subj */ )));
 			free(smsg);
 		}
+		signal_context = save_signal_context;
 	}
 
 post_article_done:
@@ -2620,6 +2687,43 @@ join_references(
 }
 
 
+static void
+show_followup_info(
+	void)
+{
+	char *ptr;
+	struct t_header note_h = pgart.hdr;
+
+	/*
+	 * note that comparing newsgroups and followup-to isn't
+	 * really correct, since the order of the newsgroups may be
+	 * different, but testing that also isn't really worth
+	 * it. The main culprit for the duplication is tin <=1.22, BTW.
+	 */
+	MoveCursor(cLINES / 2, 0);
+	CleartoEOS();
+	center_line((cLINES / 2) + 2, TRUE, _(txt_resp_redirect));
+	MoveCursor((cLINES / 2) + 4, 0);
+
+	my_fputs("    ", stdout);
+	/*
+	 * TODO: check if any valid groups are in the Followup-To:-line
+	 *       and if not inform the user and use Newsgroups: instead
+	 */
+	ptr = note_h.followup;
+	while (*ptr) {
+		if (*ptr != ',')
+			my_fputc(*ptr, stdout);
+		else {
+			my_fputs(cCRLF, stdout);
+			my_fputs("    ", stdout);
+		}
+		ptr++;
+	}
+	my_flush();
+}
+
+
 int /* return code is currently ignored! */
 post_response(
 	const char *groupname,
@@ -2680,40 +2784,16 @@ post_response(
 	} else if (note_h.followup && strcmp(note_h.followup, groupname) != 0
 			&& strcmp(note_h.followup, note_h.newsgroups) != 0) {
 		char keyignore[MAXKEYLEN], keypost[MAXKEYLEN], keyquit[MAXKEYLEN];
+		int save_signal_context = signal_context;
 
-		/*
-		 * note that comparing newsgroups and followup-to isn't
-		 * really correct, since the order of the newsgroups may be
-		 * different, but testing that also isn't really worth
-		 * it. The main culprit for the duplication is tin <=1.22, BTW.
-		 */
-		MoveCursor(cLINES / 2, 0);
-		CleartoEOS();
-		center_line((cLINES / 2) + 2, TRUE, _(txt_resp_redirect));
-		MoveCursor((cLINES / 2) + 4, 0);
-
-		my_fputs("    ", stdout);
-		/*
-		 * TODO: check if any valid groups are in the Followup-To:-line
-		 *       and if not inform the user and use Newsgroups: instead
-		 */
-		ptr = note_h.followup;
-		while (*ptr) {
-			if (*ptr != ',')
-				my_fputc(*ptr, stdout);
-			else {
-				my_fputs(cCRLF, stdout);
-				my_fputs("    ", stdout);
-			}
-			ptr++;
-		}
-		my_flush();
-
+		show_followup_info();
+		signal_context = cPostFup;
 		func = prompt_slk_response(GLOBAL_POST, post_ignore_fupto_keys,
 				_(txt_prompt_fup_ignore),
 				printascii(keypost, func_to_key(GLOBAL_POST, post_ignore_fupto_keys)),
 				printascii(keyignore, func_to_key(POST_IGNORE_FUPTO, post_ignore_fupto_keys)),
 				printascii(keyquit, func_to_key(GLOBAL_QUIT, post_ignore_fupto_keys)));
+		signal_context = save_signal_context;
 		switch (func) {
 			case GLOBAL_QUIT:
 			case GLOBAL_ABORT:
@@ -2795,15 +2875,17 @@ post_response(
 			msg_add_header("Distribution", my_distribution);
 	}
 
-	msg_add_x_headers(group->attribute->x_headers);
+	if (group && group->attribute->x_headers)
+		msg_add_x_headers(group->attribute->x_headers);
 
 	start_line_offset = msg_write_headers(fp) + 1;
 	msg_free_headers();
-	start_line_offset += msg_add_x_body(fp, group->attribute->x_body);
+	if (group && group->attribute->x_body)
+		start_line_offset += msg_add_x_body(fp, group->attribute->x_body);
 
 	if (copy_text) {
 		if (arts[respnum].xref && is_crosspost(arts[respnum].xref)) {
-			if (strfquote(group->name, respnum, buf, sizeof(buf), tinrc.xpost_quote_format))
+			if (strfquote(group ? group->name : groupname, respnum, buf, sizeof(buf), tinrc.xpost_quote_format))
 				fprintf(fp, "%s\n", buf);
 		} else if (strfquote(groupname, respnum, buf, sizeof(buf), (group && group->attribute->news_quote_format != NULL) ? group->attribute->news_quote_format : tinrc.news_quote_format))
 			fprintf(fp, "%s\n", buf);
@@ -2937,10 +3019,10 @@ create_mail_headers(
 		 * put in the file in the first place, so we don't do it.
 		 */
 		if (!address_in_list(to, strlen(from_address) ? from_address : userid)) {
-			if ((curr_group && (curr_group->attribute->auto_cc_bcc & AUTO_CC)) || (!curr_group && (tinrc.auto_cc_bcc & AUTO_CC)))
+			if ((curr_group && curr_group->attribute && (curr_group->attribute->auto_cc_bcc & AUTO_CC)) || (!curr_group && (tinrc.auto_cc_bcc & AUTO_CC)))
 				msg_add_header("Cc", strlen(from_address) ? from_address : userid);
 
-			if ((curr_group && (curr_group->attribute->auto_cc_bcc & AUTO_BCC)) || (!curr_group && (tinrc.auto_cc_bcc & AUTO_BCC)))
+			if ((curr_group && curr_group->attribute && (curr_group->attribute->auto_cc_bcc & AUTO_BCC)) || (!curr_group && (tinrc.auto_cc_bcc & AUTO_BCC)))
 				msg_add_header("Bcc", strlen(from_address) ? from_address : userid);
 		}
 
@@ -2963,7 +3045,7 @@ create_mail_headers(
 			msg_add_header("X-Newsgroups", extra_hdrs->newsgroups);
 		}
 
-		if (curr_group && curr_group->attribute->x_headers && strlen(curr_group->attribute->x_headers))
+		if (curr_group && curr_group->attribute && curr_group->attribute->x_headers && strlen(curr_group->attribute->x_headers))
 			msg_add_x_headers(curr_group->attribute->x_headers);
 	}
 	start_line_offset = msg_write_headers(fp) + 1;
@@ -3496,6 +3578,40 @@ check_for_spamtrap(
 }
 
 
+static void
+show_cancel_info(
+#ifdef FORGERY
+	t_bool author,
+	t_bool use_cache)
+#else
+	void)
+#endif /* FORGERY */
+{
+	struct t_header note_h = pgart.hdr;
+#ifdef FORGERY
+	static t_bool c_author;
+
+	/*
+	 * Cache value for the case when called
+	 * from refresh_post_screen()
+	 */
+	if (!use_cache)
+		c_author = author;
+
+	if (!c_author) {
+		my_fprintf(stderr, _(txt_warn_cancel_forgery));
+		my_fprintf(stderr, "From: %s\n", BlankIfNull(note_h.from));
+	} else
+#endif /* FORGERY */
+	my_fprintf(stderr, _(txt_warn_cancel));
+
+	my_fprintf(stderr, "Subject: %s\n", BlankIfNull(note_h.subj));
+	my_fprintf(stderr, "Date: %s\n", BlankIfNull(note_h.date));
+	my_fprintf(stderr, "Message-ID: %s\n", BlankIfNull(note_h.messageid));
+	my_fprintf(stderr, "Newsgroups: %s\n", BlankIfNull(note_h.newsgroups));
+}
+
+
 t_bool
 cancel_article(
 	struct t_group *group,
@@ -3672,17 +3788,10 @@ cancel_article(
 	setup_check_article_screen(&init);
 
 #ifdef FORGERY
-	if (!author) {
-		my_fprintf(stderr, _(txt_warn_cancel_forgery));
-		my_fprintf(stderr, "From: %s\n", BlankIfNull(note_h.from));
-	} else
+	show_cancel_info(author, FALSE);
+#else
+	show_cancel_info();
 #endif /* FORGERY */
-	my_fprintf(stderr, _(txt_warn_cancel));
-
-	my_fprintf(stderr, "Subject: %s\n", BlankIfNull(note_h.subj));
-	my_fprintf(stderr, "Date: %s\n", BlankIfNull(note_h.date));
-	my_fprintf(stderr, "Message-ID: %s\n", BlankIfNull(note_h.messageid));
-	my_fprintf(stderr, "Newsgroups: %s\n", BlankIfNull(note_h.newsgroups));
 	Raw(oldraw);
 
 	if (!(fp = fopen(cancel, "r"))) {
@@ -3699,13 +3808,16 @@ cancel_article(
 			char *smsg;
 			char buff[LEN];
 			char keycancel[MAXKEYLEN], keyedit[MAXKEYLEN], keyquit[MAXKEYLEN];
+			int save_signal_context = signal_context;
 
 			snprintf(buff, sizeof(buff), _(txt_quit_cancel),
 					printascii(keyedit, func_to_key(POST_EDIT, post_cancel_keys)),
 					printascii(keyquit, func_to_key(GLOBAL_QUIT, post_cancel_keys)),
 					printascii(keycancel, func_to_key(POST_CANCEL, post_cancel_keys)));
 
+			signal_context = cPostCancel;
 			func = prompt_slk_response(default_func, post_cancel_keys, "%s", sized_message(&smsg, buff, note_h.subj));
+			signal_context = save_signal_context;
 			free(smsg);
 		}
 
@@ -3994,7 +4106,6 @@ msg_add_x_headers(
 	char line[HEADER_LEN];
 	int num_x_hdrs = 0;
 	int i;
-	t_bool a_pipe = FALSE;
 
 	if (!headers)
 		return;
@@ -4020,11 +4131,9 @@ msg_add_x_headers(
 		if (file[0] == '!') {
 			if ((fp = popen(file + 1, "r")) == NULL)
 				return;
-			else
-				a_pipe = TRUE;
 		}
 #endif /* !DONT_HAVE_PIPING */
-		if (!a_pipe && ((fp = fopen(file, "r")) == NULL))
+		if (!fp && ((fp = fopen(file, "r")) == NULL))
 			return;
 
 		while (fgets(line, (int) sizeof(line), fp) != NULL) {
@@ -4055,7 +4164,7 @@ msg_add_x_headers(
 		}
 
 #ifndef DONT_HAVE_PIPING
-		if (a_pipe)
+		if (file[0] == '!')
 			pclose(fp);
 		else
 #endif /* !DONT_HAVE_PIPING */

@@ -3,7 +3,7 @@
  *  Module    : misc.c
  *  Author    : I. Lea & R. Skrenta
  *  Created   : 1991-04-01
- *  Updated   : 2010-05-18
+ *  Updated   : 2010-11-03
  *  Notes     :
  *
  * Copyright (c) 1991-2010 Iain Lea <iain@bricbrac.de>, Rich Skrenta <skrenta@pbm.com>
@@ -818,8 +818,8 @@ draw_percent_mark(
 	MoveCursor(cLINES, cCOLS - len - (1 + BLANK_PAGE_COLS));
 	StartInverse();
 	my_fputs(buf, stdout);
-	my_flush();
 	EndInverse();
+	my_flush();
 }
 
 
@@ -1057,6 +1057,14 @@ toggle_color(
 	} else
 #	endif /* USE_CURSES */
 		use_color = bool_not(use_color);
+
+#	ifndef USE_CURSES
+	if (use_color) {
+		fcol(tinrc.col_normal);
+		bcol(tinrc.col_normal);
+	} else
+		reset_screen_attr();
+#	endif /* !USE_CURSES */
 
 	return TRUE;
 }

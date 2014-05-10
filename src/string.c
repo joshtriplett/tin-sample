@@ -3,7 +3,7 @@
  *  Module    : string.c
  *  Author    : Urs Janssen <urs@tin.org>
  *  Created   : 1997-01-20
- *  Updated   : 2010-05-20
+ *  Updated   : 2010-09-10
  *  Notes     :
  *
  * Copyright (c) 1997-2010 Urs Janssen <urs@tin.org>
@@ -877,8 +877,8 @@ abbr_wcsgroupname(
 
 	return new_grpname;
 }
-#endif /* MULTIBYTE_ABLE && !NOLOCALE */
 
+#else /* !MULTIBYTE_ABLE || NO_LOCALE */
 
 /*
  * Abbreviate a groupname like this:
@@ -935,6 +935,7 @@ abbr_groupname(
 
 	return new_grpname;
 }
+#endif /* MULTIBYTE_ABLE && !NOLOCALE */
 
 
 /*

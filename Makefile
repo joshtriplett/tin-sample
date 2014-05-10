@@ -1,7 +1,7 @@
 # Top level Makefile for tin
 # - for configuration options read the doc/INSTALL file.
 #
-# Updated: 2009-07-24
+# Updated: 2010-09-16
 #
 
 PROJECT	= tin
@@ -9,7 +9,7 @@ LVER	= 1
 PVER	= 9
 SVER	= 6
 VER	= $(LVER).$(PVER).$(SVER)
-DVER	= 20100522
+DVER	= 20101126
 EXE	= tin
 
 # directory structure
@@ -335,6 +335,9 @@ L10NFILES = \
 	$(L10NDIR)/de/tin.5 \
 	$(L10NDIR)/de.add \
 	$(L10NDIR)/de.po \
+	$(L10NDIR)/en_GB/tin.1 \
+	$(L10NDIR)/en_GB/tin.5 \
+	$(L10NDIR)/en_GB.po \
 	$(L10NDIR)/po4a.conf \
 	$(L10NDIR)/tin-man.pot
 

@@ -3,7 +3,7 @@
  *  Module    : nntplib.c
  *  Author    : S. Barber & I. Lea
  *  Created   : 1991-01-12
- *  Updated   : 2010-05-14
+ *  Updated   : 2010-11-10
  *  Notes     : NNTP client routines taken from clientlib.c 1.5.11 (1991-02-10)
  *  Copyright : (c) Copyright 1991-99 by Stan Barber & Iain Lea
  *              Permission is hereby granted to copy, reproduce, redistribute
@@ -123,13 +123,13 @@ getserverbyfile(
 #	endif /* !HAVE_SETENV && HAVE_PUTENV */
 #endif /* NNTP_ABLE */
 
-	if (!read_news_via_nntp) {
-		STRCPY(buf, "local");	/* what if a server is named "local"? */
+	if (read_saved_news) {
+		STRCPY(buf, "reading saved news");
 		return buf;
 	}
 
-	if (read_saved_news) {
-		STRCPY(buf, "reading saved news");
+	if (!read_news_via_nntp) {
+		STRCPY(buf, "local");	/* what if a server is named "local"? */
 		return buf;
 	}
 
@@ -270,7 +270,6 @@ server_init(
 		return -errno;
 	}
 #	endif /* TLI */
-
 
 	last_put[0] = '\0';		/* no retries in get_respcode */
 	/*
@@ -830,8 +829,15 @@ reconnect(
 	 * Exit tin if the user says no to reconnect. The exit code stops tin from trying
 	 * to disconnect again - the connection is already dead
 	 */
-	if (!tinrc.auto_reconnect && prompt_yn(_(txt_reconnect_to_news_server), TRUE) != 1)
+	if (!tinrc.auto_reconnect && prompt_yn(_(txt_reconnect_to_news_server), TRUE) != 1) {
+		if (!strncmp("POST", last_put, 4)) {
+			unlink(backup_article_name(article_name));
+			rename_file(article_name, dead_article);
+			if (tinrc.keep_dead_articles)
+				append_file(dead_articles, dead_article);
+		}
 		tin_done(NNTP_ERROR_EXIT);		/* user said no to reconnect */
+	}
 
 	/*
 	 * reset signal_context
@@ -863,8 +869,15 @@ reconnect(
 		return 0;
 	}
 
-	if (--retry == 0)					/* No more tries? */
+	if (--retry == 0) {					/* No more tries? */
+		if (!strncmp("POST", buf, 4)) {
+			unlink(backup_article_name(article_name));
+			rename_file(article_name, dead_article);
+			if (tinrc.keep_dead_articles)
+				append_file(dead_articles, dead_article);
+		}
 		tin_done(NNTP_ERROR_EXIT);
+	}
 
 	return retry;
 }
@@ -1040,6 +1053,8 @@ check_extensions(void)
 			nntp_caps.authinfo_sasl = FALSE;
 			nntp_caps.authinfo_state = FALSE;
 			nntp_caps.sasl = SASL_NONE;
+			nntp_caps.compress = FALSE;
+			nntp_caps.compress_algorithm = COMPRESS_NONE;
 #if 0
 			nntp_caps.streaming = FALSE;
 			nntp_caps.ihave = FALSE;
@@ -1083,7 +1098,7 @@ check_extensions(void)
 								nntp_caps.list_active = TRUE;
 							else if (!strncasecmp(d, "DISTRIB.PATS", 12))
 								nntp_caps.list_distrib_pats = TRUE;
-							else if (!strncasecmp(d, "DISTRIBUTIONS", 13)) /* "private" extension, RFC 2980, draft-elie-nntp-list-additions-00.txt */
+							else if (!strncasecmp(d, "DISTRIBUTIONS", 13)) /* RFC 6048 */
 								nntp_caps.list_distributions = TRUE;
 							else if (!strncasecmp(d, "HEADERS", 7))
 								nntp_caps.list_headers = TRUE; /* HDR requires LIST HEADERS, but not vice versa */
@@ -1091,13 +1106,13 @@ check_extensions(void)
 								nntp_caps.list_newsgroups = TRUE;
 							else if (!strncasecmp(d, "OVERVIEW.FMT", 12)) /* OVER requires OVERVIEW.FMT, but not vice versa */
 								nntp_caps.list_overview_fmt = TRUE;
-							else if (!strncasecmp(d, "MOTD", 4)) /* "private" extension, draft-elie-nntp-list-additions-00.txt */
+							else if (!strncasecmp(d, "MOTD", 4)) /* RFC 6048 */
 								nntp_caps.list_motd = TRUE;
-							else if (!strncasecmp(d, "SUBSCRIPTIONS", 13)) /* "private" extension, RFC 2980, draft-elie-nntp-list-additions-00.txt */
+							else if (!strncasecmp(d, "SUBSCRIPTIONS", 13)) /* RFC 6048 */
 								nntp_caps.list_subscriptions = TRUE;
-							else if (!strncasecmp(d, "MODERATORS", 10)) /* "private" extension, draft-elie-nntp-list-additions-00.txt*/
+							else if (!strncasecmp(d, "MODERATORS", 10)) /* RFC 6048 */
 								nntp_caps.list_moderators = TRUE;
-							else if (!strncasecmp(d, "COUNTS", 6)) /* "private" extension (highwinds), next nntp RFC? */
+							else if (!strncasecmp(d, "COUNTS", 6)) /* RFC 6048 */
 								nntp_caps.list_counts = TRUE;
 							d = strpbrk(d, " \t");
 						}
@@ -1437,14 +1452,14 @@ nntp_open(
 		 * to a 502 "already authenticated" error later on.
 		 */
 		if (nntp_caps.type == CAPABILITIES && nntp_caps.mode_reader) {
-			int respcode;
 			char buf[NNTP_STRLEN];
+
 #	ifdef DEBUG
-		if (debug & DEBUG_NNTP)
-			debug_print_file("NNTP", "nntp_open() MODE READER");
+			if (debug & DEBUG_NNTP)
+				debug_print_file("NNTP", "nntp_open() MODE READER");
 #	endif /* DEBUG */
 			put_server("MODE READER");
-			switch ((respcode = get_only_respcode(buf, sizeof(buf)))) {
+			switch (get_only_respcode(buf, sizeof(buf))) {
 				/* just honor ciritical errors */
 				case ERR_GOODBYE:
 				case ERR_ACCESS:
@@ -1802,7 +1817,7 @@ get_respcode(
 		if (debug & DEBUG_NNTP)
 			debug_print_file("NNTP", "get_respcode() authentication");
 #	endif /* DEBUG */
-		strncpy(savebuf, last_put, sizeof(savebuf) - 1);		/* Take copy, as authenticate() will clobber this */
+		STRCPY(savebuf, last_put);
 
 		if (!authenticate(nntp_server, userid, FALSE)) {
 			error_message(2, _(txt_auth_failed), nntp_caps.type == CAPABILITIES ? ERR_AUTHFAIL : ERR_ACCESS);
@@ -1823,7 +1838,7 @@ get_respcode(
 #	endif /* DEBUG */
 			DEBUG_IO((stderr, _("Read (%s)\n"), last_put));
 		}
-		strcpy(last_put, savebuf);
+		STRCPY(last_put, savebuf);
 
 		put_server(last_put);
 		ptr = tin_fgets(FAKE_NNTP_FP, FALSE);

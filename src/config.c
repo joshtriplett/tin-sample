@@ -384,7 +384,6 @@ read_config_file(
 
 			break;
 
-
 		case 'f':
 			if (match_boolean(buf, "force_screen_redraw=", &tinrc.force_screen_redraw))
 				break;

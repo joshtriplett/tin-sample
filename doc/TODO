@@ -104,6 +104,19 @@ o  mailers other than sendmail (f.e. elm) and use_mailreader_i=OFF may lead
 
 New features
 ------------
+o  add nntp_default_server to tin.defaults to override compile time setting.
+   if given strings starts with / or ~ the value is taken from the referenced
+   file, if it starts with $ it is read from the referenced variable.
+   [20101118 Urs Janssen <urs@tin.org>]
+
+o  the old space_goto_next_article=ON && space_goto_next_unread=OFF is not
+   possible with the new goto_next_unread rc-var, we need something like
+   an additional goto_next_read rc-var
+   [20101101 Urs Janssen <urs@tin.org>]
+
+o  key to show all article headers but not switch into raw mode like ^H does
+   [20100911 Urs Janssen <urs@tin.org>]
+
 o  add DEFAULT_SIGDASHES_REGEX and related 'M'enu-entry for signature
    detection in cook.c
    [20080925 Urs Janssen <urs@tin.org>]
@@ -142,9 +155,6 @@ o  add In-Reply-To threading for mailgroups
 o  make auto'S'ave also work for inrange groups
    (unfortunately 'S' at select level is used for something else)
    [20030508 Urs Janssen <urs@tin.org>]
-
-o  sub-parse message/rfc822 messages (might occur in mail-groups)
-   [20030310 Urs Janssen <urs@tin.org>]
 
 o  turn ask_for_metamail into $MM_NOASK support (see metamail(1))
    [20030314 Urs Janssen <urs@tin.org>]
@@ -314,10 +324,12 @@ o  Additions to the thread menu:
      'N'  (next unread article)
      'P'  (previous unread article)
      'T'  (tag all parts of current multipart-message in order)
+     'V'  (View/pipe/save multimedia attachments)
      'X'  (mark all unread articles that have not been selected as read)
      ';'  (mark unread arts as hot if >= 1 art in thread is hot)
      '+'  (mark thread as hot)
      '='  (mark pattern as hot)
+     '@'  (toggle selections)
      'Y'  (check for new articles in thread)
      '%'  (toggle rot13 encoding of screen content)
      'x'  (repost)
@@ -325,6 +337,7 @@ o  Additions to the thread menu:
      keys to go to previous/next thread
 
 o  Additions to the group menu:
+     'V'  (View/pipe/save multimedia attachments)
      'Y'  (check for new articles in group)
      '%'  (toggle rot13 encoding of screen content)
 
@@ -336,10 +349,25 @@ o  Add to the 'M'enu:
      '&'  (GLOBAL_TOGGLE_COLOR)
      and maybe a way to change built in path like DEFAULT_MAILER, PATH_PGP, ...
 
-o  Add to the POST_INFO-level ('W'):
      '?','/','\' search (partly done, currently only the displayed page is
                          searched which is not that useful)
      'h'  (GLOBAL_HELP)
+
+o  Add to the attachment menu ('V'):
+     'F'  post followup to current article, not including current attachment
+     'R'  reply through mail to author, not including current attachment
+          or
+     'R'  (GLOBAL_BUGREPORT)
+     'f'  post followup to current article, including current (or tagged)
+          attachment(s)
+     'm'  mail attachment
+     'o'  print attachment
+     'r'  reply through mail to author, including current attachment
+     't'  tag attachments for '|', 'p', 's', 'm' (done for 's')
+     '#'  tag range of attachments (n-m)
+     'x'  repost current attachment to another group
+     '%'  (toggle rot13 encoding of screen content)
+     '&'  (GLOBAL_TOGGLE_COLOR)
 
 o  Add a commandline switch (-V) that prints out all values of cpp-symbols
    etc. [partly done, but should be cleaned up]
@@ -575,7 +603,7 @@ o  close potential security holes:
    - check getenv() results before using it
    - check where my_strncpy() or STRCPY() should be used
      or include OpenBSDs strlcpy(3) (and strlcat(3)) and use it.
-   (<ftp://ftp.openbsd.org/pub/OpenBSD/src/lib/libc/string/>)
+   (<http://www.openbsd.org/cgi-bin/cvsweb/src/lib/libc/string/strlcpy.c>)
    [Urs Janssen <urs@tin.org> - its4 <http://www.rstcorp.com/its4>, rats
     <http://www.securesw.com/rats/> and flawfinder
     <http://www.dwheeler.com/flawfinder/> can locate potential security
@@ -621,6 +649,12 @@ o  rewrite code to use INEWS_PATH instead of INEWSDIR
 o  remove built in path of external commands (metamail, ispell, ...)
    [for ispell $ISPELL can be used to override systempath and progname]
 
+o  add configure-switch for DISABLE_PIPELINING
+   [20090612 Urs Janssen <urs@tin.org>]
+
+o  mask inline PGP SIGNATURE/KEY BLOCK like we do for uu-sections
+   [20090722 Urs Janssen <urs@tin.org>]
+
 Unicode
 -------
 o  add UTF-8 (unicode) support (RFC 2279)
@@ -665,11 +699,14 @@ o  add normalization
    (done for search strings)
    [20031209 Michael Bienia <michael@vorlon.ping.de>]
 
-o  add configure-switch for DISABLE_PIPELINING
-   [20090612 Urs Janssen <urs@tin.org>]
-
 Docs/online help
 ----------------
+o  the documentation of PageFollowupQuoteHeaders (^W) and
+   PageReplyQuoteHeaders (^E) is wrong as not all headers but just those
+   visible via news_headers_to_display (or all if raw mode is on
+   (PageToggleHeaders (^H)) are included.
+   [20100911 Urs Janssen <urs@tin.org>]
+
 o  the online help of GroupMarkUnselArtRead 'X' is unclear as it doesn't
    say that the article are marked read
    [20090814 Urs Janssen <urs@tin.org>]
@@ -705,8 +742,22 @@ o  integrate doc/auth.txt into tin.1-manpage
 
 Not yet classified
 ------------------
+o  what about !us-ascii chars in username/password when using
+   AUTHINFO USER/PASS? Currently they are sent as is, RFC 3977 says
+   "The character set for all NNTP commands is UTF-8", RFC 4643 doesn't
+   mention any special handling.
+   [20101104 Urs Janssen <urs@tin.org>]
+
+o  what is or was HIST_HELP_SEARCH good for? And what about cHelp?
+   [20101008 Urs Janssen <urs@tin.org>]
+
 o  fix memleaks on early exits (i.e. host unreachable, auth failed, ...)
    [20100517 Urs Janssen <urs@tin.org>]
+
+o  charset conversion fails when converting articles from multibyte charsets
+   with 0 bytes (UCS2, UCS4, UTF-16[[LB]E], UTF-32[[LB]E], ...), currently
+   we just skip over such parts instead of handling them properly
+   [20100905 Urs Janssen <urs@tin.org>]
 
 o  add "COMPRESS DEFLATE" support once it's official? this would require a
    rewrite of the code which reads data from the network (which should be
@@ -732,9 +783,6 @@ o  replace wildmat.c with uwildmat.c
    <http://inn.eyrie.org/trac/browser/trunk/lib/uwildmat.c>? It knows poison
    patterns and can handle UTF-8 strings
    [20091223 Urs Janssen <urs@tin.org>]
-
-o  mask inline PGP SIGNATURE/KEY BLOCK like we do for uu-sections?
-   [20090722 Urs Janssen <urs@tin.org>]
 
 o  support $XDG_CONFIG_HOME / $XDG_DATA_HOME?
    <http://standards.freedesktop.org/basedir-spec/basedir-spec-latest.html>
@@ -837,7 +885,7 @@ o  check_article_to_be_posted() needs a cleanup!
 
 o  update gettext stuff to > gettext-0.12.1
 
-o  clean up included pcre stuff and update to >= pcre-8.0.2
+o  clean up included pcre stuff and update to >= pcre-8.10
 
 o  what is with conflicting tinrc settings? should we disallow those, or leave
    it to the user to realise that e.g. strip_blanks=ON && inverse_okay=ON
