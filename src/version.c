@@ -3,10 +3,10 @@
  *  Module    : version.c
  *  Author    : U. Janssen
  *  Created   : 2003-05-11
- *  Updated   : 2008-04-25
+ *  Updated   : 2008-11-22
  *  Notes     :
  *
- * Copyright (c) 2003-2008 Urs Janssen <urs@tin.org>
+ * Copyright (c) 2003-2009 Urs Janssen <urs@tin.org>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -103,15 +103,15 @@ upgrade_prompt_quit(
 {
 	switch (reason) {
 		case RC_UPGRADE:
-			error_message(_(txt_warn_update), VERSION, file);
+			error_message(2, _(txt_warn_update), VERSION, file);
 			break;
 
 		case RC_DOWNGRADE:
-			error_message(_(txt_warn_downgrade), VERSION, file);
+			error_message(2, _(txt_warn_downgrade), VERSION, file);
 			break;
 
 		case RC_ERROR: /* can't parse internal version string, should not happen */
-			error_message(txt_warn_unrecognized_version);
+			error_message(2, txt_warn_unrecognized_version);
 			giveup();
 			/* NOTREACHED */
 			break;
@@ -120,7 +120,7 @@ upgrade_prompt_quit(
 			return;
 	}
 
-	error_message(_(txt_return_key));
+	error_message(2, _(txt_return_key));
 
 	/*
 	 * TODO: document, use something unbuffered here

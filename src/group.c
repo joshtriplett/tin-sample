@@ -3,10 +3,10 @@
  *  Module    : group.c
  *  Author    : I. Lea & R. Skrenta
  *  Created   : 1991-04-01
- *  Updated   : 2008-04-29
+ *  Updated   : 2008-11-25
  *  Notes     :
  *
- * Copyright (c) 1991-2008 Iain Lea <iain@bricbrac.de>, Rich Skrenta <skrenta@pbm.com>
+ * Copyright (c) 1991-2009 Iain Lea <iain@bricbrac.de>, Rich Skrenta <skrenta@pbm.com>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -98,7 +98,7 @@ static t_function
 group_left(
 	void)
 {
-	if (tinrc.group_catchup_on_exit)
+	if (curr_group->attribute->group_catchup_on_exit)
 		return SPECIAL_CATCHUP_LEFT;		/* ie, not via 'c' or 'C' */
 	else
 		return GLOBAL_QUIT;
@@ -110,7 +110,7 @@ group_right(
 	void)
 {
 	if (grpmenu.curr >= 0 && HAS_FOLLOWUPS(grpmenu.curr)) {
-		if (tinrc.auto_list_thread)
+		if (curr_group->attribute->auto_list_thread)
 			return GROUP_LIST_THREAD;
 		else {
 			int n = next_unread((int) base[grpmenu.curr]);
@@ -179,7 +179,7 @@ group_page(
 	clear_note_area();
 
 	if (group->attribute->auto_select) {
-		error_message(_(txt_autoselecting_articles), printascii(key, func_to_key(GROUP_MARK_UNSELECTED_ARTICLES_READ, group_keys)));
+		error_message(2, _(txt_autoselecting_articles), printascii(key, func_to_key(GROUP_MARK_UNSELECTED_ARTICLES_READ, group_keys)));
 		do_auto_select_arts();						/* 'X' command */
 		xflag = TRUE;
 	}
@@ -260,8 +260,11 @@ group_page(
 #endif /* !DISABLE_PRINTING */
 
 			case GROUP_REPOST:	/* repost current article */
-				if (grpmenu.curr >= 0)
-					feed_articles(FEED_REPOST, GROUP_LEVEL, group, (int) base[grpmenu.curr]);
+				if (can_post) {
+					if (grpmenu.curr >= 0)
+						feed_articles(FEED_REPOST, GROUP_LEVEL, group, (int) base[grpmenu.curr]);
+				} else
+					info_message(_(txt_cannot_post));
 				break;
 
 			case GROUP_SAVE:	/* save articles with prompting */
@@ -331,7 +334,7 @@ group_page(
 				break;
 
 			case GLOBAL_EDIT_FILTER:
-				if (!invoke_editor(filter_file, FILTER_FILE_OFFSET))
+				if (!invoke_editor(filter_file, FILTER_FILE_OFFSET, NULL))
 					break;
 				unfilter_articles();
 				(void) read_filter_file(filter_file);
@@ -350,7 +353,7 @@ group_page(
 				}
 				if ((!TINRC_CONFIRM_ACTION) || prompt_yn((func == GLOBAL_QUICK_FILTER_KILL) ? _(txt_quick_filter_kill) : _(txt_quick_filter_select), TRUE) == 1) {
 					old_top = top_art;
-					n = (int) base[grpmenu.curr]; /* should this depend on show_only_unread? */
+					n = (int) base[grpmenu.curr]; /* should this depend on show_only_unread_arts? */
 					old_artnum = arts[n].artnum;
 					if (quick_filter(func, group, &arts[n])) {
 						info_message((func == GLOBAL_QUICK_FILTER_KILL) ? _(txt_info_add_kill) : _(txt_info_add_select));
@@ -637,7 +640,7 @@ group_page(
 				break;
 
 			case GROUP_TOGGLE_THREADING:		/* Cycle through the threading types */
-				group->attribute->thread_arts = (group->attribute->thread_arts + 1) % (THREAD_MAX + 1);
+				group->attribute->thread_articles = (group->attribute->thread_articles + 1) % (THREAD_MAX + 1);
 				if (grpmenu.curr >= 0) {
 					i = base[grpmenu.curr];								/* Save a copy of current thread */
 					make_threads(group, TRUE);
@@ -975,7 +978,7 @@ clear_note_area(
 
 
 /*
- * If in show_only_unread mode or there are unread articles we know this
+ * If in show_only_unread_arts mode or there are unread articles we know this
  * thread will exist after toggle. Otherwise we find the next closest to
  * return to. 'force' can be set to force tin to show all messages
  */
@@ -985,15 +988,15 @@ toggle_read_unread(
 {
 	int n, i = -1;
 
-	/* force is always false */
+	/* force currently is always false */
 	if (force)
-		curr_group->attribute->show_only_unread = TRUE;	/* Yes - really, we change it in a bit */
+		curr_group->attribute->show_only_unread_arts = TRUE;	/* Yes - really, we change it in a bit */
 
 	wait_message(0, _(txt_reading_arts),
-		(curr_group->attribute->show_only_unread) ? _(txt_all) : _(txt_unread));
+		(curr_group->attribute->show_only_unread_arts) ? _(txt_all) : _(txt_unread));
 
 	if (grpmenu.curr >= 0) {
-		if (curr_group->attribute->show_only_unread || new_responses(grpmenu.curr))
+		if (curr_group->attribute->show_only_unread_arts || new_responses(grpmenu.curr))
 			i = base[grpmenu.curr];
 		else if ((n = prev_unread((int) base[grpmenu.curr])) >= 0)
 			i = n;
@@ -1001,7 +1004,7 @@ toggle_read_unread(
 			i = n;
 	}
 
-	curr_group->attribute->show_only_unread = bool_not(curr_group->attribute->show_only_unread);
+	curr_group->attribute->show_only_unread_arts = bool_not(curr_group->attribute->show_only_unread_arts);
 
 	find_base(curr_group);
 	if (i >= 0 && (n = which_thread(i)) >= 0)
@@ -1048,7 +1051,7 @@ pos_first_unread_thread(
 {
 	int i;
 
-	if (tinrc.pos_first_unread) {
+	if (curr_group->attribute->pos_first_unread) {
 		for (i = 0; i < grpmenu.max; i++) {
 			if (new_responses(i))
 				break;
@@ -1208,7 +1211,7 @@ build_sline(
 	/*
 	 * n is number of articles in this thread
 	 */
-	n = ((curr_group->attribute->show_only_unread) ? (sbuf.unread + sbuf.seen) : sbuf.total);
+	n = ((curr_group->attribute->show_only_unread_arts) ? (sbuf.unread + sbuf.seen) : sbuf.total);
 	/*
 	 * if you like to see the number of responses excluding the first
 	 *	art in thread - add the following:
@@ -1396,7 +1399,7 @@ show_group_title(
 		if (arts[i].thread == ART_EXPIRED)
 			continue;
 
-		if (curr_group->attribute->show_only_unread) {
+		if (curr_group->attribute->show_only_unread_arts) {
 			if (arts[i].status != ART_READ) {
 				art_cnt++;
 				if (tinrc.recent_time && ((time((time_t *) 0) - arts[i].date) < (tinrc.recent_time * DAY)))
@@ -1426,22 +1429,22 @@ show_group_title(
 	/* group name and thread count */
 	snprintf(buf, sizeof(buf), "%s (%d%c",
 		curr_group->name, grpmenu.max,
-		*txt_threading[curr_group->attribute->thread_arts]);
+		*txt_threading[curr_group->attribute->thread_articles]);
 
 	/* article count */
 	if (tinrc.getart_limit)
 		snprintf(tmp, sizeof(tmp), " %d/%d%c",
 			tinrc.getart_limit, art_cnt,
-			(curr_group->attribute->show_only_unread ? tinrc.art_marked_unread : tinrc.art_marked_read));
+			(curr_group->attribute->show_only_unread_arts ? tinrc.art_marked_unread : tinrc.art_marked_read));
 	else
 		snprintf(tmp, sizeof(tmp), " %d%c",
 			art_cnt,
-			(curr_group->attribute->show_only_unread ? tinrc.art_marked_unread : tinrc.art_marked_read));
+			(curr_group->attribute->show_only_unread_arts ? tinrc.art_marked_unread : tinrc.art_marked_read));
 	if (sizeof(buf) > strlen(buf) + strlen(tmp))
 		strcat(buf, tmp);
 
 	/* selected articles */
-	if (curr_group->attribute->show_only_unread)
+	if (curr_group->attribute->show_only_unread_arts)
 		snprintf(tmp, sizeof(tmp), " %d%c",
 			selected_art_cnt, tinrc.art_marked_selected);
 	else
@@ -1715,7 +1718,7 @@ mark_thd_read(
 	}
 
 	/* Don't prompt if there's an active range or if prompting is turned off */
-	if (!range_active && !tinrc.mark_ignore_tags && got_tagged_unread_arts()) {
+	if (!range_active && !group->attribute->mark_ignore_tags && got_tagged_unread_arts()) {
 		func = prompt_slk_response(MARK_READ_TAGGED, mark_read_keys,
 				_(txt_mark_thread_read_tagged_current),
 				printascii(keytagged, func_to_key(MARK_READ_TAGGED, mark_read_keys)),
@@ -1780,7 +1783,7 @@ mark_thd_read(
 
 	if ((n = which_thread(n)) < 0) {
 		/* TODO: -> lang.c */
-		error_message("Internal error: which_thread(%d) < 0", n);
+		error_message(2, "Internal error: which_thread(%d) < 0", n);
 		return;
 	}
 

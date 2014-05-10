@@ -3,10 +3,10 @@
  *  Module    : nntplib.h
  *  Author    : I.Lea
  *  Created   : 1991-04-01
- *  Updated   : 2008-04-23
+ *  Updated   : 2009-01-10
  *  Notes     : nntp.h 1.5.11/1.6 with extensions for tin
  *
- * Copyright (c) 1991-2008 Iain Lea <iain@bricbrac.de>
+ * Copyright (c) 1991-2009 Iain Lea <iain@bricbrac.de>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -136,6 +136,7 @@
 #define	ERR_NOPOST		440	/* Posting not allowed */
 #define	ERR_POSTFAIL		441	/* Posting failed */
 #define	ERR_NOAUTH		480	/* authorization required for command */
+#define	ERR_ENCRYPT		483	/* encrpytion required */
 
 #define	ERR_COMMAND		500	/* Command not recognized */
 #define	ERR_CMDSYN		501	/* Command syntax error */
@@ -160,10 +161,10 @@ enum f_type { OVER_T_ERROR, OVER_T_INT, OVER_T_STRING, OVER_T_FSTRING };
 enum extension_type { NONE, LIST_EXTENSIONS, CAPABILITIES, BROKEN };
 
 struct t_capabilities {
-	enum extension_type type;		/* none, LIST EXTENSIONS, CAPABILITIES */
+	enum extension_type type;		/* none, LIST EXTENSIONS, CAPABILITIES, BROKEN */
 	unsigned int version;			/* CAPABILITIES version */
 	t_bool mode_reader:1;			/* MODE-READER: "MODE READER" */
-	t_bool reader:1;				/* READER: "ARTCILE", "BODY", "LISTGROUP" */
+	t_bool reader:1;				/* READER: "ARTCILE", "BODY", "DATE", "GROUP", "LAST", "LISTGROUP", "NEWGROUPS", "NEXT" */
 	t_bool post:1;					/* POST */
 	t_bool list_active:1;			/* LIST ACTIVE */
 	t_bool list_active_times:1;		/* LIST ACTIVE.TIMES, optional */
@@ -192,6 +193,9 @@ struct t_capabilities {
 	t_bool sasl_gssapi:1;			/* SASL GSSAPI */
 	t_bool sasl_external:1;			/* SASL EXTERNAL */
 #if 0
+	t_bool sasl_otp:1;				/* SASL OTP */
+	t_bool sasl_ntlm:1;				/* SASL NTLM */
+	t_bool sasl_login:1;			/* SASL LOGIN */
 	t_bool streaming:1;				/* STREAMING: "MODE STREAM", "CHECK", "TAKETHIS" */
 	t_bool ihave:1;					/* IHAVE: "IHAVE" */
 #endif /* 0 */

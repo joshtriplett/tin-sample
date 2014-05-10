@@ -3,9 +3,9 @@
  *  Module    : header.c
  *  Author    : Urs Janssen <urs@tin.org>
  *  Created   : 1997-03-10
- *  Updated   : 2008-04-29
+ *  Updated   : 2008-11-22
  *
- * Copyright (c) 1997-2008 Urs Janssen <urs@tin.org>
+ * Copyright (c) 1997-2009 Urs Janssen <urs@tin.org>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -236,7 +236,7 @@ get_user_name(
 		strcpy(username, pw->pw_name);
 	else {
 		if (!*username) {
-			error_message(_(txt_error_passwd_missing));
+			error_message(2, _(txt_error_passwd_missing));
 			tin_done(EXIT_FAILURE);
 		}
 	}
@@ -310,7 +310,7 @@ get_from_name(
 
 #	ifdef DEBUG
 	if (debug & DEBUG_MISC)
-		error_message("FROM=[%s] USER=[%s] HOST=[%s] NAME=[%s]", from_name, get_user_name(), domain_name, get_full_name());
+		error_message(2, "FROM=[%s] USER=[%s] HOST=[%s] NAME=[%s]", from_name, get_user_name(), domain_name, get_full_name());
 #	endif /* DEBUG */
 
 }

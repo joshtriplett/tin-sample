@@ -3,10 +3,10 @@
  *  Module    : options_menu.c
  *  Author    : Michael Bienia <michael@vorlon.ping.de>
  *  Created   : 2004-09-05
- *  Updated   : 2008-02-25
+ *  Updated   : 2009-01-14
  *  Notes     : Split from config.c
  *
- * Copyright (c) 2004-2008 Michael Bienia <michael@vorlon.ping.de>
+ * Copyright (c) 2004-2009 Michael Bienia <michael@vorlon.ping.de>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -47,6 +47,36 @@
 
 
 #define option_lines_per_page (cLINES - INDEX_TOP - 3)
+
+#define UPDATE_INT_ATTRIBUTES(option) do { \
+		if (group != NULL) { \
+			if ((i = add_tempscope(group->name))) { \
+				scopes[i].attribute->option = tinrc.option; \
+				scopes[i].state->option = TRUE; \
+			} \
+		} else { \
+			for (i = 1; i < num_scope; i++) { \
+				if (scopes[i].temp) \
+					scopes[i].state->option = FALSE; \
+			} \
+		} \
+		scopes[0].attribute->option = tinrc.option; \
+	} while (0)
+
+#define UPDATE_STRING_ATTRIBUTES(option) do { \
+		if (group != NULL) { \
+			if ((i = add_tempscope(group->name))) { \
+				FreeIfNeeded(scopes[i].attribute->option); \
+				scopes[i].attribute->option = my_strdup(tinrc.option); \
+			} \
+		} else { \
+			for (i = 1; i < num_scope; i++) { \
+				if (scopes[i].temp) \
+					FreeAndNull(scopes[i].attribute->option); \
+			} \
+		} \
+	} while (0)
+
 
 static enum option_enum first_option_on_screen, last_option_on_screen;
 
@@ -170,6 +200,9 @@ option_is_visible(
 		case OPT_COL_MARKSLASH:
 		case OPT_COL_MARKSTROKE:
 			return tinrc.word_highlight && tinrc.use_color;
+
+		case OPT_COL_VERBATIM:
+			return tinrc.verbatim_handling && tinrc.use_color;
 #endif /* HAVE_COLOR */
 
 		case OPT_WORD_H_DISPLAY_MARKS:
@@ -182,6 +215,10 @@ option_is_visible(
 		case OPT_STROKES_REGEX:
 		case OPT_UNDERSCORES_REGEX:
 			return tinrc.word_highlight;
+
+		case OPT_VERBATIM_BEGIN_REGEX:
+		case OPT_VERBATIM_END_REGEX:
+			return tinrc.verbatim_handling;
 
 		default:
 			return TRUE;
@@ -704,9 +741,12 @@ change_config_file(
 	struct t_group *group)
 {
 	enum option_enum option, old_option;
-	int mime_encoding;
+	int i;
 	t_bool change_option = FALSE;
 	t_function func;
+#ifdef CHARSET_CONVERSION
+	t_bool is_7bit;
+#endif /* CHARSET_CONVERSION */
 
 	signal_context = cConfig;
 
@@ -719,6 +759,8 @@ change_config_file(
 		switch ((func = handle_keypad(option_left, option_right, NULL, option_menu_keys))) {
 			case GLOBAL_QUIT:
 				write_config_file(local_config_file);
+				assign_attributes_to_groups();
+				/*write_attributes_file(local_attributes_file);*/
 				/* FALLTHROUGH */
 			case CONFIG_NO_SAVE:
 				clear_note_area();
@@ -763,7 +805,7 @@ change_config_file(
 					highlight_option(option);
 					break;
 				} else if (tinrc.scroll_lines == -2 && first_option_on_screen != 0) {
-					int i = option_lines_per_page / 2;
+					i = option_lines_per_page / 2;
 
 					for (; i > 0; i--) {
 						last_option_on_screen = prev_option(last_option_on_screen, TRUE);
@@ -794,7 +836,7 @@ change_config_file(
 					enum option_enum old_first = first_option_on_screen;
 
 					if (tinrc.scroll_lines == -2) {
-						int i = option_lines_per_page / 2;
+						i = option_lines_per_page / 2;
 
 						for (; i > 0; i--) {
 							first_option_on_screen = next_option(first_option_on_screen, TRUE);
@@ -887,39 +929,14 @@ change_config_file(
 			switch (option_table[option].var_type) {
 				case OPT_ON_OFF:
 					switch (option) {
-						case OPT_ADD_POSTED_TO_FILTER:
-						case OPT_ADVERTISING:
-						case OPT_ALTERNATIVE_HANDLING:
-						case OPT_ASK_FOR_METAMAIL:
-						case OPT_AUTO_BCC:
-						case OPT_AUTO_CC:
-						case OPT_AUTO_LIST_THREAD:
 						case OPT_AUTO_RECONNECT:
-						case OPT_AUTO_SAVE:
-						case OPT_BATCH_SAVE:
 						case OPT_CACHE_OVERVIEW_FILES:
 						case OPT_CATCHUP_READ_GROUPS:
 						case OPT_FORCE_SCREEN_REDRAW:
-						case OPT_GROUP_CATCHUP_ON_EXIT:
 						case OPT_KEEP_DEAD_ARTICLES:
-						case OPT_MARK_IGNORE_TAGS:
-						case OPT_MARK_SAVED_READ:
-						case OPT_POS_FIRST_UNREAD:
-						case OPT_POST_PROCESS_VIEW:
-#ifndef DISABLE_PRINTING
-						case OPT_PRINT_HEADER:
-#endif /*! DISABLE_PRINTING */
-						case OPT_PROCESS_ONLY_UNREAD:
-						case OPT_PROMPT_FOLLOWUPTO:
 						case OPT_SHOW_ONLY_UNREAD_GROUPS:
-						case OPT_SHOW_SIGNATURES:
-						case OPT_SIGDASHES:
-						case OPT_SIGNATURE_REPOST:
-						case OPT_START_EDITOR_OFFSET:
 						case OPT_STRIP_BLANKS:
 						case OPT_STRIP_NEWSRC:
-						case OPT_TEX2ISO_CONV:
-						case OPT_THREAD_CATCHUP_ON_EXIT:
 #if defined(HAVE_ICONV_OPEN_TRANSLIT) && defined(CHARSET_CONVERSION)
 						case OPT_TRANSLIT:
 #endif /* HAVE_ICONV_OPEN_TRANSLIT && CHARSET_CONVERSION */
@@ -929,8 +946,130 @@ change_config_file(
 						case OPT_USE_KEYPAD:
 #endif /* HAVE_KEYPAD */
 						case OPT_USE_MOUSE:
-						case OPT_WRAP_ON_NEXT_UNREAD:
 							prompt_option_on_off(option);
+							break;
+
+						case OPT_ADD_POSTED_TO_FILTER:
+							if (prompt_option_on_off(option))
+								UPDATE_INT_ATTRIBUTES(add_posted_to_filter);
+							break;
+
+						case OPT_ADVERTISING:
+							if (prompt_option_on_off(option))
+								UPDATE_INT_ATTRIBUTES(advertising);
+							break;
+
+						case OPT_ALTERNATIVE_HANDLING:
+							if (prompt_option_on_off(option))
+								UPDATE_INT_ATTRIBUTES(alternative_handling);
+							break;
+
+						case OPT_ASK_FOR_METAMAIL:
+							if (prompt_option_on_off(option))
+								UPDATE_INT_ATTRIBUTES(ask_for_metamail);
+							break;
+
+						case OPT_AUTO_LIST_THREAD:
+							if (prompt_option_on_off(option))
+								UPDATE_INT_ATTRIBUTES(auto_list_thread);
+							break;
+
+						case OPT_AUTO_SAVE:
+							if (prompt_option_on_off(option))
+								UPDATE_INT_ATTRIBUTES(auto_save);
+							break;
+
+						case OPT_BATCH_SAVE:
+							if (prompt_option_on_off(option))
+								UPDATE_INT_ATTRIBUTES(batch_save);
+							break;
+
+						case OPT_GROUP_CATCHUP_ON_EXIT:
+							if (prompt_option_on_off(option))
+								UPDATE_INT_ATTRIBUTES(group_catchup_on_exit);
+							break;
+
+						case OPT_MARK_IGNORE_TAGS:
+							if (prompt_option_on_off(option))
+								UPDATE_INT_ATTRIBUTES(mark_ignore_tags);
+							break;
+
+						case OPT_MARK_SAVED_READ:
+							if (prompt_option_on_off(option))
+								UPDATE_INT_ATTRIBUTES(mark_saved_read);
+							break;
+
+						case OPT_POST_PROCESS_VIEW:
+							if (prompt_option_on_off(option))
+								UPDATE_INT_ATTRIBUTES(post_process_view);
+							break;
+
+						case OPT_POS_FIRST_UNREAD:
+							if (prompt_option_on_off(option))
+								UPDATE_INT_ATTRIBUTES(pos_first_unread);
+							break;
+
+#ifndef DISABLE_PRINTING
+						case OPT_PRINT_HEADER:
+							if (prompt_option_on_off(option))
+								UPDATE_INT_ATTRIBUTES(print_header);
+							break;
+#endif /*! DISABLE_PRINTING */
+
+						case OPT_PROCESS_ONLY_UNREAD:
+							if (prompt_option_on_off(option))
+								UPDATE_INT_ATTRIBUTES(process_only_unread);
+							break;
+
+						case OPT_PROMPT_FOLLOWUPTO:
+							if (prompt_option_on_off(option))
+								UPDATE_INT_ATTRIBUTES(prompt_followupto);
+							break;
+
+						case OPT_SHOW_SIGNATURES:
+							if (prompt_option_on_off(option))
+								UPDATE_INT_ATTRIBUTES(show_signatures);
+							break;
+
+						case OPT_SIGDASHES:
+							if (prompt_option_on_off(option))
+								UPDATE_INT_ATTRIBUTES(sigdashes);
+							break;
+
+						case OPT_SIGNATURE_REPOST:
+							if (prompt_option_on_off(option))
+								UPDATE_INT_ATTRIBUTES(signature_repost);
+							break;
+
+						case OPT_START_EDITOR_OFFSET:
+							if (prompt_option_on_off(option))
+								UPDATE_INT_ATTRIBUTES(start_editor_offset);
+							break;
+
+						case OPT_TEX2ISO_CONV:
+							if (prompt_option_on_off(option))
+								UPDATE_INT_ATTRIBUTES(tex2iso_conv);
+							break;
+
+						case OPT_THREAD_CATCHUP_ON_EXIT:
+							if (prompt_option_on_off(option))
+								UPDATE_INT_ATTRIBUTES(thread_catchup_on_exit);
+							break;
+
+						case OPT_WRAP_ON_NEXT_UNREAD:
+							if (prompt_option_on_off(option))
+								UPDATE_INT_ATTRIBUTES(wrap_on_next_unread);
+							break;
+
+						case OPT_VERBATIM_HANDLING:
+							/*
+							 * option toggles visibility of other
+							 * options -> needs redraw_screen()
+							 */
+							if (prompt_option_on_off(option))
+								UPDATE_INT_ATTRIBUTES(verbatim_handling);
+							set_last_option_on_screen(first_option_on_screen);
+							redraw_screen(option);
 							break;
 
 						/* show mini help menu */
@@ -941,9 +1080,13 @@ change_config_file(
 
 						/* show all arts or just new/unread arts */
 						case OPT_SHOW_ONLY_UNREAD_ARTS:
-							if (prompt_option_on_off(option) && group != NULL) {
-								make_threads(group, TRUE);
-								pos_first_unread_thread();
+							if (prompt_option_on_off(option)) {
+								UPDATE_INT_ATTRIBUTES(show_only_unread_arts);
+								if (group != NULL) {
+									group->attribute->show_only_unread_arts = tinrc.show_only_unread_arts;
+									make_threads(group, TRUE);
+									pos_first_unread_thread();
+								}
 							}
 							break;
 
@@ -969,19 +1112,23 @@ change_config_file(
 							break;
 
 						case OPT_MAIL_8BIT_HEADER:
-							prompt_option_on_off(option);
-							if (strcasecmp(txt_mime_encodings[tinrc.mail_mime_encoding], txt_8bit)) {
-								tinrc.mail_8bit_header = FALSE;
-								print_any_option(OPT_MAIL_8BIT_HEADER);
+							if (prompt_option_on_off(option)) {
+								if (tinrc.mail_mime_encoding != MIME_ENCODING_8BIT) {
+									tinrc.mail_8bit_header = FALSE;
+									print_any_option(OPT_MAIL_8BIT_HEADER);
+								}
+								UPDATE_INT_ATTRIBUTES(mail_8bit_header);
 							}
 							break;
 
 						case OPT_POST_8BIT_HEADER:
-							prompt_option_on_off(option);
-							/* if post_mime_encoding != 8bit, post_8bit_header is disabled */
-							if (strcasecmp(txt_mime_encodings[tinrc.post_mime_encoding], txt_8bit)) {
-								tinrc.post_8bit_header = FALSE;
-								print_any_option(OPT_POST_8BIT_HEADER);
+							if (prompt_option_on_off(option)) {
+								/* if post_mime_encoding != 8bit, post_8bit_header is disabled */
+								if (tinrc.post_mime_encoding != MIME_ENCODING_8BIT) {
+									tinrc.post_8bit_header = FALSE;
+									print_any_option(OPT_POST_8BIT_HEADER);
+								}
+								UPDATE_INT_ATTRIBUTES(post_8bit_header);
 							}
 							break;
 
@@ -1065,27 +1212,31 @@ change_config_file(
 						case OPT_COL_MARKSLASH:
 						case OPT_COL_MARKSTROKE:
 						case OPT_COL_URLS:
+						case OPT_COL_VERBATIM:
 #endif /* HAVE_COLOR */
+						case OPT_CONFIRM_CHOICE:
 						case OPT_GOTO_NEXT_UNREAD:
 						case OPT_HIDE_UUE:
 						case OPT_INTERACTIVE_MAILER:
-						case OPT_WORD_H_DISPLAY_MARKS:
-						case OPT_MONO_MARKSTAR:
-						case OPT_MONO_MARKDASH:
-						case OPT_MONO_MARKSLASH:
-						case OPT_MONO_MARKSTROKE:
-						case OPT_CONFIRM_CHOICE:
 						case OPT_KILL_LEVEL:
 						case OPT_MAILBOX_FORMAT:
-						case OPT_SHOW_INFO:
-						case OPT_SORT_ARTICLE_TYPE:
-						case OPT_STRIP_BOGUS:
+						case OPT_MONO_MARKDASH:
+						case OPT_MONO_MARKSLASH:
+						case OPT_MONO_MARKSTAR:
+						case OPT_MONO_MARKSTROKE:
 #ifdef HAVE_UNICODE_NORMALIZATION
 						case OPT_NORMALIZATION_FORM:
 #endif /* HAVE_UNICODE_NORMALIZATION */
 						case OPT_QUOTE_STYLE:
+						case OPT_STRIP_BOGUS:
 						case OPT_WILDCARD:
+						case OPT_WORD_H_DISPLAY_MARKS:
 							prompt_option_list(option);
+							break;
+
+						case OPT_AUTO_CC_BCC:
+							if (prompt_option_list(option))
+								UPDATE_INT_ATTRIBUTES(auto_cc_bcc);
 							break;
 
 						case OPT_THREAD_ARTICLES:
@@ -1093,15 +1244,18 @@ change_config_file(
 							 * If the threading strategy has changed, fix things
 							 * so that rethreading will occur
 							 */
-							if (prompt_option_list(option) && group != NULL) {
-								int n, old_base_art = base[grpmenu.curr];
+							if (prompt_option_list(option)) {
+								UPDATE_INT_ATTRIBUTES(thread_articles);
+								if (group != NULL) {
+									int old_base_art = base[grpmenu.curr];
 
-								group->attribute->thread_arts = tinrc.thread_articles;
-								make_threads(group, TRUE);
-								/* in non-empty groups update cursor position */
-								if (grpmenu.max > 0) {
-									if ((n = which_thread(old_base_art)) >= 0)
-										grpmenu.curr = n;
+									group->attribute->thread_articles = tinrc.thread_articles;
+									make_threads(group, TRUE);
+									/* in non-empty groups update cursor position */
+									if (grpmenu.max > 0) {
+										if ((i = which_thread(old_base_art)) >= 0)
+											grpmenu.curr = i;
+									}
 								}
 							}
 							set_last_option_on_screen(first_option_on_screen);
@@ -1109,14 +1263,22 @@ change_config_file(
 							clear_message();
 							break;
 
+						case OPT_SORT_ARTICLE_TYPE:
+							if (prompt_option_list(option))
+								UPDATE_INT_ATTRIBUTES(sort_article_type);
+							break;
+
 						case OPT_SORT_THREADS_TYPE:
 							/*
 							 * If the sorting strategy of threads has changed, fix things
 							 * so that resorting will occur
 							 */
-							if (prompt_option_list(option) && group != NULL) {
-								group->attribute->sort_threads_type = tinrc.sort_threads_type;
-								make_threads(group, TRUE);
+							if (prompt_option_list(option)) {
+								UPDATE_INT_ATTRIBUTES(sort_threads_type);
+								if (group != NULL) {
+									group->attribute->sort_threads_type = tinrc.sort_threads_type;
+									make_threads(group, TRUE);
+								}
 							}
 							clear_message();
 							break;
@@ -1131,31 +1293,94 @@ change_config_file(
 							clear_message();
 							break;
 
-						case OPT_POST_PROCESS:
-							prompt_option_list(option);
-							glob_attributes.post_proc_type = tinrc.post_process;
-							if (group != NULL)
-								group->attribute->post_proc_type = tinrc.post_process;
+						case OPT_TRIM_ARTICLE_BODY:
+							if (prompt_option_list(option))
+								UPDATE_INT_ATTRIBUTES(trim_article_body);
+							break;
+
+						case OPT_POST_PROCESS_TYPE:
+							if (prompt_option_list(option))
+								UPDATE_INT_ATTRIBUTES(post_process_type);
 							break;
 
 						case OPT_SHOW_AUTHOR:
-							prompt_option_list(option);
-							if (group != NULL)
-								group->attribute->show_author = tinrc.show_author;
+							if (prompt_option_list(option))
+								UPDATE_INT_ATTRIBUTES(show_author);
+							break;
+
+						case OPT_SHOW_INFO:
+							if (prompt_option_list(option))
+								UPDATE_INT_ATTRIBUTES(show_info);
 							break;
 
 						case OPT_MAIL_MIME_ENCODING:
-						case OPT_POST_MIME_ENCODING:
-							prompt_option_list(option);
-							mime_encoding = *(option_table[option].variable);
-							/* do not use 8 bit headers if mime encoding is not 8bit */
-							if (strcasecmp(txt_mime_encodings[mime_encoding], txt_8bit)) {
-								if (option == (int) OPT_POST_MIME_ENCODING) {
-									tinrc.post_8bit_header = FALSE;
-									repaint_option(OPT_POST_8BIT_HEADER);
+							if (prompt_option_list(option)) {
+#ifdef CHARSET_CONVERSION
+								/*
+								 * check if we have selected a !7bit encoding but a 7bit network charset
+								 * or a !8bit encoding but a 8bit network charset, update encoding if needed
+								 */
+								is_7bit = FALSE;
+								for (i = 0; *txt_mime_7bit_charsets[i]; i++) {
+									if (!strcasecmp(txt_mime_charsets[tinrc.mm_network_charset], txt_mime_7bit_charsets[i])) {
+										is_7bit = TRUE;
+										break;
+									}
+								}
+								if (is_7bit) {
+									if (tinrc.mail_mime_encoding != MIME_ENCODING_7BIT) {
+										tinrc.mail_mime_encoding = MIME_ENCODING_7BIT;
+										repaint_option(OPT_MAIL_MIME_ENCODING);
+									}
 								} else {
+									if (tinrc.mail_mime_encoding == MIME_ENCODING_7BIT) {
+										tinrc.mail_mime_encoding = MIME_ENCODING_QP;
+										repaint_option(OPT_MAIL_MIME_ENCODING);
+									}
+								}
+#endif /* CHARSET_CONVERSION */
+								UPDATE_INT_ATTRIBUTES(mail_mime_encoding);
+								/* do not use 8 bit headers if mime encoding is not 8bit */
+								if (tinrc.mail_mime_encoding != MIME_ENCODING_8BIT) {
 									tinrc.mail_8bit_header = FALSE;
 									repaint_option(OPT_MAIL_8BIT_HEADER);
+									UPDATE_INT_ATTRIBUTES(mail_8bit_header);
+								}
+							}
+							break;
+
+						case OPT_POST_MIME_ENCODING:
+							if (prompt_option_list(option)) {
+#ifdef CHARSET_CONVERSION
+								/*
+								 * check if we have selected a !7bit encoding but a 7bit network charset
+								 * or a !8bit encoding but a 8bit network charset, update encoding if needed
+								 */
+								is_7bit = FALSE;
+								for (i = 0; *txt_mime_7bit_charsets[i]; i++) {
+									if (!strcasecmp(txt_mime_charsets[tinrc.mm_network_charset], txt_mime_7bit_charsets[i])) {
+										is_7bit = TRUE;
+										break;
+									}
+								}
+								if (is_7bit) {
+									if (tinrc.post_mime_encoding != MIME_ENCODING_7BIT) {
+										tinrc.post_mime_encoding = MIME_ENCODING_7BIT;
+										repaint_option(OPT_POST_MIME_ENCODING);
+									}
+								} else {
+									if (tinrc.post_mime_encoding == MIME_ENCODING_7BIT) {
+										tinrc.post_mime_encoding = MIME_ENCODING_8BIT;
+										repaint_option(OPT_POST_MIME_ENCODING);
+									}
+								}
+#endif /* CHARSET_CONVERSION */
+								UPDATE_INT_ATTRIBUTES(post_mime_encoding);
+								/* do not use 8 bit headers if mime encoding is not 8bit */
+								if (tinrc.post_mime_encoding != MIME_ENCODING_8BIT) {
+									tinrc.post_8bit_header = FALSE;
+									repaint_option(OPT_POST_8BIT_HEADER);
+									UPDATE_INT_ATTRIBUTES(post_8bit_header);
 								}
 							}
 							break;
@@ -1163,69 +1388,47 @@ change_config_file(
 #ifdef CHARSET_CONVERSION
 						case OPT_MM_NETWORK_CHARSET:
 							if (prompt_option_list(option)) {
-								glob_attributes.mm_network_charset = tinrc.mm_network_charset;
-								if (group)
-									group->attribute->mm_network_charset = tinrc.mm_network_charset;
-							}
-							/*
-							 * check if we have selected a 7bit charset, otherwise
-							 * update encoding
-							 * we always do this (even if we did not change the
-							 * charset) to fixup flaws in the tinrc - once we do
-							 * the same while reading the tinrc this can go into
-							 * the != original_list_value case.
-							 */
-							{
-								int i;
-								t_bool change;
-
-								if (!strcasecmp(txt_mime_encodings[tinrc.post_mime_encoding], txt_7bit)) {
-									change = TRUE;
-									for (i = 0; *txt_mime_7bit_charsets[i]; i++) {
-										if (!strcasecmp(txt_mime_charsets[tinrc.mm_network_charset], txt_mime_7bit_charsets[i])) {
-											change = FALSE;
-											break;
-										}
-									}
-									if (change) {
-										tinrc.post_mime_encoding = MIME_ENCODING_8BIT;
-										repaint_option(OPT_POST_MIME_ENCODING);
-									}
-								} else { /* and vice versa, if we have a 7bit charset but a !7bit encoding, fix that */
-									for (i = 0; *txt_mime_7bit_charsets[i]; i++) {
-										if (!strcasecmp(txt_mime_charsets[tinrc.mm_network_charset], txt_mime_7bit_charsets[i])) {
-											tinrc.mail_mime_encoding = tinrc.post_mime_encoding = MIME_ENCODING_7BIT;
-											tinrc.mail_8bit_header = tinrc.post_8bit_header = FALSE;
-											repaint_option(OPT_POST_MIME_ENCODING);
-											repaint_option(OPT_MAIL_MIME_ENCODING);
-											repaint_option(OPT_POST_8BIT_HEADER);
-											break;
-										}
+								/*
+								 * check if we have selected a 7bit charset but a !7bit encoding
+								 * or a 8bit charset but a !8bit encoding, update encoding if needed
+								 *
+								 * if (mail|post)_mime_encoding != 8bit, disable (mail|post)_8bit_header
+								 */
+								is_7bit = FALSE;
+								UPDATE_INT_ATTRIBUTES(mm_network_charset);
+								for (i = 0; *txt_mime_7bit_charsets[i]; i++) {
+									if (!strcasecmp(txt_mime_charsets[tinrc.mm_network_charset], txt_mime_7bit_charsets[i])) {
+										is_7bit = TRUE;
+										break;
 									}
 								}
-
-								if (!strcasecmp(txt_mime_encodings[tinrc.mail_mime_encoding], txt_7bit)) {
-									change = TRUE;
-									for (i = 0; *txt_mime_7bit_charsets[i]; i++) {
-										if (!strcasecmp(txt_mime_charsets[tinrc.mm_network_charset], txt_mime_7bit_charsets[i])) {
-											change = FALSE;
-											break;
-										}
+								if (is_7bit) {
+									if (tinrc.mail_mime_encoding != MIME_ENCODING_7BIT) {
+										tinrc.mail_mime_encoding = MIME_ENCODING_7BIT;
+										tinrc.mail_8bit_header = FALSE;
+										repaint_option(OPT_MAIL_MIME_ENCODING);
+										repaint_option(OPT_MAIL_8BIT_HEADER);
+										UPDATE_INT_ATTRIBUTES(mail_mime_encoding);
+										UPDATE_INT_ATTRIBUTES(mail_8bit_header);
 									}
-									if (change) {
+									if (tinrc.post_mime_encoding != MIME_ENCODING_7BIT) {
+										tinrc.post_mime_encoding = MIME_ENCODING_7BIT;
+										tinrc.post_8bit_header = FALSE;
+										repaint_option(OPT_POST_MIME_ENCODING);
+										repaint_option(OPT_POST_8BIT_HEADER);
+										UPDATE_INT_ATTRIBUTES(post_mime_encoding);
+										UPDATE_INT_ATTRIBUTES(post_8bit_header);
+									}
+								} else {
+									if (tinrc.mail_mime_encoding == MIME_ENCODING_7BIT) {
 										tinrc.mail_mime_encoding = MIME_ENCODING_QP;
 										repaint_option(OPT_MAIL_MIME_ENCODING);
+										UPDATE_INT_ATTRIBUTES(mail_mime_encoding);
 									}
-								} else { /* and vice versa, if we have a 7bit chaset but a !7bit encoding, fix that */
-									for (i = 0; *txt_mime_7bit_charsets[i]; i++) {
-										if (!strcasecmp(txt_mime_charsets[tinrc.mm_network_charset], txt_mime_7bit_charsets[i])) {
-											tinrc.mail_mime_encoding = tinrc.post_mime_encoding = MIME_ENCODING_7BIT;
-											tinrc.mail_8bit_header = tinrc.post_8bit_header = FALSE;
-											repaint_option(OPT_POST_MIME_ENCODING);
-											repaint_option(OPT_MAIL_MIME_ENCODING);
-											repaint_option(OPT_POST_8BIT_HEADER);
-											break;
-										}
+									if (tinrc.post_mime_encoding == MIME_ENCODING_7BIT) {
+										tinrc.post_mime_encoding = MIME_ENCODING_8BIT;
+										repaint_option(OPT_POST_MIME_ENCODING);
+										UPDATE_INT_ATTRIBUTES(post_mime_encoding);
 									}
 								}
 							}
@@ -1239,18 +1442,41 @@ change_config_file(
 
 				case OPT_STRING:
 					switch (option) {
-						case OPT_EDITOR_FORMAT:
 						case OPT_INEWS_PROG:
 						case OPT_MAILER_FORMAT:
-						case OPT_MAIL_ADDRESS:
 						case OPT_MAIL_QUOTE_FORMAT:
 						case OPT_METAMAIL_PROG:
-						case OPT_NEWS_QUOTE_FORMAT:
-						case OPT_QUOTE_CHARS:
+#ifndef DISABLE_PRINTING
+						case OPT_PRINTER:
+#endif /* !DISABLE_PRINTING */
 						case OPT_SPAMTRAP_WARNING_ADDRESSES:
 						case OPT_URL_HANDLER:
 						case OPT_XPOST_QUOTE_FORMAT:
 							prompt_option_string(option);
+							break;
+
+						case OPT_EDITOR_FORMAT:
+							if (prompt_option_string(option)) {
+								if (!strlen(tinrc.editor_format))
+									STRCPY(tinrc.editor_format, TIN_EDITOR_FMT_ON);
+								UPDATE_STRING_ATTRIBUTES(editor_format);
+							}
+							break;
+
+						case OPT_MAIL_ADDRESS:
+							if (prompt_option_string(option)) {
+								if (group != NULL) {
+									if ((i = add_tempscope(group->name))) {
+										FreeIfNeeded(scopes[i].attribute->from);
+										scopes[i].attribute->from = my_strdup(tinrc.mail_address);
+									}
+								} else {
+									for (i = 1; i < num_scope; i++) {
+										if (scopes[i].temp)
+											FreeAndNull(scopes[i].attribute->from);
+									}
+								}
+							}
 							break;
 
 #ifndef CHARSET_CONVERSION
@@ -1273,27 +1499,65 @@ change_config_file(
 #endif /* !CHARSET_CONVERSION */
 
 						case OPT_NEWS_HEADERS_TO_DISPLAY:
-							prompt_option_string(option);
-							if (news_headers_to_display_array)
-								FreeIfNeeded(*news_headers_to_display_array);
-							FreeIfNeeded(news_headers_to_display_array);
-							news_headers_to_display_array = ulBuildArgv(tinrc.news_headers_to_display, &num_headers_to_display);
+							if (prompt_option_string(option)) {
+								UPDATE_STRING_ATTRIBUTES(news_headers_to_display);
+								if (group != NULL && i)
+									build_news_headers_array(scopes[i].attribute, TRUE);
+								else {
+									for (i = 1; i < num_scope; i++) {
+										if (scopes[i].temp && scopes[i].attribute->headers_to_display) {
+											if (scopes[i].attribute->headers_to_display->header)
+												FreeIfNeeded(*scopes[i].attribute->headers_to_display->header);
+											FreeAndNull(scopes[i].attribute->headers_to_display->header);
+											free(scopes[i].attribute->headers_to_display);
+											scopes[i].attribute->headers_to_display = (struct t_newsheader *) 0;
+										}
+									}
+								}
+								build_news_headers_array(scopes[0].attribute, TRUE);
+							}
 							break;
 
 						case OPT_NEWS_HEADERS_TO_NOT_DISPLAY:
-							prompt_option_string(option);
-							if (news_headers_to_not_display_array)
-								FreeIfNeeded(*news_headers_to_not_display_array);
-							FreeIfNeeded(news_headers_to_not_display_array);
-							news_headers_to_not_display_array = ulBuildArgv(tinrc.news_headers_to_not_display, &num_headers_to_not_display);
+							if (prompt_option_string(option)) {
+								UPDATE_STRING_ATTRIBUTES(news_headers_to_not_display);
+								if (group != NULL && i)
+									build_news_headers_array(scopes[i].attribute, FALSE);
+								else {
+									for (i = 1; i < num_scope; i++) {
+										if (scopes[i].temp && scopes[i].attribute->headers_to_not_display) {
+											if (scopes[i].attribute->headers_to_not_display->header)
+												FreeIfNeeded(*scopes[i].attribute->headers_to_not_display->header);
+											FreeAndNull(scopes[i].attribute->headers_to_not_display->header);
+											free(scopes[i].attribute->headers_to_not_display);
+											scopes[i].attribute->headers_to_not_display = (struct t_newsheader *) 0;
+										}
+									}
+								}
+								build_news_headers_array(scopes[0].attribute, FALSE);
+							}
 							break;
 
-#ifndef DISABLE_PRINTING
-						case OPT_PRINTER:
-#endif /* !DISABLE_PRINTING */
+						case OPT_NEWS_QUOTE_FORMAT:
+							if (prompt_option_string(option))
+								UPDATE_STRING_ATTRIBUTES(news_quote_format);
+							break;
+
 						case OPT_MAILDIR:
+							if (prompt_option_string(option))
+								UPDATE_STRING_ATTRIBUTES(maildir);
+							break;
+
 						case OPT_SAVEDIR:
+							if (prompt_option_string(option))
+								UPDATE_STRING_ATTRIBUTES(savedir);
+							break;
+
 						case OPT_SIGFILE:
+							if (prompt_option_string(option))
+								UPDATE_STRING_ATTRIBUTES(sigfile);
+							break;
+
 						case OPT_POSTED_ARTICLES_FILE:
 							if (prompt_option_string(option)) {
 								char buf[PATH_LEN];
@@ -1301,6 +1565,11 @@ change_config_file(
 								strfpath(tinrc.posted_articles_file, buf, sizeof(buf), &CURR_GROUP);
 								STRCPY(tinrc.posted_articles_file, buf);
 							}
+							break;
+
+						case OPT_QUOTE_CHARS:
+							if (prompt_option_string(option))
+								UPDATE_STRING_ATTRIBUTES(quote_chars);
 							break;
 
 #ifdef HAVE_COLOR
@@ -1383,17 +1652,9 @@ change_config_file(
 							FreeIfNeeded(strip_was_regex.extra);
 							if (!strlen(tinrc.strip_was_regex)) {
 #if defined(MULTIBYTE_ABLE) && !defined(NO_LOCALE)
-								if (IS_LOCAL_CHARSET("UTF-8")) {
-#	if (defined(PCRE_MAJOR) && PCRE_MAJOR >= 4)
-									int i;
-
-									pcre_config(PCRE_CONFIG_UTF8, &i);
-									if (i)
-										STRCPY(tinrc.strip_was_regex, DEFAULT_U8_STRIP_WAS_REGEX);
-									else
-#	endif /* PCRE_MAJOR && PCRE_MAJOR >= 4 */
-										STRCPY(tinrc.strip_was_regex, DEFAULT_STRIP_WAS_REGEX);
-								} else
+								if (IS_LOCAL_CHARSET("UTF-8") && utf8_pcre())
+									STRCPY(tinrc.strip_was_regex, DEFAULT_U8_STRIP_WAS_REGEX);
+								else
 #endif /* MULTIBYTE_ABLE && !NO_LOCALE */
 									STRCPY(tinrc.strip_was_regex, DEFAULT_STRIP_WAS_REGEX);
 							}
@@ -1419,9 +1680,10 @@ change_config_file(
 							break;
 
 						case OPT_DATE_FORMAT:
-							prompt_option_string(option);
-							if (!strlen(tinrc.date_format)) {
-								STRCPY(tinrc.date_format, DEFAULT_DATE_FORMAT);
+							if (prompt_option_string(option)) {
+								if (!strlen(tinrc.date_format))
+									STRCPY(tinrc.date_format, DEFAULT_DATE_FORMAT);
+								UPDATE_STRING_ATTRIBUTES(date_format);
 							}
 							break;
 
@@ -1478,9 +1740,11 @@ change_config_file(
 							break;
 
 						case OPT_THREAD_PERC:
-							prompt_option_num(option);
-							if (tinrc.thread_perc < 0 || tinrc.thread_perc > 100)
-								tinrc.thread_perc = THREAD_PERC_DEFAULT;
+							if (prompt_option_num(option)) {
+								if (tinrc.thread_perc < 0 || tinrc.thread_perc > 100)
+									tinrc.thread_perc = THREAD_PERC_DEFAULT;
+								UPDATE_INT_ATTRIBUTES(thread_perc);
+							}
 							break;
 
 						case OPT_WRAP_COLUMN:

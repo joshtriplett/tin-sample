@@ -2,10 +2,10 @@ dnl Project   : tin - a Usenet reader
 dnl Module    : configure.in
 dnl Author    : Thomas E. Dickey <dickey@invisible-island.net>
 dnl Created   : 1995-08-24
-dnl Updated   : 2008-03-31
+dnl Updated   : 2009-01-11
 dnl Notes     :
 dnl
-dnl Copyright (c) 1995-2007 Thomas E. Dickey <dickey@invisible-island.net>
+dnl Copyright (c) 1995-2009 Thomas E. Dickey <dickey@invisible-island.net>
 dnl All rights reserved.
 dnl
 dnl Redistribution and use in source and binary forms, with or without
@@ -41,7 +41,7 @@ AC_PREFIX_DEFAULT(/usr/local)
 
 dnl PACKAGE is required for GNU gettext
 PACKAGE=tin
-VERSION=1.9.3
+VERSION=1.9.4
 AC_DEFINE_UNQUOTED(PACKAGE, "$PACKAGE")
 AC_DEFINE_UNQUOTED(VERSION, "$VERSION")
 AC_SUBST(PACKAGE)
@@ -59,6 +59,8 @@ case ".$DESTDIR" in # (vi
 ./*)	DESTDIR="$DESTDIR/"
 	;;
 esac
+
+AC_ARG_PROGRAM
 
 ###	Compiler/options that autoconf doesn't get right
 case "$host_os" in
@@ -99,8 +101,8 @@ CF_BUILD_CC([-I$(INCDIR)],[])
 dnl These are standard among *NIX systems, but not when cross-compiling
 AC_CHECK_TOOL(RANLIB, ranlib, ':')
 AC_CHECK_TOOL(LD, ld, ld)
-AC_CHECK_TOOL(AR, ar, ar)
-CF_SUBST(archiver options,AR_OPTS,rv)
+CF_PROG_AR
+CF_AR_FLAGS
 
 case "$host_cpu:$host_vendor:$host_os" in
 	# check for MacOS X, exclude Darwin on ix86
@@ -428,6 +430,8 @@ CF_BUNDLED_PCRE($PCRE_HOME)
 
 PCRE_MAKEFILE=
 if test "$PCRE_HOME" = "no" ; then
+	LINK_SIZE="-DLINK_SIZE=2"
+	AC_SUBST(LINK_SIZE)
 	PCRE_MAKEFILE="$PCRE_MAKEFILE pcre/Makefile pcre/RunTest"
 fi
 
@@ -523,21 +527,17 @@ AC_SUBST(CANDIR_MAKE)
 AC_SUBST(CANLIBS)
 
 ## gsasl - used for AUTH SASL PLAIN
-GSASL_LIBS=
 AC_CHECK_HEADER(gsasl.h,
-	AC_CHECK_LIB(gsasl, gsasl_check_version,
-		gsasl=yes, gsasl=no),
+	AC_CHECK_LIB(gsasl, gsasl_check_version, gsasl=yes, gsasl=no),
 	gsasl=no)
 if test "$gsasl" = "yes"; then
 	CF_ARG_DISABLE(gsasl,
-	        [  --disable-gsasl         don't use GNU SASL],
-	        USE_SASL=no,
-	        [USE_SASL=yes
+		[  --disable-gsasl         don't use GNU SASL],
+		USE_SASL=no,
+		[USE_SASL=yes
 		AC_DEFINE(USE_SASL, 1, [Define to 1 if you want GNU SASL.])
-		GSASL_LIBS='-lgsasl'])
+		LIBS="$LIBS -lgsasl"])
 fi
-AC_SUBST(GSASL_LIBS)
-
 
 AC_MSG_CHECKING(whether to enable 8-bit keycodes)
 CF_ARG_DISABLE(8bit-keys,

@@ -3,10 +3,10 @@
  *  Module    : proto.h
  *  Author    : Urs Janssen <urs@tin.org>
  *  Created   :
- *  Updated   : 2008-04-23
+ *  Updated   : 2009-01-09
  *  Notes     :
  *
- * Copyright (c) 1997-2008 Urs Janssen <urs@tin.org>
+ * Copyright (c) 1997-2009 Urs Janssen <urs@tin.org>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -75,7 +75,10 @@ extern void sort_arts(unsigned /* int */ sort_art_type);
 extern void write_overview(struct t_group *group);
 
 /* attrib.c */
-extern void read_attributes_files(void);
+extern int add_tempscope(const char *scope);
+extern void assign_attributes_to_groups(void);
+extern void build_news_headers_array(struct t_attribute *scope, t_bool header_to_display);
+extern void read_attributes_file(t_bool global_file);
 extern void write_attributes_file(const char *file);
 
 /* auth.c */
@@ -97,6 +100,9 @@ extern void draw_pager_line(const char *str, int flags, t_bool raw_data);
 #ifdef HAVE_COLOR
 	extern void bcol(int color);
 	extern void fcol(int color);
+#	ifdef USE_CURSES
+		extern void free_color_pair_arrays(void);
+#	endif /* USE_CURSES */
 #endif /* HAVE_COLOR */
 
 /* config.c */
@@ -165,9 +171,6 @@ extern void word_highlight_string(int row, int col, int size, int color);
 	extern void debug_print_filters(void);
 	extern void debug_print_header(struct t_article *s);
 	extern void debug_print_malloc(int is_malloc, const char *xfile, int line, size_t size);
-#	ifdef NNTP_ABLE
-		extern void debug_print_nntp_extensions(void);
-#	endif /* NNTP_ABLE */
 #endif /* DEBUG */
 
 /* envarg.c */
@@ -242,6 +245,9 @@ extern void postinit_regexp(void);
 #ifdef HAVE_COLOR
 	extern void postinit_colors(void);
 #endif /* HAVE_COLOR */
+#if defined(MULTIBYTE_ABLE) && !defined(NO_LOCALE)
+	extern t_bool utf8_pcre(void);
+#endif /* MULTIBYTE_ABLE && !NO_LOCALE */
 
 /* joinpath.c */
 extern void joinpath(char *result, size_t result_size, const char *dir, const char *file);
@@ -295,14 +301,12 @@ extern void giveup(void);
 /* memory.c */
 extern void expand_active(void);
 extern void expand_art(void);
-extern void expand_local_attributes(void);
 extern void expand_newnews(void);
 extern void expand_save(void);
+extern void expand_scope(void);
 extern void init_alloc(void);
 extern void free_all_arrays(void);
 extern void free_art_array(void);
-extern void free_attributes_array(void);
-extern void free_if_not_default(char **attrib, char *deflt);
 extern void free_save_array(void);
 extern void *my_malloc1(const char *file, int line, size_t size);
 extern void *my_calloc1(const char *file, int line, size_t nmemb, size_t size);
@@ -331,7 +335,6 @@ extern int gnksa_split_from(const char *from, char *address, char *realname, int
 extern int get_initials(int respnum, char *s, int maxsize);
 extern int gnksa_do_check_from(const char *from, char *address, char *realname);
 extern int my_chdir(char *path);
-extern int my_isprint(int c);
 extern int my_mkdir(char *path, mode_t mode);
 extern int parse_from(const char *from, char *address, char *realname);
 extern int strfmailer(const char *mail_prog, char *subject, char *to, const char *filename, char *dest, size_t maxsize, const char *format);
@@ -343,7 +346,7 @@ extern long file_size(const char *file);
 extern t_bool backup_file(const char *filename, const char *backupname);
 extern t_bool copy_fp(FILE *fp_ip, FILE *fp_op);
 extern t_bool invoke_cmd(const char *nam);
-extern t_bool invoke_editor(const char *filename, int lineno);
+extern t_bool invoke_editor(const char *filename, int lineno, struct t_group *group);
 extern t_bool mail_check(void);
 extern void append_file(char *old_filename, char *new_filename);
 extern void asfail(const char *file, int line, const char *cond);
@@ -368,6 +371,9 @@ extern void toggle_inverse_video(void);
 #if defined(CHARSET_CONVERSION) || (defined(MULTIBYTE_ABLE) && !defined(NO_LOCALE))
 	extern char *utf8_valid(char *line);
 #endif /* CHARSET_CONVERSION || (MULTIBYTE_ABLE && !NO_LOCALE) */
+#if defined(NO_LOCALE) || !defined(MULTIBYTE_ABLE)
+	extern int my_isprint(int c);
+#endif /* NO_LOCALE || !MULTIBYTE_ABLE */
 #ifdef CHARSET_CONVERSION
 	extern t_bool buffer_to_network(char *line, int mmnwcharset);
 #endif /* CHARSET_CONVERSION */
@@ -462,7 +468,7 @@ extern time_t parsedate(char *p, TIMEINFO *now);
 #endif /* !HAVE_VSNPRINTF */
 
 /* post.c */
-extern char *checknadd_headers(const char *infile);
+extern char *checknadd_headers(const char *infile, struct t_group *group);
 extern int count_postponed_articles(void);
 extern int mail_to_author(const char *group, int respnum, t_bool copy_text, t_bool with_headers, t_bool raw_data);
 extern int mail_to_someone(const char *address, t_bool confirm_to_mail, t_openartinfo *artinfo, const struct t_group *group);
@@ -563,7 +569,7 @@ extern void center_line(int line, t_bool inverse, const char *str);
 extern void clear_message(void);
 extern void draw_arrow_mark(int line);
 extern void erase_arrow(void);
-extern void error_message(const char *fmt, ...);
+extern void error_message(unsigned int sdelay, const char *fmt, ...);
 extern void info_message(const char *fmt, ...);
 extern void perror_message(const char *fmt, ...);
 extern void ring_bell(void);

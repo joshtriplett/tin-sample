@@ -3,10 +3,10 @@
  *  Module    : extern.h
  *  Author    : I. Lea
  *  Created   : 1991-04-01
- *  Updated   : 2008-04-23
+ *  Updated   : 2009-01-23
  *  Notes     :
  *
- * Copyright (c) 1997-2008 Iain Lea <iain@bricbrac.de>
+ * Copyright (c) 1997-2009 Iain Lea <iain@bricbrac.de>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -333,8 +333,6 @@ extern char *optarg;
 #	define txt_help_thd_C	txt_help_thd_BIGC
 #endif /* CASE_PROBLEM */
 
-extern char **news_headers_to_display_array;
-extern char **news_headers_to_not_display_array;
 extern char *OPT_CHAR_list[];
 extern char *OPT_STRING_list[];
 extern char *nntp_server;
@@ -356,7 +354,6 @@ extern char index_maildir[PATH_LEN];
 extern char index_newsdir[PATH_LEN];
 extern char index_savedir[PATH_LEN];
 extern char inewsdir[PATH_LEN];
-extern char libdir[PATH_LEN];
 extern char local_attributes_file[PATH_LEN];
 extern char local_config_file[PATH_LEN];
 extern char filter_file[PATH_LEN];
@@ -387,6 +384,7 @@ extern char rcdir[PATH_LEN];
 extern char save_active_file[PATH_LEN];
 extern char spooldir[PATH_LEN];
 extern char subscriptions_file[PATH_LEN];
+extern char overviewfmt_file[PATH_LEN];
 extern char txt_help_bug_report[LEN];
 extern char userid[PATH_LEN];
 
@@ -397,6 +395,7 @@ extern const char base64_alphabet[64];
 extern constext *content_encodings[];
 extern constext *content_types[];
 extern constext *txt_attrs[];
+extern constext *txt_auto_cc_bcc_options[];
 #ifdef HAVE_COLOR
 	extern constext *txt_colors[];
 #endif /* HAVE_COLOR */
@@ -416,7 +415,7 @@ extern constext *txt_mime_encodings[];
 	extern constext *txt_normalization_forms[];
 #endif /* HAVE_UNICODE_NORMALIZATION */
 extern constext *txt_onoff[];
-extern constext *txt_post_process_type[];
+extern constext *txt_post_process_types[];
 extern constext *txt_quote_style_type[];
 extern constext *txt_show_from[];
 extern constext *txt_show_info_type[];
@@ -425,6 +424,7 @@ extern constext *txt_sort_t_type[];	/* t=threads */
 extern constext *txt_strip_bogus_type[];
 extern constext *txt_threading[];
 extern constext *txt_thread_score_type[];
+extern constext *txt_trim_article_body_options[];
 extern constext *txt_wildcard_type[];
 extern constext txt_1_resp[];
 extern constext txt_7bit[];
@@ -434,7 +434,6 @@ extern constext txt_all[];
 extern constext txt_all_groups[];
 extern constext txt_append_overwrite_quit[];
 extern constext txt_art_cancel[];
-extern constext txt_art_cannot_cancel[];
 extern constext txt_art_newsgroups[];
 extern constext txt_art_not_posted[];
 extern constext txt_art_not_saved[];
@@ -550,11 +549,13 @@ extern constext txt_error_bad_approved[];
 extern constext txt_error_bad_from[];
 extern constext txt_error_bad_replyto[];
 extern constext txt_error_bad_msgidfqdn[];
-extern constext txt_error_cant_unlock[];
+#ifndef NO_LOCKING
+	extern constext txt_error_cant_unlock[];
+	extern constext txt_error_couldnt_dotlock[];
+	extern constext txt_error_couldnt_lock[];
+#endif /* NO_LOCKING */
 extern constext txt_error_copy_fp[];
 extern constext txt_error_corrupted_file[];
-extern constext txt_error_couldnt_dotlock[];
-extern constext txt_error_couldnt_lock[];
 extern constext txt_error_fseek[];
 extern constext txt_error_gnksa_internal[];
 extern constext txt_error_gnksa_langle[];
@@ -584,12 +585,14 @@ extern constext txt_error_gnksa_rn_paren[];
 extern constext txt_error_gnksa_rn_invalid[];
 extern constext txt_error_header_and_body_not_separate[];
 extern constext txt_error_header_duplicate[];
+extern constext txt_error_header_format[];
 extern constext txt_error_header_line_bad_charset[];
 extern constext txt_error_header_line_bad_encoding[];
 extern constext txt_error_header_line_blank[];
 extern constext txt_error_header_line_colon[];
 extern constext txt_error_header_line_empty[];
 extern constext txt_error_header_line_missing[];
+extern constext txt_error_header_line_not_7bit[];
 extern constext txt_error_header_line_space[];
 extern constext txt_error_insecure_permissions[];
 extern constext txt_error_invalid_response_to_group[];
@@ -604,7 +607,6 @@ extern constext txt_error_no_such_file[];
 extern constext txt_error_no_write_permission[];
 extern constext txt_error_passwd_missing[];
 extern constext txt_error_plural[];
-extern constext txt_error_sender_in_header_not_allowed[];
 extern constext txt_error_server_has_no_listed_groups[];
 extern constext txt_error_singular[];
 #if defined(NNTP_ABLE) && defined(INET6)
@@ -663,13 +665,16 @@ extern constext txt_help_article_autokill[];
 extern constext txt_help_article_autoselect[];
 extern constext txt_help_article_browse_urls[];
 extern constext txt_help_article_by_num[];
-extern constext txt_help_article_cancel[];
+#ifndef NO_POSTING
+	extern constext txt_help_article_cancel[];
+	extern constext txt_help_article_followup[];
+	extern constext txt_help_article_followup_no_quote[];
+	extern constext txt_help_article_followup_with_header[];
+	extern constext txt_help_article_repost[];
+#endif /* NO_POSTING */
 extern constext txt_help_article_edit[];
 extern constext txt_help_article_first_in_thread[];
 extern constext txt_help_article_first_page[];
-extern constext txt_help_article_followup[];
-extern constext txt_help_article_followup_no_quote[];
-extern constext txt_help_article_followup_with_header[];
 extern constext txt_help_article_last_in_thread[];
 extern constext txt_help_article_last_page[];
 extern constext txt_help_article_mark_thread_read[];
@@ -688,7 +693,6 @@ extern constext txt_help_article_quit_to_select_level[];
 extern constext txt_help_article_reply[];
 extern constext txt_help_article_reply_no_quote[];
 extern constext txt_help_article_reply_with_header[];
-extern constext txt_help_article_repost[];
 extern constext txt_help_article_search_backwards[];
 extern constext txt_help_article_search_forwards[];
 extern constext txt_help_article_show_raw[];
@@ -835,7 +839,6 @@ extern constext txt_info_no_previous_expression[];
 extern constext txt_info_postponed[];
 extern constext txt_info_x_conversion_note[];
 extern constext txt_invalid_from[];
-extern constext txt_invalid_sender[];
 #if defined(MULTIBYTE_ABLE) && !defined(NO_LOCALE)
 	extern constext txt_invalid_multibyte_sequence[];
 #endif /* MULTIBYTE_ABLE && !NO_LOCALE */
@@ -1093,8 +1096,10 @@ extern constext txt_toggled_tabwidth[];
 #if defined(NNTP_ABLE) && defined(HAVE_INET_NTOA)
 	extern constext txt_trying[];
 #endif /* NNTP_ABLE && HAVE_INET_NTOA */
-extern constext txt_trying_dotlock[];
-extern constext txt_trying_lock[];
+#ifndef NO_LOCKING
+	extern constext txt_trying_dotlock[];
+	extern constext txt_trying_lock[];
+#endif /* NO_LOCKING */
 extern constext txt_type_h_for_help[];
 extern constext txt_unlimited_time[];
 extern constext txt_unread[];
@@ -1119,6 +1124,7 @@ extern constext txt_usage_dont_show_descriptions[];
 	extern constext txt_usage_force_authentication[];
 	extern constext txt_usage_newsserver[];
 	extern constext txt_usage_port[];
+	extern constext txt_usage_read_news_remotely[];
 #endif /* NNTP_ABLE */
 extern constext txt_usage_getart_limit[];
 extern constext txt_usage_help_information[];
@@ -1133,7 +1139,6 @@ extern constext txt_usage_newsrc_file[];
 extern constext txt_usage_no_posting[];
 extern constext txt_usage_post_article[];
 extern constext txt_usage_post_postponed_arts[];
-extern constext txt_usage_read_news_remotely[];
 extern constext txt_usage_read_saved_news[];
 extern constext txt_usage_savedir[];
 extern constext txt_usage_save_new_news[];
@@ -1234,17 +1239,15 @@ extern int iso2asc_supported;
 extern int last_resp;
 extern int max_active;
 extern int max_art;
-extern int max_local_attributes;
 extern int max_newnews;
 extern int max_save;
+extern int max_scope;
 extern int need_resize;
-extern int num_headers_to_display;
-extern int num_headers_to_not_display;
 extern int num_active;
-extern int num_local_attributes;
 extern int num_newnews;
 extern int num_of_tagged_arts;
 extern int num_save;
+extern int num_scope;
 extern int signal_context;
 extern int srch_lineno;
 extern int system_status;
@@ -1283,8 +1286,7 @@ extern struct regex_cache strokes_regex;
 #endif /* HAVE_COLOR */
 
 extern struct t_article *arts;
-extern struct t_attribute *local_attributes;
-extern struct t_attribute glob_attributes;
+extern struct t_scope *scopes;
 extern struct t_config tinrc;
 extern struct t_filters glob_filter;
 extern struct t_group *active;
@@ -1300,7 +1302,10 @@ extern t_bool check_for_new_newsgroups;
 extern t_bool cmd_line;
 extern t_bool created_rcdir;
 extern t_bool dangerous_signal_exit; /* TRUE if SIGHUP, SIGTERM, SIGUSR1 */
-extern t_bool did_reconnect;
+#ifdef NNTP_ABLE
+	extern t_bool did_reconnect;
+	extern t_bool reconnected_in_last_get_server;
+#endif /* NNTP_ABLE */
 extern t_bool disable_gnksa_domain_check;
 extern t_bool disable_sender;
 extern t_bool force_no_post;
@@ -1316,7 +1321,6 @@ extern t_bool post_postponed_and_exit;
 extern t_bool read_local_newsgroups_file;
 extern t_bool read_news_via_nntp;
 extern t_bool read_saved_news;
-extern t_bool reconnected_in_last_get_server;
 extern t_bool reread_active_for_posted_arts;
 extern t_bool show_description;
 extern t_bool show_subject;
@@ -1415,6 +1419,10 @@ extern char *input_history[HIST_MAXNUM + 1][HIST_SIZE + 1];
 
 #ifdef FORGERY
 	extern constext txt_warn_cancel_forgery[];
+#else
+	extern constext txt_art_cannot_cancel[];
+	extern constext txt_error_sender_in_header_not_allowed[];
+	extern constext txt_invalid_sender[];
 #endif /* FORGERY */
 
 extern t_bool word_highlight;
@@ -1490,8 +1498,7 @@ extern struct opttxt txt_art_marked_return;
 extern struct opttxt txt_art_marked_selected;
 extern struct opttxt txt_art_marked_unread;
 extern struct opttxt txt_ask_for_metamail;
-extern struct opttxt txt_auto_bcc;
-extern struct opttxt txt_auto_cc;
+extern struct opttxt txt_auto_cc_bcc;
 extern struct opttxt txt_auto_list_thread;
 extern struct opttxt txt_auto_reconnect;
 extern struct opttxt txt_auto_save;
@@ -1549,7 +1556,7 @@ extern struct opttxt txt_news_quote_format;
 extern struct opttxt txt_pos_first_unread;
 extern struct opttxt txt_post_8bit_header;
 extern struct opttxt txt_post_mime_encoding;
-extern struct opttxt txt_post_process;
+extern struct opttxt txt_post_process_type;
 extern struct opttxt txt_post_process_view;
 extern struct opttxt txt_posted_articles_file;
 extern struct opttxt txt_posting_options;
@@ -1596,6 +1603,7 @@ extern struct opttxt txt_thread_articles;
 extern struct opttxt txt_thread_perc;
 extern struct opttxt txt_thread_catchup_on_exit;
 extern struct opttxt txt_thread_score;
+extern struct opttxt txt_trim_article_body;
 extern struct opttxt txt_underscores_regex;
 extern struct opttxt txt_unlink_article;
 extern struct opttxt txt_url_handler;
@@ -1603,6 +1611,7 @@ extern struct opttxt txt_url_highlight;
 extern struct opttxt txt_use_mouse;
 extern struct opttxt txt_verbatim_begin_regex;
 extern struct opttxt txt_verbatim_end_regex;
+extern struct opttxt txt_verbatim_handling;
 extern struct opttxt txt_wildcard;
 extern struct opttxt txt_word_highlight;
 extern struct opttxt txt_word_h_display_marks;
@@ -1636,6 +1645,7 @@ extern struct opttxt txt_xpost_quote_format;
 	extern struct opttxt txt_col_title;
 	extern struct opttxt txt_col_signature;
 	extern struct opttxt txt_col_urls;
+	extern struct opttxt txt_col_verbatim;
 	extern struct opttxt txt_col_markstar;
 	extern struct opttxt txt_col_markdash;
 	extern struct opttxt txt_col_markslash;
