@@ -3,7 +3,7 @@
  *  Module    : regex.c
  *  Author    : Jason Faultless <jason@altarstone.com>
  *  Created   : 1997-02-21
- *  Updated   : 2007-04-12
+ *  Updated   : 2008-04-25
  *  Notes     : Regular expression subroutines
  *  Credits   :
  *
@@ -77,8 +77,10 @@ match_regex(
 	}
 
 	if ((error = pcre_exec(ptr_cache->re, ptr_cache->extra, string, strlen(string), 0, 0, NULL, 0)) >= 0) {
-		FreeIfNeeded(tmp_cache.re);
-		FreeIfNeeded(tmp_cache.extra);
+		if (ptr_cache == &tmp_cache) {
+			FreeIfNeeded(tmp_cache.re);
+			FreeIfNeeded(tmp_cache.extra);
+		}
 
 		return TRUE;
 	}

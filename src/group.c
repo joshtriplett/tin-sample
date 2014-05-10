@@ -3,7 +3,7 @@
  *  Module    : group.c
  *  Author    : I. Lea & R. Skrenta
  *  Created   : 1991-04-01
- *  Updated   : 2007-10-04
+ *  Updated   : 2008-04-29
  *  Notes     :
  *
  * Copyright (c) 1991-2008 Iain Lea <iain@bricbrac.de>, Rich Skrenta <skrenta@pbm.com>
@@ -811,7 +811,7 @@ group_page(
 						if (tinrc.wildcard)
 							STRCPY(pat, ".*");
 						else
-							strncpy(pat, tinrc.default_select_pattern, sizeof(pat));
+							STRCPY(pat, tinrc.default_select_pattern);
 					} else
 						snprintf(pat, sizeof(pat), REGEX_FMT, tinrc.default_select_pattern);
 
@@ -985,6 +985,7 @@ toggle_read_unread(
 {
 	int n, i = -1;
 
+	/* force is always false */
 	if (force)
 		curr_group->attribute->show_only_unread = TRUE;	/* Yes - really, we change it in a bit */
 
@@ -1257,7 +1258,7 @@ build_sline(
 	if (sbuf.multipart_have > 1) /* We have a multipart msg so lets built our new header info. */
 		build_multipart_header(arts_sub, len_subj, arts[j].subject, sbuf.multipart_compare_len, sbuf.multipart_have, sbuf.multipart_total);
 	else
-		strncpy(arts_sub, arts[j].subject, sizeof(arts_sub) - 1);
+		STRCPY(arts_sub, arts[j].subject);
 
 #ifndef USE_CURSES
 	buffer = screen[INDEX2SNUM(i)].col;

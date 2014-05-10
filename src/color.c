@@ -312,7 +312,7 @@ draw_pager_line(
 				 * non-printable char
 				 * print as an octal value
 				 */
-				snprintf(octal, sizeof(octal), "\\%03o", (int) *c & 0xff);
+				snprintf(octal, sizeof(octal), "\\%03o", (int) (*c & 0xff));
 				my_fputs(octal, stdout);
 				c++;
 			}

@@ -3,7 +3,7 @@
  *  Module    : keymap.c
  *  Author    : D. Nimmich, J. Faultless
  *  Created   : 2000-05-25
- *  Updated   : 2008-03-26
+ *  Updated   : 2008-04-23
  *  Notes     : This file contains key mapping routines and variables.
  *
  * Copyright (c) 2000-2008 Dirk Nimmich <nimmich@muenster.de>
@@ -320,7 +320,7 @@ read_keymap_file(
 	char *line, *keydef, *kname;
 	char *map, *ptr;
 	char buf[LEN], buff[NAME_LEN + 1], filename[PATH_LEN];
-	int upgrade = RC_CHECK;
+	enum rc_state upgrade = RC_CHECK;
 	t_bool ret = TRUE;
 
 	/*
@@ -398,7 +398,7 @@ read_keymap_file(
 
 		/*
 		 * TODO: useful? shared keymaps (NFS-Home) may differ
-		 * depending on the OS (i.e. on tin has color the other has not)
+		 * depending on the OS (i.e. one tin has color the other has not)
 		 */
 		if (!process_mapping(kname, keydef)) {
 			wait_message(0, _(txt_keymap_invalid_name), kname);

@@ -42,8 +42,8 @@
 #	ifndef TIN_AUTOCONF_H
 #		define VERSION		"1.9.3"
 #	endif /* !TIN_AUTOCONF_H */
-#	define RELEASEDATE	"20080326"
-#	define RELEASENAME	"Dalaruan"
+#	define RELEASEDATE	"20080506"
+#	define RELEASENAME	"Dalintober"
 /* config-file versions - must by dotted triples */
 #	define TINRC_VERSION	"1.3.8"
 #	define ATTRIBUTES_VERSION	"1.0.4"

@@ -3,7 +3,7 @@
  *  Module    : auth.c
  *  Author    : Dirk Nimmich <nimmich@muenster.de>
  *  Created   : 1997-04-05
- *  Updated   : 2008-03-16
+ *  Updated   : 2008-04-25
  *  Notes     : Routines to authenticate to a news server via NNTP.
  *              DON'T USE get_respcode() THROUGHOUT THIS CODE.
  *
@@ -371,9 +371,11 @@ authinfo_plain(
 #	ifdef USE_SASL
 			if (nntp_caps.sasl_plain)
 				ret = do_authinfo_sasl_plain(authuser, authpass);
+
 			if (ret != OK_AUTH)
 #	endif /* USE_SASL */
 				ret = do_authinfo_user(server, authuser, authpass);
+
 			if (!(already_failed = (ret != OK_AUTH))) {
 #	ifdef DEBUG
 				if (debug & DEBUG_NNTP)
@@ -516,19 +518,16 @@ static char *sasl_auth_plain(
 	Gsasl_session *session;
 	char *p = NULL;
 	const char *mech = "PLAIN";
-	int rc;
 
-	rc = gsasl_init(&ctx);	/* TODO: do this only once at startup */
-	if (rc != GSASL_OK)
+	if (gsasl_init(&ctx) != GSASL_OK) /* TODO: do this only once at startup */
 		return p;
-	if ((rc = gsasl_client_start(ctx, mech, &session)) != GSASL_OK) {
+	if (gsasl_client_start(ctx, mech, &session) != GSASL_OK) {
 		gsasl_done(ctx);
 		return p;
 	}
 	gsasl_property_set(session, GSASL_AUTHID, user);
 	gsasl_property_set(session, GSASL_PASSWORD, pass);
-	rc = gsasl_step64(session, NULL, &p);
-	if (rc != GSASL_OK)
+	if (gsasl_step64(session, NULL, &p) != GSASL_OK)
 		FreeAndNull(p);
 	gsasl_finish(session);
 	gsasl_done(ctx);

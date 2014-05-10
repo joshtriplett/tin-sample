@@ -3,7 +3,7 @@
  *  Module    : proto.h
  *  Author    : Urs Janssen <urs@tin.org>
  *  Created   :
- *  Updated   : 2008-03-18
+ *  Updated   : 2008-04-23
  *  Notes     :
  *
  * Copyright (c) 1997-2008 Urs Janssen <urs@tin.org>
@@ -165,7 +165,6 @@ extern void word_highlight_string(int row, int col, int size, int color);
 	extern void debug_print_filters(void);
 	extern void debug_print_header(struct t_article *s);
 	extern void debug_print_malloc(int is_malloc, const char *xfile, int line, size_t size);
-	extern void debug_print_newsrc(struct t_newsrc *NewSrc, FILE *fp);
 #	ifdef NNTP_ABLE
 		extern void debug_print_nntp_extensions(void);
 #	endif /* NNTP_ABLE */
@@ -410,16 +409,16 @@ extern void set_default_bitmap(struct t_group *group);
 extern FILE *get_nntp_fp(FILE *fp);
 extern FILE *get_nntp_wr_fp(FILE *fp);
 extern char *getserverbyfile(const char *file);
-extern char *get_server(char *string, int size);
-extern int get_respcode(char *, size_t);
-extern int get_only_respcode(char *, size_t);
-extern int new_nntp_command(const char *command, int success, char *message, size_t mlen);
 extern int nntp_open(void);
 extern void nntp_close(void);
-extern void put_server(const char *string);
-extern void u_put_server(const char *string);
 #ifdef NNTP_ABLE
 	extern FILE *nntp_command(const char *, int, char *, size_t);
+	extern char *get_server(char *string, int size);
+	extern int get_respcode(char *, size_t);
+	extern int get_only_respcode(char *, size_t);
+	extern int new_nntp_command(const char *command, int success, char *message, size_t mlen);
+	extern void put_server(const char *string);
+	extern void u_put_server(const char *string);
 #endif /* NNTP_ABLE */
 
 /* nrctbl.c */
@@ -705,8 +704,8 @@ extern int thread_page(struct t_group *group, int respnum, int thread_depth, t_p
 extern void fixup_thread(int respnum, t_bool redraw);
 
 /* version.c */
-extern int check_upgrade(char *line, const char *skip, const char *version);
-extern void upgrade_prompt_quit(int reason, const char *file);
+extern enum rc_state check_upgrade(char *line, const char *skip, const char *version);
+extern void upgrade_prompt_quit(enum rc_state reason, const char *file);
 
 /* wildmat.c */
 extern t_bool wildmat(const char *text, char *p, t_bool icase);

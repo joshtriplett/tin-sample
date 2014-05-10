@@ -3,7 +3,7 @@
  *  Module    : init.c
  *  Author    : I. Lea
  *  Created   : 1991-04-01
- *  Updated   : 2008-03-10
+ *  Updated   : 2008-04-25
  *  Notes     :
  *
  * Copyright (c) 1991-2008 Iain Lea <iain@bricbrac.de>
@@ -415,7 +415,7 @@ struct t_config tinrc = {
 };
 
 struct t_capabilities nntp_caps = {
-	0, /* type (none, LIST EXTENSIONS, CAPABILITIES, BROKEN) */
+	NONE, /* type (none, LIST EXTENSIONS, CAPABILITIES, BROKEN) */
 	0, /* CAPABILITIES version */
 	FALSE, /* MODE-READER: "MODE READER" */
 	FALSE, /* READER: "ARTICLE", "BODY" */
@@ -545,9 +545,7 @@ init_selfinfo(
 
 #ifdef HAVE_SYS_UTSNAME_H
 #	ifdef HAVE_UNAME
-	if (uname(&system_info) != -1)
-		;
-	else
+	if (uname(&system_info) == -1)
 #	endif /* HAVE_UNAME */
 	{
 		strcpy(system_info.sysname, "unknown");

@@ -81,6 +81,10 @@ o  overview file cacheing code is over-complex
 o  iso2asc conversion is missing for 'internal' strings (e.g. 'M'enu)
    [20020319 Urs Janssen <urs@tin.org>]
 
+o  comments in attributes get lost (we need to do something like we do for
+   the filter file)
+   [20080425 Urs Janssen <urs@tin.org>]
+
 Pager Problems
 --------------
 
@@ -104,6 +108,9 @@ o  mailers other than sendmail (f.e. elm) and use_mailreader_i=OFF may lead
 
 New features
 ------------
+o  give an error message if append_mail() fails (grep TODO post.c)
+   [20080423 Urs Janssen <urs@tin.org>]
+
 o  allow remapping of the 'z' abort-key (lynx style) in wait_for_input().
 
 o  add user defined screen layout at different levels
@@ -373,8 +380,8 @@ o  add check for libbzip2/zlib (>=1.1.4)/[mini]lzo
    option to write/read {g,b,l}zipped local overviews.
    zlib, libbzip2 and lzo might also be used for post-processing.
 
-o  add check for GPGME (<http://www.gnupg.org/gpgme.html>) and if found
-   use it for pgp actions.
+o  add check for GPGME (<http://www.gnupg.org/related_software/gpgme/>) and if
+   found use it for pgp actions.
 
 o  rewrite/cleanup all the debugging code, the output in /tmp is messy, ...
 
@@ -504,9 +511,6 @@ o  replace various occurrence of "US-ASCII" by DEFAULT(_MIME)_CHARSET
    and define that to "US-ASCII" (to make 'updates' easier).
    [20040929 Urs Janssen <urs@tin.org>]
 
-o  add configure option for slrnface
-   [20030506 Urs Janssen <urs@tin.org>]
-
 o  get rid of CURR_GROUP, use t_group instead
    create a global t_group *CURR_GROUP instead of the current macro
    reduce dependencies on my_group[] & selmenu outside of select.c
@@ -590,14 +594,6 @@ o  rewrite the tag code so that arts[].tagged becomes index in arts[]
    tagged art. Traversing tagged arts becomes much easier & faster.
    [Jason Faultless <jason@altarstone.com>]
 
-o  do real overview.fmt parsing - not only looking for Xref:full
-   [Urs Janssen <urs@tin.org>]
-
-o  if Xref:full is missing from the overview.fmt we end up in issuing a
-   lot of "[X]HDR XREF num" later on instead of doing a "[X]HDR XREF low-high"
-   right after the "[X]OVER low-high" and assing the result to the articles.
-   [20071204 Urs Janssen <urs@tin.org>]
-
 o  strip Xref:-header if saving news in batch mode (-S)?
    [Urs Janssen <urs@tin.org>]
 
@@ -663,7 +659,7 @@ Docs/online help
 o  document the different singnals/actions (i.e. SIGUSR2 writes newsrc)
    [20080209 Urs Janssen <urs@tin.org>]
 
-o  exit staus documentation in tzhe manpage isn't correct, we have more
+o  exit staus documentation in the manpage isn't correct, we have more
    exit codes than just 0/1 (and 2 in the -Z case).
    [20080320 Urs Janssen <urs@tin.org>]
 

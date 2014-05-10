@@ -42,13 +42,14 @@
 #	include "tcurses.h"
 #endif /* !TCURSES_H */
 
-
+#if 0
 #if defined(HAVE_IDNA_H) && !defined(_IDNA_H)
 #	include <idna.h>
 #endif /* HAVE_IDNA_H && !_IDNA_H */
 #if defined(HAVE_STRINGPREP_H) && !defined(_STRINGPREP_H)
 #	include <stringprep.h>
 #endif /* HAVE_STRINGPREP_H & !_STRINGPREP_H */
+#endif /* 0 */
 
 /*
  * PAGE_HEADER is the size in lines of the article page header
@@ -113,7 +114,7 @@ static void invoke_metamail(FILE *fp);
 #	define XFACE_CLEAR()	if (tinrc.use_slrnface) \
 								slrnface_clear_xface()
 #	define XFACE_SUPPRESS()	if (tinrc.use_slrnface) \
-										slrnface_suppress_xface()
+								slrnface_suppress_xface()
 #else
 #	define XFACE_SHOW()	/*nothing*/
 #	define XFACE_CLEAR()	/*nothing*/

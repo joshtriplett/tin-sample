@@ -3,7 +3,7 @@
  *  Module    : save.c
  *  Author    : I. Lea & R. Skrenta
  *  Created   : 1991-04-01
- *  Updated   : 2007-12-30
+ *  Updated   : 2008-04-25
  *  Notes     :
  *
  * Copyright (c) 1991-2008 Iain Lea <iain@bricbrac.de>, Rich Skrenta <skrenta@pbm.com>
@@ -48,9 +48,10 @@
 #	endif /* !__UUDEVIEW_H__ */
 #endif /* HAVE_UUDEVIEW_H */
 
+#ifndef HAVE_LIBUU
 #undef OFF
-
 enum state { INITIAL, MIDDLE, OFF, END };
+#endif /* !HAVE_LIBUU */
 
 /*
  * Local prototypes
@@ -1133,15 +1134,10 @@ start_viewer(
 	t_mailcap *foo;
 
 	if ((foo = get_mailcap_entry(part, path)) != NULL) {
-		char buff[LEN];
-
 		if (foo->nametemplate)	/* honor nametemplate */
 			rename_file(path, foo->nametemplate);
 
 		wait_message(0, _(txt_starting_command), foo->command);
-
-		/* are the () needed if foo->command holds more than one cmd? */
-		snprintf(buff, sizeof(buff), "(%s)", foo->command);
 		if (foo->needsterminal) {
 			set_xclick_off();
 			EndWin();

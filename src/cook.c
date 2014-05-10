@@ -3,7 +3,7 @@
  *  Module    : cook.c
  *  Author    : J. Faultless
  *  Created   : 2000-03-08
- *  Updated   : 2008-01-10
+ *  Updated   : 2008-04-24
  *  Notes     : Split from page.c
  *
  * Copyright (c) 2000-2008 Jason Faultless <jason@altarstone.com>
@@ -738,6 +738,10 @@ cook_article(
 			size_t i = LEN;
 			char *l = my_strdup(rfc1522_decode(line));	/* FIXME: don't decode addr-part of From:/Cc:/ etc.pp. */
 
+#if defined(MULTIBYTE_ABLE) && !defined(NO_LOCALE)
+			if (IS_LOCAL_CHARSET("UTF-8"))
+				utf8_valid(l);
+#endif /* MULTIBYTE_ABLE && !NO_LOCALE */
 			header_put = TRUE;
 			expand_ctrl_chars(&l, &i, tabs);
 			put_cooked(LEN, wrap_lines, C_HEADER, "%s", l);

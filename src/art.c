@@ -3,7 +3,7 @@
  *  Module    : art.c
  *  Author    : I.Lea & R.Skrenta
  *  Created   : 1991-04-01
- *  Updated   : 2008-01-10
+ *  Updated   : 2008-04-27
  *  Notes     :
  *
  * Copyright (c) 1991-2008 Iain Lea <iain@bricbrac.de>, Rich Skrenta <skrenta@pbm.com>
@@ -1074,14 +1074,15 @@ make_threads(
 			/* Should never happen if tree is built properly */
 			if (arts[i].refptr == 0) {
 #ifdef DEBUG
-				my_fprintf(stderr, "\nError  : art->refptr is NULL\n");
-				my_fprintf(stderr, "Artnum : %ld\n", arts[i].artnum);
-				my_fprintf(stderr, "Subject: %s\n", arts[i].subject);
-				my_fprintf(stderr, "From   : %s\n", arts[i].from);
-				assert(arts[i].refptr != 0);
-#else
-				continue;
+				if (debug & DEBUG_REFS) {
+					my_fprintf(stderr, "\nError  : art->refptr is NULL\n");
+					my_fprintf(stderr, "Artnum : %ld\n", arts[i].artnum);
+					my_fprintf(stderr, "Subject: %s\n", arts[i].subject);
+					my_fprintf(stderr, "From   : %s\n", arts[i].from);
+					assert(arts[i].refptr != 0);
+				} else
 #endif /* DEBUG */
+					continue;
 			}
 			arts[i].refptr->article = i;
 		}
@@ -1315,7 +1316,7 @@ parse_headers(
 
 				/* Received:  If found it's probably a mail article */
 				if (!got_received) {
-					if ((hdr = parse_header(ptr + 1, "eceived", FALSE, FALSE))) {
+					if (parse_header(ptr + 1, "eceived", FALSE, FALSE)) {
 						max_lineno <<= 1;		/* double the max number of line to read for mails */
 						got_received = TRUE;
 					}
@@ -1325,7 +1326,7 @@ parse_headers(
 			case 'S':	/* Subject:  mandatory */
 				if (!h->subject) {
 					if ((hdr = parse_header(ptr + 1, "ubject", FALSE, FALSE)))
-						 h->subject = hash_str(eat_re(eat_tab(convert_to_printable(rfc1522_decode(hdr))), FALSE));
+						h->subject = hash_str(eat_re(eat_tab(convert_to_printable(rfc1522_decode(hdr))), FALSE));
 				}
 				break;
 
@@ -1368,11 +1369,6 @@ parse_headers(
 }
 
 
-#ifdef DEBUG
-#	define handle_overview_fmt_error()	else oerror += 1<<count
-#else
-#	define handle_overview_fmt_error()
-#endif /* DEBUG */
 /*
  * Read in an overview index file. Fields are separated by TAB.
  * return the number of expired articles encountered or -1 if the user aborted
@@ -1402,6 +1398,7 @@ read_overview(
 {
 	FILE *fp;
 	char *ptr;
+	char *q;
 	char *buf;
 	char *group_msg;
 	char art_full_name[HEADER_LEN];
@@ -1410,9 +1407,7 @@ read_overview(
 	int expired = 0;
 	long artnum;
 	struct t_article *art;
-#ifdef DEBUG
-	unsigned int oerror = 0;
-#endif /* DEBUG */
+	size_t over_fields;
 
 	/*
 	 * open the overview file (whether it be local or via nntp)
@@ -1424,6 +1419,31 @@ read_overview(
 		group->xmax = max;
 
 	group_msg = fmt_string(_(txt_group), cCOLS - strlen(_(txt_group)) + 2 - 3, group->name);
+
+	/* get the number of fields per over-record as announced by LIST OVERVIEW.FMT */
+	for (over_fields = 1; ofmt[over_fields].name; over_fields++)
+		;
+	if (!--over_fields) { /* e.g. nntp_caps.type == CAPABILITIES && !nntp_caps.list_overview_fmt -> assume defaults */
+		ofmt = my_realloc(ofmt, sizeof(struct t_overview_fmt) * (8 + 1));
+		ofmt[1].type = OVER_T_STRING;
+		ofmt[1].name = strdup("Subject:");
+		ofmt[2].type = OVER_T_STRING;
+		ofmt[2].name = strdup("From:");
+		ofmt[3].type = OVER_T_STRING;
+		ofmt[3].name = strdup("Date:");
+		ofmt[4].type = OVER_T_STRING;
+		ofmt[4].name = strdup("Message-ID:");
+		ofmt[5].type = OVER_T_STRING;
+		ofmt[5].name = strdup("References:");
+		ofmt[6].type = OVER_T_INT;
+		ofmt[6].name = strdup("Bytes:");
+		ofmt[7].type = OVER_T_INT;
+		ofmt[7].name = strdup("Lines:");
+		ofmt[8].type = OVER_T_ERROR;
+		ofmt[8].name = NULL;
+		over_fields = 7;
+	}
+
 	while ((buf = tin_fgets(fp, FALSE)) != NULL) {
 		if (need_resize) {
 			handle_resize((need_resize == cRedraw) ? TRUE : FALSE);
@@ -1478,81 +1498,221 @@ read_overview(
 		 *       to check for additions like we do with xref_supported
 		 */
 		for (count = 1; (ptr = tin_strtok(NULL, "\t")) != NULL; count++) {
-			switch (count) {
-				case 1:		/* Subject */
-					/*
-					 * TODO: As eat_re() is also called in batch_mode we need
-					 *       to init (all) regexes (but do not use the others).
-					 *       Calling eat_re() isn't very wise at all as we use
-					 *       the modified subject for -N/-M batch opperations
-					 *       so ppl. can't tell from the subject if the posting
-					 *       was a reply or not.
-					 */
-					art->subject = hash_str(eat_re(eat_tab(convert_to_printable(rfc1522_decode(ptr))), FALSE));
-					break;
-
-				case 2:		/* From */
-					art->gnksa_code = parse_from(ptr, art_from_addr, art_full_name);
-					art->from = hash_str(buffer_to_ascii(art_from_addr));
-
-					if (*art_full_name)
-						art->name = hash_str(eat_tab(convert_to_printable(rfc1522_decode(art_full_name))));
-					break;
-
-				case 3:		/* Date */
-					art->date = parsedate(ptr, (TIMEINFO *) 0);
+			/* skip unexpected tailing fields */
+			if (count > over_fields) {
 #ifdef DEBUG
-					if (art->date == (time_t) -1)
-						oerror += 1<<count;
-#endif /* DEBUG */
-					break;
+				if (debug & DEBUG_NNTP)
+					debug_print_file("NNTP", "OVER: %d Unexpected overview-field %d of %d: %s", artnum, count, over_fields, ptr);
+#endif	/* DEBUG */
 
-				case 4:		/* Message-ID */
-					if (*ptr)
-						art->msgid = my_strdup(ptr);
-					handle_overview_fmt_error();
-					break;
-
-				case 5:		/* References */
-					if (*ptr)
-						art->refs = my_strdup(ptr);
-					break;
-
-				case 6:		/* Bytes */
+				/* "common error" Xref:full in overview-data but not in OVERVIEW.FTM */
+				if (count == over_fields + 1) {
+					if (!strncasecmp(ptr, "Xref: ", 6)) {
 #ifdef DEBUG
-					if (!isdigit((unsigned char) *ptr))
-						oerror += 1<<count;
-#endif /* DEBUG */
-					break;
-
-				case 7:		/* Lines */
-					if (isdigit((unsigned char) *ptr))
-						art->line_count = atoi(ptr);
-					handle_overview_fmt_error();
-					break;
-
-				case 8:		/* Xref: */
-					if (!xref_supported)
+						if (debug & DEBUG_NNTP)
+							debug_print_file("NNTP", "OVER: found unexpected Xref: on semi std. position");
+#endif  /* DEBUG */
+						over_fields++;
+						ofmt = my_realloc(ofmt, sizeof(struct t_overview_fmt) * (over_fields + 2)); /* + 2 = artnum and end-marker */
+						ofmt[over_fields].type = OVER_T_FSTRING;
+						ofmt[over_fields].name = my_strdup("Xref:");
+						ofmt[over_fields + 1].type = OVER_T_ERROR;
+						ofmt[over_fields + 1].name = NULL;
+						xref_supported = TRUE;
+					} else
 						continue;
-					/* TODO: crosscheck artnum against Xref:-line (if Xref:full) */
-					if ((ptr = parse_header(ptr, "Xref", FALSE, FALSE)) != NULL)
-						art->xref = my_strdup(ptr);
-					handle_overview_fmt_error();
-					break;
+				} else
+					continue;
+			}
+
+			if (expensive_over_parse) { /* strange order */
+				/* madatory fields */
+				if (ofmt[count].type == OVER_T_STRING) {
+					if (!strcasecmp(ofmt[count].name, "Subject:")) {
+						if (*ptr)
+							art->subject = hash_str(eat_re(eat_tab(convert_to_printable(rfc1522_decode(ptr))), FALSE));
+						else {
+							art->subject = hash_str("");
+#ifdef DEBUG
+							if (debug & DEBUG_NNTP)
+								debug_print_file("NNTP", "OVER(%d) overview-field %s empty", artnum, ofmt[count].name);
+#endif /* DEBUG */
+						}
+						continue;
+					}
+
+					if (!strcasecmp(ofmt[count].name, "From:")) {
+						if (*ptr) {
+							art->gnksa_code = parse_from(ptr, art_from_addr, art_full_name);
+							art->from = hash_str(buffer_to_ascii(art_from_addr));
+							if (*art_full_name)
+								art->name = hash_str(eat_tab(convert_to_printable(rfc1522_decode(art_full_name))));
+						} else {
+							art->from = hash_str("");
+#ifdef DEBUG
+							if (debug & DEBUG_NNTP)
+								debug_print_file("NNTP", "OVER(%d) overview-field %s empty", artnum, ofmt[count].name);
+#endif /* DEBUG */
+						}
+						continue;
+					}
+
+					if (!strcasecmp(ofmt[count].name, "Date:")) {
+						art->date = parsedate(ptr, (TIMEINFO *) 0);
+#ifdef DEBUG
+						if ((debug & DEBUG_NNTP) && art->date == (time_t) -1)
+							debug_print_file("NNTP", "OVER(%d) overview-field %s bogus: %s", artnum, ofmt[count].name, ptr);
+#endif /* DEBUG */
+						continue;
+					}
+
+					if (!strcasecmp(ofmt[count].name, "Message-ID:")) {
+						if (*ptr)
+							art->msgid = my_strdup(ptr);
+						else {
+							art->msgid = NULL;
+#ifdef DEBUG
+							if (debug & DEBUG_NNTP)
+								debug_print_file("NNTP", "OVER(%d) overview-field %s empty", artnum, ofmt[count].name);
+#endif /* DEBUG */
+						}
+						continue;
+					}
+
+					if (!strcasecmp(ofmt[count].name, "References:")) {
+						if (*ptr)
+							art->refs = my_strdup(ptr);
+						else
+							art->refs = NULL;
+						continue;
+					}
+				}
+				/* metadata fiels */
+				if (ofmt[count].type == OVER_T_INT) {
+					if (!strcasecmp(ofmt[count].name, "Bytes:")) {
+						if (*ptr) {
+#ifdef DEBUG
+							if (!isdigit((unsigned char) *ptr))
+								debug_print_file("NNTP", "OVER(%d) overview field %d (%s) missmatch: %s", artnum, count, ofmt[count].name, ptr);
+#endif /* DEBUG */
+						}
+						continue;
+					}
+
+					if (!strcasecmp(ofmt[count].name, "Lines:")) {
+						if (*ptr) {
+							if (isdigit((unsigned char) *ptr))
+								art->line_count = atoi(ptr);
+							else {
+								art->line_count = 0;
+#ifdef DEBUG
+								debug_print_file("NNTP", "OVER(%d) overview field %d (%s) missmatch: %s", artnum, count, ofmt[count].name, ptr);
+#endif /* DEBUG */
+							}
+						} else
+							art->line_count = 0;
+						continue;
+					}
+				}
+			} else { /* first 7 fields are in RFC 3977 order */
+				switch(count) {
+					case 1: /* Subject: */
+						if (*ptr)
+							art->subject = hash_str(eat_re(eat_tab(convert_to_printable(rfc1522_decode(ptr))), FALSE));
+						else {
+							art->subject = hash_str("");
+#ifdef DEBUG
+							if (debug & DEBUG_NNTP)
+								debug_print_file("NNTP", "OVER(%d) overview-field %s empty", artnum, ofmt[count].name);
+#endif /* DEBUG */
+						}
+						break;
+
+					case 2:	/* From: */
+						if (*ptr) {
+							art->gnksa_code = parse_from(ptr, art_from_addr, art_full_name);
+							art->from = hash_str(buffer_to_ascii(art_from_addr));
+							if (*art_full_name)
+								art->name = hash_str(eat_tab(convert_to_printable(rfc1522_decode(art_full_name))));
+						} else {
+							art->from = hash_str("");
+#ifdef DEBUG
+							if (debug & DEBUG_NNTP)
+								debug_print_file("NNTP", "OVER(%d) overview-field %s empty", artnum, ofmt[count].name);
+#endif /* DEBUG */
+						}
+						break;
+
+					case 3:	/* Date: */
+						art->date = parsedate(ptr, (TIMEINFO *) 0);
+#ifdef DEBUG
+						if ((debug & DEBUG_NNTP) && art->date == (time_t) -1)
+							debug_print_file("NNTP", "OVER(%d) overview-field %s bogus: %s", artnum, ofmt[count].name, ptr);
+#endif /* DEBUG */
+						break;
+
+					case 4:	/* Message-ID: */
+						if (*ptr)
+							art->msgid = my_strdup(ptr);
+						else {
+							art->msgid = NULL;
+#ifdef DEBUG
+							if (debug & DEBUG_NNTP)
+								debug_print_file("NNTP", "OVER(%d) overview-field %s empty", artnum, ofmt[count].name);
+#endif /* DEBUG */
+						}
+						break;
+
+					case 5:	/* References: */
+						if (*ptr)
+							art->refs = my_strdup(ptr);
+						else
+							art->refs = NULL;
+						break;
+
+					case 6:	/* :bytes || Bytes: */
+						if (*ptr) {
+#ifdef DEBUG
+							if (!isdigit((unsigned char) *ptr))
+								debug_print_file("NNTP", "OVER(%d) overview field %d (%s) missmatch: %s", artnum, count, ofmt[count].name, ptr);
+#endif /* DEBUG */
+						}
+						break;
+
+					case 7:	/* :lines || Lines: */
+						if (*ptr) {
+							if (isdigit((unsigned char) *ptr))
+								art->line_count = atoi(ptr);
+							else {
+								art->line_count = 0;
+#ifdef DEBUG
+								debug_print_file("NNTP", "OVER(%d) overview field %d (%s) missmatch: %s", artnum, count, ofmt[count].name, ptr);
+#endif /* DEBUG */
+							}
+						} else
+							art->line_count = 0;
+						break;
+
+					default:
+						break;
+				}
+			}
+
+			/* optional fields */
+			if (ofmt[count].type == OVER_T_FSTRING) {
+				if (!strcasecmp(ofmt[count].name, "Xref:")) {
+					if ((q = parse_header(ptr, "Xref", FALSE, FALSE)) != NULL)
+						art->xref = my_strdup(q);
+#ifdef DEBUG
+					else {
+						if (debug & DEBUG_NNTP)
+							debug_print_file("NNTP", "OVER(%d) overview-field %s bogus: %s", artnum, ofmt[count].name, ptr);
+					}
+#endif /* DEBUG */
+				}
+				continue;
 			}
 		}
-
-#ifdef DEBUG
-		/* Complain if incorrect # of fields */
-		if (count < (xref_supported ? 8 : 7) || oerror) {
-			if (debug & DEBUG_MISC)
-				error_message(_("%d Bad overview record (%d fields) '%s'"), oerror, count, BlankIfNull(ptr)); /* TODO move to lang.c */
-			if (debug & DEBUG_NNTP)
-				debug_print_file("NNTP", "read_overview() %d Bad overview record (%d fields)", oerror, count);
-		}
-		debug_print_header(art);
-		oerror = 0;
-#endif /* DEBUG */
 
 		/*
 		 * RFC says Message-ID is mandatory in newsgroups (but not in
@@ -1568,12 +1728,45 @@ read_overview(
 
 		top_art++;				/* Basically this statement commits the article */
 	}
-	free(group_msg);
 
+	free(group_msg);
 	TIN_FCLOSE(fp);
 
 	if (tin_errno)
 		return -1;
+
+#if defined(NNTP_ABLE) && defined(XHDR_XREF)
+	if (read_news_via_nntp && !read_saved_news && !xref_supported && nntp_caps.hdr_cmd) {
+		char cbuf[HEADER_LEN];
+
+		snprintf(cbuf, sizeof(cbuf), "%s XREF %ld-%ld", nntp_caps.hdr_cmd, min, max);
+		group_msg = fmt_string("%s XREF loop", nntp_caps.hdr_cmd); /* TODO: find a better message, move to lang.c */
+		if ((fp = nntp_command(cbuf, OK_HEAD, NULL, 0)) != NULL) {
+			while ((ptr = tin_fgets(fp, FALSE)) != NULL) {
+				artnum = atol(ptr);
+				if (artnum <= 0 || artnum < group->xmin || artnum > group->xmax)
+					continue;
+				art = &arts[top_art];
+				set_article(art);
+				if (!art->xref && !strstr(ptr, "(none)")) {
+					if ((q = strchr(ptr, ' ')) == NULL) /* skip article number */
+						continue;
+					ptr = q;
+					while (*ptr && isspace((int) *ptr))
+						ptr++;
+					q = strchr(ptr, '\n');
+					if (q)
+						*q = '\0';
+					art->xref = my_strdup(ptr);
+				}
+				/* we might loose accuracy here, but that shouldn't hurt */
+				if (artnum % MODULO_COUNT_NUM == 0)
+					show_progress(group_msg, artnum - min, max - min);
+			}
+		}
+		free(group_msg);
+	}
+#endif /* NNTP_ABLE && XHDR_XREF */
 
 	return expired;
 }

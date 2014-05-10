@@ -3,7 +3,7 @@
  *  Module    : extern.h
  *  Author    : I. Lea
  *  Created   : 1991-04-01
- *  Updated   : 2008-02-02
+ *  Updated   : 2008-04-23
  *  Notes     :
  *
  * Copyright (c) 1997-2008 Iain Lea <iain@bricbrac.de>
@@ -236,7 +236,7 @@
 	extern int strncasecmp(const char *, const char *, size_t);
 #endif /* DECL_STRNCASECMP */
 #ifdef DECL_STRSEP
-        extern char *strsep(char **, const char *);
+	extern char *strsep(char **, const char *);
 #endif /* DECL_STRSEP */
 #ifdef DECL_STRTOL
 	extern long strtol(const char *, char **, int);
@@ -893,7 +893,6 @@ extern constext txt_moving[];
 extern constext txt_msgid_line_last[];
 extern constext txt_msgid_line_only[];
 extern constext txt_msgid_refs_line[];
-extern constext txt_refs_line_only[];
 extern constext txt_name[];
 extern constext txt_newsgroup[];
 extern constext txt_newsgroup_plural[];
@@ -1301,6 +1300,7 @@ extern t_bool check_for_new_newsgroups;
 extern t_bool cmd_line;
 extern t_bool created_rcdir;
 extern t_bool dangerous_signal_exit; /* TRUE if SIGHUP, SIGTERM, SIGUSR1 */
+extern t_bool did_reconnect;
 extern t_bool disable_gnksa_domain_check;
 extern t_bool disable_sender;
 extern t_bool force_no_post;
@@ -1323,6 +1323,7 @@ extern t_bool show_subject;
 extern t_bool batch_mode;
 extern t_bool verbose;
 extern t_bool xref_supported;
+extern t_bool expensive_over_parse;
 
 extern t_function last_search;
 
@@ -1331,6 +1332,8 @@ extern t_menu grpmenu;
 extern t_menu *currmenu;
 
 extern t_openartinfo pgart;
+
+extern struct t_overview_fmt *ofmt;
 
 enum {
 	HIST_OTHER = 0,

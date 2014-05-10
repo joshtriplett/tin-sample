@@ -352,6 +352,12 @@ enum rc_state { RC_IGNORE, RC_CHECK, RC_UPGRADE, RC_DOWNGRADE, RC_ERROR };
 #	endif /* HAVE_PGP && HAVE_GPG */
 #endif /* HAVE_PGP || HAVE_PGPK || HAVE_GPG */
 
+/*
+ * slrnface requires some things
+ */
+#if defined(HAVE_SLRNFACE) && defined(HAVE_MKFIFO) && defined(HAVE_FORK) && defined(HAVE_EXECLP) && defined(HAVE_WAITPID) && !defined(DONT_HAVE_PIPING) && !defined(X_DISPLAY_MISSING)
+#	define XFACE_ABLE
+#endif /* HAVE_SLRNFACE && HAVE_MKFIFO && HAVE_FORK && HAVE_EXECLP && HAVE_WAITPID && !DONT_HAVE_PIPING && !X_DISPLAY_MISSING */
 
 /*
  * Setup support for reading from NNTP
@@ -2094,5 +2100,10 @@ extern struct tm *localtime(time_t *);
 #ifndef DEBUG_H
 #	include "debug.h"
 #endif /* !DEBUG_H */
+
+struct t_overview_fmt {
+	char *name;
+	enum f_type type;
+};
 
 #endif /* !TIN_H */

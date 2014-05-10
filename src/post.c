@@ -3,7 +3,7 @@
  *  Module    : post.c
  *  Author    : I. Lea
  *  Created   : 1991-04-01
- *  Updated   : 2008-03-26
+ *  Updated   : 2008-04-29
  *  Notes     : mail/post/replyto/followup/repost & cancel articles
  *
  * Copyright (c) 1991-2008 Iain Lea <iain@bricbrac.de>
@@ -49,7 +49,7 @@
 #ifdef USE_CANLOCK
 #	define ADD_CAN_KEY(id) { \
 		char key[1024]; \
-		const char *kptr = (const char *) 0; \
+		const char *kptr; \
 		key[0] = '\0'; \
 		if ((kptr = build_cankey(id, get_secret())) != NULL) { \
 			STRCPY(key, kptr); \
@@ -584,7 +584,7 @@ append_mail(
 	t_bool mmdf = FALSE;
 	t_bool rval = FALSE;
 #ifndef NO_LOCKING
-	int retrys = 10;	/* maximum lock retrys */
+	unsigned int retrys = 11;	/* maximum lock retrys + 1 */
 #endif /* NO_LOCKING */
 
 	if (!strcasecmp(txt_mailbox_formats[tinrc.mailbox_format], "MMDF") && the_mailbox != postponed_articles_file)
@@ -598,17 +598,18 @@ append_mail(
 
 #ifndef NO_LOCKING
 		/* TODO: move the retry/error stuff into a function? */
-		while (retrys-- && fd_lock(fd, FALSE))
+		while (--retrys && fd_lock(fd, FALSE))
 			wait_message(1, _(txt_trying_lock), retrys, the_mailbox);
-		if (retrys < 0) {
+		if (!retrys) {
 			wait_message(5, _(txt_error_couldnt_lock), the_mailbox);
 			fclose(fp_out);
 			fclose(fp_in);
 			return rval;
 		}
-		while (retrys-- && !dot_lock(the_mailbox))
+		retrys++;
+		while (--retrys && !dot_lock(the_mailbox))
 			wait_message(1, _(txt_trying_dotlock), retrys, the_mailbox);
-		if (retrys < 0) {
+		if (!retrys) {
 			wait_message(5, _(txt_error_couldnt_dotlock), the_mailbox);
 			fd_unlock(fd);
 			fclose(fp_out);
@@ -2291,12 +2292,16 @@ damaged_id(
 {
 	while (*id && isspace((unsigned char) *id))
 		id++;
+
 	if (*id != '<')
-		return 1;
+		return TRUE;
+
 	while (isascii((unsigned char) *id) && isgraph((unsigned char) *id) && !iscntrl((unsigned char) *id) && *id != '>')
 		id++;
+
 	if (*id != '>')
 		return TRUE;
+
 	return FALSE;
 }
 
@@ -2588,7 +2593,7 @@ post_response(
 			if (group && group->attribute->followup_to != NULL)
 				msg_add_header("Followup-To", group->attribute->followup_to);
 			else {
-				if ((ptr = strchr(note_h.newsgroups, ',')))
+				if (strchr(note_h.newsgroups, ','))
 					msg_add_header("Followup-To", note_h.newsgroups);
 			}
 		}
@@ -3889,7 +3894,7 @@ msg_add_x_body(
 		return 0;
 
 	if (body[0] != '/' && body[0] != '~') { /* FIXME: Unix'ism */
-		strncpy(line, body, sizeof(line) - 1);
+		STRCPY(line, body);
 		if ((ptr = strrchr(line, '\n')) != NULL)
 			*ptr = '\0';
 
@@ -4319,7 +4324,7 @@ split_address_list(
 	char **argv = NULL;
 	char *addr;
 	const char *start, *end, *curr;
-	size_t len = 0, addr_len = 0;
+	size_t len, addr_len;
 	unsigned int argc = 0, dquotes = 0, parens = 0;
 
 	if (!addresses) {
@@ -4593,7 +4598,7 @@ build_messageid(
 	if (t >= 1041379200) /* 2003-01-01 00:00:00 GMT */
 		t -= 1041379200;
 	else
-		return '\0';
+		return NULL;
 
 	snprintf(buf, sizeof(buf), "<%sT", radix32(seqnum++));
 	strcat(buf, radix32(t));
@@ -4621,15 +4626,27 @@ build_messageid(
 	snprintf(buf + strlen(buf), sizeof(buf) - strlen(buf), "N%s@%s>", radix32(getuid()), get_fqdn(get_host_name()));
 #	endif /* !FORGERY */
 
-	/* disallow .invalid TLD for Message-IDs */
-	if ((i = strlen(buf) - 9) > 0) /* strlen(".invalid>") */
-		if (!strcasecmp(".invalid>", buf + i))
-			return NULL
+	/*
+	 * disallow .invalid TLD (gnksa_check_from() allows it)
+	 * and Message-IDs > 250 octects (RFC 3977, 3.6)
+	 */
+	if ((j = strlen(buf) - 9) > 0) { /* strlen(".invalid>") */
+		if (!strcasecmp(".invalid>", buf + j) || j > 241) /* 250 - 9 */
+			return NULL;
 	}
 
 	i = gnksa_check_from(buf);
 	if ((GNKSA_OK != i) && (GNKSA_LOCALPART_MISSING > i))
-		buf[0] = '\0';
+		return NULL;
+
+	/*
+	 * I've seen passwd->pw_name with spaces in it (cygwin) and we use
+	 * that in the !FROGERY case -> disallow 'common' junk which is not
+	 * catched by the gnksa_check_from()
+	 */
+	if (damaged_id(buf))
+		return NULL;
+
 	return buf;
 }
 #endif /* EVIL_INSIDE */

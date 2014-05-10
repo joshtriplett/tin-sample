@@ -3,7 +3,7 @@
  *  Module    : filter.c
  *  Author    : I. Lea
  *  Created   : 1992-12-28
- *  Updated   : 2007-10-02
+ *  Updated   : 2008-04-23
  *  Notes     : Filter articles. Kill & auto selection are supported.
  *
  * Copyright (c) 1991-2008 Iain Lea <iain@bricbrac.de>
@@ -310,7 +310,7 @@ read_filter_file(
 	t_bool expired_time = FALSE;
 	time_t current_secs = (time_t) 0;
 	static t_bool first_read = TRUE;
-	int upgrade = RC_CHECK;
+	enum rc_state upgrade = RC_CHECK;
 
 	if ((fp = fopen(file, "r")) == NULL)
 		return FALSE;
@@ -346,9 +346,10 @@ read_filter_file(
 
 					break;
 				}
-				if (match_string(buf + 1, "omment=", comment_line, sizeof(comment_line)))
+				if (match_string(buf + 1, "omment=", comment_line, sizeof(comment_line))) {
 					str_trim(comment_line);
 					comment = add_filter_comment(comment, comment_line);
+				}
 				break;
 
 			case 'f':
@@ -2040,7 +2041,7 @@ wait_message(1, "FILTERED Lines arts[%d] > [%d]", arts[i].line_count, ptr[j].lin
 						t_bool skip = FALSE;
 
 						s = arts[i].xref;
-						while (*s && !isspace((int) *s))
+						while (*s && !isspace((int) *s))	/* skip server name */
 							s++;
 						while (*s && isspace((int) *s))
 							s++;

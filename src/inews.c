@@ -3,7 +3,7 @@
  *  Module    : inews.c
  *  Author    : I. Lea
  *  Created   : 1992-03-17
- *  Updated   : 2007-12-30
+ *  Updated   : 2008-04-23
  *  Notes     : NNTP built in version of inews
  *
  * Copyright (c) 1991-2008 Iain Lea <iain@bricbrac.de>
@@ -161,7 +161,7 @@ submit_inews(
 		rewind(fp);
 
 #	ifndef FORGERY
-		if ((ptr = build_sender()) && (!disable_sender)) {
+		if (!disable_sender && (ptr = build_sender())) {
 			sender = sender_needed(from_name + 6, group, ptr);
 			switch (sender) {
 				case -2: /* can't build Sender: */
@@ -257,7 +257,7 @@ submit_inews(
 #	ifdef USE_CANLOCK
 			if (!can_lock_in_article) {
 					char lock[1024];
-					const char *lptr = (const char *) 0;
+					const char *lptr;
 
 					lock[0] = '\0';
 					if ((lptr = build_canlock(message_id, get_secret())) != NULL) {
@@ -287,9 +287,7 @@ submit_inews(
 
 			if (can_lock_in_article && !id_in_article) {
 				ptr = strchr(line, ':');
-				if (ptr - line == 11 && !strncasecmp(line, "Cancel-Lock", 11)) {
-					; /* skip line */
-				} else {
+				if (ptr - line != 11 || strncasecmp(line, "Cancel-Lock", 11)) {
 					u_put_server(line);
 					u_put_server("\r\n");
 				}
@@ -403,7 +401,7 @@ submit_news_file(
 #ifdef M_UNIX
 			/* use tinrc.inews_prog or 'inewsdir/inews -h' 'inews -h' */
 			if (0 != strcasecmp(tinrc.inews_prog, INTERNAL_CMD))
-				strncpy(buf, tinrc.inews_prog, sizeof(buf) - 1);
+				STRCPY(buf, tinrc.inews_prog);
 			else {
 				if (*inewsdir)
 					joinpath(buf, sizeof(buf), inewsdir, "inews -h");

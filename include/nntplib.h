@@ -3,7 +3,7 @@
  *  Module    : nntplib.h
  *  Author    : I.Lea
  *  Created   : 1991-04-01
- *  Updated   : 2008-03-10
+ *  Updated   : 2008-04-23
  *  Notes     : nntp.h 1.5.11/1.6 with extensions for tin
  *
  * Copyright (c) 1991-2008 Iain Lea <iain@bricbrac.de>
@@ -150,10 +150,17 @@
 #define NNTP_STRLEN		512
 
 /*
+ * OVERVIEW.FMT field types
+ */
+enum f_type { OVER_T_ERROR, OVER_T_INT, OVER_T_STRING, OVER_T_FSTRING };
+
+/*
  * CAPABILITIES
  */
+enum extension_type { NONE, LIST_EXTENSIONS, CAPABILITIES, BROKEN };
+
 struct t_capabilities {
-	unsigned int type:3;			/* none, LIST EXTENSIONS, CAPABILITIES */
+	enum extension_type type;		/* none, LIST EXTENSIONS, CAPABILITIES */
 	unsigned int version;			/* CAPABILITIES version */
 	t_bool mode_reader:1;			/* MODE-READER: "MODE READER" */
 	t_bool reader:1;				/* READER: "ARTCILE", "BODY", "LISTGROUP" */
@@ -189,7 +196,5 @@ struct t_capabilities {
 	t_bool ihave:1;					/* IHAVE: "IHAVE" */
 #endif /* 0 */
 };
-
-enum extension_type { NONE, LIST_EXTENSIONS, CAPABILITIES, BROKEN };
 
 #endif /* !NNTPLIB_H */

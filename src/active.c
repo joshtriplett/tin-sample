@@ -3,7 +3,7 @@
  *  Module    : active.c
  *  Author    : I. Lea
  *  Created   : 1992-02-16
- *  Updated   : 2008-03-19
+ *  Updated   : 2008-04-14
  *  Notes     :
  *
  * Copyright (c) 1992-2008 Iain Lea <iain@bricbrac.de>
@@ -590,7 +590,7 @@ read_news_active_file(
 		 * use "LIST ACTIVE grp" if we have less than PIPELINE_LIMIT
 		 * groups and we use -n but not -Q
 		 */
-		if (read_news_via_nntp && ((nntp_caps.type == CAPABILITIES && nntp_caps.list_active) || nntp_caps.type != CAPABILITIES) && (show_description || check_for_new_newsgroups)) {
+		if (read_news_via_nntp && !list_active && ((nntp_caps.type == CAPABILITIES && nntp_caps.list_active) || nntp_caps.type != CAPABILITIES) && (show_description || check_for_new_newsgroups)) {
 			char buff[NNTP_STRLEN];
 			char *ptr, *q;
 			char moderated[PATH_LEN];
@@ -619,7 +619,7 @@ read_news_active_file(
 				fclose(fp);
 
 				if (j < PIPELINE_LIMIT) {
-					for (i = 0; i < j; i++) {
+					for (i = 0; i < j && !did_reconnect; i++) {
 						if ((r = get_only_respcode(buff, sizeof(buff))) != OK_GROUPS) {
 							if (r == ERR_NOAUTH || r == NEED_AUTHINFO)
 								need_auth = TRUE;
@@ -658,6 +658,7 @@ read_news_active_file(
 						}
 					}
 				}
+				did_reconnect = FALSE;
 			}
 		}
 #	endif /* !DISABLE_PIPELINING */

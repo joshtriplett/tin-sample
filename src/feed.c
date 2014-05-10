@@ -3,7 +3,7 @@
  *  Module    : feed.c
  *  Author    : I. Lea
  *  Created   : 1991-08-31
- *  Updated   : 2007-12-30
+ *  Updated   : 2008-04-29
  *  Notes     : provides same interface to mail,pipe,print,save & repost commands
  *
  * Copyright (c) 1991-2008 Iain Lea <iain@bricbrac.de>
@@ -102,7 +102,7 @@ get_save_filename(
 	/*
 	 * Group attribute savefile overrides tinrc default savefile
 	 */
-	strncpy(default_savefile, (group->attribute->savefile ? group->attribute->savefile : tinrc.default_save_file), sizeof(default_savefile) - 1);
+	my_strncpy(default_savefile, (group->attribute->savefile ? group->attribute->savefile : tinrc.default_save_file), sizeof(default_savefile) - 1);
 
 	/*
 	 * We don't ask when auto'S'aving or Archive-Name saving with auto_save
