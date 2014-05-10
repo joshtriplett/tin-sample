@@ -3,7 +3,7 @@
  *  Module    : extern.h
  *  Author    : I. Lea
  *  Created   : 1991-04-01
- *  Updated   : 2011-01-30
+ *  Updated   : 2011-08-07
  *  Notes     :
  *
  * Copyright (c) 1997-2011 Iain Lea <iain@bricbrac.de>
@@ -138,9 +138,6 @@
 #ifdef DECL_GETOPT
 	extern int getopt(int, char * const*, const char *);
 #endif /* DECL_GETOPT */
-#ifdef DECL_GETPASS
-	extern char *getpass(const char *);
-#endif /* DECL_GETPASS */
 #ifdef DECL_GETPWNAM
 	extern struct passwd *getpwnam(const char *);
 #endif /* DECL_GETPWNAM */
@@ -230,8 +227,10 @@
 #endif /* DECL_STRCASECMP */
 #ifdef DECL_STRCHR
 	extern char *strchr(const char *, int);
-	extern char *strrchr(const char *, int);
 #endif /* DECL_STRCHR */
+#ifdef DECL_STRRCHR
+	extern char *strrchr(const char *, int);
+#endif /* DECL_STRRCHR */
 #ifdef DECL_STRFTIME
 	extern int strftime(char *, int, char *, struct tm *);
 #endif /* DECL_STRFTIME */

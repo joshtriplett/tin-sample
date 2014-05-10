@@ -1,4 +1,4 @@
-MANIFEST for tin-2.0.0 (Thu Jun 23 19:05:05 CEST 2011)
+MANIFEST for tin-2.0.0 (Tue Aug 23 00:03:55 CEST 2011)
 ----------------------------------------------------
    14066 ./Makefile
     8060 ./MANIFEST
@@ -7,19 +7,19 @@ MANIFEST for tin-2.0.0 (Thu Jun 23 19:05:05 CEST 2011)
      976 ./README.WIN
   178280 ./aclocal.m4
      882 ./conf-tin
-   45065 ./config.guess
-   35189 ./config.sub
+   45029 ./config.guess
+   35291 ./config.sub
   636696 ./configure
    31970 ./configure.in
     7123 ./install-sh
     1488 ./tin.spec
    18847 ./doc/ABOUT-NLS
-   25803 ./doc/CHANGES
+   25927 ./doc/CHANGES
   252176 ./doc/CHANGES.old
     5041 ./doc/CREDITS
     1305 ./doc/DEBUG_REFS
    30405 ./doc/INSTALL
-   40565 ./doc/TODO
+   40816 ./doc/TODO
     1915 ./doc/WHATSNEW
     2618 ./doc/art_handling.txt
     1701 ./doc/article.txt
@@ -44,10 +44,10 @@ MANIFEST for tin-2.0.0 (Thu Jun 23 19:05:05 CEST 2011)
     4947 ./doc/umlaute.txt
     4246 ./doc/umlauts.txt
     6723 ./doc/url_handler.1
-  128361 ./doc/tin.1
-   78322 ./doc/tin.5
+  128360 ./doc/tin.1
+   78323 ./doc/tin.5
     4952 ./doc/tin.defaults
-   13098 ./doc/tinews.1
+   13099 ./doc/tinews.1
     2418 ./doc/tools.txt
     4733 ./doc/w2r.1
     2196 ./doc/wildmat.3
@@ -55,31 +55,31 @@ MANIFEST for tin-2.0.0 (Thu Jun 23 19:05:05 CEST 2011)
     3815 ./tools/metamutt
     2788 ./tools/opt-case.pl
     1410 ./tools/tinlock
-   32490 ./tools/tinews.pl
-    3636 ./tools/url_handler.pl
+   32677 ./tools/tinews.pl
+    3643 ./tools/url_handler.pl
     1657 ./tools/url_handler.sh
     3347 ./tools/w2r.pl
     1661 ./tools/expand_aliases.tgz
     2586 ./include/bool.h
     1947 ./include/bugrep.h
     2210 ./include/debug.h
-   66590 ./include/extern.h
+   66553 ./include/extern.h
    14068 ./include/keymap.h
     6333 ./include/newsrc.h
     8685 ./include/nntplib.h
      664 ./include/plp_snprintf.h
-   14479 ./include/policy.h
+   14528 ./include/policy.h
    32325 ./include/proto.h
     5374 ./include/rfc2046.h
     3377 ./include/stpwatch.h
     5898 ./include/tcurses.h
-   68434 ./include/tin.h
+   68484 ./include/tin.h
    16390 ./include/tinrc.h
     4346 ./include/tnntp.h
     2264 ./include/trace.h
-    2351 ./include/version.h
+    2354 ./include/version.h
    34225 ./src/active.c
-   71179 ./src/art.c
+   71178 ./src/art.c
    74865 ./src/attrib.c
    14980 ./src/auth.c
    12555 ./src/charset.c
@@ -127,7 +127,7 @@ MANIFEST for tin-2.0.0 (Thu Jun 23 19:05:05 CEST 2011)
    14483 ./src/rfc1524.c
    15069 ./src/rfc2045.c
    32047 ./src/rfc2046.c
-   36192 ./src/rfc2047.c
+   36199 ./src/rfc2047.c
    57186 ./src/save.c
    11233 ./src/screen.c
    18173 ./src/search.c
@@ -213,7 +213,7 @@ MANIFEST for tin-2.0.0 (Thu Jun 23 19:05:05 CEST 2011)
   108966 ./pcre/testdata/testoutput7
    53056 ./pcre/testdata/testoutput8
    28769 ./pcre/testdata/testoutput9
-   20359 ./include/autoconf.hin
+   20380 ./include/autoconf.hin
    21511 ./src/Makefile.in
    10961 ./src/tincfg.tbl
     1929 ./libcanlock/CHANGES
@@ -277,18 +277,18 @@ MANIFEST for tin-2.0.0 (Thu Jun 23 19:05:05 CEST 2011)
   185808 ./po/fr.gmo
   237856 ./po/fr.po
   124584 ./po/ru.gmo
-  213721 ./po/ru.po
+  213441 ./po/ru.po
    22907 ./po/sv.gmo
   159495 ./po/sv.po
     4671 ./po/tr.gmo
-  225740 ./po/tr.po
-  133460 ./doc/l10n/de/tin.1
+  225583 ./po/tr.po
+  133459 ./doc/l10n/de/tin.1
    81220 ./doc/l10n/de/tin.5
      129 ./doc/l10n/de.add
   324372 ./doc/l10n/de.po
-  132015 ./doc/l10n/en_GB/tin.1
-   80827 ./doc/l10n/en_GB/tin.5
-  451243 ./doc/l10n/en_GB.po
+  132014 ./doc/l10n/en_GB/tin.1
+   80828 ./doc/l10n/en_GB/tin.5
+  451247 ./doc/l10n/en_GB.po
      346 ./doc/l10n/po4a.conf
-  282533 ./doc/l10n/tin-man.pot
-10234132 total
+  282544 ./doc/l10n/tin-man.pot
+10234437 total

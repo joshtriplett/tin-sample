@@ -2,7 +2,7 @@
 .\" Module    : tin.5
 .\" Author    : U. Janssen
 .\" Created   : 2000-07-10
-.\" Updated   : 2011-02-05
+.\" Updated   : 2011-08-23
 .\" Notes     : needs a some work
 .\"
 .\"
@@ -11,7 +11,7 @@
 .\" This file was generated with po4a. Translate the source file.
 .\"
 .\"*******************************************************************
-.TH tin 5 "26. November 2010" 2.0.0 "Usenet Newsreader"
+.TH tin 5 "23. August 2011" 2.0.0 "Usenet Newsreader"
 
 .SH NAME
 tin, rtin \- zugehörige Dateien
@@ -251,7 +251,7 @@ authorization. If the password contains a space or a tab it must be enclosed
 in doublequotes ("). Usernames must not be enclosed in doublequotes and thus
 can't contain spaces or tabs. Any line that starts with "#" is a
 comment. Blank lines are ignored. This file should be readable only for the
-user as it contains the users uncrypted password for reading news!
+user as it contains the user's uncrypted password for reading news!
 .TP 
 \fBNNTPServer\fP
 Vollständiger Name (FQDN) des Newsservers.
@@ -1148,7 +1148,7 @@ server.
 At startup, \fBtin\fP(1)  reads in the configuration file. This contains a list
 of "\fIvariable\fP=\fIvalue\fP" pairs that can be used to configure the way
 \fBtin\fP(1)  works. If it exists, the global configuration file,
-\fI${TIN_LIBDIR:\-NEWSLIBDIR}/tinrc\fP is read first. After that, the users own
+\fI${TIN_LIBDIR:\-NEWSLIBDIR}/tinrc\fP is read first. After that, the user's own
 configuration file \fI${TIN_HOMEDIR:\-"$HOME"}/.tin/tinrc\fP is read.  The
 global file is useful for distributing system\-wide defaults to new users who
 have no private tinrc yet (see also \fB/etc/tin/tin.defaults\fP).

@@ -42,8 +42,8 @@
 #	ifndef TIN_AUTOCONF_H
 #		define VERSION		"2.0.0"
 #	endif /* !TIN_AUTOCONF_H */
-#	define RELEASEDATE	"20110623"
-#	define RELEASENAME	"Burnside"
+#	define RELEASEDATE	"20110823"
+#	define RELEASENAME	"Ardenistiel"
 /* config-file versions - must by dotted triples */
 #	define TINRC_VERSION	"1.3.11"
 #	define ATTRIBUTES_VERSION	"1.0.7"

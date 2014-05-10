@@ -7,7 +7,7 @@
 msgid   ""
 msgstr  "Project-Id-Version: tin 1.7.7\n"
         "Report-Msgid-Bugs-To: \n"
-        "POT-Creation-Date: 2011-06-23 18:51+0200\n"
+        "POT-Creation-Date: 2011-08-22 18:32+0200\n"
         "PO-Revision-Date: 2005-03-06 09:25+0200\n"
         "Last-Translator: Þebnem Korkmaz <sebnem_k@hotmail.com>\n"
         "Language-Team: Turkish <gnu-tr-u12a@lists.sourceforge.net>\n"
@@ -8380,9 +8380,3 @@ msgstr  "Slrnface baþarýsýz: %s."
 #~      "article\n"
 #~ msgstr       "# ON durumdaysa otomatic olarak ismini görünmeyen mektup kopyasýna "
 #~      "koy: Makaleyi gönderirken alan yarat\n"
-
-#, fuzzy
-#~ msgid        "\n"
-#~      "Warning: %s contains non 7bit chars.\n"
-#~ msgstr       "\n"
-#~      "Uyarý: \"Konu:\" sadece beyazboþluklar var.\n"

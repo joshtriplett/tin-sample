@@ -2,11 +2,11 @@
 .\" Module    : tin.5
 .\" Author    : U. Janssen
 .\" Created   : 2000-07-10
-.\" Updated   : 2011-02-05
+.\" Updated   : 2011-08-23
 .\" Notes     : needs a some work
 .\"
 .\"
-.TH tin 5 "November 26th, 2010" "2.0.0" "A Usenet newsreader"
+.TH tin 5 "August 23rd, 2011" "2.0.0" "A Usenet newsreader"
 
 .SH NAME
 tin, rtin \- related files
@@ -252,13 +252,13 @@ require authorization. If the password contains a space or a tab it must be
 enclosed in doublequotes ("). Usernames must not be enclosed in doublequotes
 and thus can't contain spaces or tabs. Any line that starts with "#" is a
 comment. Blank lines are ignored. This file should be readable only for the
-user as it contains the users uncrypted password for reading news!
+user as it contains the user's uncrypted password for reading news!
 .TP
 .B nntpserver
 full qualified domain name of the newsserver.
 .TP
 .B password
-users uncrypted password for reading news.
+user's uncrypted password for reading news.
 .TP
 .B user
 username on the newsserver if it differs from the local login. This field is
@@ -1173,7 +1173,7 @@ reads in the configuration file. This contains a list of
 .BR tin (1)
 works. If it exists, the global configuration file,
 \fI${TIN_LIBDIR:\-NEWSLIBDIR}/tinrc\fR is read first. After that, the
-users own configuration file \fI${TIN_HOMEDIR:\-"$HOME"}/.tin/tinrc\fR is read.
+user's own configuration file \fI${TIN_HOMEDIR:\-"$HOME"}/.tin/tinrc\fR is read.
 The global file is useful for distributing system-wide defaults to new
 users who have no private tinrc yet (see also \fB/etc/tin/tin.defaults\fP).
 .TP

@@ -781,7 +781,7 @@ thread_by_subject(
 			if (arts[i].prev == ART_NORMAL && (arts[i].subject == arts[j].subject))
 #else
 			/* see also refs.c:collate_subjects() */
-			if (arts[i].prev == ART_NORMAL && ((arts[i].subject == arts[j].subject) || (arts[i].archive && arts[j].archive && (arts[i].archive->name == arts[j].archive->name)))) 
+			if (arts[i].prev == ART_NORMAL && ((arts[i].subject == arts[j].subject) || (arts[i].archive && arts[j].archive && (arts[i].archive->name == arts[j].archive->name))))
 #endif /* 1 */
 			{
 				arts[j].thread = i;
