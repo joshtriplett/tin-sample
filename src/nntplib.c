@@ -3,7 +3,7 @@
  *  Module    : nntplib.c
  *  Author    : S. Barber & I. Lea
  *  Created   : 1991-01-12
- *  Updated   : 2009-07-17
+ *  Updated   : 2009-12-19
  *  Notes     : NNTP client routines taken from clientlib.c 1.5.11 (1991-02-10)
  *  Copyright : (c) Copyright 1991-99 by Stan Barber & Iain Lea
  *              Permission is hereby granted to copy, reproduce, redistribute
@@ -40,9 +40,9 @@ char *nntp_server = NULL;
 #endif /* NNTP_ABLE */
 
 static TCP *nntp_rd_fp = NULL;
-static TCP *nntp_wr_fp = NULL;
 
 #ifdef NNTP_ABLE
+	static TCP *nntp_wr_fp = NULL;
 	/* Copy of last NNTP command sent, so we can retry it if needed */
 	static char last_put[NNTP_STRLEN];
 	static constext *xover_cmds = "XOVER";
@@ -787,8 +787,10 @@ put_server(
 		 */
 		if (!strncmp(string, "LIST ACTIVE ", 12))
 			STRCPY(last_put, "LIST");
-		else
-			STRCPY(last_put, string);
+		else {
+			if (last_put != string)
+				STRCPY(last_put, string);
+		}
 	}
 	(void) s_flush(nntp_wr_fp);
 }
@@ -884,11 +886,25 @@ get_server(
 	/*
 	 * NULL socket reads indicates socket has closed. Try a few times more
 	 *
-	 * TODO: add a timeout (some servers do not close the connection but
-	 *       simply do not send any response data -> we need a timeout to
-	 *       leave the s_gets() in that case)
+	 * Leave the s_gets() after a timeout for these cases:
+	 *   -some servers do not close the connection but simply do not send any
+	 *    response data
+	 *   -the network connection went down
 	 */
+#	if defined(HAVE_ALARM) && defined(SIGALRM)
+	alarm(NNTP_READ_TIMEOUT);
+#	endif /* HAVE_ALARM && SIGALRM */
 	while (nntp_rd_fp == NULL || s_gets(string, size, nntp_rd_fp) == NULL) {
+		if (errno == EINTR) {
+			errno = 0;
+#	if defined(HAVE_ALARM) && defined(SIGALRM)
+			alarm(NNTP_READ_TIMEOUT);		/* Restart the timer */
+#	endif /* HAVE_ALARM && SIGALRM */
+			continue;
+		}
+#	if defined(HAVE_ALARM) && defined(SIGALRM)
+		alarm(0);
+#	endif /* HAVE_ALARM && SIGALRM */
 		if (quitting)						/* Don't bother to reconnect */
 			tin_done(NNTP_ERROR_EXIT);		/* And don't try to disconnect again! */
 
@@ -925,6 +941,9 @@ get_server(
 			break;
 		}
 	}
+#	if defined(HAVE_ALARM) && defined(SIGALRM)
+	alarm(0);
+#	endif /* HAVE_ALARM && SIGALRM */
 	return string;
 }
 
@@ -1015,7 +1034,7 @@ check_extensions(void)
 								nntp_caps.list_active = TRUE;
 							else if (!strncasecmp(d, "DISTRIB.PATS", 12))
 								nntp_caps.list_distrib_pats = TRUE;
-							else if (!strncasecmp(d, "DISTRIBUTIONS", 13)) /* "private" extension, RFC 2980 */
+							else if (!strncasecmp(d, "DISTRIBUTIONS", 13)) /* "private" extension, RFC 2980, draft-elie-nntp-list-additions-00.txt */
 								nntp_caps.list_distributions = TRUE;
 							else if (!strncasecmp(d, "HEADERS", 7))
 								nntp_caps.list_headers = TRUE; /* HDR requires LIST HEADERS, but not vice versa */
@@ -1023,12 +1042,14 @@ check_extensions(void)
 								nntp_caps.list_newsgroups = TRUE;
 							else if (!strncasecmp(d, "OVERVIEW.FMT", 12)) /* OVER requires OVERVIEW.FMT, but not vice versa */
 								nntp_caps.list_overview_fmt = TRUE;
-							else if (!strncasecmp(d, "MOTD", 4)) /* "private" extension */
+							else if (!strncasecmp(d, "MOTD", 4)) /* "private" extension, draft-elie-nntp-list-additions-00.txt */
 								nntp_caps.list_motd = TRUE;
-							else if (!strncasecmp(d, "SUBSCRIPTIONS", 13)) /* "private" extension, RFC 2980 */
+							else if (!strncasecmp(d, "SUBSCRIPTIONS", 13)) /* "private" extension, RFC 2980, draft-elie-nntp-list-additions-00.txt */
 								nntp_caps.list_subscriptions = TRUE;
-							else if (!strncasecmp(d, "MODERATORS", 10)) /* "private" extension */
+							else if (!strncasecmp(d, "MODERATORS", 10)) /* "private" extension, draft-elie-nntp-list-additions-00.txt*/
 								nntp_caps.list_moderators = TRUE;
+							else if (!strncasecmp(d, "COUNTS", 6)) /* "private" extension (highwinds), next nntp RFC? */
+								nntp_caps.list_counts = TRUE;
 							d = strpbrk(d, " \t");
 						}
 					} else if (!strncasecmp(ptr, "IMPLEMENTATION", 14)) {
@@ -1343,13 +1364,43 @@ nntp_open(
 	 * allowed to post after authentication issue a "MODE READER" again and
 	 * interpret the response code.
 	 */
-	if (force_auth_on_conn_open || (nntp_caps.type == CAPABILITIES && !nntp_caps.reader && (nntp_caps.authinfo_user || (nntp_caps.authinfo_sasl & SASL_PLAIN)))) {
+	if (force_auth_on_conn_open || (nntp_caps.type == CAPABILITIES && !nntp_caps.reader && (nntp_caps.authinfo_user || (nntp_caps.authinfo_sasl & SASL_PLAIN))))
+	{
 #	ifdef DEBUG
 		if (debug & DEBUG_NNTP)
 			debug_print_file("NNTP", "nntp_open() authenticate()");
 #	endif /* DEBUG */
+
+		/*
+		 * switch mode before auth so we do not auth as a feeder.
+		 * don't use mode_reader() to prevent authenticaion to
+		 * kick in on a 481 "auth required" response and thus lead
+		 * to a 502 "already authenticated" error later on.
+		 */
+		if (nntp_caps.type == CAPABILITIES && nntp_caps.mode_reader) {
+			int respcode;
+			char buf[NNTP_STRLEN];
+#	ifdef DEBUG
+		if (debug & DEBUG_NNTP)
+			debug_print_file("NNTP", "nntp_open() MODE READER");
+#	endif /* DEBUG */
+			put_server("MODE READER");
+			switch ((respcode = get_only_respcode(buf, sizeof(buf)))) {
+				/* just honor ciritical errors */
+				case ERR_GOODBYE:
+				case ERR_ACCESS:
+					error_message(2, buf);
+					return -1;
+
+				default:
+					break;
+			}
+			check_extensions();
+		}
+
 		if (!authenticate(nntp_server, userid, FALSE))	/* 3rd parameter is FALSE as we need to get prompted for username password here */
 			return -1;
+
 		if (nntp_caps.type == CAPABILITIES)
 			check_extensions();
 	}
@@ -1374,7 +1425,7 @@ nntp_open(
 	}
 
 	if (!is_reconnect) {
-#if 0
+#	if 0
 	/*
 	 * gives wrong results if RFC 3977 server requestes auth after
 	 * CAPABILITIES is parsed (with no posting allowed) and after auth
@@ -1384,7 +1435,7 @@ nntp_open(
 		/* Inform user if he cannot post */
 		if (!can_post && !batch_mode)
 			wait_message(0, "%s\n", _(txt_cannot_post));
-#endif /* 0 */
+#	endif /* 0 */
 
 		/* Remove leading white space and save server's second response */
 		linep = line;
@@ -1461,10 +1512,10 @@ nntp_open(
 
 				case 221:	/* unexpected multiline ok, e.g.: SoftVelocity Discussions 2.5q */
 					nntp_caps.hdr_cmd = &xhdr_cmds[i];
-#	ifdef DEBUG
+#		ifdef DEBUG
 					if (debug & DEBUG_NNTP)
 						debug_print_file("NNTP", "nntp_open() %s skipping data", &xhdr_cmds[i]);
-#	endif /* DEBUG */
+#		endif /* DEBUG */
 					while (tin_fgets(FAKE_NNTP_FP, FALSE))
 						;
 					j = -1;
@@ -1512,10 +1563,10 @@ nntp_open(
 
 				case 221:	/* unexpected multiline ok, e.g.: SoftVelocity Discussions 2.5q */
 					nntp_caps.hdr_cmd = xhdr_cmds;
-#	ifdef DEBUG
+#		ifdef DEBUG
 					if (debug & DEBUG_NNTP)
 						debug_print_file("NNTP", "nntp_open() %s skipping data", xhdr_cmds);
-#	endif /* DEBUG */
+#		endif /* DEBUG */
 					while (tin_fgets(FAKE_NNTP_FP, FALSE))
 						;
 					break;
@@ -1819,8 +1870,10 @@ list_motd(
 	void)
 {
 	char *ptr;
+	char *p;
 	char buf[NNTP_STRLEN];
 	int i;
+	size_t len;
 	unsigned int l = 0;
 
 	buf[0] = '\0';
@@ -1837,13 +1890,20 @@ list_motd(
 					debug_print_file("NNTP", "<<< %s", ptr);
 #	endif /* DEBUG */
 				/*
+				 * according to draft-elie-nntp-list-additions-00.txt 2.4.2
+				 * the MOTD is in UTF-8
+				 *
 				 * TODO: - store a hash value of the entire motd in the server-rc
 				 *         and only if it differs from the old value display the
 				 *         motd?
 				 *       - use some sort of pager?
 				 *       - -> lang.c
 				 */
-				my_printf("%s%s\n", _("MOTD: "), ptr);
+				p = my_strdup(ptr);
+				len = strlen(p);
+				process_charsets(&p, &len, "UTF-8", tinrc.mm_local_charset, FALSE);
+				my_printf("%s%s\n", _("MOTD: "), p);
+				free(p);
 				l++;
 			}
 #	ifdef HAVE_COLOR

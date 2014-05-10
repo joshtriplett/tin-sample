@@ -3,10 +3,10 @@
  *  Module    : extern.h
  *  Author    : I. Lea
  *  Created   : 1991-04-01
- *  Updated   : 2009-07-17
+ *  Updated   : 2009-12-19
  *  Notes     :
  *
- * Copyright (c) 1997-2009 Iain Lea <iain@bricbrac.de>
+ * Copyright (c) 1997-2010 Iain Lea <iain@bricbrac.de>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -57,6 +57,9 @@
 #ifdef DECL__FLSBUF
 	extern int _flsbuf(int, FILE *);
 #endif /* DECL__FLSBUF */
+#ifdef DECL_ALARM
+	extern unsigned alarm(unsigned);
+#endif /* DECL_ALARM */
 #ifdef DECL_ATOI
 	extern int atoi(const char *);
 #endif /* DECL_ATOI */
@@ -546,6 +549,7 @@ extern constext txt_end_of_thread[];
 extern constext txt_enter_getart_limit[];
 extern constext txt_enter_message_id[];
 extern constext txt_enter_next_thread[];
+extern constext txt_enter_next_unread_art[];
 extern constext txt_enter_next_unread_group[];
 extern constext txt_enter_option_num[];
 extern constext txt_enter_range[];
@@ -589,6 +593,7 @@ extern constext txt_error_gnksa_rn_enc[];
 extern constext txt_error_gnksa_rn_encsyn[];
 extern constext txt_error_gnksa_rn_paren[];
 extern constext txt_error_gnksa_rn_invalid[];
+extern constext txt_error_grp_renamed[];
 extern constext txt_error_header_and_body_not_separate[];
 extern constext txt_error_header_duplicate[];
 extern constext txt_error_header_format[];
@@ -792,6 +797,8 @@ extern constext txt_help_group_list_thread[];
 extern constext txt_help_group_mark_article_unread[];
 extern constext txt_help_group_mark_thread_read[];
 extern constext txt_help_group_mark_thread_unread[];
+extern constext txt_help_mark_feed_read[];
+extern constext txt_help_mark_feed_unread[];
 extern constext txt_help_group_mark_unsel_art_read[];
 extern constext txt_help_group_next[];
 extern constext txt_help_group_prev[];
@@ -851,6 +858,8 @@ extern constext txt_help_thread_catchup_next_unread[];
 extern constext txt_help_thread_first_article[];
 extern constext txt_help_thread_last_article[];
 extern constext txt_help_thread_mark_article_read[];
+extern constext txt_help_thread_mark_article_unread[];
+extern constext txt_help_thread_mark_thread_unread[];
 extern constext txt_help_thread_read_article[];
 extern constext txt_help_title_disp[];
 extern constext txt_help_title_misc[];
@@ -906,13 +915,15 @@ extern constext txt_mail_bug_report_confirm[];
 extern constext txt_mailed[];
 extern constext txt_mailing_to[];
 extern constext txt_mail_save_active_head[];
+extern constext txt_mark[];
 extern constext txt_mark_arts_read[];
-extern constext txt_mark_art_read_tagged_current[];
+extern constext txt_mark_art_read[];
 extern constext txt_mark_group_read[];
 extern constext txt_mark_thread_read[];
-extern constext txt_mark_thread_read_tagged_current[];
+extern constext txt_marked_as_read[];
 extern constext txt_marked_as_unread[];
-extern constext txt_marked_tagged_arts_as_read[];
+extern constext txt_marked_arts_as_read[];
+extern constext txt_marked_arts_as_unread[];
 extern constext txt_matching_cmd_line_groups[];
 extern constext txt_mini_group_1[];
 extern constext txt_mini_group_2[];
@@ -1127,7 +1138,6 @@ extern constext txt_thread_marked_as_selected[];
 #if 0 /* unused */
 	extern constext txt_thread_plural[];
 #endif /* 0 */
-extern constext txt_thread_range[];
 extern constext txt_thread_singular[];
 extern constext txt_thread_x_of_n[];
 extern constext txt_threading_arts[];
@@ -1169,6 +1179,7 @@ extern constext txt_usage_dont_check_new_newsgroups[];
 extern constext txt_usage_dont_save_files_on_quit[];
 extern constext txt_usage_dont_show_descriptions[];
 #ifdef NNTP_ABLE
+	extern constext txt_unparseable_counts[];
 	extern constext txt_usage_force_authentication[];
 	extern constext txt_usage_newsserver[];
 	extern constext txt_usage_port[];
@@ -1230,6 +1241,7 @@ extern constext txt_warn_update[];
 extern constext txt_warn_unrecognized_version[];
 extern constext txt_warn_wrong_sig_format[];
 extern constext txt_warn_xref_not_supported[];
+extern constext txt_warn_grp_renamed[];
 extern constext txt_writing_attributes_file[];
 extern constext txt_x_resp[];
 extern constext txt_yanked_groups[];
@@ -1363,7 +1375,6 @@ extern t_bool disable_gnksa_domain_check;
 extern t_bool disable_sender;
 extern t_bool force_no_post;
 extern t_bool force_reread_active_file;
-extern t_bool got_sig_pipe;
 extern t_bool have_linescroll;
 extern t_bool filtered_articles;
 extern t_bool list_active;
@@ -1371,6 +1382,7 @@ extern t_bool newsrc_active;
 extern t_bool no_write;
 extern t_bool post_article_and_exit;
 extern t_bool post_postponed_and_exit;
+extern t_bool range_active;
 extern t_bool read_local_newsgroups_file;
 extern t_bool read_news_via_nntp;
 extern t_bool read_saved_news;

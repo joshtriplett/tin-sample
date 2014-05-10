@@ -3,10 +3,10 @@
  *  Module    : options_menu.c
  *  Author    : Michael Bienia <michael@vorlon.ping.de>
  *  Created   : 2004-09-05
- *  Updated   : 2009-07-17
+ *  Updated   : 2009-10-06
  *  Notes     : Split from config.c
  *
- * Copyright (c) 2004-2009 Michael Bienia <michael@vorlon.ping.de>
+ * Copyright (c) 2004-2010 Michael Bienia <michael@vorlon.ping.de>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -1499,6 +1499,11 @@ config_page(
 						case OPT_ATTRIB_SHOW_ONLY_UNREAD_ARTS:
 							if (prompt_option_on_off(option))
 								SET_NUM_ATTRIBUTE(show_only_unread_arts);
+								if (curr_group != NULL) {
+									assign_attributes_to_groups();
+									make_threads(curr_group, TRUE);
+									pos_first_unread_thread();
+								}
 							break;
 
 						case OPT_ATTRIB_SHOW_SIGNATURES:
@@ -1843,13 +1848,36 @@ config_page(
 							break;
 
 						case OPT_ATTRIB_SORT_THREADS_TYPE:
+							/*
+							 * If the threading strategy has changed, fix things
+							 * so that rethreading will occur
+							 */
 							if (prompt_option_list(option))
 								SET_NUM_ATTRIBUTE(sort_threads_type);
+								if (curr_group != NULL) {
+									assign_attributes_to_groups();
+									make_threads(curr_group, TRUE);
+								}
 							break;
 
 						case OPT_ATTRIB_THREAD_ARTICLES:
+							/*
+							 * If the threading strategy has changed, fix things
+							 * so that rethreading will occur
+							 */
 							if (prompt_option_list(option))
 								SET_NUM_ATTRIBUTE(thread_articles);
+								if (curr_group != NULL) {
+									int old_base_art = base[grpmenu.curr];
+
+									assign_attributes_to_groups();
+									make_threads(curr_group, TRUE);
+									/* in non-empty groups update cursor position */
+									if (grpmenu.max > 0) {
+										if ((i = which_thread(old_base_art)) >= 0)
+											grpmenu.curr = i;
+									}
+								}
 							break;
 
 						case OPT_ATTRIB_TRIM_ARTICLE_BODY:

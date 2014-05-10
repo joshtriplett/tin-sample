@@ -3,10 +3,10 @@
  *  Module    : attrib.c
  *  Author    : I. Lea
  *  Created   : 1993-12-01
- *  Updated   : 2009-07-17
+ *  Updated   : 2009-11-05
  *  Notes     : Group attribute routines
  *
- * Copyright (c) 1993-2009 Iain Lea <iain@bricbrac.de>
+ * Copyright (c) 1993-2010 Iain Lea <iain@bricbrac.de>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -485,59 +485,55 @@ read_attributes_file(
 					break;
 			}
 
+			if (!global_file && upgrade == RC_UPGRADE) {
+				t_bool auto_bcc = FALSE;
+				t_bool auto_cc = FALSE;
+				int auto_cc_bcc;
+
+				switch (tolower((unsigned char) line[0])) {
+					case 'a':
+						if (match_boolean(line, "auto_bcc=", &auto_bcc)) {
+							if (scopes[num_scope -1].attribute->auto_cc_bcc & AUTO_CC)
+								auto_cc_bcc = (auto_bcc ? AUTO_CC_BCC : AUTO_CC);
+							else
+								auto_cc_bcc = (auto_bcc ? AUTO_BCC : 0);
+							set_attrib(OPT_ATTRIB_AUTO_CC_BCC, scope, (const char *) &auto_cc_bcc);
+							found = TRUE;
+							break;
+						}
+						if (match_boolean(line, "auto_cc=", &auto_cc)) {
+							if (scopes[num_scope -1].attribute->auto_cc_bcc & AUTO_BCC)
+								auto_cc_bcc = (auto_cc ? AUTO_CC_BCC : AUTO_BCC);
+							else
+								auto_cc_bcc = (auto_cc ? AUTO_CC : 0);
+							set_attrib(OPT_ATTRIB_AUTO_CC_BCC, scope, (const char *) &auto_cc_bcc);
+							found = TRUE;
+							break;
+						}
+						break;
+
+					case 'p':
+						MATCH_INTEGER("post_proc_type=", OPT_ATTRIB_POST_PROCESS_TYPE, POST_PROC_YES);
+						break;
+
+					case 's':
+						MATCH_BOOLEAN("show_only_unread=", OPT_ATTRIB_SHOW_ONLY_UNREAD_ARTS);
+						MATCH_INTEGER("sort_art_type=", OPT_ATTRIB_SORT_ARTICLE_TYPE, SORT_ARTICLES_BY_LINES_ASCEND);
+						break;
+
+					case 't':
+						MATCH_INTEGER("thread_arts=", OPT_ATTRIB_THREAD_ARTICLES, THREAD_MAX);
+						break;
+
+					default:
+						break;
+				}
+			}
+
 			if (found)
 				found = FALSE;
-			else {
-				if (!global_file && upgrade == RC_UPGRADE) {
-					t_bool auto_bcc = FALSE;
-					t_bool auto_cc = FALSE;
-					int auto_cc_bcc;
-
-					switch (tolower((unsigned char) line[0])) {
-						case 'a':
-							if (match_boolean(line, "auto_bcc=", &auto_bcc)) {
-								if (scopes[num_scope -1].attribute->auto_cc_bcc & AUTO_CC)
-									auto_cc_bcc = (auto_bcc ? AUTO_CC_BCC : AUTO_CC);
-								else
-									auto_cc_bcc = (auto_bcc ? AUTO_BCC : 0);
-								set_attrib(OPT_ATTRIB_AUTO_CC_BCC, scope, (const char *) &auto_cc_bcc);
-								found = TRUE;
-								break;
-							}
-							if (match_boolean(line, "auto_cc=", &auto_cc)) {
-								if (scopes[num_scope -1].attribute->auto_cc_bcc & AUTO_BCC)
-									auto_cc_bcc = (auto_cc ? AUTO_CC_BCC : AUTO_BCC);
-								else
-									auto_cc_bcc = (auto_cc ? AUTO_CC : 0);
-								set_attrib(OPT_ATTRIB_AUTO_CC_BCC, scope, (const char *) &auto_cc_bcc);
-								found = TRUE;
-								break;
-							}
-							break;
-
-						case 'p':
-							MATCH_INTEGER("post_proc_type=", OPT_ATTRIB_POST_PROCESS_TYPE, POST_PROC_YES);
-							break;
-
-						case 's':
-							MATCH_BOOLEAN("show_only_unread=", OPT_ATTRIB_SHOW_ONLY_UNREAD_ARTS);
-							MATCH_INTEGER("sort_art_type=", OPT_ATTRIB_SORT_ARTICLE_TYPE, SORT_ARTICLES_BY_LINES_ASCEND);
-							break;
-
-						case 't':
-							MATCH_INTEGER("thread_arts=", OPT_ATTRIB_THREAD_ARTICLES, THREAD_MAX);
-							break;
-
-						default:
-							break;
-					}
-					if (found)
-						found = FALSE;
-					else
-						error_message(1, _(txt_bad_attrib), line);
-				} else
-					error_message(1, _(txt_bad_attrib), line);
-			}
+			else
+				error_message(1, _(txt_bad_attrib), line);
 		}
 		fclose(fp);
 

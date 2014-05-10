@@ -3,10 +3,10 @@
  *  Module    : mail.c
  *  Author    : I. Lea
  *  Created   : 1992-10-02
- *  Updated   : 2009-07-17
+ *  Updated   : 2009-11-19
  *  Notes     : Mail handling routines for creating pseudo newsgroups
  *
- * Copyright (c) 1992-2009 Iain Lea <iain@bricbrac.de>
+ * Copyright (c) 1992-2010 Iain Lea <iain@bricbrac.de>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -286,14 +286,14 @@ open_newsgroups_fp(
 		 *       optimize more than n groups (e.g. 5) of the same
 		 *       subhierarchie to a wildmat?
 		 */
-		if (((nntp_caps.type == CAPABILITIES && nntp_caps.list_newsgroups) || nntp_caps.type != CAPABILITIES) && newsrc_active && !list_active && !no_more_wildmat && PIPELINE_LIMIT > 1 && num_active < PIPELINE_LIMIT) {
+		if (((nntp_caps.type == CAPABILITIES && nntp_caps.list_newsgroups) || nntp_caps.type != CAPABILITIES) && newsrc_active && !list_active && !no_more_wildmat && (PIPELINE_LIMIT > MAX(1, num_active))) {
 			char *ptr;
 			char buff[NNTP_STRLEN];
 			char line[NNTP_STRLEN];
 			char file[PATH_LEN];
 			char serverdir[PATH_LEN];
 			struct t_group *group;
-			int resp, i;
+			int resp, i, j = 0;
 
 			if (nntp_tcp_port != IPPORT_NNTP)
 				snprintf(file, sizeof(file), "%s:%u", nntp_server, nntp_tcp_port);
@@ -302,15 +302,32 @@ open_newsgroups_fp(
 
 			joinpath(serverdir, sizeof(serverdir), rcdir, file);
 			joinpath(file, sizeof(file), serverdir, NEWSGROUPS_FILE".tmp");
-
+			*buff = '\0';
 			if ((result = fopen(file, "w")) != NULL) {
 				for_each_group(i) {
 					if ((group = group_find(active[i].name, FALSE)) != NULL) {
 						if (group->type == GROUP_TYPE_NEWS) {
-							snprintf(buff, sizeof(buff), "LIST NEWSGROUPS %s", active[i].name);
+							if (nntp_caps.type == CAPABILITIES && nntp_caps.list_newsgroups) {
+								if (*buff) {
+									if (strlen(buff) + strlen(active[i].name) + 1 < NNTP_STRLEN) {
+										snprintf(buff + strlen(buff), sizeof(buff) - strlen(buff), ",%s", active[i].name);
+										continue;
+									} else {
+										put_server(buff);
+										*buff = '\0';
+										j++;
+									}
+								}
+								if (!*buff) {
+									snprintf(buff, sizeof(buff), "LIST NEWSGROUPS %s", active[i].name);
+									continue;
+								}
+							} else
+								snprintf(buff, sizeof(buff), "LIST NEWSGROUPS %s", active[i].name);
 #		ifdef DISABLE_PIPELINING
 							if ((resp = new_nntp_command(buff, OK_GROUPS, line, sizeof(line))) != OK_GROUPS) {
 								no_more_wildmat = resp;
+								*buff = '\0';
 								break;
 							}
 							while ((ptr = tin_fgets(FAKE_NNTP_FP, FALSE)) != NULL) {
@@ -322,32 +339,29 @@ open_newsgroups_fp(
 							}
 #		else
 							put_server(buff);
+							*buff = '\0';
+							j++;
 #		endif /* DISABLE_PIPELINING */
 						}
 					}
 				}
+				if (*buff) {
+					put_server(buff);
+					j++;
+				}
 #		ifndef DISABLE_PIPELINING
-				for_each_group(i) {
-					/*
-					 * don't use get_respcode() as it will try to auth if we
-					 * see a 480 but that could fail as there might be
-					 * pending data
-					 */
-					if ((group = group_find(active[i].name, FALSE)) != NULL) {
-						if (group->type == GROUP_TYPE_NEWS) {
-							if ((resp = get_only_respcode(line, sizeof(line))) != OK_GROUPS) {
-								if (!no_more_wildmat)
-									no_more_wildmat = resp;
-								continue;
-							}
-							while ((ptr = tin_fgets(FAKE_NNTP_FP, FALSE)) != NULL) {
+				while (j--) {
+					if ((resp = get_only_respcode(line, sizeof(line))) != OK_GROUPS) {
+						if (!no_more_wildmat)
+							no_more_wildmat = resp;
+						continue;
+					}
+					while ((ptr = tin_fgets(FAKE_NNTP_FP, FALSE)) != NULL) {
 #			ifdef DEBUG
-								if (debug & DEBUG_NNTP)
-									debug_print_file("NNTP", "<<< %s", ptr);
+						if (debug & DEBUG_NNTP)
+							debug_print_file("NNTP", "<<< %s", ptr);
 #			endif /* DEBUG */
-								fprintf(result, "%s\n", str_trim(ptr));
-							}
-						}
+						fprintf(result, "%s\n", str_trim(ptr));
 					}
 				}
 				/* TODO: add 483 (RFC 3977) support */

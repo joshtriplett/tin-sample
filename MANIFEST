@@ -1,27 +1,27 @@
-MANIFEST for tin-1.9.5 (Mon Jul 20 11:11:51 CEST 2009)
+MANIFEST for tin-1.9.5 (Thu Dec 24 10:40:47 CET 2009)
 ----------------------------------------------------
-  13541 ./Makefile
-   7698 ./MANIFEST
+  14037 ./Makefile
+   7697 ./MANIFEST
    1440 ./README
     564 ./README.MAC
     992 ./README.WIN
- 165596 ./aclocal.m4
+ 166767 ./aclocal.m4
     882 ./conf-tin
-  45265 ./config.guess
-  33974 ./config.sub
- 589613 ./configure
-  32294 ./configure.in
+  44659 ./config.guess
+  34314 ./config.sub
+ 595062 ./configure
+  32399 ./configure.in
    7123 ./install.sh
    1320 ./mkdirs.sh
    1505 ./tin.spec
   18847 ./doc/ABOUT-NLS
-  16628 ./doc/CHANGES
+  18660 ./doc/CHANGES
  252172 ./doc/CHANGES.old
-   5024 ./doc/CREDITS
+   5041 ./doc/CREDITS
    1305 ./doc/DEBUG_REFS
-  30354 ./doc/INSTALL
-  35167 ./doc/TODO
-   1336 ./doc/WHATSNEW
+  30361 ./doc/INSTALL
+  35698 ./doc/TODO
+   1481 ./doc/WHATSNEW
    2618 ./doc/art_handling.txt
    1700 ./doc/article.txt
    4373 ./doc/auth.txt
@@ -30,7 +30,7 @@ MANIFEST for tin-1.9.5 (Mon Jul 20 11:11:51 CEST 2009)
   35304 ./doc/good-netkeeping-seal
    3803 ./doc/internals.txt
   23621 ./doc/iso2asc.txt
-   3659 ./doc/keymap.sample
+   3697 ./doc/keymap.sample
     633 ./doc/mailcap.sample
    5870 ./doc/mbox.5
    3365 ./doc/mime.types
@@ -45,8 +45,8 @@ MANIFEST for tin-1.9.5 (Mon Jul 20 11:11:51 CEST 2009)
    4947 ./doc/umlaute.txt
    4246 ./doc/umlauts.txt
    5536 ./doc/url_handler.1
- 122650 ./doc/tin.1
-  77279 ./doc/tin.5
+ 124196 ./doc/tin.1
+  77453 ./doc/tin.5
    4952 ./doc/tin.defaults
   13098 ./doc/tinews.1
    2418 ./doc/tools.txt
@@ -56,74 +56,74 @@ MANIFEST for tin-1.9.5 (Mon Jul 20 11:11:51 CEST 2009)
    3815 ./tools/metamutt
    2787 ./tools/opt-case.pl
    1410 ./tools/tinlock
-  31917 ./tools/tinews.pl
+  32090 ./tools/tinews.pl
    3909 ./tools/url_handler.pl
    1654 ./tools/url_handler.sh
    3347 ./tools/w2r.pl
    1661 ./tools/expand_aliases.tgz
-   2778 ./include/bool.h
+   2586 ./include/bool.h
    1947 ./include/bugrep.h
    2210 ./include/debug.h
-  62841 ./include/extern.h
-  13818 ./include/keymap.h
+  63281 ./include/extern.h
+  13790 ./include/keymap.h
    6333 ./include/newsrc.h
-   8234 ./include/nntplib.h
+   8342 ./include/nntplib.h
     665 ./include/plp_snprintf.h
   12654 ./include/policy.h
-  31266 ./include/proto.h
+  31406 ./include/proto.h
    5178 ./include/rfc2046.h
    3377 ./include/stpwatch.h
-   5756 ./include/tcurses.h
-  66600 ./include/tin.h
+   5797 ./include/tcurses.h
+  66901 ./include/tin.h
   16150 ./include/tinrc.h
    4346 ./include/tnntp.h
    2264 ./include/trace.h
-   2353 ./include/version.h
-  29575 ./src/active.c
-  69429 ./src/art.c
-  71281 ./src/attrib.c
+   2351 ./include/version.h
+  34199 ./src/active.c
+  69740 ./src/art.c
+  71134 ./src/attrib.c
   14979 ./src/auth.c
   12446 ./src/charset.c
    8413 ./src/color.c
   60909 ./src/config.c
-  26187 ./src/cook.c
-  26678 ./src/curses.c
+  26269 ./src/cook.c
+  26718 ./src/curses.c
    9916 ./src/debug.c
    3408 ./src/envarg.c
-  27238 ./src/feed.c
+  30209 ./src/feed.c
   57406 ./src/filter.c
   18120 ./src/getline.c
    9070 ./src/global.c
-  48029 ./src/group.c
+  46303 ./src/group.c
    3900 ./src/hashstr.c
    8215 ./src/header.c
-  33966 ./src/help.c
+  34161 ./src/help.c
   14005 ./src/inews.c
-  36844 ./src/init.c
+  36903 ./src/init.c
    2435 ./src/joinpath.c
-  93703 ./src/keymap.c
- 126378 ./src/lang.c
+  93821 ./src/keymap.c
+ 127160 ./src/lang.c
    4486 ./src/langinfo.c
    7728 ./src/list.c
    6667 ./src/lock.c
-  16272 ./src/mail.c
-  23835 ./src/main.c
+  16618 ./src/mail.c
+  24200 ./src/main.c
   10879 ./src/makecfg.c
   13067 ./src/memory.c
    5283 ./src/mimetypes.c
-  90989 ./src/misc.c
-  37878 ./src/newsrc.c
-  49434 ./src/nntplib.c
+  91077 ./src/misc.c
+  38311 ./src/newsrc.c
+  51256 ./src/nntplib.c
    7502 ./src/nrctbl.c
-  92551 ./src/options_menu.c
-  58858 ./src/page.c
+  93438 ./src/options_menu.c
+  58886 ./src/page.c
   24138 ./src/parsdate.y
   16966 ./src/plp_snprintf.c
   12757 ./src/pgp.c
- 139390 ./src/post.c
-  18536 ./src/prompt.c
-  10094 ./src/read.c
-  26297 ./src/refs.c
+ 140170 ./src/post.c
+  19134 ./src/prompt.c
+  10100 ./src/read.c
+  26812 ./src/refs.c
    5481 ./src/regex.c
   14482 ./src/rfc1524.c
   15070 ./src/rfc2045.c
@@ -132,16 +132,16 @@ MANIFEST for tin-1.9.5 (Mon Jul 20 11:11:51 CEST 2009)
   37451 ./src/save.c
   11388 ./src/screen.c
   16554 ./src/search.c
-  30523 ./src/select.c
+  30637 ./src/select.c
    7808 ./src/sigfile.c
-  12743 ./src/signal.c
+  13698 ./src/signal.c
    7215 ./src/strftime.c
   23767 ./src/string.c
-  13924 ./src/tags.c
-  17052 ./src/tcurses.c
+  13242 ./src/tags.c
+  17169 ./src/tcurses.c
    3071 ./src/tmpfile.c
    3705 ./src/my_tmpfile.c
-  40494 ./src/thread.c
+  40130 ./src/thread.c
    2472 ./src/trace.c
    4315 ./src/version.c
    5453 ./src/wildmat.c
@@ -214,7 +214,7 @@ MANIFEST for tin-1.9.5 (Mon Jul 20 11:11:51 CEST 2009)
  108966 ./pcre/testdata/testoutput7
   53056 ./pcre/testdata/testoutput8
   28769 ./pcre/testdata/testoutput9
-  20248 ./include/autoconf.hin
+  20286 ./include/autoconf.hin
   21510 ./src/Makefile.in
   10773 ./src/tincfg.tbl
    1929 ./libcanlock/CHANGES
@@ -266,27 +266,27 @@ MANIFEST for tin-1.9.5 (Mon Jul 20 11:11:51 CEST 2009)
      41 ./intl/VERSION
    4962 ./po/Makefile.inn
     847 ./po/POTFILES.in
- 134471 ./po/tin.pot
- 170931 ./po/de.gmo
- 227343 ./po/de.po
+ 134986 ./po/tin.pot
+ 170174 ./po/de.gmo
+ 228322 ./po/de.po
    7539 ./po/en_GB.gmo
- 145442 ./po/en_GB.po
- 155488 ./po/et.gmo
- 218068 ./po/et.po
- 160571 ./po/fr.gmo
- 223710 ./po/fr.po
- 126761 ./po/ru.gmo
- 203793 ./po/ru.po
+ 145997 ./po/en_GB.po
+ 154219 ./po/et.gmo
+ 219354 ./po/et.po
+ 159323 ./po/fr.gmo
+ 225030 ./po/fr.po
+ 125752 ./po/ru.gmo
+ 205134 ./po/ru.po
    2081 ./po/rw.gmo
- 192538 ./po/rw.po
-  23009 ./po/sv.gmo
- 151310 ./po/sv.po
+ 193720 ./po/rw.po
+  22948 ./po/sv.gmo
+ 152178 ./po/sv.po
    4671 ./po/tr.gmo
- 215915 ./po/tr.po
- 127244 ./doc/l10n/de/tin.1
-  79984 ./doc/l10n/de/tin.5
+ 217233 ./po/tr.po
+ 128917 ./doc/l10n/de/tin.1
+  80162 ./doc/l10n/de/tin.5
     129 ./doc/l10n/de.add
- 311015 ./doc/l10n/de.po
+ 313215 ./doc/l10n/de.po
     356 ./doc/l10n/po4a.conf
- 273773 ./doc/l10n/tin-man.pot
-9181582 total
+ 275327 ./doc/l10n/tin-man.pot
+9217987 total

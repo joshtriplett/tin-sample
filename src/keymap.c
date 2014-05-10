@@ -3,10 +3,10 @@
  *  Module    : keymap.c
  *  Author    : D. Nimmich, J. Faultless
  *  Created   : 2000-05-25
- *  Updated   : 2009-06-22
+ *  Updated   : 2009-10-10
  *  Notes     : This file contains key mapping routines and variables.
  *
- * Copyright (c) 2000-2009 Dirk Nimmich <nimmich@muenster.de>
+ * Copyright (c) 2000-2010 Dirk Nimmich <nimmich@muenster.de>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -62,7 +62,6 @@ struct keylist feed_type_keys = { NULL, 0, 0 };
 struct keylist filter_keys = { NULL, 0, 0 };
 struct keylist group_keys = { NULL, 0, 0 };
 struct keylist info_keys = { NULL, 0, 0 };
-struct keylist mark_read_keys = { NULL, 0, 0 };
 struct keylist option_menu_keys = { NULL, 0, 0 };
 struct keylist page_keys = { NULL, 0, 0 };
 #ifdef HAVE_PGP_GPG
@@ -241,7 +240,6 @@ free_keymaps(
 	free_keylist(&post_delete_keys);
 	free_keylist(&post_cancel_keys);
 	free_keylist(&filter_keys);
-	free_keylist(&mark_read_keys);
 #ifdef HAVE_PGP_GPG
 	free_keylist(&pgp_mail_keys);
 	free_keylist(&pgp_news_keys);
@@ -656,6 +654,11 @@ process_mapping(
 
 				return TRUE;
 			}
+			if (strcmp(keyname, "FeedRange") == 0) {
+				process_keys(FEED_RANGE, keys, &feed_type_keys);
+
+				return TRUE;
+			}
 			if (strcmp(keyname, "FeedRepost") == 0) {
 				process_keys(FEED_KEY_REPOST, keys, &feed_supersede_article_keys);
 
@@ -894,16 +897,6 @@ process_mapping(
 			break;
 
 		case 'M':
-			if (strcmp(keyname, "MarkReadCur") == 0) {
-				process_keys(MARK_READ_CURRENT, keys, &mark_read_keys);
-
-				return TRUE;
-			}
-			if (strcmp(keyname, "MarkReadTag") == 0) {
-				process_keys(MARK_READ_TAGGED, keys, &mark_read_keys);
-
-				return TRUE;
-			}
 			if (strcmp(keyname, "MarkArticleUnread") == 0) {
 				process_keys(MARK_ARTICLE_UNREAD, keys, &group_keys);
 				process_keys(MARK_ARTICLE_UNREAD, keys, &page_keys);
@@ -915,6 +908,18 @@ process_mapping(
 				process_keys(MARK_THREAD_UNREAD, keys, &group_keys);
 				process_keys(MARK_THREAD_UNREAD, keys, &page_keys);
 				process_keys(MARK_THREAD_UNREAD, keys, &thread_keys);
+
+				return TRUE;
+			}
+			if (strcmp(keyname, "MarkFeedRead") == 0) {
+				process_keys(MARK_FEED_READ, keys, &group_keys);
+				process_keys(MARK_FEED_READ, keys, &thread_keys);
+
+				return TRUE;
+			}
+			if (strcmp(keyname, "MarkFeedUnread") == 0) {
+				process_keys(MARK_FEED_UNREAD, keys, &group_keys);
+				process_keys(MARK_FEED_UNREAD, keys, &thread_keys);
 
 				return TRUE;
 			}
@@ -1359,7 +1364,6 @@ process_mapping(
 				process_keys(GLOBAL_QUIT, keys, &filter_keys);
 				process_keys(GLOBAL_QUIT, keys, &group_keys);
 				process_keys(GLOBAL_QUIT, keys, &info_keys);
-				process_keys(GLOBAL_QUIT, keys, &mark_read_keys);
 				process_keys(GLOBAL_QUIT, keys, &option_menu_keys);
 				process_keys(GLOBAL_QUIT, keys, &page_keys);
 #ifdef HAVE_PGP_GPG
@@ -1768,7 +1772,7 @@ upgrade_keymap_file(
 	FILE *oldfp, *newfp;
 	char *line, *backup;
 	const char *keyname, *keydef;
-	char new[NAME_LEN + 1], buf[LEN];
+	char newk[NAME_LEN + 1], buf[LEN];
 	char *bugreport[3] = { NULL, NULL, NULL };
 	char *catchup[4] = { NULL, NULL, NULL, NULL };
 	char *catchup_next_unread[4] = { NULL, NULL, NULL, NULL };
@@ -1797,8 +1801,8 @@ upgrade_keymap_file(
 	if ((oldfp = fopen(old, "r")) == NULL)
 		return;
 
-	snprintf(new, sizeof(new), "%s.%ld", old, (long) process_id);
-	if ((newfp = fopen(new, "w")) == NULL) {
+	snprintf(newk, sizeof(newk), "%s.%ld", old, (long) process_id);
+	if ((newfp = fopen(newk, "w")) == NULL) {
 		fclose(oldfp);
 		return;
 	}
@@ -2367,7 +2371,7 @@ upgrade_keymap_file(
 
 	fclose(oldfp);
 	fclose(newfp);
-	rename(new, old);
+	rename(newk, old);
 	wait_message(0, _(txt_keymap_upgraded), KEYMAP_VERSION);
 	prompt_continue();
 
@@ -2442,6 +2446,8 @@ setup_default_keys(
 	add_default_key(&group_keys, "", GLOBAL_MENU_FILTER_SELECT);
 	add_default_key(&group_keys, "\n\r", GROUP_READ_BASENOTE);
 	add_default_key(&group_keys, "", GLOBAL_MENU_FILTER_KILL);
+	add_default_key(&group_keys, "", MARK_FEED_READ);
+	add_default_key(&group_keys, "", MARK_FEED_UNREAD);
 	add_default_key(&group_keys, "a", GLOBAL_SEARCH_AUTHOR_FORWARD);
 	add_default_key(&group_keys, "c", CATCHUP);
 	add_default_key(&group_keys, "d", GROUP_TOGGLE_SUBJECT_DISPLAY);
@@ -2492,6 +2498,8 @@ setup_default_keys(
 	add_global_keys(&thread_keys);
 	add_default_key(&thread_keys, "", GLOBAL_MENU_FILTER_SELECT);
 	add_default_key(&thread_keys, "", GLOBAL_MENU_FILTER_KILL);
+	add_default_key(&thread_keys, "", MARK_FEED_READ);
+	add_default_key(&thread_keys, "", MARK_FEED_UNREAD);
 	add_default_key(&thread_keys, "\n\r", THREAD_READ_ARTICLE);
 	add_default_key(&thread_keys, "a", GLOBAL_SEARCH_AUTHOR_FORWARD);
 	add_default_key(&thread_keys, "c", CATCHUP);
@@ -2712,6 +2720,7 @@ setup_default_keys(
 	add_default_key(&feed_type_keys, "a", FEED_ARTICLE);
 	add_default_key(&feed_type_keys, "h", FEED_HOT);
 	add_default_key(&feed_type_keys, "p", FEED_PATTERN);
+	add_default_key(&feed_type_keys, "r", FEED_RANGE);
 	add_default_key(&feed_type_keys, "q", GLOBAL_QUIT);
 	add_default_key(&feed_type_keys, "t", FEED_THREAD);
 	add_default_key(&feed_type_keys, "T", FEED_TAGGED);
@@ -2726,12 +2735,6 @@ setup_default_keys(
 	add_default_key(&filter_keys, "e", FILTER_EDIT);
 	add_default_key(&filter_keys, "q", GLOBAL_QUIT);
 	add_default_key(&filter_keys, "s", FILTER_SAVE);
-
-	/* mark read */
-	add_default_key(&mark_read_keys, "", GLOBAL_ABORT);
-	add_default_key(&mark_read_keys, "c", MARK_READ_CURRENT);
-	add_default_key(&mark_read_keys, "q", GLOBAL_QUIT);
-	add_default_key(&mark_read_keys, "t", MARK_READ_TAGGED);
 
 #ifdef HAVE_PGP_GPG
 	/* pgp mail */

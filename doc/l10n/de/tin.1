@@ -3,7 +3,7 @@
 .\" Module    : tin.1
 .\" Author    : I. Lea, U. Janssen
 .\" Created   : 1991-08-23
-.\" Updated   : 2009-07-19
+.\" Updated   : 2009-12-24
 .\" Notes     : use american english; still needs some work, e.g.:
 .\"             - document authorization (.newsauth)
 .\"             - document random organization feature
@@ -14,7 +14,7 @@
 .\" This file was generated with po4a. Translate the source file.
 .\"
 .\"*******************************************************************
-.TH tin 1 "11. Februar 2008" 1.9.5 "Usenet Newsreader"
+.TH tin 1 "December 24th, 2009" 1.9.5 "Usenet Newsreader"
 .\"
 .\"
 .SH NAME
@@ -197,8 +197,8 @@ Ausführliche Ausgabe für \*(rq\fB\-c\fP\*(rq, \*(rq\fB\-M\fP\*(rq, \*(rq\fB\-N\f
 Versionsinformationen ausgeben.
 .TP 
 \fB\-w\fP
-Quick mode to post an article and then exit. In order for this to be really
-quick, it should be used with \*(rq\fB\-n\fP\*(rq if possible.
+Schnell\-Modus um nur einen Artikel zu posten. Nach Möglichkeit mit \*(rq\fB\-n\fP\*(rq
+kombinieren.
 .TP 
 \fB\-x\fP
 No posting mode. You cannot post articles if you use this option.
@@ -580,8 +580,9 @@ unread articles. Command has no effect if groups were specified on the
 command\-line when \fBtin\fP was started.
 .TP 
 \fBBugReport 'R'\fP
-Mail a bug report or comment to <tin\-bugs@tin.org>. This is the best
-way of getting bugs fixed and features added/changed.
+Einen Fehlerbericht oder Kommentar an <tin\-bugs@tin.org>
+senden. Dies ist der sinnvollste Weg um Fehler zu melden und behoben zu
+bekommen bzw. nach neuen Funktionen zu fragen.
 .TP 
 \fBSelectSubscribe 's'\fP
 Ausgewählte Gruppe abonnieren.
@@ -635,6 +636,16 @@ for more information.
 \fBMenuFilterKill '^K'\fP
 Kill article(s) using a menu. Read the section "FILTERING ARTICLES" for more
 information.
+.TP 
+\fBMarkFeedRead '^X'\fP
+Mark current article, thread, range, auto\-selected (hot) articles, articles
+matching pattern or tagged articles as read. A prompt asks which type should
+be marked.
+.TP 
+\fBMarkFeedUnread '^W'\fP
+Mark current article, thread, range, auto\-selected (hot) articles, articles
+matching pattern or tagged articles as unread. A prompt asks which type
+should be marked.
 .TP 
 \fBSetRange '#'\fP
 Wählen Sie eine Reihe von Artikeln auf die der nächste Befehl angewendet
@@ -754,7 +765,10 @@ line.
 Toggle inverse video.
 .TP 
 \fBGroupMarkThdRead 'K'\fP
-Mark article/thread as read and move onto the next unread article/thread.
+Mark article/thread as read and move onto the next unread article/thread. If
+a range of articles/threads is set, the range will be marked as read instead
+of the current article/thread. When tagged articles/threads are present, a
+prompt asks how to proceed.
 .TP 
 \fBGroupListThd 'l'\fP
 Open the thread under the current cursor position.
@@ -798,8 +812,9 @@ Beendet \fBtin\fP sofort, ohne Bestätigungsnachfrage.
 Toggle the display between all articles and unread articles.
 .TP 
 \fBBugReport 'R'\fP
-Mail a bug report or comment to <tin\-bugs@tin.org>. This is the best
-way of getting bugs fixed and features added/changed.
+Einen Fehlerbericht oder Kommentar an <tin\-bugs@tin.org>
+senden. Dies ist der sinnvollste Weg um Fehler zu melden und behoben zu
+bekommen bzw. nach neuen Funktionen zu fragen.
 .TP 
 \fBGroupSave 's'\fP
 Save current article / thread / auto\-selected (hot) articles / articles
@@ -851,7 +866,9 @@ Aktuellen Artikel als ungelesen markieren.
 \fBMarkThdUnread 'Z'\fP
 .\"--------------------------------------------------------------------
 .\"
-Markiere den aktuellen Thread als ungelesen.
+Mark current thread as unread. If a range of threads is set, the range will
+be marked as unread instead of the current thread. When tagged threads are
+present, a prompt asks how to proceed.
 .SS "THREAD LISTING COMMANDS"
 .\" this sections should be complete
 .TP  10
@@ -865,6 +882,16 @@ for more information.
 \fBMenuFilterKill '^K'\fP
 Kill article(s) using a menu. Read the section "FILTERING ARTICLES" for more
 information.
+.TP 
+\fBMarkFeedRead '^X'\fP
+Mark current article, thread, range, auto\-selected (hot) articles, articles
+matching pattern or tagged articles as read. A prompt asks which type should
+be marked.
+.TP 
+\fBMarkFeedUnread '^W'\fP
+Mark current article, thread, range, auto\-selected (hot) articles, articles
+matching pattern or tagged articles as unread. A prompt asks which type
+should be marked.
 .TP 
 \fBSetRange '#'\fP
 Wählen Sie eine Reihe von Artikeln auf die der nächste Befehl angewendet
@@ -939,7 +966,9 @@ Subject des geöffneten Artikels in der untersten Zeile anzeigen.
 Toggle inverse video.
 .TP 
 \fBThreadMarkArtRead 'K'\fP
-Mark article as read and move onto the next unread article.
+Mark article as read and move onto the next unread article. If a range of
+articles is set, the range will be marked as read instead of the current
+article. When tagged articles are present, a prompt asks how to proceed.
 .TP 
 \fBLookupMessage 'L'\fP
 Look up article by \*(rqMessage\-ID:\*(rq.
@@ -961,8 +990,9 @@ Return to previous level.
 Beendet \fBtin\fP sofort, ohne Bestätigungsnachfrage.
 .TP 
 \fBBugReport 'R'\fP
-Mail a bug report or comment to <tin\-bugs@tin.org>. This is the best
-way of getting bugs fixed and features added/changed.
+Einen Fehlerbericht oder Kommentar an <tin\-bugs@tin.org>
+senden. Dies ist der sinnvollste Weg um Fehler zu melden und behoben zu
+bekommen bzw. nach neuen Funktionen zu fragen.
 .TP 
 \fBThreadSave 's'\fP
 Save current article / thread / auto\-selected (hot) articles / articles
@@ -986,7 +1016,9 @@ it for later processing via \fBPostPostpone\fP ('\fBo\fP') (see also \*(rq\fB\-o
 command\-line switch) or discard it via \fBQuit\fP ('\fBq\fP').
 .TP 
 \fBMarkArtUnread 'z'\fP
-Markiere den aktuellen Artikel als ungelesen.
+Mark current article in thread as unread. If a range of articles is set, the
+range will be marked as unread instead of the current article. When tagged
+articles are present, a prompt asks how to proceed.
 .TP 
 \fBMarkThdUnread 'Z'\fP
 .\"--------------------------------------------------------------------
@@ -1703,11 +1735,13 @@ mailers with different command\-line parameters to be used such as 'elm \-s
 "%S" "%T" < "%F"' (e.g., elm \-s "subject" "iain" < .article) or
 \&'sendmail \-oi \-oem \-t < %F' (e.g. sendmail \-oi \-oem \-t < .article).
 .TP 
-\&\fB'Art. gelesen markieren' ignorie... (mark_ignore_tags)\fP
-When this is ON, the \fBGroupMarkThdRead\fP, \fBThreadMarkArtRead\fP functions
-('\fBK\fP') mark just the current article or thread, ignoring other tagged,
-unread articles. When OFF, the same function presents a menu with choices of
-the current thread or article, all tagged, unread articles, or nothing.
+\&\fB'Art. (un)gelesen markieren' ignorie... (mark_ignore_tags)\fP
+When this is ON, the \fBGroupMarkThdRead\fP ('\fBK\fP'), \fBThreadMarkArtRead\fP
+('\fBK\fP'), \fBMarkThdUnread\fP ('\fBZ\fP') at Group level and \fBMarkArtUnread\fP
+('\fBz\fP') at Thread level functions mark just the current article or thread,
+ignoring other tagged, (un)read articles. When OFF, the same function
+presents a menu with choices of the current thread or article, all tagged,
+unread articles, or nothing.
 .TP 
 \fBMark. gesp. Artikel/Threads gelesen (mark_saved_read)\fP
 If ON mark articles that are saved as read. Default is ON.
@@ -3138,7 +3172,7 @@ readable files in \fB$TMPDIR\fP which may contain the users NNTP password in
 cleartext. On multiuser\-systems \fB$TMPDIR\fP should be set to a safe location
 before starting tin in debug mode (e.g.  \fBTMPDIR=$HOME tin \-D 1\fP).
 .SH "KONFORM ZU"
-.\" - RFC1036, RFC2045, RFC2047, RFC2980, RFC3977, RFC4643, RFC5322
+.\" - RFC2045, RFC2047, RFC2980, RFC3977, RFC4643, RFC5322
 .\"   RFC5536, RFC5537 or whatever
 .\"
 .\"
@@ -3175,20 +3209,20 @@ entwickelt und dessen Code im März 1991 von ihm in alt.sources
 veröffentlicht wurde. Die erste Version von \fBtin\fP wurde am 23. August 1991
 veröffentlicht. \fBtass\fP(1) orientiert sich stark an notesfiles, einer Public
 Domain Version für UNIX von PLATO Notes, welches 1982 von Ray Essick und Rob
-Kolstad and der University of Illinois entstand. Eine Übersicht der
-Versionen findet sich unter <http://www.tin.org/history.html>.
+Kolstad an der University of Illinois entstand. Eine Übersicht der Versionen
+findet sich unter <http://www.tin.org/history.html>.
 .SH DANKSAGUNGEN
 .PP
 .IP "Rich Skrenta"
-author of \fBtass\fP(1)  v3.2 which this newsreader used as its base.
+Autor von \fBtass\fP(1)  v3.2, der Basis für diesen Newsreader.
 .IP "Bill Davidsen"
-author of envarg.c environment variable reading routine.
+Autor von envarg.c, Umgebungsvariablenleseroutine.
 .IP "Mike Gleason"
-author of sigfile.c random signature generation routines.
+Autor von sigfile.c, Zufallssignaturengenerierungsroutine.
 .IP "Markus Kuhn <Markus.Kuhn@cl.cam.ac.uk>"
 author of langinfo.c, charset.c and iso2asc.txt ISO\-8859\-1 documentation.
 .IP "Arnold Robbins"
-author of strftime.c date formatting routine.
+Autor von strftime.c, Datumsfromatierungsroutine.
 .IP "Rich Salz"
 author of wildmat.c pattern matching and parsdate.y date parsing routines.
 .IP "Dave Taylor"
@@ -3198,11 +3232,11 @@ author of getline.c \fBemacs\fP(1)  style editing routine.
 .IP "Steven Madsen"
 for adding \fBpgp\fP(1)  (Pretty Good Privacy) support.
 .IP "Philip Hazel <ph10@cam.ac.uk>"
-for \fBpcre\fP(3)  (Perl\-compatible regular expression library).
+für \fBpcre\fP(3) (Library für Perl\-kompatible reguläre Ausdrücke).
 .IP "Patrick Powell <papowell@astart.com>"
 .\"
 .\"
-for \fBsnprintf\fP(3)  and \fBvsnprintf\fP(3)  fallbacks.
+für \fBsnprintf\fP(3)  und \fBvsnprintf\fP(3)  Fallbacks.
 .SH AUTOR
 .TP  1i
 Iain Lea <iain@bricbrac.de>
@@ -3225,5 +3259,5 @@ Erika Mustermann <erika@example.org>
 \fBiconv_open\fP(3), \fBnl_langinfo\fP(3), \fBpcre\fP(3), \fBpcrepattern\fP(3),
 \fBsnprintf\fP(3), \fBstrftime\fP(3), \fBvsnprintf\fP(3), \fBwildmat\fP(3),
 \fBenviron\fP(5), \fBlocale\fP(5), \fBmbox\fP(5), \fBmmdf\fP(5), \fBnewsoverview\fP(5),
-\fBtin\fP(5), \fBRFC1036\fP, \fBRFC1524\fP, \fBRFC2045\fP, \fBRFC2046\fP, \fBRFC2047\fP,
-\fBRFC2048\fP, \fBRFC2980\fP, \fBRFC3977\fP, \fBRFC4643\fP, \fBRFC5322\fP
+\fBtin\fP(5), \fBRFC1524\fP, \fBRFC2045\fP, \fBRFC2046\fP, \fBRFC2047\fP, \fBRFC2048\fP,
+\fBRFC2980\fP, \fBRFC3977\fP, \fBRFC4643\fP, \fBRFC5322\fP, \fBRFC5536\fP, \fBRFC5537\fP

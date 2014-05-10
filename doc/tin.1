@@ -3,13 +3,13 @@
 .\" Module    : tin.1
 .\" Author    : I. Lea, U. Janssen
 .\" Created   : 1991-08-23
-.\" Updated   : 2009-07-19
+.\" Updated   : 2009-12-24
 .\" Notes     : use american english; still needs some work, e.g.:
 .\"             - document authorization (.newsauth)
 .\"             - document random organization feature
 .\"
 .\"
-.TH tin 1 "February 11th, 2009" "1.9.5" "A Usenet newsreader"
+.TH tin 1 "December 24th, 2009" "1.9.5" "A Usenet newsreader"
 .\"
 .\"
 .SH NAME
@@ -657,6 +657,16 @@ for more information.
 Kill article(s) using a menu. Read the section "FILTERING ARTICLES" for
 more information.
 .TP
+.B MarkFeedRead '^X'
+Mark current article, thread, range, auto-selected (hot) articles, articles
+matching pattern or tagged articles as read. A prompt asks which type should
+be marked.
+.TP
+.B MarkFeedUnread '^W'
+Mark current article, thread, range, auto-selected (hot) articles, articles
+matching pattern or tagged articles as unread. A prompt asks which type should
+be marked.
+.TP
 .B SetRange '#'
 Choose a range of articles to be affected by the next command. See the
 section "RANGES" for more information.
@@ -775,7 +785,10 @@ line.
 Toggle inverse video.
 .TP
 .B GroupMarkThdRead 'K'
-Mark article/thread as read and move onto the next unread article/thread.
+Mark article/thread as read and move onto the next unread article/thread. If
+a range of articles/threads is set, the range will be marked as read instead
+of the current article/thread. When tagged articles/threads are present, a
+prompt asks how to proceed.
 .TP
 .B GroupListThd 'l'
 Open the thread under the current cursor position.
@@ -870,7 +883,9 @@ effect and make the changes permanent.
 Mark current article as unread.
 .TP
 .B MarkThdUnread 'Z'
-Mark current thread as unread.
+Mark current thread as unread. If a range of threads is set, the range will
+be marked as unread instead of the current thread. When tagged threads are
+present, a prompt asks how to proceed.
 .\"--------------------------------------------------------------------
 .\"
 .SS "THREAD LISTING COMMANDS"
@@ -886,6 +901,16 @@ ARTICLES" for more information.
 .B MenuFilterKill '^K'
 Kill article(s) using a menu. Read the section "FILTERING ARTICLES"
 for more information.
+.TP
+.B MarkFeedRead '^X'
+Mark current article, thread, range, auto-selected (hot) articles, articles
+matching pattern or tagged articles as read. A prompt asks which type should
+be marked.
+.TP
+.B MarkFeedUnread '^W'
+Mark current article, thread, range, auto-selected (hot) articles, articles
+matching pattern or tagged articles as unread. A prompt asks which type should
+be marked.
 .TP
 .B SetRange '#'
 Choose a range of articles to be affected by the next command. See the
@@ -960,7 +985,10 @@ Display the subject of the current article in the last line.
 Toggle inverse video.
 .TP
 .B ThreadMarkArtRead 'K'
-Mark article as read and move onto the next unread article.
+Mark article as read and move onto the next unread article. If a range
+of articles is set, the range will be marked as read instead of the
+current article. When tagged articles are present, a prompt asks how
+to proceed.
 .TP
 .B LookupMessage 'L'
 Look up article by ''Message\-ID:''.
@@ -1008,7 +1036,9 @@ get the chance to edit the article again via \fBPostEdit\fP
 \fBQuit\fP ('\fBq\fP').
 .TP
 .B MarkArtUnread 'z'
-Mark current article in thread as unread.
+Mark current article in thread as unread. If a range of articles is set,
+the range will be marked as unread instead of the current article. When
+tagged articles are present, a prompt asks how to proceed.
 .TP
 .B MarkThdUnread 'Z'
 Mark all articles in thread as unread.
@@ -1751,12 +1781,13 @@ different command-line parameters to be used such as 'elm \-s "%S" "%T" <
 "%F"' (e.g., elm \-s "subject" "iain" < .article) or 'sendmail \-oi \-oem \-t <
 %F' (e.g. sendmail \-oi \-oem \-t < .article).
 .TP
-.B 'Mark article read' ignores tags (mark_ignore_tags)
-When this is ON, the \fBGroupMarkThdRead\fP, \fBThreadMarkArtRead\fP
-functions ('\fBK\fP') mark just the current article or thread, ignoring
-other tagged, unread articles. When OFF, the same function presents a menu
-with choices of the current thread or article, all tagged, unread articles,
-or nothing.
+.B 'Mark as (un)read' ignores tags (mark_ignore_tags)
+When this is ON, the \fBGroupMarkThdRead\fP ('\fBK\fP'),
+\fBThreadMarkArtRead\fP ('\fBK\fP'), \fBMarkThdUnread\fP ('\fBZ\fP') at
+Group level and \fBMarkArtUnread\fP ('\fBz\fP') at Thread level functions
+mark just the current article or thread, ignoring other tagged, (un)read
+articles. When OFF, the same function presents a menu with choices of the
+current thread or article, all tagged, unread articles, or nothing.
 .TP
 .B Mark saved articles/threads as read (mark_saved_read)
 If ON mark articles that are saved as read. Default is ON.
@@ -3296,7 +3327,7 @@ to a safe location before starting tin in debug mode (e.g.
 .B tin
 does conform to the Base Definitions volume of IEEE Std 1003.1-2001, Section
 12, Utility Conventions (Utility Argument Syntax, Utility Syntax Guidelines).
-.\" - RFC1036, RFC2045, RFC2047, RFC2980, RFC3977, RFC4643, RFC5322
+.\" - RFC2045, RFC2047, RFC2980, RFC3977, RFC4643, RFC5322
 .\"   RFC5536, RFC5537 or whatever
 .\"
 .\"
@@ -3426,7 +3457,6 @@ Urs Janssen <urs@tin.org>
 .BR mmdf (5),
 .BR newsoverview (5),
 .BR tin (5),
-.BR RFC1036 ,
 .BR RFC1524 ,
 .BR RFC2045 ,
 .BR RFC2046 ,
@@ -3435,4 +3465,6 @@ Urs Janssen <urs@tin.org>
 .BR RFC2980 ,
 .BR RFC3977 ,
 .BR RFC4643 ,
-.BR RFC5322
+.BR RFC5322 ,
+.BR RFC5536 ,
+.BR RFC5537

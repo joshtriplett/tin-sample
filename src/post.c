@@ -3,10 +3,10 @@
  *  Module    : post.c
  *  Author    : I. Lea
  *  Created   : 1991-04-01
- *  Updated   : 2009-07-17
+ *  Updated   : 2009-12-01
  *  Notes     : mail/post/replyto/followup/repost & cancel articles
  *
- * Copyright (c) 1991-2009 Iain Lea <iain@bricbrac.de>
+ * Copyright (c) 1991-2010 Iain Lea <iain@bricbrac.de>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -1422,9 +1422,21 @@ check_article_to_be_posted(
 			my_fprintf(stderr, _(txt_warn_article_unchanged));
 		my_fprintf(stderr, _(txt_art_newsgroups), subject, PLURAL(ngcnt, txt_newsgroup));
 		for (i = 0; i < ngcnt; i++) {
-			if ((psGrp = group_find(newsgroups[i], FALSE)))
-				my_fprintf(stderr, "  %s\t %s\n", newsgroups[i], BlankIfNull(psGrp->description));
-			else {
+			if ((psGrp = group_find(newsgroups[i], FALSE))) {
+				if (psGrp->aliasedto) {
+#ifdef HAVE_FASCIST_NEWSADMIN
+					StartInverse();
+					errors++;
+					my_fprintf(stderr, N_(txt_error_grp_renamed), newsgroups[i], psGrp->aliasedto);
+					my_fflush(stderr);
+					EndInverse();
+#else
+					my_fprintf(stderr, N_(txt_warn_grp_renamed), newsgroups[i], psGrp->aliasedto);
+					warnings++;
+#endif /* HAVE_FASCIST_NEWSADMIN */
+				} else
+					my_fprintf(stderr, "  %s\t %s\n", newsgroups[i], BlankIfNull(psGrp->description));
+			} else {
 #ifdef HAVE_FASCIST_NEWSADMIN
 				StartInverse();
 				errors++;
@@ -1468,9 +1480,21 @@ check_article_to_be_posted(
 #endif /* HAVE_FASCIST_NEWSADMIN */
 				my_fprintf(stderr, _(txt_followup_newsgroups), PLURAL(ftngcnt, txt_newsgroup));
 				for (i = 0; i < ftngcnt; i++) {
-					if ((psGrp = group_find(followupto[i], FALSE)))
-						my_fprintf(stderr, "  %s\t %s\n", followupto[i], BlankIfNull(psGrp->description));
-					else {
+					if ((psGrp = group_find(followupto[i], FALSE))) {
+						if (psGrp->aliasedto) {
+#ifdef HAVE_FASCIST_NEWSADMIN
+							StartInverse();
+							errors++;
+							my_fprintf(stderr, N_(txt_error_grp_renamed), followupto[i], psGrp->aliasedto);
+							my_fflush(stderr);
+							EndInverse();
+#else
+							my_fprintf(stderr, N_(txt_warn_grp_renamed), followupto[i], psGrp->aliasedto);
+							warnings++;
+#endif /* HAVE_FASCIST_NEWSADMIN */
+						} else
+							my_fprintf(stderr, "  %s\t %s\n", followupto[i], BlankIfNull(psGrp->description));
+					} else {
 						if (STRCMPEQ("poster", followupto[i]))
 							my_fprintf(stderr, _(txt_followup_poster), followupto[i]);
 						else {

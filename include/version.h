@@ -6,7 +6,7 @@
  *  Updated   : 2008-11-08
  *  Notes     :
  *
- * Copyright (c) 1991-2009 Iain Lea <iain@bricbrac.de>
+ * Copyright (c) 1991-2010 Iain Lea <iain@bricbrac.de>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -42,13 +42,13 @@
 #	ifndef TIN_AUTOCONF_H
 #		define VERSION		"1.9.5"
 #	endif /* !TIN_AUTOCONF_H */
-#	define RELEASEDATE	"20090720"
-#	define RELEASENAME	"Rieclachan"
+#	define RELEASEDATE	"20091224"
+#	define RELEASENAME	"Lochruan"
 /* config-file versions - must by dotted triples */
 #	define TINRC_VERSION	"1.3.11"
 #	define ATTRIBUTES_VERSION	"1.0.7"
 #	define FILTER_VERSION	"1.0.0"
-#	define KEYMAP_VERSION	"1.0.7"
+#	define KEYMAP_VERSION	"1.0.8"
 #	define SERVERCONFIG_VERSION	"1.0.0"
 
 #	ifdef M_UNIX

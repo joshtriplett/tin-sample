@@ -3,10 +3,10 @@
  *  Module    : cook.c
  *  Author    : J. Faultless
  *  Created   : 2000-03-08
- *  Updated   : 2009-06-24
+ *  Updated   : 2009-12-10
  *  Notes     : Split from page.c
  *
- * Copyright (c) 2000-2009 Jason Faultless <jason@altarstone.com>
+ * Copyright (c) 2000-2010 Jason Faultless <jason@altarstone.com>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -111,7 +111,7 @@ expand_ctrl_chars(
 
 	c = (unsigned char *) *line;
 	while (*c) {
-		if (i > curr_len - 3) {
+		if (i > curr_len - (lcook_width + 1)) {
 			curr_len <<= 1;
 			buf = my_realloc(buf, curr_len);
 		}
@@ -158,7 +158,7 @@ wexpand_ctrl_chars(
 
 	wc = *wline;
 	while (*wc) {
-		if (i > cur_len - 3) {
+		if (i > cur_len - (lcook_width + 1)) {
 			cur_len <<= 1;
 			wbuf = my_realloc(wbuf, cur_len * sizeof(wchar_t));
 		}
@@ -765,6 +765,9 @@ dump_cooked(
  *		stripping of sigs if !show_signatures
  * Returns:
  *		TRUE on success
+ *
+ * TODO:
+ *      give an error-message on at least disk-full
  */
 t_bool
 cook_article(
@@ -777,10 +780,10 @@ cook_article(
 	char *line;
 	struct t_header *hdr = &artinfo->hdr;
 	t_bool header_put = FALSE;
-    static const char *struct_header[] = {
-    	"Approved: ", "From: ", "Originator: ",
-    	"Reply-To: ", "Sender: ", "X-Cancelled-By: ", "X-Comment-To: ",
-    	"X-Submissions-To: ", "To: ", "Cc: ", "Bcc: ", "X-Originator: ", 0 };
+	static const char *struct_header[] = {
+		"Approved: ", "From: ", "Originator: ",
+		"Reply-To: ", "Sender: ", "X-Cancelled-By: ", "X-Comment-To: ",
+		"X-Submissions-To: ", "To: ", "Cc: ", "Bcc: ", "X-Originator: ", 0 };
 
 	art = artinfo;				/* Global saves lots of passing artinfo around */
 
@@ -845,7 +848,7 @@ cook_article(
 #endif /* MULTIBYTE_ABLE && !NO_LOCALE */
 			header_put = TRUE;
 			expand_ctrl_chars(&l, &i, tabwidth);
-			put_cooked(LEN, wrap_lines, C_HEADER, "%s", l);
+			put_cooked(i, wrap_lines, C_HEADER, "%s", l);
 			free(l);
 		}
 	}

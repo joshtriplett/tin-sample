@@ -3,10 +3,10 @@
  *  Module    : main.c
  *  Author    : I. Lea & R. Skrenta
  *  Created   : 1991-04-01
- *  Updated   : 2009-07-19
+ *  Updated   : 2009-12-09
  *  Notes     :
  *
- * Copyright (c) 1991-2009 Iain Lea <iain@bricbrac.de>, Rich Skrenta <skrenta@pbm.com>
+ * Copyright (c) 1991-2010 Iain Lea <iain@bricbrac.de>, Rich Skrenta <skrenta@pbm.com>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -266,7 +266,7 @@ main(
 	no_write = tmp_no_write;
 	read_attributes_file(TRUE);
 	read_attributes_file(FALSE);
-	read_news_active_file();
+	start_groupnum = read_news_active_file();
 #ifdef DEBUG
 	debug_print_active();
 #endif /* DEBUG */
@@ -318,7 +318,8 @@ main(
 	if (created_rcdir) /* first start */
 		write_config_file(local_config_file);
 
-	backup_newsrc();
+	if (!tmp_no_write)	/* do not (over)write oldnewsrc with -X */
+		backup_newsrc();
 
 	/*
 	 * Load my_groups[] from the .newsrc file. We append these groups to any
@@ -737,6 +738,15 @@ read_cmd_line_options(
 	if (batch_mode && (post_article_and_exit || post_postponed_and_exit))
 		batch_mode = FALSE;
 
+	/*
+	 * When updating index files set getart_limit to 0 in order to get overview
+	 * information for all article; this overwrites '-G limit' and disables
+	 * tinrc.getart_limit temporary
+	 */
+	if (update_index) {
+		cmdline.getart_limit = 0;
+		cmdline.args |= CMDLINE_GETART_LIMIT;
+	}
 #ifdef NNTP_ABLE
 	/*
 	 * If we're reading from an NNTP server and we've been asked not to look

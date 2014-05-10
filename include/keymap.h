@@ -3,10 +3,10 @@
  *  Module    : keymap.h
  *  Author    : J. Faultless, D. Nimmich
  *  Created   : 1999
- *  Updated   : 2009-02-14
+ *  Updated   : 2009-09-27
  *  Notes     :
  *
- * Copyright (c) 1999-2009 Jason Faultless <jason@altarstone.com>
+ * Copyright (c) 1999-2010 Jason Faultless <jason@altarstone.com>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -167,6 +167,7 @@ enum defined_functions {
 	FEED_THREAD,
 	FEED_HOT,
 	FEED_PATTERN,
+	FEED_RANGE,
 	FEED_TAGGED,
 	FEED_KEY_REPOST,
 	FEED_SUPERSEDE,
@@ -247,9 +248,9 @@ enum defined_functions {
 	GROUP_UNDO_SELECTIONS,
 	GROUP_UNTAG,
 	MARK_ARTICLE_UNREAD,
-	MARK_READ_CURRENT,
-	MARK_READ_TAGGED,
 	MARK_THREAD_UNREAD,
+	MARK_FEED_READ,
+	MARK_FEED_UNREAD,
 	PAGE_AUTOSAVE,
 	PAGE_BOTTOM_THREAD,
 	PAGE_CANCEL,
@@ -381,7 +382,6 @@ extern struct keylist feed_type_keys;
 extern struct keylist filter_keys;
 extern struct keylist group_keys;
 extern struct keylist info_keys;
-extern struct keylist mark_read_keys;
 extern struct keylist option_menu_keys;
 extern struct keylist page_keys;
 #ifdef HAVE_PGP_GPG
