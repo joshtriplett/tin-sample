@@ -3,7 +3,7 @@
  *  Module    : feed.c
  *  Author    : I. Lea
  *  Created   : 1991-08-31
- *  Updated   : 2008-11-22
+ *  Updated   : 2009-07-19
  *  Notes     : provides same interface to mail,pipe,print,save & repost commands
  *
  * Copyright (c) 1991-2009 Iain Lea <iain@bricbrac.de>
@@ -116,15 +116,11 @@ get_save_filename(
 	}
 
 	/*
-	 * Update attribute/tinrc default savefiles if changed
+	 * Update tinrc.default_save_file if changed
 	 */
-	if (*filename) {
-		if (group->attribute->savefile) {
-			free(group->attribute->savefile);
-			group->attribute->savefile = my_strdup(filename);
-		}
+	if (*filename)
 		my_strncpy(tinrc.default_save_file, filename, sizeof(tinrc.default_save_file) - 1);
-	} else {									/* No file was specified, try default */
+	else {
 		/*
 		 * None chosen (or AUTOSAVING), use tinrc default
 		 */
@@ -159,7 +155,7 @@ expand_feed_filename(
 	size_t outpath_len,
 	const char *path)
 {
-	int ret = strfpath(path, outpath, PATH_LEN, curr_group);
+	int ret = strfpath(path, outpath, PATH_LEN, curr_group, TRUE);
 
 	/*
 	 * If no path exists or the above failed in some way, use sensible defaults
@@ -168,7 +164,7 @@ expand_feed_filename(
 	if ((ret == 0) || !(strrchr(outpath, DIRSEP))) {
 		char buf[PATH_LEN];
 
-		if (!strfpath(curr_group->attribute->savedir, buf, sizeof(buf), curr_group))
+		if (!strfpath(cmdline.args & CMDLINE_SAVEDIR ? cmdline.savedir : curr_group->attribute->savedir, buf, sizeof(buf), curr_group, FALSE))
 			joinpath(buf, sizeof(buf), homedir, DEFAULT_SAVEDIR);
 		joinpath(outpath, outpath_len, buf, path);
 		return FALSE;

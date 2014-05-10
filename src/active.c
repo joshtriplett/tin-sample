@@ -3,7 +3,7 @@
  *  Module    : active.c
  *  Author    : I. Lea
  *  Created   : 1992-02-16
- *  Updated   : 2009-01-25
+ *  Updated   : 2009-07-17
  *  Notes     :
  *
  * Copyright (c) 1992-2009 Iain Lea <iain@bricbrac.de>
@@ -282,7 +282,7 @@ read_newsrc_active_file(
 		return;
 	}
 
-	if (!batch_mode)
+	if (!batch_mode || verbose)
 		wait_message(0, _(txt_reading_news_newsrc_file));
 
 	while ((ptr = tin_fgets(fp, FALSE)) != NULL || window != 0) {
@@ -333,7 +333,7 @@ read_newsrc_active_file(
 						snprintf(buf, sizeof(buf), "GROUP %s", ngnames[j]);
 #	ifdef DEBUG
 						if (debug & DEBUG_NNTP)
-							debug_print_file("NNTP", "read_newsrc_active_file() %s",  buf);
+							debug_print_file("NNTP", "read_newsrc_active_file() %s", buf);
 #	endif /* DEBUG */
 						put_server(buf);
 						j = (j + 1) % NUM_SIMULTANEOUS_GROUP_COMMAND;
@@ -353,10 +353,20 @@ read_newsrc_active_file(
 							char fmt[20];
 
 							snprintf(fmt, sizeof(fmt), "%%ld %%ld %%ld %%%ds", NNTP_STRLEN);
-							if (sscanf(line, fmt, &count, &min, &max, ngname) != 4)
+							if (sscanf(line, fmt, &count, &min, &max, ngname) != 4) {
 								error_message(2, _(txt_error_invalid_response_to_group), line);
-							if (strcmp(ngname, ngnames[index_o]) != 0)
-								error_message(2, _(txt_error_wrong_newsgroupname_in_group_response), line, ngnames[index_o]);
+#	ifdef DEBUG
+								if (debug & DEBUG_NNTP) /* TODO: -> lang.c */
+									 debug_print_file("NNTP", "Invalid response to \"GROUP %s\": \"%s\"", ngnames[index_o], line);
+#	endif /* DEBUG */
+							}
+							if (strcmp(ngname, ngnames[index_o]) != 0) {
+								error_message(2, _(txt_error_wrong_newsgroupname_in_group_response), ngname, ngnames[index_o], line);
+#	ifdef DEBUG
+								if (debug & DEBUG_NNTP) /* TODO: -> lang.c */
+									 debug_print_file("NNTP", "Groupname missmatch in response to \"GROUP %s\": \"%s\"", ngnames[index_o], line);
+#	endif /* DEBUG */
+							}
 							ptr = ngname;
 							free(ngnames[index_o]);
 							index_o = (index_o + 1) % NUM_SIMULTANEOUS_GROUP_COMMAND;
@@ -440,12 +450,12 @@ read_newsrc_active_file(
 		if (newsrc_active && !num_active)
 			error_message(2, _(txt_error_server_has_no_listed_groups), newsrc);
 		else
-			error_message(2, _(txt_active_file_is_empty), (read_news_via_nntp ? (read_saved_news ? news_active_file : (txt_servers_active)) : news_active_file));
+			error_message(2, _(txt_active_file_is_empty), (read_news_via_nntp ? (read_saved_news ? news_active_file : _(txt_servers_active)) : news_active_file));
 		tin_done(EXIT_FAILURE);
 	}
 
-	if (!batch_mode)
-		my_fputs("\n", stdout);
+	if (!batch_mode || verbose)
+		my_fputc('\n', stdout);
 }
 
 
@@ -479,7 +489,7 @@ read_active_file(
 	long processed = 0L;
 	struct t_group *grpptr;
 
-	if (!batch_mode)
+	if (!batch_mode || verbose)
 		wait_message(0, _(txt_reading_news_active_file));
 
 	if ((fp = open_news_active_fp()) == NULL) {
@@ -545,8 +555,8 @@ read_active_file(
 		tin_done(EXIT_FAILURE);
 	}
 
-	if (!batch_mode)
-		my_fputs("\n", stdout);
+	if (!batch_mode || verbose)
+		my_fputc('\n', stdout);
 }
 
 
@@ -654,7 +664,7 @@ read_news_active_file(
 					}
 					if (need_auth) { /* retry after auth is overkill here, so just auth */
 						if (!authenticate(nntp_server, userid, FALSE)) {
-							error_message(2, _(txt_auth_failed), ERR_ACCESS);
+							error_message(2, _(txt_auth_failed), nntp_caps.type == CAPABILITIES ? ERR_AUTHFAIL : ERR_ACCESS);
 							tin_done(EXIT_FAILURE);
 						}
 					}
@@ -798,6 +808,9 @@ check_for_any_new_groups(
 		snprintf(buf, sizeof(buf), "%s %lu", nntp_server, (unsigned long int) new_newnews_time);
 		load_newnews_info(buf);
 	}
+
+	if (!batch_mode)
+		my_fputc('\n', stdout);
 }
 
 
@@ -1041,11 +1054,11 @@ create_save_active_file(
 	wait_message(0, _(txt_creating_active));
 
 	print_active_head(local_save_active_file);
-	strfpath(tinrc.savedir, group_path, sizeof(group_path), NULL);
+	strfpath(cmdline.args & CMDLINE_SAVEDIR ? cmdline.savedir : tinrc.savedir, group_path, sizeof(group_path), NULL, FALSE);
 	while (strlen(group_path) && group_path[strlen(group_path) - 1] == '/')
 		group_path[strlen(group_path) - 1] = '\0';
 	fb = my_strdup(group_path);
-	make_group_list(local_save_active_file, tinrc.savedir, fb, group_path);
+	make_group_list(local_save_active_file, cmdline.args & CMDLINE_SAVEDIR ? cmdline.savedir : tinrc.savedir, fb, group_path);
 	free(fb);
 }
 
@@ -1119,6 +1132,7 @@ append_group_line(
 	if ((fp = fopen(active_file, "a+")) != NULL) {
 		char *ptr;
 		char *group_name;
+		int err;
 
 		ptr = group_name = my_strdup(group_path);
 		ptr++;
@@ -1127,8 +1141,13 @@ append_group_line(
 
 		wait_message(0, "Appending=[%s %ld %ld %s]\n", group_name, art_max, art_min, base_dir);
 		print_group_line(fp, group_name, art_max, art_min, base_dir);
-		if (ferror(fp) || fclose(fp)) /* TODO: issue warning? */
+		if ((err = ferror(fp)) || fclose(fp)) { /* TODO: issue warning? */
 			rename(file_tmp, active_file);
+			if (err) {
+				clearerr(fp);
+				fclose(fp);
+			}
+		}
 		free(group_name);
 	}
 	unlink(file_tmp);

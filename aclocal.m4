@@ -2,7 +2,7 @@ dnl Project   : tin - a Usenet reader
 dnl Module    : aclocal.m4
 dnl Author    : Thomas E. Dickey <dickey@invisible-island.net>
 dnl Created   : 1995-08-24
-dnl Updated   : 2009-01-18
+dnl Updated   : 2009-05-08
 dnl Notes     :
 dnl
 dnl Copyright (c) 1995-2009 Thomas E. Dickey <dickey@invisible-island.net>
@@ -272,7 +272,7 @@ AC_DEFUN([AM_LC_MESSAGES],
     fi
   fi])dnl
 dnl ---------------------------------------------------------------------------
-dnl AM_MULTIBYTE_ABLE version: 7 updated: 2006/04/17 08:26:33
+dnl AM_MULTIBYTE_ABLE version: 8 updated: 2009/05/08 15:04:00 +0200
 dnl -----------------
 dnl
 dnl check for required multibyte/widechar functions
@@ -303,12 +303,19 @@ AC_DEFUN([AM_MULTIBYTE_ABLE],
       fwide(0, 0);
       mbtowc(wcb, icb, MB_CUR_MAX);
       mbstowcs(wcb, icb, 5);
-      iswprint((wint_t) wcb[0]);
-      wcslen(wcb);
-      /* wcsnlen(wcb, 4); */
+      (void) iswprint((wint_t) wcb[0]);
+      (void) towupper((wint_t) wcb[0]);
+      /* (void) towlower((wint_t) wcb[0]); */
+      /* (void) iswupper((wint_t) wcb[0]); */
+      /* (void) iswlower((wint_t) wcb[0]); */
+      (void) wcslen(wcb);
+      /* (void) wcsnlen(wcb, 4); */
       wcwidth((wint_t) wcb[0]);
       wcswidth(wcb, 5);
       wcstombs(ocb, wcb, 5);
+      wctomb(ocb, wcb[0]);
+      wcscat(wcb2, wcb);
+      wcscpy(wcb2, wcb);
       mbstowcs(format, "%s", 2);
       swprintf(wcb, 5, format, "test");
       wcsncat(wcb2, wcb, 5);],
@@ -327,12 +334,19 @@ AC_DEFUN([AM_MULTIBYTE_ABLE],
         fwide(0, 0);
         mbtowc(wcb, icb, MB_CUR_MAX);
         mbstowcs(wcb, icb, 5);
-        iswprint((wint_t) wcb[0]);
-        wcslen(wcb);
-        /* wcsnlen(wcb, 4); */
+        (void) iswprint((wint_t) wcb[0]);
+        (void) towupper((wint_t) wcb[0]);
+        /* (void) towlower((wint_t) wcb[0]); */
+        /* (void) iswupper((wint_t) wcb[0]); */
+        /* (void) iswlower((wint_t) wcb[0]); */
+        (void) wcslen(wcb);
+        /* (void) wcsnlen(wcb, 4); */
         wcwidth((wint_t) wcb[0]);
         wcswidth(wcb, 5);
         wcstombs(ocb, wcb, 5);
+        wctomb(ocb, wcb[0]);
+        wcscat(wcb2, wcb);
+        wcscpy(wcb2, wcb);
         mbstowcs(format, "%s", 2);
         swprintf(wcb, 5, format, "test");
         wcsncat(wcb2, wcb, 5);],

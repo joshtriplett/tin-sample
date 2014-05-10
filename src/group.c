@@ -3,7 +3,7 @@
  *  Module    : group.c
  *  Author    : I. Lea & R. Skrenta
  *  Created   : 1991-04-01
- *  Updated   : 2008-11-25
+ *  Updated   : 2009-07-17
  *  Notes     :
  *
  * Copyright (c) 1991-2009 Iain Lea <iain@bricbrac.de>, Rich Skrenta <skrenta@pbm.com>
@@ -58,8 +58,8 @@ static int do_search(t_function func, t_bool repeat);
 static int enter_pager(int art, t_bool ignore_unavail);
 static int enter_thread(int depth, t_pagerinfo *page);
 static int group_catchup(t_function func);
-static int prompt_getart_limit(void);
 static int tab_pressed(void);
+static t_bool prompt_getart_limit(void);
 static t_function group_left(void);
 static t_function group_right(void);
 static void build_sline(int i);
@@ -334,7 +334,7 @@ group_page(
 				break;
 
 			case GLOBAL_EDIT_FILTER:
-				if (!invoke_editor(filter_file, FILTER_FILE_OFFSET, NULL))
+				if (!invoke_editor(filter_file, filter_file_offset, NULL))
 					break;
 				unfilter_articles();
 				(void) read_filter_file(filter_file);
@@ -459,7 +459,7 @@ group_page(
 					old_artnum = arts[(int) base[grpmenu.curr]].artnum;
 				}
 				n = tinrc.sort_article_type;
-				change_config_file(group);
+				config_page(group->name);
 				if (n != tinrc.sort_article_type)
 					make_threads(group, TRUE);
 				grpmenu.curr = find_new_pos(old_top, old_artnum, grpmenu.curr);
@@ -547,8 +547,16 @@ group_page(
 				break;
 
 			case GROUP_TOGGLE_GET_ARTICLES_LIMIT:
-				tinrc.getart_limit = prompt_getart_limit();
-				ret_code = GRP_NEXTUNREAD;
+				if (prompt_getart_limit()) {
+					/*
+					 * if getart limit was given via cmd-line
+					 * make it inactive now in order to use
+					 * tinrc.getart_limit
+					 */
+					if (cmdline.args & CMDLINE_GETART_LIMIT)
+						cmdline.args &= ~CMDLINE_GETART_LIMIT;
+					ret_code = GRP_NEXTUNREAD;
+				}
 				break;
 
 			case GLOBAL_BUGREPORT:
@@ -1432,9 +1440,9 @@ show_group_title(
 		*txt_threading[curr_group->attribute->thread_articles]);
 
 	/* article count */
-	if (tinrc.getart_limit)
+	if (cmdline.args & CMDLINE_GETART_LIMIT ? cmdline.getart_limit : tinrc.getart_limit)
 		snprintf(tmp, sizeof(tmp), " %d/%d%c",
-			tinrc.getart_limit, art_cnt,
+			cmdline.args & CMDLINE_GETART_LIMIT ? cmdline.getart_limit : tinrc.getart_limit, art_cnt,
 			(curr_group->attribute->show_only_unread_arts ? tinrc.art_marked_unread : tinrc.art_marked_read));
 	else
 		snprintf(tmp, sizeof(tmp), " %d%c",
@@ -1679,19 +1687,20 @@ group_catchup(
 }
 
 
-static int
+static t_bool
 prompt_getart_limit(
 	void)
 {
 	char *p;
-	int num = 0;
+	t_bool ret = FALSE;
 
 	clear_message();
-	if ((p = tin_getline(_(txt_enter_getart_limit), 2, 0, 0, FALSE, HIST_OTHER)) != NULL)
-		num = atoi(p);
-
+	if ((p = tin_getline(_(txt_enter_getart_limit), 2, 0, 0, FALSE, HIST_OTHER)) != NULL) {
+		tinrc.getart_limit = atoi(p);
+		ret = TRUE;
+	}
 	clear_message();
-	return num;
+	return ret;
 }
 
 

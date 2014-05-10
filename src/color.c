@@ -7,7 +7,7 @@
  *              Julien Oster <fuzzy@cu8.cum.de> (word highlighting)
  *              T.Dickey <dickey@invisible-island.net> (curses support)
  *  Created   : 1995-06-02
- *  Updated   : 2008-12-16
+ *  Updated   : 2009-03-13
  *  Notes     : This are the basic function for ansi-color
  *              and word highlighting
  *
@@ -115,7 +115,7 @@ set_colors(
 			struct LIST *p;
 			t_bool found = FALSE;
 
-			for (p = list; p != 0; p = p->link) {
+			for (p = list; p != NULL; p = p->link) {
 				if (p->fg == fcolor && p->bg == bcolor) {
 					found = TRUE;
 					break;
@@ -327,7 +327,7 @@ draw_pager_line(
 				 * non-printable char
 				 * print as an octal value
 				 */
-				snprintf(octal, sizeof(octal), "\\%03o", (int) (*c & 0xff));
+				snprintf(octal, sizeof(octal), "\\%03o", (unsigned int) (*c & 0xff));
 				my_fputs(octal, stdout);
 				c++;
 			}

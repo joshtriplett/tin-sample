@@ -3,7 +3,7 @@
  *  Module    : refs.c
  *  Author    : Jason Faultless <jason@altarstone.com>
  *  Created   : 1996-05-09
- *  Updated   : 2008-12-04
+ *  Updated   : 2009-05-15
  *  Notes     : Cacheing of message ids / References based threading
  *  Credits   : Richard Hodson <richard@macgyver.tele2.co.uk>
  *              hash_msgid, free_msgid
@@ -56,7 +56,7 @@ static char *_get_references(struct t_msgid *refptr, int depth);
 static struct t_msgid *add_msgid(int key, const char *msgid, struct t_msgid *newparent);
 static struct t_msgid *find_next(struct t_msgid *ptr);
 static struct t_msgid *parse_references(char *r);
-static t_bool valid_msgid(const char *msgid);
+static t_bool valid_msgid(char *msgid);
 static unsigned int hash_msgid(const char *key);
 static void add_to_parent(struct t_msgid *ptr);
 static void build_thread(struct t_msgid *ptr);
@@ -176,15 +176,16 @@ add_to_parent(
  * Checks if Message-ID has valid format
  * Returns TRUE if it does, FALSE if it does not
  *
- * TODO: combine with post.c:damaged_id()?
+ * TODO: combine with post.c:damaged_id()
  */
 static t_bool
 valid_msgid(
-	const char *msgid)
+	char *msgid)
 {
 	size_t mlen = 0;
 	t_bool at_present = 0;
 
+	str_trim(msgid);
 	if (!msgid || *msgid != '<')
 		return FALSE;
 
@@ -968,6 +969,7 @@ build_references(
 	for_each_art(i) {
 		art = &arts[i];
 
+		art->refptr = add_msgid(MSGID_REF, art->msgid, NULL); /* preset art->refptr */
 		if (art->refs) {
 			strip_line(art->refs);
 
@@ -999,9 +1001,7 @@ build_references(
 					art->refptr = add_msgid(MSGID_REF, art->msgid, add_msgid(REF_REF, art->refs, NULL));
 				FreeAndNull(art->refs);
 			}
-		} else
-			if (valid_msgid(art->msgid))
-				art->refptr = add_msgid(MSGID_REF, art->msgid, NULL);
+		}
 		FreeAndNull(art->msgid);	/* Now cached - discard this */
 	}
 
