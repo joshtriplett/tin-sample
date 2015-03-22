@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: tin 2.2.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-05-04 13:11+0200\n"
+"POT-Creation-Date: 2014-12-24 09:41+0100\n"
 "PO-Revision-Date: 2014-01-02 19:12+0200\n"
 "Last-Translator: Toomas Soome <tsoome@me.com>\n"
 "Language-Team: Estonian <linux-ee@lists.eenet.ee>\n"
@@ -8152,7 +8152,7 @@ msgstr ""
 "Rida %d on pikem, kui 998 sümbolit ja tuleks poolitada, aga kodeering\n"
 "pole %s\n"
 
-#: src/post.c:2304
+#: src/post.c:2306
 #, c-format
 msgid "Posting: %.*s ..."
 msgstr "Postitan: %.*s ..."
@@ -8182,7 +8182,7 @@ msgstr "[- Pole kasutatav -]"
 #. * preamble
 #. * TODO: -> lang.c
 #.
-#: src/rfc2047.c:1287
+#: src/rfc2047.c:1302
 #, c-format
 msgid ""
 "This message has been composed in the 'multipart/mixed' MIME-format. If you\n"

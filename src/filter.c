@@ -3,10 +3,10 @@
  *  Module    : filter.c
  *  Author    : I. Lea
  *  Created   : 1992-12-28
- *  Updated   : 2013-11-25
+ *  Updated   : 2014-10-25
  *  Notes     : Filter articles. Kill & auto selection are supported.
  *
- * Copyright (c) 1991-2014 Iain Lea <iain@bricbrac.de>
+ * Copyright (c) 1991-2015 Iain Lea <iain@bricbrac.de>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -671,20 +671,33 @@ write_filter_file(
 	fprintf(fp, "# Filter file V%s for the TIN newsreader\n#\n", FILTER_VERSION);
 	fprintf(fp, "%s", _(txt_filter_file));
 
+	fflush(fp);
+
 	/* determine the file offset */
 	if (!batch_mode) {
-		if ((fpos = ftell(fp)) > 0) {
-			rewind(fp);
-			filter_file_offset = 1;
-			while ((i = fgetc(fp)) != EOF) {
-				if (i == '\n')
-					filter_file_offset++;
-			}
-			fseek(fp, fpos, SEEK_SET);
+		if ((fpos = ftell(fp)) <= 0) {
+				clearerr(fp);
+				fclose(fp);
+				rename_file(file_tmp, filename);
+				free(file_tmp);
+				error_message(2, _(txt_filesystem_full), filename);
+				return;
+		}
+		rewind(fp);
+		filter_file_offset = 1;
+		while ((i = fgetc(fp)) != EOF) {
+			if (i == '\n')
+				filter_file_offset++;
+		}
+		if (fseek(fp, fpos, SEEK_SET)) {
+			clearerr(fp);
+			fclose(fp);
+			rename_file(file_tmp, filename);
+			free(file_tmp);
+			error_message(2, _(txt_filesystem_full), filename);
+			return;
 		}
 	}
-
-	fflush(fp);
 
 	/*
 	 * Save global filters
@@ -941,6 +954,7 @@ print_filter_menu(
 }
 
 
+#if defined(SIGWINCH) || defined(SIGTSTP)
 void
 refresh_filter_menu(
 	void)
@@ -958,6 +972,7 @@ refresh_filter_menu(
 	 *    string input)
 	 */
 }
+#endif /* SIGWINCH || SIGTSTP */
 
 
 /*

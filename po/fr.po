@@ -4,10 +4,10 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: tin-2.2.0\n"
+"Project-Id-Version: tin-2.2.1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-05-04 13:11+0200\n"
-"PO-Revision-Date: 2014-01-10 13:47+0100\n"
+"POT-Creation-Date: 2014-12-24 09:41+0100\n"
+"PO-Revision-Date: 2014-05-08 13:28+0100\n"
 "Last-Translator: Matt Anton <tin@syrius.org>\n"
 "Language-Team: French <traduc@traduc.org>\n"
 "Language: fr\n"
@@ -3987,8 +3987,8 @@ msgstr ""
 #: src/lang.c:897
 msgid "  -Z       return status indicating if any unread news (batch mode)"
 msgstr ""
-"  -Z       retourne un statut indiquant s'il y a nouveaux articles (en tâche "
-"de fond)"
+"  -Z       retourne un statut s'il y a de nouveaux articles (en tâche de "
+"fond)"
 
 #: src/lang.c:898
 msgid "  -q       don't check for new newsgroups"
@@ -4004,7 +4004,7 @@ msgstr "  -d       ne pas afficher les descriptions des groupes"
 
 #: src/lang.c:901
 msgid "  -G limit get only limit articles/group"
-msgstr "  -G nombre d'articles par groupe limite"
+msgstr "  -G nombre max. d'articles/groupes à récupérer"
 
 #: src/lang.c:902
 #, c-format
@@ -4022,12 +4022,12 @@ msgstr "  -I rép.  répertoire du fichier index [défaut=%s]"
 
 #: src/lang.c:905
 msgid "  -u       update index files (batch mode)"
-msgstr "  -u       màj des fichiers index (en tâche de fond)"
+msgstr "  -u       met à jour les fichiers index (en tâche de fond)"
 
 #: src/lang.c:906
 #, c-format
 msgid "  -m dir   mailbox directory [default=%s]"
-msgstr "  -m rép.  répertoire des bàl [défaut=%s]"
+msgstr "  -m rép.  répertoire des boîtes à lettre [défaut=%s]"
 
 #: src/lang.c:907
 #, c-format
@@ -4081,7 +4081,7 @@ msgstr ""
 
 #: src/lang.c:917
 msgid "  -z       start if any unread news"
-msgstr "  -z       lancer si articles non lus"
+msgstr "  -z       lancer s'il y a des articles non lus"
 
 #: src/lang.c:918
 #, c-format
@@ -4099,7 +4099,7 @@ msgstr "  -v       sortie détaillée pour options en tâche de fond"
 
 #: src/lang.c:920
 msgid "  -V       print version & date information"
-msgstr "  -V       afficher infos date & version"
+msgstr "  -V       afficher la date et la version"
 
 #: src/lang.c:921
 #, c-format
@@ -4719,12 +4719,12 @@ msgstr ""
 
 #: src/lang.c:1098
 msgid "  -A       force authentication on connect"
-msgstr "  -A       force l'authentication à la connexion"
+msgstr "  -A       force l'authentification à la connexion"
 
 #: src/lang.c:1099
 #, c-format
 msgid "  -g serv  read news from NNTP server serv [default=%s]"
-msgstr "  -g serv  lire depuis le serveur NNTP serv [défaut=%s]"
+msgstr "  -g serv  utilise le serveur NNTP serv [défaut=%s]"
 
 #: src/lang.c:1100
 #, c-format
@@ -8309,7 +8309,7 @@ msgstr ""
 "La ligne %d dépasse les 998 octets et devrait être réduite, mais\n"
 "l'encodage n'est pas %s\n"
 
-#: src/post.c:2304
+#: src/post.c:2306
 #, c-format
 msgid "Posting: %.*s ..."
 msgstr "Postage : %.*s ..."
@@ -8339,7 +8339,7 @@ msgstr "[- Indisponible -]"
 #. * preamble
 #. * TODO: -> lang.c
 #.
-#: src/rfc2047.c:1287
+#: src/rfc2047.c:1302
 #, c-format
 msgid ""
 "This message has been composed in the 'multipart/mixed' MIME-format. If you\n"

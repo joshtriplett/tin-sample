@@ -1,13 +1,14 @@
 # Danish translation of Tin.
 # Copyright (C) 2013 Tin & Joe Hansen.
 # This file is distributed under the same license as the tin package.
-# Joe Hansen <joedalton2@yahoo.dk>, 2009, 2010, 2013.
+# Joe Hansen <joedalton2@yahoo.dk>, 2009, 2010, 2013, 2014.
 #
 # Der er ikke anvendt accenter i denne oversættelse.
 # '' er bevaret i oversættelsen på samme måde ''.
 #
 # by -> efter
 # catchup -> opsamling
+# Domain literal -> domæne-literal (nogen der har et bedre udtryk?)
 # entry -> post
 # followup -> opfølgning
 # header -> teksthoved
@@ -18,20 +19,23 @@
 # posting -> indsendelse
 # posting date -> indsendingsdato
 # post to -> send til
-# yank -> ryk
+# realname -> fulde navn
 # scope -> virkefelt (omfang?)
 # score -> point
 # sign -> underskriv
 # signatur -> underskrift
 # subject -> emne
 # supersed -> fortræng (andre forslag?)
+# thread -> tråd
 # trim -> beskær
 # URL -> URL (måske bedre med adresse, men nogle strenge ser ud til at skulle være korte!).
-# whitespace -> mellemrum (egentlig 'blanke tegn' (mellemrum,
+# yank -> ryk
+# whitespace -> mellemrum (egentlig 'blanke tegn' (mellemrum, 
 #                         (linjeskift, sideskift, tabulatortegn osv.))
+# wrap around -> omhandler, omfavner, ombrydning, omfang ???
 #
 # bemærk at den her slags strenge ikke skal oversættes
-# add_posted_to_filter=ON/OFF. Kun hvis der er mellemrum til højre for
+# add_posted_to_filter=ON/OFF. Kun hvis der er mellemrum til højre for 
 # tegnet lig med.
 # Husk mellemrum, projektet anbefaler at man bevarer mellemrummene.
 #
@@ -51,10 +55,10 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: tin 2.1.5\n"
+"Project-Id-Version: tin 2.2.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-05-04 13:11+0200\n"
-"PO-Revision-Date: 2013-12-09 09:14+0100\n"
+"POT-Creation-Date: 2014-12-24 09:41+0100\n"
+"PO-Revision-Date: 2014-11-09 09:14+0100\n"
 "Last-Translator: Joe Hansen <joedalton2@yahoo.dk>\n"
 "Language-Team: Danish <dansk@dansk-gruppen.dk>\n"
 "Language: da\n"
@@ -944,20 +948,20 @@ msgstr ""
 
 #: src/lang.c:137
 msgid "Check Prepared Article"
-msgstr "Tjek forberedt artikel"
+msgstr "Kontroller forberedt artikel"
 
 #: src/lang.c:138
 msgid "Checking for new groups... "
-msgstr "Tjekker for nye grupper..."
+msgstr "Kontrollerer for nye grupper ..."
 
 #: src/lang.c:139
 msgid "Checking for news..."
-msgstr "Kigger efter nyheder..."
+msgstr "Kontrollerer efter nyheder ..."
 
 #: src/lang.c:140
 #, c-format
 msgid "Post-process %s=no, %s=yes, %s=shar, %s=quit: "
-msgstr ""
+msgstr "Efterbehandl %s=nej, %s=ja, %s=shar, %s=afslut: "
 
 #: src/lang.c:142
 msgid "ANSI color disabled"
@@ -974,12 +978,12 @@ msgstr "Kommando mislykkedes: %s"
 
 #: src/lang.c:146
 msgid "Mark not selected articles read?"
-msgstr ""
+msgstr "Marker ikke valgte artikler som læst?"
 
 #: src/lang.c:148
 #, c-format
 msgid "Connecting to %s..."
-msgstr "Forbinder til %s..."
+msgstr "Forbinder til %s ..."
 
 #: src/lang.c:150
 msgid "<CR>"
@@ -987,11 +991,11 @@ msgstr "<CR>"
 
 #: src/lang.c:151
 msgid "Creating active file for saved groups...\n"
-msgstr "Opretter aktiv fil for gemte grupper...\n"
+msgstr "Opretter aktiv fil for gemte grupper ...\n"
 
 #: src/lang.c:152
 msgid "Creating newsrc file...\n"
-msgstr "Opretter newsrc-fil...\n"
+msgstr "Opretter newsrc-fil ...\n"
 
 #: src/lang.c:154 src/lang.c:1296 src/lang.c:1316
 msgid "Default"
@@ -1003,7 +1007,7 @@ msgstr "Slet gemte filer som er blevet efterbehandlet?"
 
 #: src/lang.c:156
 msgid "Deleting temporary files..."
-msgstr "Sletter midlertidige filer..."
+msgstr "Sletter midlertidige filer ..."
 
 #: src/lang.c:158
 msgid "*** End of article ***"
@@ -1210,16 +1214,17 @@ msgstr "FQDN-komponent må ikke begynde med tal.\n"
 
 #: src/lang.c:203
 msgid "Domain literal has impossible numeric value.\n"
-msgstr ""
+msgstr "Domæne-literal har umulig numerisk værdi.\n"
 
 #: src/lang.c:204
 msgid ""
 "Domain literal is for private use only and not allowed for global use.\n"
 msgstr ""
+"Domæne-literal er kun for privat brug og ikke tilladt for global brug.\n"
 
 #: src/lang.c:205
 msgid "Right bracket missing in domain literal.\n"
-msgstr ""
+msgstr "Højre parentes mangler i domæne-literal.\n"
 
 #: src/lang.c:206
 msgid "Missing localpart of mail address.\n"
@@ -1238,6 +1243,9 @@ msgid ""
 "Illegal character in realname.\n"
 "Unquoted words may not contain '!()<>@,;:\\.[]' in route addresses.\n"
 msgstr ""
+"Ugyldigt tegn i det fulde navn.\n"
+"Ord uden for citationstegn må ikke indeholde »!()<>@,;:\\.[]« i "
+"ruteadresser.\n"
 
 #: src/lang.c:210
 msgid ""
@@ -1252,22 +1260,29 @@ msgid ""
 "Illegal character in realname.\n"
 "Encoded words may not contain '!()<>@,;:\"\\.[]/=' in parameter.\n"
 msgstr ""
+"Ugyldigt tegn i det fulde navn.\n"
+"Kodede ord må ikke indeholde »!()<>@,;:\"\\.[]/=« i parameter.\n"
 
 #: src/lang.c:212
 msgid "Bad syntax in encoded word used in realname.\n"
-msgstr ""
+msgstr "Ugyldig syntaks i kodet ord brugt i det fulde navn.\n"
 
 #: src/lang.c:213
 msgid ""
 "Illegal character in realname.\n"
 "Unquoted words may not contain '()<>\\' in old-style addresses.\n"
 msgstr ""
+"Ugyldigt tegn i det fulde navn.\n"
+"Ord uden for citationstegn må ikke indeholde »()<>\\« i adresser i gammel "
+"stil.\n"
 
 #: src/lang.c:214
 msgid ""
 "Illegal character in realname.\n"
 "Control characters and unencoded 8bit characters > 127 are not allowed.\n"
 msgstr ""
+"Ugyldigt tegn i det fulde navn.\n"
+"Kontroltegn og ukodede 8-bit tegn > 127 er ikke tilladt.\n"
 
 #: src/lang.c:215
 msgid ""
@@ -1380,7 +1395,7 @@ msgstr "Ugyldigt svar på kommanoden GROUP, %s"
 #: src/lang.c:243
 #, c-format
 msgid "MIME parse error: Unexpected end of %s/%s article"
-msgstr ""
+msgstr "MIME-fortolkningsfejl: Uventet afslutning på %s/%s artikel"
 
 #: src/lang.c:244
 msgid "MIME parse error: Start boundary whilst reading headers"
@@ -2205,19 +2220,19 @@ msgstr "0 - 9\t  vælg tråd efter nummer"
 
 #: src/lang.c:458
 msgid "toggle limit number of articles to get, and reload"
-msgstr ""
+msgstr "skift begræns antallet af artikler at hente, og genindlæs"
 
 #: src/lang.c:459
 msgid "toggle display of all/unread articles"
-msgstr ""
+msgstr "skift vis alle/ulæste artikler"
 
 #: src/lang.c:460
 msgid "toggle selection of thread"
-msgstr ""
+msgstr "skift valg af tråd"
 
 #: src/lang.c:461
 msgid "cycle through threading options available"
-msgstr ""
+msgstr "løb igennem de tilgængelige trådningstilvalg"
 
 #: src/lang.c:462
 msgid "undo all selections (all articles)"
@@ -2285,7 +2300,7 @@ msgstr "0 - 9\t  vælg gruppe efter nummer"
 
 #: src/lang.c:478
 msgid "choose range of groups to be affected by next command"
-msgstr ""
+msgstr "vælg rækkevidden af grupper der påvirkes af næste kommando"
 
 #: src/lang.c:479
 msgid "choose last group in list"
@@ -2326,6 +2341,7 @@ msgstr "søg baglæns efter et gruppenavn"
 #: src/lang.c:488
 msgid " \t  (all searches are case-insensitive and wrap around)"
 msgstr ""
+" \t  (alle søgninger tager ikke højde for små/store bogstaver og omfang)"
 
 #: src/lang.c:489
 msgid "search forwards for a group name"
@@ -2736,7 +2752,7 @@ msgstr "Sendt"
 #: src/lang.c:595
 #, c-format
 msgid "Mailing to %s..."
-msgstr "Sender til %s..."
+msgstr "Sender til %s ..."
 
 #: src/lang.c:596
 msgid ""
@@ -2745,6 +2761,10 @@ msgid ""
 "# The 4th field is the basedir (ie. ~/Mail or ~/News)\n"
 "#\n"
 msgstr ""
+"# [Mail/Gem] aktiv fil. Format er som nyhedsaktiv fil:\n"
+"#   gruppenavn  max.artnum  min.artnum  /dir\n"
+"# Det 4. felt er basismappen (dvs. ~/Mail eller ~/News)\n"
+"#\n"
 
 #: src/lang.c:599
 #, c-format
@@ -2806,11 +2826,13 @@ msgstr ""
 msgid ""
 "%s=view; %s=pipe; %s=pipe raw; %s=save; %s=tag; %s=tag pattern; %s=untag all"
 msgstr ""
+"%s=vis; %s=datakanal; %s=datakanal rå; %s=gem; %s=mærke; %s=mærkemønster; "
+"%s=fjern mærke for alle"
 
 #: src/lang.c:613
 #, c-format
 msgid "%s=view; %s=save; %s=tag; %s=tag pattern; %s=untag all"
-msgstr ""
+msgstr "%s=vis; %s=gem; %s=mærke; %s=mærkemønster; %s=fjern mærke for alle"
 
 #: src/lang.c:615
 #, c-format
@@ -4006,7 +4028,7 @@ msgstr ""
 #: src/lang.c:923
 #, c-format
 msgid "Useless combination %s and %s. Ignoring %s.\n"
-msgstr ""
+msgstr "Nytteløs kombination %s og %s. Ignorerer %s.\n"
 
 #: src/lang.c:925
 #, c-format
@@ -4014,11 +4036,13 @@ msgid ""
 "\n"
 "%s%d out of range (0 - %d). Reset to 0"
 msgstr ""
+"\n"
+"%s%d uden for interval (0 - %d). Nulstil til 0"
 
 #: src/lang.c:926
 #, c-format
 msgid "View '%s' (%s/%s)?"
-msgstr "Vis '%s' (%s/%s)?"
+msgstr "Vis »%s« (%s/%s)?"
 
 #: src/lang.c:928
 #, c-format
@@ -4027,6 +4051,9 @@ msgid ""
 "Warning: posting exceeds %d columns. Line %d is the first long one:\n"
 "%-100s\n"
 msgstr ""
+"\n"
+"Advarsel: indsendelse overstiger %d kolonner. Linje %d er den første lange:\n"
+"%-100s\n"
 
 #: src/lang.c:929
 msgid ""
@@ -4088,6 +4115,8 @@ msgid ""
 "\n"
 "Warning: \"example\" is a reserved hierarchy!\n"
 msgstr ""
+"\n"
+"Advarsel: »example« er et reserveret hierarki!\n"
 
 #: src/lang.c:946
 #, c-format
@@ -4102,7 +4131,7 @@ msgstr ""
 "\n"
 "Du opgraderer til %s fra en tidligere version.\n"
 "Nogle værdier i din %s-fil har ændret sig!\n"
-"Læs WHATSNEW, etc...\n"
+"Læs WHATSNEW, etc ...\n"
 
 #: src/lang.c:948
 #, c-format
@@ -4112,6 +4141,10 @@ msgid ""
 "You are downgrading to tin %s from a more recent version!\n"
 "Some values in your %s file may be ignored, others might have changed!\n"
 msgstr ""
+"\n"
+"\n"
+"Du nedgraderer til tin %s fra en nyere version!\n"
+"Nogle værdier i din %s-fil bliver måske ignoreret, andre kan ændre sig!\n"
 
 #: src/lang.c:951
 #, c-format
@@ -4166,7 +4199,7 @@ msgstr ""
 
 #: src/lang.c:963
 msgid "Writing attributes file..."
-msgstr "Skriver attributfil..."
+msgstr "Skriver attributfil ..."
 
 #: src/lang.c:965
 #, c-format
@@ -4259,7 +4292,7 @@ msgstr ""
 
 #: src/lang.c:1021
 msgid "  -a       toggle color flag"
-msgstr ""
+msgstr "  -a       skift farveflag"
 
 #: src/lang.c:1025
 msgid ""
@@ -4282,6 +4315,8 @@ msgid ""
 "\n"
 "Error: cross-posting to %d newsgroups and no Followup-To line!\n"
 msgstr ""
+"\n"
+"Fejl: krydsindsendelse til %d nyhedsgrupper og ingen Followup-To-linje!\n"
 
 #: src/lang.c:1028
 #, c-format
@@ -4290,13 +4325,15 @@ msgid ""
 "Error: \"%s\" is not a valid newsgroup!\n"
 msgstr ""
 "\n"
-"Fejl: \"%s\" er ikke en gyldig nyhedsgruppe!\n"
+"Fejl: »%s« er ikke en gyldig nyhedsgruppe!\n"
 
 #: src/lang.c:1030
 msgid ""
 "\n"
 "Warning: Followup-To set to more than one newsgroup!\n"
 msgstr ""
+"\n"
+"Advarsel: Followup-To angiver mere end en nyhedsgruppe!\n"
 
 #: src/lang.c:1031
 #, c-format
@@ -4305,7 +4342,7 @@ msgid ""
 "Warning: \"%s\" is renamed, you should use \"%s\" instead!\n"
 msgstr ""
 "\n"
-"Advarsel: »%s« er omdøbt, du skal bruge »%s« i steden for!\n"
+"Advarsel: »%s« er omdøbt, du skal bruge »%s« i stedet for!\n"
 
 #: src/lang.c:1032
 #, c-format
@@ -4313,6 +4350,8 @@ msgid ""
 "\n"
 "Warning: cross-posting to %d newsgroups and no Followup-To line!\n"
 msgstr ""
+"\n"
+"Advarsel: krydsindsendelse til %d nyhedsgrupper og ingen Followup-To-linje!\n"
 
 #: src/lang.c:1033
 #, c-format
@@ -4320,6 +4359,8 @@ msgid ""
 "\n"
 "Warning: \"%s\" is not in your newsrc, it may be invalid at this site!\n"
 msgstr ""
+"\n"
+"Advarsel: »%s« er ikke i din newsrc, den kan være ugyldig på denne side!\n"
 
 #: src/lang.c:1034
 #, c-format
@@ -4331,7 +4372,7 @@ msgstr ""
 #: src/lang.c:1038
 #, c-format
 msgid "%d files successfully written from %d articles. %d %s occurred."
-msgstr ""
+msgstr "%d filer skrevet fra %d artikler. %d %s opstod."
 
 #: src/lang.c:1039
 msgid "Missing parts."
@@ -4352,15 +4393,15 @@ msgstr "Ukendt fejl."
 #: src/lang.c:1045
 #, c-format
 msgid "\tChecksum of %s (%ld %s)"
-msgstr ""
+msgstr "\tKontrolsum for %s (%ld %s)"
 
 #: src/lang.c:1050
 msgid "Reading mail active file... "
-msgstr ""
+msgstr "Læser postaktiv fil ... "
 
 #: src/lang.c:1051
 msgid "Reading mailgroups file... "
-msgstr ""
+msgstr "Læser postgruppens fil ... "
 
 #: src/lang.c:1055
 msgid "perform PGP operations on article"
@@ -4465,26 +4506,26 @@ msgstr "Kan ikke finde NNTP-servernavn"
 #: src/lang.c:1090
 #, c-format
 msgid "Connecting to %s:%u..."
-msgstr "Forbinder til %s:%u..."
+msgstr "Forbinder til %s:%u ..."
 
 #: src/lang.c:1091
 msgid "Disconnecting from server...\n"
-msgstr "Afbryder fra server...\n"
+msgstr "Afbryder fra server ...\n"
 
 #: src/lang.c:1092
 #, c-format
 msgid ""
 "Wrong newsgroup name (\"%s\") in response of \"GROUP %s\" command: \"%s\""
-msgstr ""
+msgstr "Forkert nyhedsgruppenavn (»%s«) som svar til »GROUP %s«-kommando: »%s«"
 
 #: src/lang.c:1093
 #, c-format
 msgid "Failed to connect to NNTP server %s. Exiting..."
-msgstr "Kunne ikke forbinde til NNTP-server %s. Afslutter..."
+msgstr "Kunne ikke forbinde til NNTP-server %s. Afslutter ..."
 
 #: src/lang.c:1094
 msgid "205  Closing connection"
-msgstr "205  Lukker forbindelse"
+msgstr "205 Lukker forbindelse"
 
 #: src/lang.c:1095
 msgid "Your server does not support the NNTP XOVER or OVER command.\n"
@@ -4500,44 +4541,46 @@ msgid ""
 "Put the server name in the file %s,\n"
 "or set the environment variable NNTPSERVER"
 msgstr ""
+"Placer servernavnet i filen %s,\n"
+"eller angiv miljøvariablen NNTPSERVER"
 
 #: src/lang.c:1098
 msgid "  -A       force authentication on connect"
-msgstr ""
+msgstr "  -A       fremtving godkendelse ved forbindelse"
 
 #: src/lang.c:1099
 #, c-format
 msgid "  -g serv  read news from NNTP server serv [default=%s]"
-msgstr ""
+msgstr "  -g serv  læs nyheder fra NNTP-server serv [standard=%s]"
 
 #: src/lang.c:1100
 #, c-format
 msgid "  -p port  use port as NNTP port [default=%d]"
-msgstr ""
+msgstr "  -p port  brug port som NNTP-port [standard=%d]"
 
 #: src/lang.c:1101
 msgid "  -Q       quick start. Same as -nqd"
-msgstr ""
+msgstr "  -Q       hurtigstart. Samme som -nqd"
 
 #: src/lang.c:1102
 msgid "  -r       read news remotely from default NNTP server"
-msgstr ""
+msgstr "  -r       læs nyheder eksternt fra standard-NNTP-server"
 
 #: src/lang.c:1103
 msgid "  -l       use only LIST instead of GROUP (-n) command"
-msgstr ""
+msgstr "  -l       brug kun LIST i stedet for GROUP-kommando (-n)"
 
 #: src/lang.c:1104
 msgid "  -n       only read subscribed .newsrc groups from NNTP server"
-msgstr ""
+msgstr "  -n       læs kun abonnerede .newsrc-grupper fra NNTP-server"
 
 #: src/lang.c:1106
 msgid "  -4       force connecting via IPv4"
-msgstr ""
+msgstr "  -4       fremtving forbindelse via IPv4"
 
 #: src/lang.c:1107
 msgid "  -6       force connecting via IPv6"
-msgstr ""
+msgstr "  -6       fremtving forbindelse via IPv6"
 
 #: src/lang.c:1108
 msgid ""
@@ -4570,6 +4613,9 @@ msgid ""
 "Your server does not have Xref: in its XOVER information.\n"
 "Tin will try to use XHDR XREF instead (slows down things a bit).\n"
 msgstr ""
+"Din server har ikke Xref: i sin XOVER-information.\n"
+"Tin vil forsøge at bruge XHDR XREF i stedet (gør tingene en smule "
+"langsommere.\n"
 
 #: src/lang.c:1120
 msgid "Your server does not have Xref: in its XOVER information.\n"
@@ -4578,31 +4624,31 @@ msgstr "Din server har ikke Xref: I sin XOVER-information.\n"
 #: src/lang.c:1123
 #, c-format
 msgid "Can't open %s. Try %s -r to read news via NNTP.\n"
-msgstr ""
+msgstr "Kan ikke åbne %s. Prøv %s -r for at læse nyheder via NNTP.\n"
 
 #: src/lang.c:1126
 msgid "  -Q       quick start. Same as -qd"
-msgstr ""
+msgstr "  -Q       hurtigstart. Samme som -qd"
 
 #: src/lang.c:1127
 msgid "  -l       read only active file instead of scanning spool (-n) command"
-msgstr ""
+msgstr "  -l       læs kun aktiv fil i stedet for skanningskø-kommando (-n)"
 
 #: src/lang.c:1128
 msgid "  -n       only read subscribed .newsrc groups from spool"
-msgstr ""
+msgstr "  -n       læs kun abonnerede .newsrc-grupper fra kø"
 
 #: src/lang.c:1129
 msgid "Your server does not have Xref: in its NOV-files.\n"
-msgstr ""
+msgstr "Din server har ikke Xref: i sine NOV-filer.\n"
 
 #: src/lang.c:1133
 msgid "Posting using external inews failed. Use built in inews instead?"
-msgstr ""
+msgstr "Indsendelse via ekstern inews mislykkedes. Brug byg i inews i stedet?"
 
 #: src/lang.c:1134
 msgid "It worked! Should I always use my built in inews from now on?"
-msgstr ""
+msgstr "Det virkede! Skal jeg altid brug min bygning i inews fra nu af?"
 
 #: src/lang.c:1138
 #, c-format
@@ -4631,20 +4677,20 @@ msgstr "Ingen kommando"
 
 #: src/lang.c:1147
 msgid "Pipe"
-msgstr ""
+msgstr "Datakanal"
 
 #: src/lang.c:1148
 #, c-format
 msgid "Pipe to command [%.*s]> "
-msgstr ""
+msgstr "Datakanal til kommando [%.*s]> "
 
 #: src/lang.c:1149
 msgid "Piping..."
-msgstr ""
+msgstr "Via datakanal ..."
 
 #: src/lang.c:1151
 msgid "Piping not enabled."
-msgstr ""
+msgstr "Datakanal ikke aktiveret."
 
 #: src/lang.c:1155
 #, c-format
@@ -4680,6 +4726,8 @@ msgid ""
 "\n"
 "Warning: The \"%s:\" line has spaces in it that SHOULD be removed.\n"
 msgstr ""
+"\n"
+"Advarsel: Linjen »%s:« har mellemrum som SKAL fjernes.\n"
 
 #: src/lang.c:1174
 msgid ""
@@ -4742,6 +4790,8 @@ msgid ""
 "%s=pipe; %s=mail; %s=print; %s=quit; %s=toggle all/unread; %s=save; %s=tag; "
 "%s=post"
 msgstr ""
+"%s=datakanal; %s=post; %s=udskriv; %s=afslut; %s=skift alle/ulæst; %s=gem; "
+"%s=mærke; %s=indsend"
 
 #: src/lang.c:1210
 #, c-format
@@ -4998,11 +5048,11 @@ msgstr "Side ned (PageDown)"
 
 #: src/lang.c:1379
 msgid "PageNextUnread"
-msgstr ""
+msgstr "Side næste ulæst (PageNextUnread)"
 
 #: src/lang.c:1380
 msgid "PageDown or PageNextUnread"
-msgstr ""
+msgstr "Side ned eller Side næste ulæst"
 
 #: src/lang.c:1386
 msgid "Subject: (case sensitive)"
@@ -5145,16 +5195,16 @@ msgstr "Marker med D på udvælgelsesskærmen"
 
 #: src/lang.c:1482
 msgid "Kill only unread arts"
-msgstr ""
+msgstr "Dræb kun ulæst kunst"
 
 #: src/lang.c:1483
 msgid "Kill all arts & show with K"
-msgstr ""
+msgstr "Dræb al kunst og vis med K"
 
 #. TODO: s/K/art_marked_killed/
 #: src/lang.c:1484
 msgid "Kill all arts and never show"
-msgstr ""
+msgstr "Dræb al kunst og vis aldrig"
 
 #: src/lang.c:1490
 msgid "Nothing special"
@@ -5162,31 +5212,31 @@ msgstr "Intet specielt"
 
 #: src/lang.c:1491
 msgid "Compress quotes"
-msgstr ""
+msgstr "Komprimer citattegn"
 
 #: src/lang.c:1492
 msgid "Quote signatures"
-msgstr ""
+msgstr "Citer underskrifter"
 
 #: src/lang.c:1493
 msgid "Compress quotes, quote sigs"
-msgstr ""
+msgstr "Komprimer citattegn, citer underskr."
 
 #: src/lang.c:1494
 msgid "Quote empty lines"
-msgstr ""
+msgstr "Citater tomme linjer"
 
 #: src/lang.c:1495
 msgid "Compress quotes, quote empty lines"
-msgstr ""
+msgstr "Komprimer citattegn, citer tomme linjer"
 
 #: src/lang.c:1496
 msgid "Quote sigs & empty lines"
-msgstr ""
+msgstr "Citer underskrifter og tomme linjer"
 
 #: src/lang.c:1497
 msgid "Comp. q., quote sigs & empty lines"
-msgstr ""
+msgstr "Kompr. c., citer underskr. og tomme linjer"
 
 #: src/lang.c:1537
 msgid "no"
@@ -5200,21 +5250,22 @@ msgstr "med teksthoveder"
 msgid "without headers"
 msgstr "uden teksthoveder"
 
+# hvad er det her for nogle forkortelser (bevaret på engelsk)
 #: src/lang.c:1546
 msgid "NFKC"
-msgstr ""
+msgstr "NFKC"
 
 #: src/lang.c:1548
 msgid "NFKD"
-msgstr ""
+msgstr "NFKD"
 
 #: src/lang.c:1549
 msgid "NFC"
-msgstr ""
+msgstr "NFC"
 
 #: src/lang.c:1550
 msgid "NFD"
-msgstr ""
+msgstr "NFD"
 
 #: src/lang.c:1558
 msgid "Display Options"
@@ -5384,11 +5435,18 @@ msgid ""
 "#   1 = sum\n"
 "#   2 = average\n"
 msgstr ""
+"# Trådbedømmelse\n"
+"# Mulige værdier er (standarden er markeret med *):\n"
+"# * 0 = maks\n"
+"#   1 = sum\n"
+"#   2 = gennemsnit\n"
 
 #: src/lang.c:1681
 msgid ""
 "Sort articles by Subject, From, Date or Score. <SPACE> toggles & <CR> sets."
 msgstr ""
+"Sorter artikler efter Emne, Fra, Dato eller Bedømmelse. <MELLEMRUM> skifter "
+"og <CR> vælger."
 
 #: src/lang.c:1682
 msgid "Sort articles by"
@@ -5446,6 +5504,8 @@ msgstr ""
 #: src/lang.c:1717
 msgid "Show all articles or only unread articles. <SPACE> toggles & <CR> sets."
 msgstr ""
+"Vis alle artikler eller kun ulæste artikler. <MELLEMRUM> skifter og <CR> "
+"angiver."
 
 #: src/lang.c:1718
 msgid "Show only unread articles"
@@ -5457,7 +5517,7 @@ msgstr ""
 
 #: src/lang.c:1724
 msgid "Show only groups with unread arts"
-msgstr ""
+msgstr "Vis kun grupper med ulæst kunst"
 
 #: src/lang.c:1725
 msgid "# If ON show only subscribed to groups that contain unread articles.\n"
@@ -5465,7 +5525,7 @@ msgstr ""
 
 #: src/lang.c:1730
 msgid "Filter which articles"
-msgstr ""
+msgstr "Filtrer hvilke artikler"
 
 #: src/lang.c:1731
 msgid ""
@@ -5523,6 +5583,7 @@ msgstr ""
 #: src/lang.c:1774
 msgid "Enter character to indicate deleted articles. <CR> sets, <ESC> cancels."
 msgstr ""
+"Indtast tegn til at indikere slettede artikler. <CR> angiver, <ESC> afbryder."
 
 #: src/lang.c:1775
 msgid "Character to show deleted articles"
@@ -5538,6 +5599,8 @@ msgstr ""
 msgid ""
 "Enter character to indicate articles in a range. <CR> sets, <ESC> cancels."
 msgstr ""
+"Indtast tegn der indikerer artikler i et interval. <CR> vælger, <ESC> "
+"afbryder."
 
 #: src/lang.c:1782
 msgid "Character to show inrange articles"
@@ -5554,6 +5617,8 @@ msgid ""
 "Enter character to indicate that article will return. <CR> sets, <ESC> "
 "cancels."
 msgstr ""
+"Indtast tegn til at indikere at artikel vil returnere. <CR> angiver, <ESC> "
+"afbryder."
 
 #: src/lang.c:1789
 msgid "Character to show returning arts"
@@ -5569,6 +5634,7 @@ msgstr ""
 msgid ""
 "Enter character to indicate selected articles. <CR> sets, <ESC> cancels."
 msgstr ""
+"Indtast tegn til at indikere valgte artikler. <CR> angiver, <ESC> afbryder."
 
 #: src/lang.c:1796
 msgid "Character to show selected articles"
@@ -5586,7 +5652,7 @@ msgstr ""
 
 #: src/lang.c:1803
 msgid "Character to show recent articles"
-msgstr ""
+msgstr "Tegn til at vise seneste artikler"
 
 #: src/lang.c:1804
 msgid ""
@@ -5597,10 +5663,11 @@ msgstr ""
 #: src/lang.c:1809
 msgid "Enter character to indicate unread articles. <CR> sets, <ESC> cancels."
 msgstr ""
+"Indtast tegn til at indikere ulæste artikler. <CR> angiver, <ESC> afbryder."
 
 #: src/lang.c:1810
 msgid "Character to show unread articles"
-msgstr ""
+msgstr "Tegn til visning af ulæste artikler"
 
 #: src/lang.c:1811
 msgid ""
@@ -5611,10 +5678,11 @@ msgstr ""
 #: src/lang.c:1816
 msgid "Enter character to indicate read articles. <CR> sets, <ESC> cancels."
 msgstr ""
+"Indtast tegn til at indikere læste artikler. <CR> angiver, <ESC> afbryder."
 
 #: src/lang.c:1817
 msgid "Character to show read articles"
-msgstr ""
+msgstr "Tegn til at vise læste artikler"
 
 #: src/lang.c:1818
 msgid ""
@@ -5628,7 +5696,7 @@ msgstr ""
 
 #: src/lang.c:1824
 msgid "Character to show killed articles"
-msgstr ""
+msgstr "Tegn til at vise dræbte artikler"
 
 #: src/lang.c:1825
 msgid ""
@@ -5640,6 +5708,8 @@ msgstr ""
 msgid ""
 "Enter character to indicate read selected articles. <CR> sets, <ESC> cancels."
 msgstr ""
+"Indtast tegn til at indikere læste valgte artikler. <CR> angiver, <ESC> "
+"afbryder."
 
 #: src/lang.c:1831
 msgid "Character to show readselected arts"
@@ -5697,7 +5767,7 @@ msgstr ""
 
 #: src/lang.c:1863
 msgid "Display signatures. <SPACE> toggles & <CR> sets."
-msgstr ""
+msgstr "Vis underskrifter. <MELLEMRUM> skifter og <CR> vælger."
 
 #: src/lang.c:1864
 msgid "Display signatures"
@@ -5732,10 +5802,11 @@ msgstr ""
 msgid ""
 "Decode German style TeX umlaut codes to ISO. <SPACE> toggles & <CR> sets."
 msgstr ""
+"Afkod i tysk stil TeX-umlautkoder til ISO. <SPACE> skifter og <CR> vælger."
 
 #: src/lang.c:1882
 msgid "Display \"a as Umlaut-a"
-msgstr ""
+msgstr "Vis \"a som umlaut-a"
 
 #: src/lang.c:1883
 msgid ""
@@ -5749,7 +5820,7 @@ msgstr ""
 
 #: src/lang.c:1889
 msgid "Display these header fields (or *)"
-msgstr ""
+msgstr "Vis disse teksthovedfelter (eller *)"
 
 #: src/lang.c:1890
 msgid ""
@@ -5763,7 +5834,7 @@ msgstr ""
 
 #: src/lang.c:1899
 msgid "Do not display these header fields"
-msgstr ""
+msgstr "Vis ikke disse teksthovedfelter"
 
 #: src/lang.c:1900
 msgid ""
@@ -5794,7 +5865,7 @@ msgstr ""
 
 #: src/lang.c:1916
 msgid "Enable detection of verbatim blocks? <SPACE> toggles & <CR> sets."
-msgstr ""
+msgstr "Aktiver detektion af verbatimblokke? <SPACE> skifter og <CR> vælger."
 
 #: src/lang.c:1917
 msgid "Detection of verbatim blocks"
@@ -5807,10 +5878,12 @@ msgstr ""
 #: src/lang.c:1923
 msgid "A regex used to decide which lines to show in col_quote."
 msgstr ""
+"Et regulært udtryk brugt til at bestemme hvilke linjer der skal vises i "
+"col_quote."
 
 #: src/lang.c:1924
 msgid "Regex used to show quoted lines"
-msgstr ""
+msgstr "Regulært udtryk brugt til at vise citerede linjer"
 
 #: src/lang.c:1925
 msgid ""
@@ -5822,6 +5895,8 @@ msgstr ""
 #: src/lang.c:1931
 msgid "A regex used to decide which lines to show in col_quote2."
 msgstr ""
+"Et regulært udtryk brugt til at bestemme hvilke linjer der vises i "
+"col_quote2."
 
 #: src/lang.c:1932
 msgid "Regex used to show twice quoted l."
@@ -5840,7 +5915,7 @@ msgstr ""
 
 #: src/lang.c:1940
 msgid "Regex used to show >= 3 times q.l."
-msgstr ""
+msgstr "Regulært udtryk brugt til at vise >= 3 gange q.l."
 
 #: src/lang.c:1941
 msgid ""
@@ -5848,10 +5923,15 @@ msgid ""
 "# quoted >=3 times. >=3 times quoted lines are shown in col_quote3.\n"
 "# If you leave this blank, tin will use a built in default.\n"
 msgstr ""
+"# Et regulært udtryk som tin vil bruge til at bestemme hvilke linjer\n"
+"# der er citerede >=3 gange. >=3 gange citerede linjer vises i col_quote3.\n"
+"# Hvis efterladt blank bruger tin en indbygget standard.\n"
 
 #: src/lang.c:1948
 msgid "A regex used to decide which words to show in col_markslashes."
 msgstr ""
+"Et regulært udtryk brugt til at bestemme hvilke ord der skal vises i "
+"col_markslashes."
 
 #: src/lang.c:1949
 msgid "Regex used to highlight /slashes/"
@@ -5867,10 +5947,12 @@ msgstr ""
 #: src/lang.c:1956
 msgid "A regex used to decide which words to show in col_markstars."
 msgstr ""
+"Et regulært udtryk brugt til at bestemme hvilke ord der skal vises i "
+"col_markstars."
 
 #: src/lang.c:1957
 msgid "Regex used to highlight *stars*"
-msgstr ""
+msgstr "Regulært udtryk brugt til at fremhæve *stjerner*"
 
 #: src/lang.c:1958
 msgid ""
@@ -5972,6 +6054,8 @@ msgid ""
 "Enter name and options for external MIME viewer, --internal for built-in "
 "viewer"
 msgstr ""
+"Indtast navn og tilvalg for ekstern MIME-fremviser, --internal for indbygget "
+"fremviser"
 
 #: src/lang.c:2009
 msgid "MIME binary content viewer"
@@ -6044,10 +6128,11 @@ msgstr ""
 #: src/lang.c:2054
 msgid "Program to run to open URLs, <CR> sets, <ESC> cancels."
 msgstr ""
+"Program der køres ved åbning af adresser, <CR> angiver, <ESC> afbryder."
 
 #: src/lang.c:2055
 msgid "Program that opens URLs"
-msgstr "Program som åbner URL'er"
+msgstr "Program som åbner adresser (URL'er)"
 
 #: src/lang.c:2056
 msgid "# The program used to open URLs. The actual URL will be appended\n"
@@ -6537,7 +6622,7 @@ msgstr ""
 
 #: src/lang.c:2344
 msgid "# Enable URL highlighting?\n"
-msgstr ""
+msgstr "# Aktiver adressefremhævelse?\n"
 
 #: src/lang.c:2349
 msgid "Word highlighting in message body"
@@ -6545,7 +6630,7 @@ msgstr ""
 
 #: src/lang.c:2350
 msgid "# Enable word highlighting?\n"
-msgstr ""
+msgstr "# Aktiver ordfremhævelse?\n"
 
 #: src/lang.c:2355
 msgid "What to display instead of mark"
@@ -6571,15 +6656,15 @@ msgstr ""
 
 #: src/lang.c:2367
 msgid "# Wrap article lines at column\n"
-msgstr ""
+msgstr "# Ombryd artikellinjer ved kolonne\n"
 
 #: src/lang.c:2372
 msgid "Wrap around threads on next unread"
-msgstr ""
+msgstr "Tråde omhandlet ved næste ulæst"
 
 #: src/lang.c:2373
 msgid "# If ON wrap around threads on searching next unread article\n"
-msgstr ""
+msgstr "# Hvis ON omhandlet tråde ved søgning efter næste ulæst artikel\n"
 
 #: src/lang.c:2377
 msgid "Enter default mail address (and fullname). <CR> sets."
@@ -7039,10 +7124,12 @@ msgstr ""
 msgid ""
 "Start editor with line offset. <SPACE> toggles, <CR> sets, <ESC> cancels."
 msgstr ""
+"Start redigeringsprogram med linjeforskydning. <MELLEMRUM> skifter, <CR> "
+"angiver, <ESC> afbryder."
 
 #: src/lang.c:2647
 msgid "Start editor with line offset"
-msgstr ""
+msgstr "Start redigeringsprogram med linjeforskydning"
 
 #: src/lang.c:2648
 msgid ""
@@ -7129,6 +7216,7 @@ msgstr ""
 #: src/lang.c:2699
 msgid "Filename for all posted articles, <CR> sets, no filename=do not save."
 msgstr ""
+"Filnavn for alle indsendte artikler, <CR> angiver, intet filnavn=gem ikke."
 
 #: src/lang.c:2700
 msgid "Filename for posted articles"
@@ -7185,47 +7273,53 @@ msgstr ""
 
 #: src/lang.c:2730
 msgid "NNTP read timeout in seconds"
-msgstr ""
+msgstr "Tidsudløb i sekunder for NNTP-læs"
 
 #: src/lang.c:2731
 msgid ""
 "# Time in seconds to wait for a response from the server (0=no timeout)\n"
-msgstr ""
+msgstr "# Ventetid i sekunder efter svar fra en server (0=intet tidsudløb)\n"
 
 #: src/lang.c:2736
 msgid "Enter number of seconds until active file will be reread. <CR> sets."
 msgstr ""
+"Indtast antallet af sekunder før aktiv fil vil blive genlæst. <CR> angiver."
 
 #: src/lang.c:2737
 msgid "Interval in secs to reread active"
-msgstr ""
+msgstr "Interval i sekunder til at genlæse aktive"
 
 #: src/lang.c:2738
 msgid ""
 "# Time interval in seconds between rereading the active file (0=never)\n"
 msgstr ""
+"# Tidsinterval i sekunder mellem genlæsning af den aktive fil (0=aldrig)\n"
 
 #: src/lang.c:2743
 msgid "Reconnect to server automatically"
-msgstr ""
+msgstr "Forbind til serveren igen automatisk"
 
 #: src/lang.c:2744
 msgid ""
 "# If ON automatically reconnect to NNTP server if the connection is broken\n"
 msgstr ""
+"# Hvis ON forbind så autoamtisk til NNTP-serveren hvis forbindelsen "
+"afbrydes\n"
 
 #: src/lang.c:2748
 msgid ""
 "Create local copies of NNTP overview files. <SPACE> toggles & <CR> sets."
 msgstr ""
+"Opret lokale kopier af NNTP-overbliksfiler. <MELLEMRUM> skifter og <CR> "
+"vælger."
 
 #: src/lang.c:2749
 msgid "Cache NNTP overview files locally"
-msgstr ""
+msgstr "Lagr NNTP-overbliksfiler lokalt"
 
 #: src/lang.c:2750
 msgid "# If ON, create local copies of NNTP overview files.\n"
-msgstr ""
+msgstr "# Hvis ON, opret lokale kopier af NNTP-overbliksfiler.\n"
 
 #: src/lang.c:2754 src/lang.c:2769 src/lang.c:2789 src/lang.c:2808
 msgid "Enter format string. <CR> sets, <ESC> cancels."
@@ -7351,7 +7445,7 @@ msgstr ""
 
 #: src/lang.c:2864
 msgid "Mailbox to save sent mails"
-msgstr ""
+msgstr "Postkasse hvor sendt post gemmes"
 
 #: src/lang.c:2869
 msgid "Set Followup-To: header to this group(s). <CR> sets, <ESC> cancels."
@@ -7421,7 +7515,7 @@ msgstr ""
 
 #: src/lang.c:2925 src/lang.c:2949
 msgid "Header for filter rule. <CR> sets, <ESC> cancels."
-msgstr ""
+msgstr "Teksthoved for filterregel. <CR> angiver, <ESC> afbryder."
 
 #: src/lang.c:2926
 msgid "Quick (1 key) select filter header"
@@ -7573,7 +7667,7 @@ msgstr ""
 "Linje %d er længere end 998 oktetter og bør foldes sammen, men\n"
 "kodningen er ikke sat til %s\n"
 
-#: src/post.c:2304
+#: src/post.c:2306
 #, c-format
 msgid "Posting: %.*s ..."
 msgstr "Indsender: %.*s ..."
@@ -7603,7 +7697,7 @@ msgstr "[- Utilgængelig -]"
 #. * preamble
 #. * TODO: -> lang.c
 #.
-#: src/rfc2047.c:1287
+#: src/rfc2047.c:1302
 #, c-format
 msgid ""
 "This message has been composed in the 'multipart/mixed' MIME-format. If you\n"

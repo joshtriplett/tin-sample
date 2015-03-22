@@ -6,7 +6,7 @@
  *  Updated   : 2014-04-29
  *  Notes     :
  *
- * Copyright (c) 1991-2014 Iain Lea <iain@bricbrac.de>
+ * Copyright (c) 1991-2015 Iain Lea <iain@bricbrac.de>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -211,7 +211,7 @@ build_tline(
 				strcat(buffer, tmp);
 				if ((i = len - strwidth(tmp)) > 0) {
 					buf = buffer + strlen(buffer);
-					for (;i > 0; --i)
+					for (; i > 0; --i)
 						*buf++ = ' ';
 					*buf = '\0';
 				}

@@ -3,7 +3,7 @@
 .\" Module    : tin.1
 .\" Author    : I. Lea, U. Janssen
 .\" Created   : 1991-08-23
-.\" Updated   : 2014-05-04
+.\" Updated   : 2014-12-24
 .\" Notes     : use american english; still needs some work, e.g.:
 .\"             - document authorization (.newsauth)
 .\"             - document random organization feature
@@ -14,13 +14,13 @@
 .\" This file was generated with po4a. Translate the source file.
 .\"
 .\"*******************************************************************
-.TH tin 1 "May 4th, 2014" 2.2.1 "A Usenet newsreader"
+.TH tin 1 "December 24th, 2014" 2.3.1 "Usenet newsreader"
 .\"
 .\"
 .SH NAME
 .\"
 .\"
-tin, rtin \- A Usenet newsreader
+tin, rtin \- Usenet newsreader
 .SH SYNOPSIS
 .\"
 .\"
@@ -283,7 +283,7 @@ List Extensions (\fBRFC\%6048\fP) and all modern servers should understand it.
 \fBtin\fP has four separate levels of operation: Selection level, Group level,
 Thread level and Article level.
 .PP
-At the Selection level the title displays (the name of the newsserver and)
+At the Selection level the title displays (the name of the news server and)
 the number of subscribed groups (containing new unread articles). The
 newsgroups are displayed in the middle of the screen usually with the number
 of unread articles displayed on the same line in front, but it can be
@@ -330,7 +330,7 @@ by a more appropriately named one.
 .TP 
 \fB=\fP
 This group has been renamed and you may no longer post to it. If you do,
-then you will receive an error from your newsserver telling you the correct
+then you will receive an error from your news server telling you the correct
 group to post to.
 .PP
 At the Group level the title contains the name of the group, the number of
@@ -1274,7 +1274,7 @@ Return to group selection level.
 Go to parent article.
 .TP 
 \fBPageViewUrl 'U'\fP
-Display a list of URLs of the current article. See the section "URL LISTING"
+Display a list of URLs in the current article. See the section "URL LISTING"
 for more information.
 .TP 
 \fBPageViewAttach 'V'\fP
@@ -1301,7 +1301,7 @@ Mark article as unread.
 .\"
 Mark the current thread as unread.
 .SS "URL LISTING"
-\fBPageViewUrl\fP ('\fBU\fP') displays a list of URLs of the current
+\fBPageViewUrl\fP ('\fBU\fP') displays a list of URLs in the current
 article. Besides the common moving keys, the following commands are
 available:
 .RS 4
@@ -1390,6 +1390,8 @@ Toggle the display of help mini menu at the bottom of the screen.
 .\"
 .SS "GLOBAL OPTIONS MENU AND TINRC CONFIGURABLE VARIABLES"
 .\" FIXME - add missing descriptions
+.\"       - \fI${TIN_LIBDIR:\-NEWSLIBDIR}/tinrc\fR is used 
+.\"         in the !TIN_DEFAULTS_DIR config case
 At startup, \fBtin\fP reads in the configuration files (see also \fB\%tin\fP(5)).
 They contain a list of variables that can be used to configure the way
 \fBtin\fP works. If it exists, the global configuration file,
