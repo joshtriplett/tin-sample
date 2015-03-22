@@ -1,13 +1,55 @@
--- 2.2.1 release 20140504 "" --
+-- 2.3.1 release 20141224 "Tallant" --
+
+U007) Dennis Preiser <dennis@d--p.de>
+      ADD. also validate "utf8" input
+      FIX. misc.c
+
+U006) Joe Hansen <joedalton2@yahoo.dk>
+      ADD. updated danish translation
+      FIX. da.po
+
+U005) Urs Janssen <urs@tin.org>
+      ADD. fix hypothetic null pointer dereference
+      ADD. config.guess, config.sub update
+      ADD. updated german translation
+      FIX. proto.h, filter.c, post.c, save.c, tin.1, config.guess, config.sub,
+           de.po
+
+-- 2.3.0 release 20141003 "Glenfoyle" --
+
+U004) Joe Hansen <joedalton2@yahoo.dk>
+      ADD. updated danish translation
+      FIX. da.po
+
+U003) Urs Janssen <urs@tin.org>
+      ADD. !HAVE_LONG_FILE_NAMES code path to my_tmpfile()
+      ADD. allow TLDs with up to 14 chars (.cancerresearch) in
+           URL_REGEX and NEWS_REGEX
+      BUG. memleak in normalize() if libidn is used for normalization
+      BUG. '-d' didn't work as it was always overwritten by tinrc setting
+      ADD. config.sub update
+      FIX. attrib.c, config.c, filter.c, mail.c, my_tmpfile.c, string.c
+           config.sub, tin.[15]
+
+U002) Dennis Preiser <dennis@d--p.de>
+      BUG. in base64 encoding multibyte chars could have been broken into
+           multiple encoded words which is prohibited by RFC 2047
+      FIX. RFC2047.c
+
+U001) Matt Anton <tin@syrius.org>
+      ADD. updated french translation
+      FIX. fr.po
+
+-- 2.2.1 release 20140504 "Tober an Righ" --
 
  004) Dennis Preiser <dennis@d--p.de>
       BUG. don't stop utf8 validation on first \n
       BUG. possible buffer overrun in build_gline().
       BUG. missing check for art->refptr in build_tline().
       ADD. handle space-stuffing from RFC 2646 4.4
-      ADD. tweak URL_REGEX, dont stop befor closing ) if there was an
+      ADD. tweak URL_REGEX, don't stop before closing ) if there was an
            opening ( in the url.
-      ADD. allow editing of captured URL befor spwaning viewer
+      ADD. allow editing of captured URL before spwaning viewer
       FIX. cook.c, misc.c, page.c, rfc2046.c, select.c, thread.c, rfc2046.h
            tin.h
 

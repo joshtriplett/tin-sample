@@ -811,7 +811,7 @@ GetTimeInfo(
 	LastTzone *= 60;
 	LastTzone += gmt.tm_min - local.tm_min;
 #else
-	LastTzone =  (0 - tm->tm_gmtoff) / 60;
+	LastTzone = (0 - tm->tm_gmtoff) / 60;
 #endif	/* defined(DONT_HAVE_TM_GMTOFF) */
     }
     Now->tzone = LastTzone;

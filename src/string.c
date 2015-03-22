@@ -3,10 +3,10 @@
  *  Module    : string.c
  *  Author    : Urs Janssen <urs@tin.org>
  *  Created   : 1997-01-20
- *  Updated   : 2014-01-30
+ *  Updated   : 2014-05-12
  *  Notes     :
  *
- * Copyright (c) 1997-2014 Urs Janssen <urs@tin.org>
+ * Copyright (c) 1997-2015 Urs Janssen <urs@tin.org>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -1279,9 +1279,10 @@ normalize(
 #			ifdef HAVE_LIBIDN
 	/* libidn */
 
-	buf = stringprep_utf8_nfkc_normalize(tmp, -1);
-	if (buf == NULL) /* normalization failed, return the original string (as valid UTF8) */
+	if ((buf = stringprep_utf8_nfkc_normalize(tmp, -1)) == NULL) /* normalization failed, return the original string (as valid UTF8) */
 		buf = tmp;
+	else
+		free(tmp);
 
 	return buf;
 #			endif /* HAVE_LIBIDN */

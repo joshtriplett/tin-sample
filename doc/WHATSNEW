@@ -5,6 +5,8 @@ New features
 
 Changes
 -------
+The gTLD list is no longer actively maintained (too many new gTLD recently),
+disable_gnksa_domain_check=ON might result in false positives.
 
 Retired Features
 ----------------

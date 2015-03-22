@@ -6,7 +6,7 @@
  *  Updated   : 2013-11-10
  *  Notes     :
  *
- * Copyright (c) 1991-2014 Iain Lea <iain@bricbrac.de>, Rich Skrenta <skrenta@pbm.com>
+ * Copyright (c) 1991-2015 Iain Lea <iain@bricbrac.de>, Rich Skrenta <skrenta@pbm.com>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -247,7 +247,7 @@ setup_hard_base(
 			if (j < group->xmin)
 				j = group->xmin;
 
-			for ( ; count < j; count++) {
+			for (; count < j; count++) {
 				if (grpmenu.max >= max_base)
 					expand_base();
 				base[grpmenu.max++] = count;

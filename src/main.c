@@ -6,7 +6,7 @@
  *  Updated   : 2013-11-27
  *  Notes     :
  *
- * Copyright (c) 1991-2014 Iain Lea <iain@bricbrac.de>, Rich Skrenta <skrenta@pbm.com>
+ * Copyright (c) 1991-2015 Iain Lea <iain@bricbrac.de>, Rich Skrenta <skrenta@pbm.com>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -1015,6 +1015,7 @@ create_mail_save_dirs(
  * giveup() indicates a serious error and keeping track of what we've
  * already malloc()ed would be a PITA.
  */
+/* coverity[+kill] */
 void
 giveup(
 	void)

@@ -3,10 +3,10 @@
  *  Module    : config.c
  *  Author    : I. Lea
  *  Created   : 1991-04-01
- *  Updated   : 2014-04-26
+ *  Updated   : 2014-08-31
  *  Notes     : Configuration file routines
  *
- * Copyright (c) 1991-2014 Iain Lea <iain@bricbrac.de>
+ * Copyright (c) 1991-2015 Iain Lea <iain@bricbrac.de>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -631,7 +631,8 @@ read_config_file(
 				break;
 
 			if (match_boolean(buf, "show_description=", &tinrc.show_description)) {
-				show_description = tinrc.show_description;
+				if (show_description)
+					show_description = tinrc.show_description;
 				break;
 			}
 

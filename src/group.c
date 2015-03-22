@@ -6,7 +6,7 @@
  *  Updated   : 2014-01-11
  *  Notes     :
  *
- * Copyright (c) 1991-2014 Iain Lea <iain@bricbrac.de>, Rich Skrenta <skrenta@pbm.com>
+ * Copyright (c) 1991-2015 Iain Lea <iain@bricbrac.de>, Rich Skrenta <skrenta@pbm.com>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -1249,7 +1249,7 @@ build_sline(
 				strcat(buffer, tmp);
 				if ((k = len - strwidth(tmp)) > 0) {
 					buf = buffer + strlen(buffer);
-					for (;k > 0; --k)
+					for (; k > 0; --k)
 						*buf++ = ' ';
 					*buf = '\0';
 				}
@@ -1284,7 +1284,7 @@ build_sline(
 				strcat(buffer, tmp);
 				if ((k = len - strwidth(tmp)) > 0) {
 					buf = buffer + strlen(buffer);
-					for (;k > 0; --k)
+					for (; k > 0; --k)
 						*buf++ = ' ';
 					*buf = '\0';
 				}

@@ -4,7 +4,7 @@
 # signs the article and posts it.
 #
 #
-# Copyright (c) 2002-2014 Urs Janssen <urs@tin.org>,
+# Copyright (c) 2002-2015 Urs Janssen <urs@tin.org>,
 #                         Marc Brockschmidt <marc@marcbrockschmidt.de>
 #
 # Redistribution and use in source and binary forms, with or without
@@ -831,7 +831,7 @@ B<tinews.pl> [B<OPTIONS>] E<lt> I<input>
 =head1 DESCRIPTION
 
 B<tinews.pl> reads an article on STDIN, signs it via B<pgp>(1) or
-B<gpg>(1) and posts it to a newsserver.
+B<gpg>(1) and posts it to a news server.
 
 If the article contains To:, Cc: or Bcc: headers and mail-actions are
 configured it will automatically add a "Posted-And-Mailed: yes" header
