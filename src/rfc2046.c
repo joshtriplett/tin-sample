@@ -3,10 +3,10 @@
  *  Module    : rfc2046.c
  *  Author    : Jason Faultless <jason@altarstone.com>
  *  Created   : 2000-02-18
- *  Updated   : 2014-04-29
+ *  Updated   : 2015-12-23
  *  Notes     : RFC 2046 MIME article parsing
  *
- * Copyright (c) 2000-2015 Jason Faultless <jason@altarstone.com>
+ * Copyright (c) 2000-2016 Jason Faultless <jason@altarstone.com>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -57,6 +57,7 @@ static void parse_content_type(char *type, t_part *content);
 static void parse_content_disposition(char *disp, t_part *part);
 static void parse_params(char *params, t_part *content);
 static void progress(int line_count);
+static void remove_cwsp(char *source);
 #ifdef DEBUG_ART
 	static void dump_art(t_openartinfo *art);
 #endif /* DEBUG_ART */
@@ -189,6 +190,60 @@ skip_space(
 }
 
 
+/*
+ * Removes comments and white space
+ */
+static void
+remove_cwsp(
+	char *source)
+{
+	char *from, *to, src;
+	int c_cnt = 0;
+	t_bool inquotes = FALSE;
+
+	from = to = source;
+
+	while ((src = *from++) && c_cnt >= 0) {
+		if (src == '"' && c_cnt == 0)
+			inquotes = bool_not(inquotes);
+
+		if (inquotes && src == '\\' && *from) {
+			*to++ = src;
+			*to++ = *from++;
+			continue;
+		}
+
+		if (!inquotes) {
+			if (src == '(') {
+				++c_cnt;
+				continue;
+			}
+			if (src == ')') {
+				--c_cnt;
+				continue;
+			}
+			if (c_cnt > 0 || src == ' ' || src == '\t')
+				continue;
+		}
+
+		*to++ = src;
+	}
+
+	/*
+	 * Setting *source = '\0' might be the right thing
+	 * because the header is damaged. Anyway, we let the
+	 * rest of the code pick up usable pieces.
+	 */
+#if 0
+	if (c_cnt != 0)
+		/* unbalanced parenthesis, header damaged */
+		*source = '\0';
+	else
+#endif /* 0 */
+		*to = '\0';
+}
+
+
 static char *
 get_token(
 	const char *source)
@@ -218,7 +273,10 @@ get_quoted_string(
 	while (*source) {
 		if ('\\' == *source) {
 			quote = TRUE;	/* next char as-is */
-			source++;
+			if ('\\' == *++source) {
+				*ptr++ = *source++;
+				quote = FALSE;
+			}
 			continue;
 		}
 		if (('"' == *source) && !quote)
@@ -260,11 +318,13 @@ parse_params(
 	char *params,
 	t_part *content)
 {
-	char *name, *param, *value;
+	char *name, *param, *value, *contp;
+	int idx;
 	t_param *ptr;
 
 	param = params;
 	while (*param) {
+		idx = -1;
 		/* Skip over white space */
 		if (!(param = skip_space(param)))
 			break;
@@ -272,10 +332,17 @@ parse_params(
 		/* catch parameter name */
 		name = get_token(param);
 		param += strlen(name);
+
 		if (!*param) {
 			/* Nothing follows, invalid, stop here */
 			FreeIfNeeded(name);
 			break;
+		}
+
+		/* RFC 2231 Parameter Value Continuations */
+		if ((contp = strchr(name, '*')) && *(contp + 1) && *(contp + 1) != '=') {
+			idx = atoi(contp + 1);
+			*contp = '\0';
 		}
 
 		if (!(param = skip_equal_sign(param))) {
@@ -295,6 +362,7 @@ parse_params(
 		ptr = my_malloc(sizeof(t_param));
 		ptr->name = name;
 		ptr->value = value;	/* TODO don't RFC1522 decode, parameter encoding is per RFC2231 (not implemented yet) */
+		ptr->part = idx;
 		ptr->next = content->params;		/* Push onto start of list */
 		content->params = ptr;
 
@@ -333,9 +401,46 @@ get_param(
 	t_param *list,
 	const char *name)
 {
-	for (; list != NULL; list = list->next) {
-		if (strcasecmp(name, list->name) == 0)
-			return list->value;
+	int i, j;
+	size_t newlen;
+	t_param *p_list, *c_list;
+
+	for (p_list = list; p_list != NULL; p_list = p_list->next) {
+		/*
+		 * RFC 2231 Parameter Value Continuations
+		 *
+		 * part == 0,1,2...: parameter has several parts, must be concatenated
+		 * part == -1      : parameter has only one part
+		 * part == -2      : part has already been concatenated, main part has
+		 *                   part == -1
+		 */
+		if (strcasecmp(name, p_list->name) == 0 && p_list->part > -2) {
+			if (p_list->part >= 0) {
+				newlen = 0;
+				for (j = 0, c_list = list; c_list != NULL; c_list = c_list->next) {
+					if (strcasecmp(name, c_list->name) == 0) {
+						if (c_list->part == 0)
+							p_list = c_list;
+
+						newlen += strlen(c_list->value);
+						++j;
+					}
+				}
+				p_list->value = my_realloc(p_list->value, newlen + 1);
+				for (i = 1; i <= j; ++i) {
+					for (c_list = list; c_list != NULL; c_list = c_list->next) {
+						if (strcasecmp(name, c_list->name) == 0) {
+							if (c_list->part == i) {
+								strcat(p_list->value, c_list->value);
+								c_list->part = -2;
+							}
+						}
+					}
+				}
+				p_list->part = -1;
+			}
+			return p_list->value;
+		}
 	}
 
 	return NULL;
@@ -353,6 +458,9 @@ parse_content_type(
 	char *subtype, *params;
 	int i;
 
+	/* Remove comments and white space */
+	remove_cwsp(type);
+
 	/*
 	 * Split the type/subtype
 	 */
@@ -360,13 +468,6 @@ parse_content_type(
 		return;
 
 	/* Look up major type */
-
-	/*
-	 * TODO: remove/ignore comments in the CT-header, currently
-	 *       we do not recognize
-	 *          Content-Type: (foo) text/plain; charset=us-ascii
-	 *       as "text/plain"
-	 */
 
 	/*
 	 * Unrecognised type, treat according to RFC

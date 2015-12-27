@@ -3,10 +3,10 @@
  *  Module    : main.c
  *  Author    : I. Lea & R. Skrenta
  *  Created   : 1991-04-01
- *  Updated   : 2013-11-27
+ *  Updated   : 2015-10-31
  *  Notes     :
  *
- * Copyright (c) 1991-2015 Iain Lea <iain@bricbrac.de>, Rich Skrenta <skrenta@pbm.com>
+ * Copyright (c) 1991-2016 Iain Lea <iain@bricbrac.de>, Rich Skrenta <skrenta@pbm.com>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -144,13 +144,16 @@ main(
 	hash_init();
 	init_selfinfo();
 	init_group_hash();
-	setup_default_keys(); /* preinit keybindings */
 
 	/*
 	 * Process envargs & command line options
 	 * These override the configured in values
 	 */
 	read_cmd_line_options(argc, argv);
+
+	/* preinit keybindings if interactive */
+	if (!batch_mode)
+		setup_default_keys();
 
 	/*
 	 * Read user local & global config files
@@ -201,6 +204,7 @@ main(
 	if (!nntp_server || !*nntp_server)
 		nntp_server = getserverbyfile(NNTP_SERVER_FILE);
 	if (read_news_via_nntp && !read_saved_news && nntp_open()) {
+		nntp_close();
 		free_all_arrays();
 		giveup();
 	}
@@ -425,6 +429,9 @@ main(
 
 /*
  * process command line options
+ * [01235789beEFijJkKLOtTyY] are unused
+ * [W] is reserved
+ * [BCPU] have been in use at some time, but now are unused
  */
 #define OPTIONS "46aAcdD:f:g:G:hHI:lm:M:nNop:qQrRs:SuvVwxXzZ"
 
@@ -450,7 +457,7 @@ read_cmd_line_options(
 				error_message(2, _(txt_option_not_enabled), "-DENABLE_IPV6");
 #	else
 				error_message(2, _(txt_option_not_enabled), "-DNNTP_ABLE");
-#	endif /* NNTP_ABLE*/
+#	endif /* NNTP_ABLE */
 				free_all_arrays();
 				giveup();
 				/* keep lint quiet: */
@@ -467,7 +474,7 @@ read_cmd_line_options(
 				error_message(2, _(txt_option_not_enabled), "-DENABLE_IPV6");
 #	else
 				error_message(2, _(txt_option_not_enabled), "-DNNTP_ABLE");
-#	endif /* NNTP_ABLE*/
+#	endif /* NNTP_ABLE */
 				free_all_arrays();
 				giveup();
 				/* keep lint quiet: */

@@ -3,10 +3,10 @@
  *  Module    : page.c
  *  Author    : I. Lea & R. Skrenta
  *  Created   : 1991-04-01
- *  Updated   : 2014-04-26
+ *  Updated   : 2015-12-16
  *  Notes     :
  *
- * Copyright (c) 1991-2015 Iain Lea <iain@bricbrac.de>, Rich Skrenta <skrenta@pbm.com>
+ * Copyright (c) 1991-2016 Iain Lea <iain@bricbrac.de>, Rich Skrenta <skrenta@pbm.com>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -316,6 +316,7 @@ show_page(
 	char key[MAXKEYLEN];
 	int i, j, n = 0;
 	int art_type = GROUP_TYPE_NEWS;
+	int hide_uue_tmp;
 	t_artnum old_artnum = T_ARTNUM_CONST(0);
 	t_bool mouse_click_on = TRUE;
 	t_bool repeat_search;
@@ -1000,7 +1001,12 @@ return_to_index:
 
 			case PAGE_VIEW_ATTACHMENTS:
 				XFACE_SUPPRESS();
+				hide_uue_tmp = hide_uue;
+				hide_uue = UUE_NO;
+				resize_article(TRUE, &pgart);
 				attachment_page(&pgart);
+				hide_uue = hide_uue_tmp;
+				resize_article(TRUE, &pgart);
 				draw_page(group->name, 0);
 				XFACE_SHOW();
 				break;
@@ -1473,6 +1479,7 @@ draw_page_header(
 	if (whichresp)
 		my_printf(_(txt_art_x_of_n), whichresp + 1, x_resp + 1);
 	else {
+		/* TODO: ngettext */
 		if (!x_resp)
 			my_printf("%s", _(txt_no_responses));
 		else if (x_resp == 1)
@@ -1674,10 +1681,11 @@ draw_page_header(
 	if (whichresp)
 		my_printf(_(txt_art_x_of_n), whichresp + 1, x_resp + 1);
 	else {
+		/* TODO: ngettext */
 		if (!x_resp)
-			my_printf(_(txt_no_responses));
+			my_printf("%s", _(txt_no_responses));
 		else if (x_resp == 1)
-			my_printf(_(txt_1_resp));
+			my_printf("%s", _(txt_1_resp));
 		else
 			my_printf(_(txt_x_resp), x_resp);
 	}
@@ -2051,14 +2059,12 @@ toggle_raw(
 	}
 	curr_line = 0;
 	show_raw_article = bool_not(show_raw_article);
-	draw_page(group->name, 0);
+	draw_page(group ? group->name : "", 0);
 }
 
 
 /*
  * Re-cook an article
- *
- * TODO: check cook_article()s return code
  */
 void
 resize_article(
@@ -2069,7 +2075,10 @@ resize_article(
 	if (artinfo->cooked)
 		fclose(artinfo->cooked);
 
-	cook_article(wrap_lines, artinfo, hide_uue, show_all_headers);
+	if (!cook_article(wrap_lines, artinfo, hide_uue, show_all_headers)) {
+		wait_message(3, _(txt_cook_article_failed_exiting), tin_progname);
+		tin_done(EXIT_FAILURE);
+	}
 
 	show_raw_article = FALSE;
 	artline = pgart.cookl;

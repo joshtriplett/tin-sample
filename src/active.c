@@ -6,7 +6,7 @@
  *  Updated   : 2014-01-09
  *  Notes     :
  *
- * Copyright (c) 1992-2015 Iain Lea <iain@bricbrac.de>
+ * Copyright (c) 1992-2016 Iain Lea <iain@bricbrac.de>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -712,7 +712,7 @@ read_active_counts(
 	if (!batch_mode || verbose)
 		my_fputc('\n', stdout);
 }
-#endif /* NNTP_ABLE*/
+#endif /* NNTP_ABLE */
 
 
 /*

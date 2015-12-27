@@ -9,7 +9,7 @@
  *              and the name of the newsrc file for a given
  *              alias of the server.
  *
- * Copyright (c) 1996-2015 Sven Paulus <sven@tin.org>
+ * Copyright (c) 1996-2016 Sven Paulus <sven@tin.org>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -186,6 +186,13 @@ get_newsrcname(
 				*strrchr(dir, '/') = (char) 0;
 
 			if (!error) {
+			/*
+			 * TODO: shall we create a missing dir?
+			 *       currently something like
+			 *       ~/.tin/${NNTPSERVER-localhost}/.newsrc
+			 *       in newsrctable usually ends with
+			 *       "No permissions to go into /home/urs/.tin/${NNTPSERVER}"
+			 */
 			/* FIXME - write a global permssion check routine */
 				if (access(dir, X_OK)) {
 					my_fprintf(stderr, _(txt_error_no_enter_permission), dir);

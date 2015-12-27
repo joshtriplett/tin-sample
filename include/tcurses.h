@@ -6,7 +6,7 @@
  *  Updated   : 2011-04-02
  *  Notes     : curses #include files, #defines & struct's
  *
- * Copyright (c) 1997-2015 Thomas Dickey <dickey@invisible-island.net>
+ * Copyright (c) 1997-2016 Thomas Dickey <dickey@invisible-island.net>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -50,9 +50,9 @@
 #				endif /* _XOPEN_SOURCE_EXTENDED */
 #				include <ncursesw/ncurses.h>
 				/* we need a recent ncursesw for wide-char */
-#				if (NCURSES_VERSION_MAJOR >= 5) && (NCURSES_VERSION_MINOR >= 3)
+#				if (NCURSES_VERSION_MAJOR == 5) && (NCURSES_VERSION_MINOR >= 3) || (NCURSES_VERSION_MAJOR >= 6)
 #					define HAVE_NCURSESW 1
-#				endif /* NCURSES_VERSION_MAJOR >= 5 && NCURSES_VERSION_MINOR >=3 */
+#				endif /* NCURSES_VERSION_MAJOR == 5 && NCURSES_VERSION_MINOR >=3 || NCURSES_VERSION_MAJOR >= 6 */
 #			else
 #				if defined(HAVE_NCURSES_H)
 #					include <ncurses.h>

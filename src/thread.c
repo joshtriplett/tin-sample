@@ -3,10 +3,10 @@
  *  Module    : thread.c
  *  Author    : I. Lea
  *  Created   : 1991-04-01
- *  Updated   : 2014-04-29
+ *  Updated   : 2015-11-09
  *  Notes     :
  *
- * Copyright (c) 1991-2015 Iain Lea <iain@bricbrac.de>
+ * Copyright (c) 1991-2016 Iain Lea <iain@bricbrac.de>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -181,28 +181,26 @@ build_tline(
 				break;
 
 			case 'F':	/* from */
-				if (curr_group->attribute->show_author != SHOW_FROM_NONE) {
 #if defined(MULTIBYTE_ABLE) && !defined(NO_LOCALE)
-					get_author(TRUE, art, tmp, sizeof(tmp) - 1);
+				get_author(TRUE, art, tmp, sizeof(tmp) - 1);
 
-					if ((wtmp = char2wchar_t(tmp)) != NULL) {
-						wtmp2 = wcspart(wtmp, thrd_fmt.len_from, TRUE);
-						if (wcstombs(tmp, wtmp2, sizeof(tmp) - 1) != (size_t) -1)
-							strcat(buffer, tmp);
+				if ((wtmp = char2wchar_t(tmp)) != NULL) {
+					wtmp2 = wcspart(wtmp, thrd_fmt.len_from, TRUE);
+					if (wcstombs(tmp, wtmp2, sizeof(tmp) - 1) != (size_t) -1)
+						strcat(buffer, tmp);
 
-						free(wtmp);
-						free(wtmp2);
-					}
-#else
-					len_start = strwidth(buffer);
-					get_author(TRUE, art, buffer + strlen(buffer), thrd_fmt.len_from);
-					fill = thrd_fmt.len_from - (strwidth(buffer) - len_start);
-					gap = strlen(buffer);
-					for (i = 0; i < fill; i++)
-						buffer[gap + i] = ' ';
-					buffer[gap + fill] = '\0';
-#endif /* MULTIBYTE_ABLE && !NO_LOCALE */
+					free(wtmp);
+					free(wtmp2);
 				}
+#else
+				len_start = strwidth(buffer);
+				get_author(TRUE, art, buffer + strlen(buffer), thrd_fmt.len_from);
+				fill = thrd_fmt.len_from - (strwidth(buffer) - len_start);
+				gap = strlen(buffer);
+				for (i = 0; i < fill; i++)
+					buffer[gap + i] = ' ';
+				buffer[gap + fill] = '\0';
+#endif /* MULTIBYTE_ABLE && !NO_LOCALE */
 				break;
 
 			case 'I':	/* initials */
@@ -264,33 +262,64 @@ build_tline(
 				break;
 
 			case 'T':	/* thread/subject */
-				if (show_subject) {
-					len = curr_group->attribute->show_author != SHOW_FROM_NONE ? thrd_fmt.len_subj : thrd_fmt.len_subj + thrd_fmt.len_from;
-					/*
-					 * Mutt-like thread tree. by sjpark@sparcs.kaist.ac.kr
-					 * Insert tree-structure strings "`->", "+->", ...
-					 */
-					len_start = strwidth(buffer);
+				len = curr_group->attribute->show_author != SHOW_FROM_NONE ? thrd_fmt.len_subj : thrd_fmt.len_subj + thrd_fmt.len_from;
+				len_start = strwidth(buffer);
 
-					if (art->refptr) {
-						make_prefix(art->refptr, buffer + strlen(buffer), len);
-
-						len_end = strwidth(buffer);
-
-						/*
-						 * Copy in the subject up to where the author (if any) starts
-						 */
-						gap = len - (len_end - len_start);
-
+				switch (curr_group->attribute->thread_articles) {
+					case THREAD_REFS:
+					case THREAD_BOTH:
 						/*
 						 * Mutt-like thread tree. by sjpark@sparcs.kaist.ac.kr
-						 * Hide subject if same as parent's.
+						 * Insert tree-structure strings "`->", "+->", ...
 						 */
-						if (gap > 0) {
-							for (ptr = art->refptr->parent; ptr && IS_EXPIRED(ptr); ptr = ptr->parent)
-								;
 
-							if (!(ptr && arts[ptr->article].subject == art->subject))
+						if (art->refptr) {
+							make_prefix(art->refptr, buffer + strlen(buffer), len);
+
+							len_end = strwidth(buffer);
+
+							/*
+							 * Copy in the subject up to where the author (if any) starts
+							 */
+							gap = len - (len_end - len_start);
+
+							/*
+							 * Mutt-like thread tree. by sjpark@sparcs.kaist.ac.kr
+							 * Hide subject if same as parent's.
+							 */
+							if (gap > 0) {
+								for (ptr = art->refptr->parent; ptr && IS_EXPIRED(ptr); ptr = ptr->parent)
+									;
+
+								if (!(ptr && arts[ptr->article].subject == art->subject))
+#if defined(MULTIBYTE_ABLE) && !defined(NO_LOCALE)
+								{
+									if ((wtmp = char2wchar_t(art->subject)) != NULL) {
+										wtmp2 = wcspart(wtmp, gap, TRUE);
+										if (wcstombs(tmp, wtmp2, sizeof(tmp) - 1) != (size_t) -1)
+											strcat(buffer, tmp);
+
+										free(wtmp);
+										free(wtmp2);
+									}
+								}
+#else
+								{
+									strncat(buffer, art->subject, gap);
+								}
+								buffer[len_end + gap] = '\0';	/* Just in case */
+#endif /* MULTIBYTE_ABLE && !NO_LOCALE */
+							}
+						}
+						break;
+
+					case THREAD_NONE:
+					case THREAD_SUBJ:
+					case THREAD_MULTI:
+					case THREAD_PERC:
+						len_end = strwidth(buffer);
+						gap = len - (len_end - len_start);
+						if (gap > 0) {
 #if defined(MULTIBYTE_ABLE) && !defined(NO_LOCALE)
 							{
 								if ((wtmp = char2wchar_t(art->subject)) != NULL) {
@@ -309,6 +338,10 @@ build_tline(
 							buffer[len_end + gap] = '\0';	/* Just in case */
 #endif /* MULTIBYTE_ABLE && !NO_LOCALE */
 						}
+						break;
+
+					default:
+						break;
 					}
 
 					/* pad out */
@@ -317,7 +350,6 @@ build_tline(
 					for (i = 0; i < fill; i++)
 						buffer[gap + i] = ' ';
 					buffer[gap + fill] = '\0';
-				}
 				break;
 
 			default:
@@ -843,17 +875,16 @@ show_thread_page(
 
 	signal_context = cThread;
 	currmenu = &thdmenu;
+	show_subject = FALSE;
 
 	ClearScreen();
 	set_first_screen_item();
 
-	/*
-	 * If threading by Refs, it helps to see the subject line
-	 */
-	show_subject = ((arts[thread_respnum].archive != NULL) || (curr_group->attribute->thread_articles == THREAD_REFS) || (curr_group->attribute->thread_articles == THREAD_BOTH));
-
 	parse_format_string(curr_group->attribute->thread_format, &thrd_fmt);
 	mark_offset = 0;
+
+	if (!show_subject)
+		show_subject = arts[thread_respnum].archive != NULL;
 
 	if (show_subject)
 		title = fmt_string(_(txt_stp_list_thread), grpmenu.curr + 1, grpmenu.max);
@@ -865,7 +896,8 @@ show_thread_page(
 	art = find_response(thread_basenote, thdmenu.first);
 	for (i = thdmenu.first; i < thdmenu.first + NOTESLINES && i < thdmenu.max; ++i) {
 		build_tline(i, &arts[art]);
-		art = next_response(art);
+		if ((art = next_response(art)) < 0)
+			break;
 	}
 
 	show_mini_help(THREAD_LEVEL);

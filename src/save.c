@@ -3,10 +3,10 @@
  *  Module    : save.c
  *  Author    : I. Lea & R. Skrenta
  *  Created   : 1991-04-01
- *  Updated   : 2014-10-04
+ *  Updated   : 2015-12-16
  *  Notes     :
  *
- * Copyright (c) 1991-2015 Iain Lea <iain@bricbrac.de>, Rich Skrenta <skrenta@pbm.com>
+ * Copyright (c) 1991-2016 Iain Lea <iain@bricbrac.de>, Rich Skrenta <skrenta@pbm.com>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -88,8 +88,8 @@ static void generate_filename(char *buf, int buflen, const char *suffix);
 #endif /* !DONT_HAVE_PIPING */
 static void post_process_uud(void);
 static void post_process_sh(void);
-static void process_part(t_part *part,	FILE *rawfp, FILE *outfile, const char *savepath, enum action what);
-static void process_parts(t_part *part,	FILE *rawfp, enum action what);
+static void process_part(t_part *part, t_openartinfo *art, FILE *outfile, const char *savepath, enum action what);
+static void process_parts(t_part *part, t_openartinfo *art, enum action what);
 static void show_attachment_page(void);
 static void start_viewer(t_part *part, const char *path);
 static void tag_pattern(void);
@@ -138,6 +138,7 @@ check_start_save_any_news(
 	int i, j;
 	int art_count, hot_count;
 	int saved_arts = 0;					/* Total # saved arts */
+	struct t_article *art;
 	struct t_group *group;
 	t_bool log_opened = TRUE;
 	t_bool print_first = verbose;
@@ -202,7 +203,7 @@ check_start_save_any_news(
 			snprintf(buf, sizeof(buf), _(txt_saved_groupname), group->name);
 			fprintf(fp_log, "%s", buf);
 			if (verbose)
-				wait_message(0, buf);
+				wait_message(0, "%s", buf);
 
 			if (function == SAVE_ANY_NEWS) {
 				char tmp[PATH_LEN];
@@ -216,8 +217,14 @@ check_start_save_any_news(
 			}
 		}
 
-		if (!index_group(group))
+		if (!index_group(group)) {
+			for_each_art(j) {
+				art = &arts[j];
+				FreeAndNull(art->refs);
+				FreeAndNull(art->msgid);
+			}
 			continue;
+		}
 
 		/*
 		 * For each article in this group...
@@ -287,7 +294,7 @@ check_start_save_any_news(
 					snprintf(buf, sizeof(buf), "[%5"T_ARTNUM_PFMT"]  %s\n", arts[j].artnum, arts[j].subject);
 					fprintf(fp_log, "%s", buf);	/* buf may contain % */
 					if (verbose)
-						wait_message(0, buf);
+						wait_message(0, "%s", buf);
 
 					while ((line = tin_fgets(artfp, FALSE)) != NULL)
 						fprintf(savefp, "%s\n", line);		/* TODO: error handling */
@@ -344,7 +351,7 @@ check_start_save_any_news(
 					group_count, PLURAL(group_count, txt_group));
 			fprintf(fp_log, "%s", buf);
 			if (verbose)
-				wait_message(0, buf);
+				wait_message(0, "%s", buf);
 
 			if (log_opened) {
 				fclose(fp_log);
@@ -1222,7 +1229,7 @@ start_viewer(
 			fflush(stdout);
 		} else {
 			if (foo->description)
-				info_message(foo->description);
+				info_message("%s", foo->description);
 		}
 		invoke_cmd(foo->command);
 		if (foo->needsterminal) {
@@ -1665,7 +1672,7 @@ attachment_page(
 			case ATTACHMENT_SAVE:
 				if (attmenu.max) {
 					part = get_part(attmenu.curr);
-					process_parts(part, art->raw, num_of_tagged_parts ? SAVE_TAGGED : SAVE);
+					process_parts(part, art, num_of_tagged_parts ? SAVE_TAGGED : SAVE);
 					show_attachment_page();
 				}
 				break;
@@ -1673,7 +1680,7 @@ attachment_page(
 			case ATTACHMENT_SELECT:
 				if (attmenu.max) {
 					part = get_part(attmenu.curr);
-					process_parts(part, art->raw, VIEW);
+					process_parts(part, art, VIEW);
 					show_attachment_page();
 				}
 				break;
@@ -1735,7 +1742,7 @@ attachment_page(
 			case GLOBAL_PIPE:
 				if (attmenu.max) {
 					part = get_part(attmenu.curr);
-					process_parts(part, art->raw, func == GLOBAL_PIPE ? PIPE_RAW : PIPE);
+					process_parts(part, art, func == GLOBAL_PIPE ? PIPE_RAW : PIPE);
 					show_attachment_page();
 				}
 				break;
@@ -2156,7 +2163,7 @@ free_part_list(
 static void
 process_parts(
 	t_part *part,
-	FILE *rawfp,
+	t_openartinfo *art,
 	enum action what)
 {
 	FILE *fp;
@@ -2178,7 +2185,7 @@ process_parts(
 							free(savepath);
 							return;
 						}
-						process_part(lptr->part, rawfp, fp, NULL, SAVE);
+						process_part(lptr->part, art, fp, NULL, SAVE);
 						free(savepath);
 						++saved_parts;
 					}
@@ -2201,7 +2208,7 @@ process_parts(
 				free(savepath);
 				return;
 			}
-			process_part(part, rawfp, fp, savepath, what);
+			process_part(part, art, fp, savepath, what);
 			break;
 	}
 	switch (what) {
@@ -2231,34 +2238,75 @@ process_parts(
 static void
 process_part(
 	t_part *part,
-	FILE *rawfp,
+	t_openartinfo *art,
 	FILE *outfile,
 	const char *savepath,
 	enum action what)
 {
+	FILE *infile = NULL;
 	char buf[2048], buf2[2048];
 	int count;
-	int i;
+	int i, line_count;
+#ifdef CHARSET_CONVERSION
+	char *conv_buf;
+	const char *network_charset;
+	size_t line_len;
+#endif /* CHARSET_CONVERSION */
+
+	/*
+	 * uuencoded parts must be read from the cooked article,
+	 * otherwise they might be additionally encoded with b64 or qp
+	 */
+	if (part->encoding == ENCODING_UUE)
+		infile = art->cooked;
+	else
+		infile = art->raw;
 
 	if (what != PIPE_RAW && part->encoding == ENCODING_BASE64)
 		mmdecode(NULL, 'b', 0, NULL);				/* flush */
 
-	fseek(rawfp, part->offset, SEEK_SET);
+	fseek(infile, part->offset, SEEK_SET);
 
-	for (i = 0; i < part->line_count; i++) {
-		if ((fgets(buf, sizeof(buf), rawfp)) == NULL)
+	line_count = part->line_count;
+
+	for (i = 0; i < line_count; i++) {
+		if ((fgets(buf, sizeof(buf), infile)) == NULL)
 			break;
 
 		/* This should catch cases where people illegally append text etc */
 		if (buf[0] == '\0')
 			break;
 
+		/*
+		 * page.c:new_uue() sets offset to the 'begin ...' line
+		 * -> skip over the first line in uuencoded parts
+		 */
+		if (part->encoding == ENCODING_UUE && i == 0) {
+			++line_count;
+			continue;
+		}
+
 		if (what != PIPE_RAW) {
 			switch (part->encoding) {
 				case ENCODING_QP:
 				case ENCODING_BASE64:
-					if ((count = mmdecode(buf, part->encoding == ENCODING_QP ? 'q' : 'b', '\0', buf2)) > 0)
+#ifdef CHARSET_CONVERSION
+					memset(buf2, '\0', sizeof(buf2));
+#endif /* CHARSET_CONVERSION */
+					if ((count = mmdecode(buf, part->encoding == ENCODING_QP ? 'q' : 'b', '\0', buf2)) > 0) {
+#ifdef CHARSET_CONVERSION
+						if (what != SAVE && what != SAVE_TAGGED && !strncmp(content_types[part->type], "text", 4)) {
+							line_len = count;
+							conv_buf = my_strdup(buf2);
+							network_charset = get_param(part->params, "charset");
+							process_charsets(&conv_buf, &line_len, network_charset ? network_charset : "US-ASCII", tinrc.mm_local_charset, FALSE);
+							strncpy(buf2, conv_buf, sizeof(buf2) - 1);
+							count = strlen(buf2);
+							free(conv_buf);
+						}
+#endif /* CHARSET_CONVERSION */
 						fwrite(buf2, count, 1, outfile);
+					}
 					break;
 
 				case ENCODING_UUE:
@@ -2271,6 +2319,16 @@ process_part(
 					break;
 
 				default:
+#ifdef CHARSET_CONVERSION
+						if (what != SAVE && what != SAVE_TAGGED && !strncmp(content_types[part->type], "text", 4)) {
+							line_len = strlen(buf);
+							conv_buf = my_strdup(buf);
+							network_charset = get_param(part->params, "charset");
+							process_charsets(&conv_buf, &line_len, network_charset ? network_charset : "US-ASCII", tinrc.mm_local_charset, FALSE);
+							strncpy(buf, conv_buf, sizeof(buf) - 1);
+							free(conv_buf);
+						}
+#endif /* CHARSET_CONVERSION */
 					fputs(buf, outfile);
 			}
 		} else
