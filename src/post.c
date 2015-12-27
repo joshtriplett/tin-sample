@@ -3,10 +3,10 @@
  *  Module    : post.c
  *  Author    : I. Lea
  *  Created   : 1991-04-01
- *  Updated   : 2014-10-25
+ *  Updated   : 2015-12-10
  *  Notes     : mail/post/replyto/followup/repost & cancel articles
  *
- * Copyright (c) 1991-2015 Iain Lea <iain@bricbrac.de>
+ * Copyright (c) 1991-2016 Iain Lea <iain@bricbrac.de>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -912,8 +912,17 @@ check_article_to_be_posted(
 			subject[cCOLS - 6] = '\0';
 		}
 
+/*
+ * only allow hand supplied Sender in FORGERY case or
+ * with external inews and not HAVE_FASCIST_NEWSADMIN
+ */
 #ifndef FORGERY
-		if (cp - line == 6 && !strncasecmp(line, "Sender", 6)) {
+#	ifdef HAVE_FASCIST_NEWSADMIN
+		if (cp - line == 6 && !strncasecmp(line, "Sender", 6))
+#	else
+		if (!strcasecmp(tinrc.inews_prog, INTERNAL_CMD) && cp - line == 6 && !strncasecmp(line, "Sender", 6))
+#	endif /* HAVE_FASCIST_NEWSADMIN */
+		{
 			StartInverse();
 			my_fprintf(stderr, _(txt_error_sender_in_header_not_allowed), cnt);
 			EndInverse();
@@ -1982,7 +1991,7 @@ post_article_done:
 			}
 		}
 
-		if (header.subj) {
+		if (header.subj && header.newsgroups) {
 			char tag;
 			/*
 			 * When crossposting postponed articles we currently do not add
@@ -2087,7 +2096,8 @@ check_moderated(
 	/* Take copy - strtok() modifies its args */
 	STRCPY(newsgroups, groups);
 
-	ogroupn = groupname = strtok(newsgroups, ",");
+	if ((ogroupn = groupname = strtok(newsgroups, ",")) == NULL)
+		return NULL;
 
 	do {
 		vnum++; /* number of newsgroups */
@@ -4488,12 +4498,12 @@ insert_from_header(
 					/*
 					 * insert_from_header() is only called
 					 * from submit_mail_file() so the 3rd
-					 * arg should perhaps be TRUE
+					 * arg is TRUE
 					 */
 #	ifdef CHARSET_CONVERSION
-					p = rfc1522_encode(from_buff, txt_mime_charsets[tinrc.mm_network_charset], FALSE);
+					p = rfc1522_encode(from_buff, txt_mime_charsets[tinrc.mm_network_charset], TRUE);
 #	else
-					p = rfc1522_encode(from_buff, tinrc.mm_charset, FALSE);
+					p = rfc1522_encode(from_buff, tinrc.mm_charset, TRUE);
 #	endif /* CHARSET_CONVERSION */
 					if (GNKSA_OK != gnksa_check_from(p)) { /* error in address */
 						error_message(2, _(txt_invalid_from), from_buff);
@@ -4570,9 +4580,9 @@ find_reply_to_addr(
 		/* TODO: Return code ignored? */
 		parse_from(ptr, from_addr, fname);
 #else
-		/* Or should we decode full_addr? */
-		parse_from(ptr, temp, fname);
-		strcpy(full_addr, rfc1522_decode(tmp));
+		/* Or should we decode from_addr? */
+		parse_from(ptr, tmp, fname);
+		strcpy(from_addr, rfc1522_decode(tmp));
 #endif /* 1 */
 	} else
 		strcpy(from_addr, ptr);

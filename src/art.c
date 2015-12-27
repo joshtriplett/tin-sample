@@ -3,10 +3,10 @@
  *  Module    : art.c
  *  Author    : I.Lea & R.Skrenta
  *  Created   : 1991-04-01
- *  Updated   : 2013-11-10
+ *  Updated   : 2015-11-11
  *  Notes     :
  *
- * Copyright (c) 1991-2015 Iain Lea <iain@bricbrac.de>, Rich Skrenta <skrenta@pbm.com>
+ * Copyright (c) 1991-2016 Iain Lea <iain@bricbrac.de>, Rich Skrenta <skrenta@pbm.com>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -477,8 +477,10 @@ index_group(
 	if ((last_read_article < max) && caching_xover) {
 		new_min = (last_read_article >= min) ? last_read_article + 1 : min;
 
-		if ((changed += read_overview(group, new_min, max, &last_read_article, FALSE)) == -1)
+		if ((i = read_overview(group, new_min, max, &last_read_article, FALSE)) == -1)
 			return FALSE;	/* user aborted indexing */
+		else
+			changed += i;
 	} else
 		caching_xover = FALSE;
 
@@ -502,8 +504,10 @@ index_group(
 	if (total > 0) {
 		new_min = (getart_limit != 0 && last_read_article < min) ? min - 1 : last_read_article;
 
-		if ((changed += read_art_headers(group, total, new_min)) == -1)
+		if ((i = read_art_headers(group, total, new_min)) == -1)
 			return FALSE;		/* user aborted indexing */
+		else
+			changed += i;
 	}
 
 #ifdef DEBUG
@@ -767,6 +771,21 @@ read_art_headers(
 				debug_print_file("NNTP", "read_art_headers() %s", buf);
 			}
 #endif /* DEBUG */
+			arts[top_art].artnum = T_ARTNUM_CONST(0);
+			arts[top_art].date = (time_t) 0;
+			FreeAndNull(arts[top_art].xref);
+			FreeAndNull(arts[top_art].refs);
+			FreeAndNull(arts[top_art].msgid);
+			if (arts[top_art].archive) {
+				FreeAndNull(arts[top_art].archive->partnum);
+				FreeAndNull(arts[top_art].archive);
+			}
+			arts[top_art].tagged = 0;
+			arts[top_art].thread = ART_EXPIRED;
+			arts[top_art].prev = ART_NORMAL;
+			arts[top_art].status = ART_UNREAD;
+			arts[top_art].killed = ART_NOTKILLED;
+			arts[top_art].selected = FALSE;
 			continue;
 		}
 
@@ -902,7 +921,7 @@ thread_by_percentage(
 		if (!(slen = strlen(arts[base[root_num]].subject)))
 			slen++;
 		unmatched += abs(slen - strlen(arts[i].subject));
-		if ((unmatched * 100) / slen > percentage) {
+		if (unmatched * 100 / slen > percentage) {
 			/*
 			 * If there is less greater than percentage% different start a
 			 * new thread.
@@ -2281,6 +2300,7 @@ do_update(
 {
 	int i, j, k = 0;
 	time_t beg_epoch = 0;
+	struct t_article *art;
 	struct t_group *group;
 
 	if (verbose)
@@ -2302,8 +2322,14 @@ do_update(
 		if (group->bogus || !group->subscribed)
 			continue;
 
-		if (!index_group(group))
+		if (!index_group(group)) {
+			for_each_art(j) {
+				art = &arts[j];
+				FreeAndNull(art->refs);
+				FreeAndNull(art->msgid);
+			}
 			continue;
+		}
 
 		k++;
 

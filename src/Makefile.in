@@ -37,6 +37,7 @@ VERSION = @VERSION@
 SHELL		= /bin/sh
 prefix		= @prefix@
 exec_prefix	= @exec_prefix@
+datarootdir	= @datarootdir@
 top_srcdir	= @top_srcdir@
 top_builddir	= ..
 srcdir		= @srcdir@

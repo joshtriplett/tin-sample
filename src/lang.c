@@ -3,10 +3,10 @@
  *  Module    : lang.c
  *  Author    : I. Lea
  *  Created   : 1991-04-01
- *  Updated   : 2014-01-10
+ *  Updated   : 2015-11-21
  *  Notes     :
  *
- * Copyright (c) 1991-2015 Iain Lea <iain@bricbrac.de>
+ * Copyright (c) 1991-2016 Iain Lea <iain@bricbrac.de>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -143,6 +143,7 @@ constext txt_choose_post_process_type[] = N_("Post-process %s=no, %s=yes, %s=sha
 	constext txt_color_on[] = N_("ANSI color enabled");
 #endif /* HAVE_COLOR */
 constext txt_command_failed[] = N_("Command failed: %s");
+constext txt_cook_article_failed_exiting[] = N_("Cook article failed, %s is exiting");
 constext txt_confirm_select_on_exit[] = N_("Mark not selected articles read?");
 #ifdef NNTP_ABLE
 	constext txt_connecting[] = N_("Connecting to %s...");
@@ -186,6 +187,7 @@ constext txt_error_copy_fp[] = "copy_fp() failed";
 constext txt_error_corrupted_file[] = N_("Corrupted file %s");
 constext txt_error_fseek[] = "fseek() error on [%s]";
 constext txt_error_followup_poster[] = N_("\nError: Followup-To \"poster\" and a newsgroup is not allowed!\n");
+constext txt_error_format_string[] = N_("Error: Custom format exceeds screen width. Using default \"%s\".");
 constext txt_error_gnksa_internal[] = N_("Internal error in GNKSA routine - send bug report.\n");
 constext txt_error_gnksa_langle[] = N_("Left angle bracket missing in route address.\n");
 constext txt_error_gnksa_lparen[] = N_("Left parenthesis missing in old-style address.\n");
@@ -313,6 +315,7 @@ constext txt_group_rereading[] = N_("Rereading %s...");
 constext txt_group_select_com[] = N_("Top Level Commands");
 constext txt_group_selection[] = N_("Group Selection");
 constext txt_group_singular[] = N_("group");
+constext txt_grpdesc_disabled[] = N_("*** Group descriptions are disabled according to current select_format ***");
 
 constext txt_help_filter_comment[] = N_("One or more lines of comment. <CR> to add a line or proceed if line is empty.");
 constext txt_help_filter_from[] = N_("From: line to add to filter file. <SPACE> toggles & <CR> sets.");
@@ -1080,7 +1083,7 @@ Warning: Posting is in %s and contains characters which are not\n\
 #endif /* HAVE_PGP_GPG */
 
 #ifdef M_UNIX
-	constext txt_copyright_notice[] = "%s (c) Copyright 1991-2015 Iain Lea.";
+	constext txt_copyright_notice[] = "%s (c) Copyright 1991-2016 Iain Lea.";
 #endif /* M_UNIX */
 
 #ifdef NNTP_ABLE
@@ -1618,9 +1621,9 @@ struct opttxt txt_show_description = {
 };
 
 struct opttxt txt_show_author = {
-	N_("Show Subject & From (author) fields in group menu. <SPACE> toggles & <CR> sets."),
-	N_("In group menu, show author by"),
-	N_("# Part of from field to display\n\
+	N_("Show From (author) fields in group & thread level. <SPACE> toggles & <CR> sets."),
+	N_("In group and thread level, show author by"),
+	N_("# Part of From field to display in group and thread level\n\
 # Possible values are (the default is marked with *):\n\
 #   0 = none\n\
 #   1 = address\n\
@@ -1833,12 +1836,6 @@ struct opttxt txt_art_marked_read_selected = {
 # kill_level must be set accordingly, _ is turned into ' '\n")
 };
 
-struct opttxt txt_groupname_max_length = {
-	N_("Enter maximum length of newsgroup names displayed. <CR> sets."),
-	N_("Max. length of group names shown"),
-	N_("# Maximum length of the names of newsgroups displayed\n")
-};
-
 struct opttxt txt_abbreviate_groupname = {
 	N_("<SPACE> toggles, <CR> sets, <ESC> cancels."),
 	N_("Abbreviate long newsgroup names"),
@@ -1940,6 +1937,20 @@ struct opttxt txt_quote_regex3 = {
 	N_("Regex used to show >= 3 times q.l."),
 	N_("# A regular expression that tin will use to decide which lines are\n\
 # quoted >=3 times. >=3 times quoted lines are shown in col_quote3.\n\
+# If you leave this blank, tin will use a built in default.\n")
+};
+
+struct opttxt txt_extquote_handling = {
+	N_("Enable detection of external quotes? <SPACE> toggles & <CR> sets."),
+	N_("Detection of external quotes"),
+	N_("# If ON detect quoted text from external sources in articles\n")
+};
+
+struct opttxt txt_extquote_regex = {
+	N_("A regex used to decide which lines to show in col_extquote."),
+	N_("Regex used to show quotes from external sources"),
+	N_("# A regular expression that tin will use to decide which lines are\n\
+# external quotes. Text from external quotes is shown in col_extquote.\n\
 # If you leave this blank, tin will use a built in default.\n")
 };
 #endif /* HAVE_COLOR */
@@ -2228,6 +2239,13 @@ struct opttxt txt_col_subject = {
 	N_("Color of article subject lines"),
 	N_("# Color of article subject\n\
 # Default: 6 (cyan)\n")
+};
+
+struct opttxt txt_col_extquote = {
+	N_("<SPACE> toggles, <CR> sets, <ESC> cancels."),
+	N_("Color of external quotes"),
+	N_("# Color of quoted text from external sources\n\
+# Default: 5 (pink)\n")
 };
 
 struct opttxt txt_col_response = {

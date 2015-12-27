@@ -3,10 +3,10 @@
  *  Module    : rfc2045.c
  *  Author    : Chris Blum <chris@resolution.de>
  *  Created   : 1995-09-01
- *  Updated   : 2007-11-27
+ *  Updated   : 2015-08-24
  *  Notes     : RFC 2045/2047 encoding
  *
- * Copyright (c) 1995-2015 Chris Blum <chris@resolution.de>
+ * Copyright (c) 1995-2016 Chris Blum <chris@resolution.de>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -282,6 +282,9 @@ put_rest(
 		(*line)[put_chars++] = c;
 	}
 	if (c == '\n') {
+		/* Look for CRLF spread over two lines. */
+		if (put_chars && (*line)[put_chars -1] == '\r')
+			--put_chars;
 		/*
 		 * FIXME: Adding a newline may be not correct. At least it may
 		 * be not what the author of that article intended.
@@ -322,7 +325,7 @@ read_decoded_base64_line(
 	char **rest)
 {
 	char *buf2;	/* holds the entire decoded line */
-	char *buf;	/* holds the entire encoded line*/
+	char *buf;	/* holds the entire encoded line */
 	int count;
 	int lines_read = 0;
 	int put_chars;

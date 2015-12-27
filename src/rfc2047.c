@@ -3,10 +3,10 @@
  *  Module    : rfc2047.c
  *  Author    : Chris Blum <chris@resolution.de>
  *  Created   : 1995-09-01
- *  Updated   : 2014-05-09
+ *  Updated   : 2015-12-18
  *  Notes     : MIME header encoding/decoding stuff
  *
- * Copyright (c) 1995-2015 Chris Blum <chris@resolution.de>
+ * Copyright (c) 1995-2016 Chris Blum <chris@resolution.de>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -76,7 +76,6 @@ const char base64_alphabet[64] =
 
 static unsigned char base64_rank[256];
 static int base64_rank_table_built;
-static t_bool quoteflag;
 
 /* fixed prefix and default part for tin-generated MIME boundaries */
 static const char MIME_BOUNDARY_PREFIX[] = "=_tin=_";
@@ -200,7 +199,7 @@ mmdecode(
 		build_base64_rank_table();
 
 		while (*what != delimiter) {
-			x = base64_rank[(int) (*what++)];
+			x = base64_rank[(unsigned char) (*what++)];
 			/* ignore everything not in the alphabet, including '=' */
 			if (x == NOT_RANKED)
 				continue;
@@ -279,12 +278,19 @@ rfc1522_decode(
 
 			e = charset;
 			c++;
-			while (*c && *c != '?')
+			while (*c && *c != '?') {
+				/* skip over optional language tags (RFC2231, RFC5646) */
+				if (*c == '*') {
+					while (*++c && *c != '?')
+						;
+					continue;
+				}
 				*e++ = *c++;
+			}
 			*e = 0;
 			if (*c == '?') {
 				c++;
-				encoding = tolower((unsigned char)*c);
+				encoding = tolower((unsigned char) *c);
 				if (encoding == 'b')
 					(void) mmdecode(NULL, 'b', 0, NULL);	/* flush */
 				c++;
@@ -833,7 +839,6 @@ rfc1522_encode(
 	t_bool ismail)
 {
 	char *buf;
-	t_bool x;
 
 	/*
 	 * break_long_line is FALSE for news posting unless
@@ -850,8 +855,7 @@ rfc1522_encode(
 	t_bool break_long_line = ismail;
 #endif /* MIME_BREAK_LONG_LINES */
 
-	x = rfc1522_do_encode(s, &buf, charset, break_long_line);
-	quoteflag = quoteflag || x;
+	rfc1522_do_encode(s, &buf, charset, break_long_line);
 
 	return buf;
 }
@@ -890,8 +894,6 @@ do_rfc15211522_encode(
 
 	if ((g = tmpfile()) == NULL)
 		return;
-
-	quoteflag = FALSE;
 
 	while (contains_headers && (header = tin_fgets(f, TRUE))) {
 #ifdef CHARSET_CONVERSION
@@ -1290,7 +1292,10 @@ compose_multipart_mixed(
 
 	requires_8bit = (requires_8bit || contains_8bit_characters(textfp));
 
-	/* Header: CT with multipart boundary, CTE */
+	/*
+	 * Header: CT with multipart boundary, CTE
+	 * TODO: -> lang.c
+	 */
 	generate_mime_boundary(boundary, textfp, articlefp);
 	fprintf(fp, "Content-Type: multipart/mixed; boundary=\"%s\"\n", boundary);
 	fprintf(fp, "Content-Transfer-Encoding: %s\n\n", requires_8bit ? txt_8bit : txt_7bit);

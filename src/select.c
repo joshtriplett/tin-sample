@@ -3,10 +3,10 @@
  *  Module    : select.c
  *  Author    : I. Lea & R. Skrenta
  *  Created   : 1991-04-01
- *  Updated   : 2014-02-01
+ *  Updated   : 2015-11-21
  *  Notes     :
  *
- * Copyright (c) 1991-2015 Iain Lea <iain@bricbrac.de>, Rich Skrenta <skrenta@pbm.com>
+ * Copyright (c) 1991-2016 Iain Lea <iain@bricbrac.de>, Rich Skrenta <skrenta@pbm.com>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -261,10 +261,13 @@ selection_page(
 				break;
 
 			case SELECT_TOGGLE_DESCRIPTIONS:	/* toggle newsgroup descriptions */
-				show_description = bool_not(show_description);
-				if (show_description)
-					read_descriptions(TRUE);
-				show_selection_page();
+				if (sel_fmt.show_grpdesc) {
+					show_description = bool_not(show_description);
+					if (show_description)
+						read_descriptions(TRUE);
+					show_selection_page();
+				} else
+					info_message(_(txt_grpdesc_disabled));
 				break;
 
 			case SELECT_GOTO:			/* prompt for a new group name */
@@ -476,7 +479,7 @@ selection_page(
 						/*
 						 * this is a gross hack to avoid a crash in the
 						 * CHARSET_CONVERSION conversion case in new_part()
-						 * which relies currently relies on CURR_GROUP
+						 * which currently relies on CURR_GROUP
 						 */
 						selmenu.curr = my_group_add(buf, FALSE);
 						/*
@@ -573,7 +576,7 @@ show_selection_page(
 	set_first_screen_item();
 	show_title(buf);
 
-	if (!sel_fmt.len_grpname) {
+	if (sel_fmt.len_grpname_max && !sel_fmt.len_grpname) {
 		/*
 		 * calculate max length of groupname field
 		 * if yanked in (yanked_out == FALSE) check all groups in active file
@@ -590,11 +593,11 @@ show_selection_page(
 					sel_fmt.len_grpname = len;
 			}
 		}
-		groupname_len = show_description ? MIN((int) sel_fmt.len_grpname, tinrc.groupname_max_length) : (int) sel_fmt.len_grpname;
-	} else
-		groupname_len = sel_fmt.len_grpname;
+	}
 
-	if (groupname_len >= (int) sel_fmt.len_grpname_max)
+	groupname_len = (sel_fmt.show_grpdesc && show_description) ? (int) sel_fmt.len_grpname_dsc : (int) sel_fmt.len_grpname;
+
+	if (groupname_len > (int) sel_fmt.len_grpname_max)
 		groupname_len = sel_fmt.len_grpname_max;
 	if (groupname_len < 0)
 		groupname_len = 0;
@@ -1307,7 +1310,7 @@ subscribe_pattern(
 		return;
 	}
 
-	wait_message(0, message);
+	wait_message(0, "%s", message);
 
 	for_each_group(i) {
 		if (match_group_list(active[i].name, buf)) {

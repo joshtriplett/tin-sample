@@ -4,6 +4,12 @@ not read only ,-).
 
 Bugs
 ----
+o  replying via email to an article with
+   From: =?us-ascii?q?<a@example.com>,?= <b@example.org>
+   will result in
+   To: <a@example.com>, <b@example.org>
+   [20141230 Urs Janssen <urs@tin.org>]
+
 o  get_respcode() doesn't handle the 401 response code. as we have to
    evaluate the response text as well we have to fix every
    nntp_command(..., NULL, 0) call.
@@ -86,7 +92,7 @@ o  8bit chars in some headers are RFC-2047-encoded where this is not allowed
    [20090112 Urs Janssen <urs@tin.org>]
 
 o  the mime encoder may create two adjacent encoed words in the same line
-   i.e.       Subject: =?UTF-8?B?4oKs4oKs4oKs?= =?UTF-8?B?IOKCrOKCrOKCrA==?=
+   e.g.       Subject: =?UTF-8?B?4oKs4oKs4oKs?= =?UTF-8?B?IOKCrOKCrOKCrA==?=
    instead of Subject: =?UTF-8?B?4oKs4oKs4oKsIOKCrOKCrOKCrA==?=
    [20140513 Urs Janssen <urs@tin.org>]
 
@@ -122,7 +128,7 @@ o  add support for %A (Address), %C (Firstname), %N (Fullname) to
 
 o  add a key to "drop" pending data from the server (either by
    disconnet/reconnect (fast but reconnect may fail due to rate limit or ...)
-   or via calling drain_buffer() (might be slow if there ss much pending
+   or via calling drain_buffer() (might be slow if there is much pending
    data)) so one doesn't have to quit and restart tin if the client/server
    communication get's desynced (i.e by reading an article which has a non
    dotstuffed lone . in it or the like)
@@ -150,7 +156,7 @@ o  give an error message if append_mail() fails (grep TODO post.c)
 
 o  allow remapping of the 'z' abort-key (lynx style) in wait_for_input().
 
-o  add user defined screen layout at different levels (i.e. posting
+o  add user defined screen layout at different levels (e.g. posting
    history screen)
    (done for selection, group and thread level)
    - what about groupname_max_length, still needed?
@@ -440,10 +446,11 @@ o  Merge the selection code with the range code. Having two similar methods
    of picking articles with similar goals is wasteful.
    [Jason Faultless <jason@altarstone.com>]
 
-o  add check for liblzma/libbzip2/zlib (>=1.1.4)/[mini]lzo, liblz4, liblrzip
+o  add check for liblzma/libbzip2/zlib (>=1.1.4)/[mini]lzo, lzlib, liblz4,
+   liblrzip, ...
    (<http://tukaani.org/xz/>, <http://sources.redhat.com/bzip2/>,
     <http://www.gzip.org/zlib/>, <http://www.oberhumer.com/opensource/lzo/>,
-    <http://code.google.com/p/lz4/>,
+    <http://lzip.nongnu.org/lzlib.html>, <http://code.google.com/p/lz4/>,
     <http://freecode.com/projects/long-range-zip>) and add an option to
    write/read *zipped local overviews.
    the libs might also be used for post-processing articles.
@@ -539,13 +546,6 @@ o  do RFC 2231 decoding of non us-ascii MIME-parameter values
    (rfc2046.c:parse_params())
    [20110428 Urs Janssen <urs@tin.org>]
 
-o  allow RFC 2231 parameter value continuations
-   [20110428 Urs Janssen <urs@tin.org>]
-
-o  allow RFC 2231 language specification in encoded words
-   (rfc2047.c:rfc1522_decode())
-   [20110428 Urs Janssen <urs@tin.org>]
-
 o  add Content-Language (RFC 3282) analysis
 
 o  suppress hide_uue=2 checking unless first line in an article or following
@@ -556,6 +556,11 @@ o  add missing mailcap (RFC 1524) features (%n, %F, copiousoutput, print, ...)
 
 Internal Changes
 ----------------
+o  in ENABLE_NLS case replace PLURAL() macro with proper use of
+   ngettext(3) (if found by configure) to support languages with
+   more than one plural form.
+   [20150113 Urs Janssen <urs@tin.org>]
+
 o  rename disable_gnksa_domain_check to enable_gnksa_domain_check and
    invert logic now the default changed
    [20131119 Urs Janssen <urs@tin.org>]
@@ -575,7 +580,7 @@ o  ditch MAX_MSG_HEADERS (post.c)
    [20110212 Urs Janssen <urs@tin.org>]
 
 o  always display (also) the servers error response string to the user,
-   currently tin sometimes gives generic messages (i.e. when authentication
+   currently tin sometimes gives generic messages (e.g. when authentication
    fails), but the servers response may include additional infos (like
    bandwidth exceeded)
    [20101230 Urs Janssen <urs@tin.org>]
@@ -716,8 +721,9 @@ o  check code with Splint (LCLint) <http://www.splint.org/>,
    valgrind (<http://valgrind.org/>), cppcheck
    (<http://cppcheck.wiki.sourceforge.net/>), AdLint
    (<http://adlint.sourceforge.net>), clang-analyzer
-   (<http://clang-analyzer.llvm.org/>) and Coverity
-   (<https://scan.coverity.com/projects/993>)
+   (<http://clang-analyzer.llvm.org/>), Coverity
+   (<https://scan.coverity.com/projects/993>) and zzuf
+   (<http://caca.zoy.org/wiki/zzuf>)
 
 o  rewrite the tag code so that arts[].tagged becomes index in arts[]
    of next tagged article. num_of_tagged_arts becomes index of first
@@ -742,7 +748,7 @@ o  mask inline PGP SIGNATURE/KEY BLOCK like we do for uu-sections
    [20090722 Urs Janssen <urs@tin.org>]
 
 o  some non fixed width strings could be formatted nicer (warp on last space
-   before cCOLS), i.e. txt_warn_downgrade
+   before cCOLS), e.g. txt_warn_downgrade
    [20110325 Urs Janssen <urs@tin.org>]
 
 Unicode
@@ -781,7 +787,8 @@ o  make mm_network_charset an user configurable item list
 o  add IDNA 2003 (RFC 3490ff.) and IDNA 2008 (RFC 5890ff.) support,
    (<http://www.gnu.org/software/libidn/> IDNA 2003,
     <http://jprs.co.jp/idn/index-e.html> IDNA 2008,
-    <http://site.icu-project.org/> IDNA (uidna_IDNToUnicode()),
+    <http://site.icu-project.org/> IDNA (uidna_IDNToUnicode()
+     and/or with ICU >=4.6 uidna_nameToUnicode(uidna_openUTS46)),
     <http://www.gnu.org/s/libidn/#libidn2> IDNA 2008)
    (added minimalistic IDNA decoding support if a recent libidn is found, urs)
    [20030917 Urs Janssen <urs@tin.org>]
@@ -809,10 +816,10 @@ o  the online help of GroupMarkUnselArtRead 'X' is unclear as it doesn't
    say that the article are marked read
    [20090814 Urs Janssen <urs@tin.org>]
 
-o  document the different singnals/actions (i.e. SIGUSR2 writes newsrc)
+o  document the different singnals/actions (e.g. SIGUSR2 writes newsrc)
    [20080209 Urs Janssen <urs@tin.org>]
 
-o  exit staus documentation in the manpage isn't correct, we have more
+o  exit staus documentation in the man page isn't correct, we have more
    exit codes than just 0/1 (and 2 in the -Z case).
    [20080320 Urs Janssen <urs@tin.org>]
 
@@ -832,14 +839,35 @@ o  man page always needs work and proof reading
    e.g. 'U', 'V' in pager need better documentation, random organization
    feature isn't documented at all.
 
-o  tin.defaults could use more documentation in manpage (tin.5)
+o  tin.defaults could use more documentation in man page (tin.5)
 
-o  replace "\\" by "\e" in manpages (portable?)
+o  replace "\\" by "\e" in man pages (portable?)
 
-o  integrate doc/auth.txt into tin.1-manpage
+o  integrate doc/auth.txt into tin.1 man page
 
 Not yet classified
 ------------------
+o  allow "begin-base64"/"====\n" as start/end marker for UUE-blocks besides
+   the traditional "begin"/"end\n"?
+   [20151204 Urs Janssen <urs@tin.org>]
+
+o  cache_overview_files also affects $TIN_INDEX_MAILDIR and $TIN_INDEX_SAVEDIR
+   overviews, is this desired?
+   [20151112 Urs Janssen <urs@tin.org>]
+
+o  articles without a Message-ID are skipped as the code currently depends
+   on Message-IDs, but they might show up in mailgroups - assign a pseudo
+   Message-ID to them?
+   [20151111 Urs Janssen <urs@tin.org>]
+
+o  create missing dir(s) in path to newsrc, right now get_newsrcname()
+   usually comes up with
+   "No permissions to go into /home/$USER/.tin/${NNTPSERVER}"
+   if one uses something like
+   *  ~/.tin/${NNTPSERVER-localhost}/.newsrc
+   in newsrctable
+   [20150121 Urs Janssen <urs@tin.org>]
+
 o  make --with-defaults-dir= default to $sysconfdir/tin
    (=/usr/local/etc/tin)?
    [20110809 Urs Janssen <urs@tin.org>]
@@ -857,9 +885,6 @@ o  what about !us-ascii chars in username/password when using
 o  what is or was HIST_HELP_SEARCH good for? And what about cHelp?
    [20101008 Urs Janssen <urs@tin.org>]
 
-o  fix memleaks on early exits (i.e. host unreachable, auth failed, ...)
-   [20100517 Urs Janssen <urs@tin.org>]
-
 o  charset conversion fails when converting articles from multibyte charsets
    with 0 bytes (UCS2, UCS4, UTF-16[[LB]E], UTF-32[[LB]E], ...), currently
    we just skip over such parts instead of handling them properly
@@ -868,7 +893,7 @@ o  charset conversion fails when converting articles from multibyte charsets
 o  add "COMPRESS DEFLATE" support once it's official? this would require a
    rewrite of the code which reads data from the network (which should be
    done anyway for TLS) as we must handle null-bytes in the stream.
-   <http://www.ietf.org/internet-drafts/draft-murchison-nntp-compress-01.txt>
+   <https://tools.ietf.org/id/draft-murchison-nntp-compress-02.txt>
    [20100122 Urs Janssen <urs@tin.org>]
 
 o  the documentation suggests that novrootdir/$TIN_NOVROOTDIR defaults to
@@ -996,8 +1021,10 @@ o  check_article_to_be_posted() needs a cleanup!
 
 o  update gettext stuff to > gettext-0.12.1
 
-o  clean up included pcre stuff and update to >= pcre-8.36
-   (maybe even pcre2?)
+o  clean up included pcre stuff and update to >= pcre-8.37
+
+o  and pcre2 support (new API)
+   <http://www.pcre.org/current/doc/html/>
 
 o  shows up cross-postings multiple times even if read once before getting
    a resync/reread active/newsrc-file
@@ -1046,6 +1073,8 @@ o  add check for libarchive <https://code.google.com/p/libarchive/>
    and use for post-processing?
    [20111225 Urs Janssen <urs@tin.org>]
 
+o  add check for liblockfile and/or liblock and use if found?
+
 o  add check for heapsort(3) in libbsd? <http://libbsd.freedesktop.org/wiki/>
    [20130305 Urs Janssen <urs@tin.org>]
 
@@ -1055,3 +1084,6 @@ o  add jump to selected article from DisplayPostHist (’W’)
 o  add check for libtre and offer TRE as matching method for "wildcard"?
    <http://laurikari.net/tre/about/>, <https://github.com/laurikari/tre/>
    [20130706 Urs Janssen <urs@tin.org>]
+
+o  eval $NEWSHOST if $NNTPSERVER is unset (like Net::NNTP(3perl))
+   [20141225 Urs Janssen <urs@tin.org>]

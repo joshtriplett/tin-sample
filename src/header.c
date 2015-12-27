@@ -5,7 +5,7 @@
  *  Created   : 1997-03-10
  *  Updated   : 2013-11-18
  *
- * Copyright (c) 1997-2015 Urs Janssen <urs@tin.org>
+ * Copyright (c) 1997-2016 Urs Janssen <urs@tin.org>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -333,14 +333,14 @@ build_sender(
 	if ((ptr = get_full_name()))
 		snprintf(sender, sizeof(sender), ((strpbrk(ptr, "\".:;<>@[]()\\")) ? "\"%s\"" : "%s "), ptr);
 	if ((ptr = get_user_name())) {
-		snprintf(sender + strlen (sender), sizeof(sender) - strlen (sender), "<%s@", ptr);
+		snprintf(sender + strlen(sender), sizeof(sender) - strlen(sender), "<%s@", ptr);
 
 #	ifdef HAVE_GETHOSTBYNAME
 		if ((ptr = get_fqdn(get_host_name())))
 #	else
 		if ((ptr = get_host_name()))
 #	endif /* HAVE_GETHOSTBYNAME */
-			 snprintf(sender + strlen (sender), sizeof(sender) - strlen (sender), "%s>", ptr);
+			snprintf(sender + strlen(sender), sizeof(sender) - strlen(sender), "%s>", ptr);
 		else
 			return NULL;
 	} else

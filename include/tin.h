@@ -3,10 +3,10 @@
  *  Module    : tin.h
  *  Author    : I. Lea & R. Skrenta
  *  Created   : 1991-04-01
- *  Updated   : 2014-08-20
+ *  Updated   : 2015-11-21
  *  Notes     : #include files, #defines & struct's
  *
- * Copyright (c) 1997-2015 Iain Lea <iain@bricbrac.de>, Rich Skrenta <skrenta@pbm.com>
+ * Copyright (c) 1997-2016 Iain Lea <iain@bricbrac.de>, Rich Skrenta <skrenta@pbm.com>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -679,6 +679,9 @@ enum rc_state { RC_IGNORE, RC_CHECK, RC_UPGRADE, RC_DOWNGRADE, RC_ERROR };
 /* slrn verbatim marks, case sensitive & ^-anchored */
 #define DEFAULT_VERBATIM_BEGIN_REGEX	"#v\\+\\s$"
 #define DEFAULT_VERBATIM_END_REGEX	"#v-\\s$"
+
+/* quoted text from external sources */
+#define DEFAULT_EXTQUOTE_REGEX "^\\|\\s"
 
 /*
  * URL related regexs:
@@ -1600,6 +1603,9 @@ struct t_attribute {
 						7=Compact multiple blank lines between textblocks and skip leading and trailing
 						  blank lines */
 	unsigned verbatim_handling:1;	/* 0=none, 1=detect verbatim blocks */
+#ifdef HAVE_COLOR
+	unsigned extquote_handling:1;		/* 0=none, 1=detect quoted text from external sources */
+#endif /* HAVE_COLOR */
 	unsigned wrap_on_next_unread:1;	/* Wrap around threads when searching next unread article */
 	unsigned sort_article_type:4;		/* 0=none, 1=subj descend, 2=subj ascend,
 						   3=from descend, 4=from ascend,
@@ -1691,6 +1697,9 @@ struct t_attribute_state {
 	unsigned mm_network_charset:1;
 #endif /* CHARSET_CONVERSION */
 	unsigned verbatim_handling:1;
+#ifdef HAVE_COLOR
+	unsigned extquote_handling:1;
+#endif /* HAVE_COLOR */
 	unsigned wrap_on_next_unread:1;
 	unsigned x_body:1;
 	unsigned x_comment_to:1;
@@ -1767,6 +1776,7 @@ struct t_fmt {
 	size_t len_grpdesc;		/* %d newsgroup description */
 	size_t len_from;		/* %F From */
 	size_t len_grpname;		/* %G groupname */
+	size_t len_grpname_dsc;
 	size_t len_grpname_max;
 	size_t len_initials;	/* %I initials */
 	size_t len_linenumber;	/* %n linenumber on screen */
@@ -1779,6 +1789,7 @@ struct t_fmt {
 	size_t flags_offset;
 	size_t mark_offset;
 	size_t ucnt_offset;
+	t_bool show_grpdesc;
 	t_bool d_before_f;
 	t_bool g_before_f;
 	t_bool d_before_u;
@@ -2330,7 +2341,7 @@ extern struct tm *localtime(time_t *);
 #ifdef CLOSEDIR_VOID
 #	define CLOSEDIR(DIR)	closedir(DIR)
 #else
-#	define CLOSEDIR(DIR)	if (closedir(DIR)) error_message(2, "closedir() failed: %s %s", __FILE__, __LINE__)
+#	define CLOSEDIR(DIR)	if (closedir(DIR)) error_message(2, "closedir() failed: %s %d", __FILE__, __LINE__)
 #endif /* CLOSEDIR_VOID */
 
 #ifdef HAVE_GETTIMEOFDAY

@@ -2,10 +2,10 @@
 ;   Module    : tincfg.tbl
 ;   Author    : Thomas E. Dickey
 ;   Created   : 1996-11-01
-;   Updated   : 2013-09-01
+;   Updated   : 2015-11-21
 ;   Notes     : #defines and structs for config.c
 ;
-; Copyright (c) 1996-2014 Thomas E. Dickey <dickey@invisible-island.net>
+; Copyright (c) 1996-2016 Thomas E. Dickey <dickey@invisible-island.net>
 ; All rights reserved.
 ;
 ; Redistribution and use in source and binary forms, with or without
@@ -65,7 +65,6 @@
 	art_marked_read			OPT_CHAR
 	art_marked_killed		OPT_CHAR
 	art_marked_read_selected	OPT_CHAR
-	groupname_max_length		OPT_NUM
 	abbreviate_groupname		OPT_ON_OFF
 	thread_score			txt_thread_score_type
 	scroll_lines			OPT_NUM
@@ -159,6 +158,9 @@
 	col_signature			txt_colors
 	col_urls			txt_colors
 	col_verbatim			txt_colors
+	col_extquote			txt_colors
+	extquote_handling		OPT_ON_OFF
+	attrib_extquote_handling	OPT_ON_OFF
 #else
 	highlight_options		OPT_TITLE
 #endif
@@ -273,6 +275,9 @@
 	strip_was_regex			OPT_STRING
 	verbatim_begin_regex		OPT_STRING
 	verbatim_end_regex		OPT_STRING
+#ifdef HAVE_COLOR
+	extquote_regex			OPT_STRING
+#endif
 	force_screen_redraw		OPT_ON_OFF
 	start_editor_offset		OPT_ON_OFF
 	editor_format			OPT_STRING

@@ -3,10 +3,10 @@
  *  Module    : config.c
  *  Author    : I. Lea
  *  Created   : 1991-04-01
- *  Updated   : 2014-08-31
+ *  Updated   : 2015-11-22
  *  Notes     : Configuration file routines
  *
- * Copyright (c) 1991-2015 Iain Lea <iain@bricbrac.de>
+ * Copyright (c) 1991-2016 Iain Lea <iain@bricbrac.de>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -53,6 +53,7 @@
  */
 static t_bool match_item(char *line, const char *pat, char *dst, size_t dstlen);
 static t_bool rc_update(FILE *fp);
+static t_bool rc_post_update(FILE *fp);
 static void write_server_config(void);
 #ifdef HAVE_COLOR
 	static t_bool match_color(char *line, const char *pat, int *dst, int max);
@@ -222,6 +223,11 @@ read_config_file(
 			if (match_color(buf, "col_quote3=", &tinrc.col_quote3, MAX_COLOR))
 				break;
 
+#ifdef HAVE_COLOR
+			if (match_color(buf, "col_extquote=", &tinrc.col_extquote, MAX_COLOR))
+				break;
+#endif /* HAVE_COLOR */
+
 			if (match_color(buf, "col_head=", &tinrc.col_head, MAX_COLOR))
 				break;
 
@@ -376,6 +382,14 @@ read_config_file(
 			if (match_string(buf, "editor_format=", tinrc.editor_format, sizeof(tinrc.editor_format)))
 				break;
 
+#ifdef HAVE_COLOR
+			if (match_boolean(buf, "extquote_handling=", &tinrc.extquote_handling))
+				break;
+
+			if (match_string(buf, "extquote_regex=", tinrc.extquote_regex, sizeof(tinrc.extquote_regex)))
+				break;
+#endif /* HAVE_COLOR */
+
 			break;
 
 		case 'f':
@@ -392,9 +406,6 @@ read_config_file(
 				break;
 
 			if (match_string(buf, "group_format=", tinrc.group_format, sizeof(tinrc.group_format)))
-				break;
-
-			if (match_integer(buf, "groupname_max_length=", &tinrc.groupname_max_length, 132))
 				break;
 
 			if (match_boolean(buf, "group_catchup_on_exit=", &tinrc.group_catchup_on_exit))
@@ -815,6 +826,8 @@ read_config_file(
 			break;
 		}
 	}
+	if (upgrade == RC_UPGRADE)
+		rc_post_update(fp);
 	fclose(fp);
 
 	/*
@@ -1099,6 +1112,11 @@ write_config_file(
 	fprintf(fp, "%s", _(txt_verbatim_end_regex.tinrc));
 	fprintf(fp, "verbatim_end_regex=%s\n\n", tinrc.verbatim_end_regex);
 
+#ifdef HAVE_COLOR
+	fprintf(fp, "%s", _(txt_extquote_regex.tinrc));
+	fprintf(fp, "extquote_regex=%s\n\n", tinrc.extquote_regex);
+#endif /* HAVE_COLOR */
+
 	fprintf(fp, "%s", _(txt_show_signatures.tinrc));
 	fprintf(fp, "show_signatures=%s\n\n", print_boolean(tinrc.show_signatures));
 
@@ -1165,9 +1183,6 @@ write_config_file(
 
 	fprintf(fp, "%s", _(txt_strip_blanks.tinrc));
 	fprintf(fp, "strip_blanks=%s\n\n", print_boolean(tinrc.strip_blanks));
-
-	fprintf(fp, "%s", _(txt_groupname_max_length.tinrc));
-	fprintf(fp, "groupname_max_length=%d\n\n", tinrc.groupname_max_length);
 
 	fprintf(fp, "%s", _(txt_abbreviate_groupname.tinrc));
 	fprintf(fp, "abbreviate_groupname=%s\n\n", print_boolean(tinrc.abbreviate_groupname));
@@ -1246,6 +1261,11 @@ write_config_file(
 
 	fprintf(fp, "%s", _(txt_col_subject.tinrc));
 	fprintf(fp, "col_subject=%d\n\n", tinrc.col_subject);
+
+#ifdef HAVE_COLOR
+	fprintf(fp, "%s", _(txt_col_extquote.tinrc));
+	fprintf(fp, "col_extquote=%d\n\n", tinrc.col_extquote);
+#endif /* HAVE_COLOR */
 
 	fprintf(fp, "%s", _(txt_col_response.tinrc));
 	fprintf(fp, "col_response=%d\n\n", tinrc.col_response);
@@ -1352,6 +1372,11 @@ write_config_file(
 
 	fprintf(fp, "%s", _(txt_verbatim_handling.tinrc));
 	fprintf(fp, "verbatim_handling=%s\n\n", print_boolean(tinrc.verbatim_handling));
+
+#ifdef HAVE_COLOR
+	fprintf(fp, "%s", _(txt_extquote_handling.tinrc));
+	fprintf(fp, "extquote_handling=%s\n\n", print_boolean(tinrc.extquote_handling));
+#endif /* HAVE_COLOR */
 
 	fprintf(fp, "%s", _(txt_strip_newsrc.tinrc));
 	fprintf(fp, "strip_newsrc=%s\n\n", print_boolean(tinrc.strip_newsrc));
@@ -1734,6 +1759,7 @@ ulBuildArgv(
 
 /*
  * auto update tinrc
+ * called at the beginning of read_config_file()
  */
 static t_bool
 rc_update(
@@ -1957,6 +1983,65 @@ rc_update(
 		my_strncpy(tinrc.metamail_prog, METAMAIL_CMD, sizeof(tinrc.metamail_prog) - 1);
 
 	rewind(fp);
+	return TRUE;
+}
+
+
+/*
+ * auto update tinrc
+ * called at the end of read_config_file()
+ * useful to update variables which are already present in tinrc
+ */
+static t_bool
+rc_post_update(
+	FILE *fp)
+{
+	char buf[1024];
+	int groupname_max_length = 0;
+
+	if (!fp)
+		return FALSE;
+
+	rewind(fp);
+	while (fgets(buf, (int) sizeof(buf), fp) != NULL) {
+		if (buf[0] == '#' || buf[0] == '\n')
+			continue;
+
+		switch (tolower((unsigned char) buf[0])) {
+			case 'g':
+				if (match_integer(buf, "groupname_max_length=", &groupname_max_length, 132))
+					break;
+
+				break;
+
+			default:
+				break;
+		}
+	}
+
+	/* update the values */
+	if (groupname_max_length > 0 && groupname_max_length != 32) {
+		char length[LEN];
+		char *dest, *d, *f, *l;
+
+		snprintf(length, sizeof(length), ",%d", groupname_max_length);
+
+		d = dest = my_malloc(strlen(tinrc.select_format) + strlen(length) + 1);
+		f = tinrc.select_format;
+		l = length;
+
+		while (*f) {
+			if (*f == 'G') {
+				while (*l)
+					*d++ = *l++;
+			}
+			*d++ = *f++;
+		}
+		*d = '\0';
+		STRCPY(tinrc.select_format, dest);
+		free(dest);
+	}
+
 	return TRUE;
 }
 

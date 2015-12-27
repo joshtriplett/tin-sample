@@ -3,10 +3,10 @@
  *  Module    : extern.h
  *  Author    : I. Lea
  *  Created   : 1991-04-01
- *  Updated   : 2013-11-20
+ *  Updated   : 2015-11-21
  *  Notes     :
  *
- * Copyright (c) 1997-2015 Iain Lea <iain@bricbrac.de>
+ * Copyright (c) 1997-2016 Iain Lea <iain@bricbrac.de>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -562,6 +562,7 @@ extern constext txt_choose_post_process_type[];
 	extern constext txt_color_on[];
 #endif /* HAVE_COLOR */
 extern constext txt_command_failed[];
+extern constext txt_cook_article_failed_exiting[];
 extern constext txt_confirm_select_on_exit[];
 #ifdef NNTP_ABLE
 	extern constext txt_connecting[];
@@ -611,6 +612,7 @@ extern constext txt_error_copy_fp[];
 extern constext txt_error_corrupted_file[];
 extern constext txt_error_fseek[];
 extern constext txt_error_followup_poster[];
+extern constext txt_error_format_string[];
 extern constext txt_error_gnksa_internal[];
 extern constext txt_error_gnksa_langle[];
 extern constext txt_error_gnksa_lparen[];
@@ -724,6 +726,7 @@ extern constext txt_group_rereading[];
 extern constext txt_group_select_com[];
 extern constext txt_group_selection[];
 extern constext txt_group_singular[];
+extern constext txt_grpdesc_disabled[];
 extern constext txt_help_article_autokill[];
 extern constext txt_help_article_autoselect[];
 extern constext txt_help_article_browse_urls[];
@@ -1450,6 +1453,7 @@ extern struct regex_cache stars_regex;
 extern struct regex_cache underscores_regex;
 extern struct regex_cache strokes_regex;
 #ifdef HAVE_COLOR
+	extern struct regex_cache extquote_regex;
 	extern struct regex_cache quote_regex;
 	extern struct regex_cache quote_regex2;
 	extern struct regex_cache quote_regex3;
@@ -1708,7 +1712,6 @@ extern struct opttxt txt_getart_limit_options;
 extern struct opttxt txt_goto_next_unread;
 extern struct opttxt txt_group_catchup_on_exit;
 extern struct opttxt txt_group_format;
-extern struct opttxt txt_groupname_max_length;
 extern struct opttxt txt_hide_uue;
 extern struct opttxt txt_inews_prog;
 extern struct opttxt txt_interactive_mailer;
@@ -1838,6 +1841,8 @@ extern struct opttxt txt_xpost_quote_format;
 	extern struct opttxt txt_quote_regex;
 	extern struct opttxt txt_quote_regex2;
 	extern struct opttxt txt_quote_regex3;
+	extern struct opttxt txt_extquote_handling;
+	extern struct opttxt txt_extquote_regex;
 	extern struct opttxt txt_use_color;
 	extern struct opttxt txt_col_normal;
 	extern struct opttxt txt_col_back;
@@ -1850,6 +1855,7 @@ extern struct opttxt txt_xpost_quote_format;
 	extern struct opttxt txt_col_quote;
 	extern struct opttxt txt_col_quote2;
 	extern struct opttxt txt_col_quote3;
+	extern struct opttxt txt_col_extquote;
 	extern struct opttxt txt_col_head;
 	extern struct opttxt txt_col_newsheaders;
 	extern struct opttxt txt_col_subject;

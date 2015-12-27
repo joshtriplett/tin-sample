@@ -3,10 +3,10 @@
  *  Module    : init.c
  *  Author    : I. Lea
  *  Created   : 1991-04-01
- *  Updated   : 2013-11-23
+ *  Updated   : 2015-11-21
  *  Notes     :
  *
- * Copyright (c) 1991-2015 Iain Lea <iain@bricbrac.de>
+ * Copyright (c) 1991-2016 Iain Lea <iain@bricbrac.de>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -176,7 +176,7 @@ struct regex_cache
 		shar_regex,
 		slashes_regex, stars_regex, underscores_regex, strokes_regex
 #ifdef HAVE_COLOR
-		, quote_regex, quote_regex2, quote_regex3
+		, extquote_regex, quote_regex, quote_regex2, quote_regex3
 #endif /* HAVE_COLOR */
 	= {
 		NULL,
@@ -250,6 +250,7 @@ struct t_config tinrc = {
 	"",		/* quote_regex */
 	"",		/* quote_regex 2nd level */
 	"",		/* quote_regex >= 3rd level */
+	"",		/* extquote_regex */
 #endif /* HAVE_COLOR */
 	"",		/* slashes_regex */
 	"",		/* stars_regex */
@@ -272,7 +273,6 @@ struct t_config tinrc = {
 	0,		/* getart_limit */
 	2,		/* recent_time */
 	GOTO_NEXT_UNREAD_TAB,		/* goto_next_unread */
-	32,		/* groupname_max_length */
 	UUE_NO,	/* hide_uue */
 	KILL_UNREAD,		/* kill_level */
 	MIME_ENCODING_QP,		/* mail_mime_encoding */
@@ -314,6 +314,7 @@ struct t_config tinrc = {
 	0,		/* col_quote (initialised later) */
 	0,		/* col_quote2 (initialised later) */
 	0,		/* col_quote3 (initialised later) */
+	0,		/* col_extquote (initialised later) */
 	0,		/* col_response (initialised later) */
 	0,		/* col_signature (initialised later) */
 	0,		/* col_urls (initialised later) */
@@ -393,6 +394,9 @@ struct t_config tinrc = {
 	FALSE,		/* utf8_graphics */
 #endif /* MULTIBYTE_ABLE && !NO_LOCALE */
 	TRUE,		/* verbatim_handling */
+#ifdef HAVE_COLOR
+	FALSE,		/* extquote_handling */
+#endif /* HAVE_COLOR */
 	"",		/* inews_prog */
 	INTERACTIVE_NONE,		/* interactive_mailer */
 	FALSE,		/* use_mouse */
@@ -497,6 +501,9 @@ struct t_config tinrc = {
 	FALSE,		/* attrib_tex2iso_conv */
 	TRUE,		/* attrib_thread_catchup_on_exit */
 	TRUE,		/* attrib_verbatim_handling */
+#ifdef HAVE_COLOR
+	FALSE,		/* attrib_extquote_handling */
+#endif /* HAVE_COLOR */
 	FALSE,		/* attrib_x_comment_to */
 	TRUE,		/* attrib_wrap_on_next_unread */
 	FALSE,		/* attrib_ask_for_metamail */
@@ -579,6 +586,7 @@ static const struct {
 	{ &tinrc.col_quote,       2 },
 	{ &tinrc.col_quote2,      3 },
 	{ &tinrc.col_quote3,      4 },
+	{ &tinrc.col_extquote,    5 },
 	{ &tinrc.col_response,    2 },
 	{ &tinrc.col_signature,   4 },
 	{ &tinrc.col_urls,       DFT_FORE },
@@ -1040,6 +1048,9 @@ postinit_regexp(
 	compile_regex(tinrc.strip_was_regex, &strip_was_regex, 0);
 
 #ifdef HAVE_COLOR
+	if (!strlen(tinrc.extquote_regex))
+		STRCPY(tinrc.extquote_regex, DEFAULT_EXTQUOTE_REGEX);
+	compile_regex(tinrc.extquote_regex, &extquote_regex, PCRE_CASELESS);
 	if (!strlen(tinrc.quote_regex))
 		STRCPY(tinrc.quote_regex, DEFAULT_QUOTE_REGEX);
 	compile_regex(tinrc.quote_regex, &quote_regex, PCRE_CASELESS);
@@ -1091,7 +1102,7 @@ utf8_pcre(
 
 #	if (defined(PCRE_MAJOR) && PCRE_MAJOR >= 4)
 	(void) pcre_config(PCRE_CONFIG_UTF8, &i);
-#	endif /* PCRE_MAJOR && PCRE_MAJOR >= $*/
+#	endif /* PCRE_MAJOR && PCRE_MAJOR >= 4 */
 
 	return (i ? TRUE : FALSE);
 }
