@@ -1,4 +1,5 @@
 fix_col_quote
+fix_nntp_reconnect
 
 # Debian integration
 use_system_libcanlock
