@@ -1,0 +1,17 @@
+Description: Fix the color of single-quoted text
+Author: Urs Janßen <urs@tin.org>
+Origin: upstream
+
+--- a/src/cook.c	2015-12-23 19:42:27.931209009 +0100
++++ b/src/cook.c	2015-12-27 14:59:12.240766920 +0100
+@@ -665,6 +665,9 @@
+ 						if (MATCH_REGEX(quote_regex, line, len))
+ 							flags |= C_QUOTE1;
+ 					}
++				} else if (quote_regex.re) {
++						if (MATCH_REGEX(quote_regex, line, len))
++							flags |= C_QUOTE1;
+ 				}
+ 			}
+ 		}
+

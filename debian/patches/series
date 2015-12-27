@@ -1,3 +1,5 @@
+fix_col_quote
+
 # Debian integration
 use_system_libcanlock
 fix_path_names
