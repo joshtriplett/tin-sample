@@ -21,11 +21,13 @@ endif
 clean:
 	rm -f debian/.stamp-* doc/CHANGES.tmp include/reprtime.h
 	$(MAKE) distclean
+	dh_autotools-dev_restoreconfig
 	dh_clean
 
 configure: config.status
 config.status:
 	dh_testdir
+	dh_autotools-dev_updateconfig
 	./configure $(configure_flags) \
 		--prefix=/usr --mandir=\$${prefix}/share/man \
 		--with-pcre=/usr --with-domain-name=/etc/mailname \
