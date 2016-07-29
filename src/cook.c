@@ -665,6 +665,9 @@ process_text_body_part(
 						if (MATCH_REGEX(quote_regex, line, len))
 							flags |= C_QUOTE1;
 					}
+				} else if (quote_regex.re) {
+						if (MATCH_REGEX(quote_regex, line, len))
+							flags |= C_QUOTE1;
 				}
 			}
 		}
