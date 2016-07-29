@@ -158,7 +158,7 @@ set_default_attributes(
 	attributes->fcc = NULL;
 #ifdef CHARSET_CONVERSION
 	attributes->mm_network_charset = tinrc.mm_network_charset;
-	attributes->undeclared_charset = NULL;
+	attributes->undeclared_charset = my_strdup("ISO-8859-15");
 #endif /* CHARSET_CONVERSION */
 }
 

@@ -275,7 +275,7 @@ struct t_config tinrc = {
 	GOTO_NEXT_UNREAD_TAB,		/* goto_next_unread */
 	UUE_NO,	/* hide_uue */
 	KILL_UNREAD,		/* kill_level */
-	MIME_ENCODING_QP,		/* mail_mime_encoding */
+	MIME_ENCODING_8BIT,		/* mail_mime_encoding */
 	MIME_ENCODING_8BIT,		/* post_mime_encoding */
 	POST_PROC_NO,			/* post_process_type */
 	REREAD_ACTIVE_FILE_SECS,	/* reread_active_file_secs */
@@ -332,7 +332,7 @@ struct t_config tinrc = {
 	TRUE,		/* url_highlight */
 	0,		/* wrap_column */
 #ifdef HAVE_COLOR
-	FALSE,		/* use_color */
+	TRUE,		/* use_color */
 #endif /* HAVE_COLOR */
 	FALSE,		/* abbreviate_groupname */
 	TRUE,		/* add_posted_to_filter */
@@ -721,7 +721,7 @@ init_selfinfo(
 
 #ifdef HAVE_COLOR
 	preinit_colors();
-	use_color = FALSE;
+	use_color = TRUE;
 #endif /* HAVE_COLOR */
 
 	word_highlight = TRUE;
