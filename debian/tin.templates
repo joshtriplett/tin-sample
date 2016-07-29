@@ -1,0 +1,5 @@
+Template: shared/news/server
+Type: string
+_Description: Enter the fully qualified domain name of your news server
+ What news server (NNTP server) should be used for reading and posting
+ news?

@@ -1,0 +1,93 @@
+#!/usr/bin/make -f
+SHELL=/bin/bash -e
+
+D := $(CURDIR)/debian/tin
+
+DEB_BUILD_MAINT_OPTIONS=hardening=+pie,+bindnow
+
+DPKG_EXPORT_BUILDFLAGS = 1
+-include /usr/share/dpkg/buildflags.mk
+
+CPPFLAGS+=$(shell sh debian/cpp_reprtime include/reprtime.h)
+
+DEB_HOST_GNU_TYPE  ?= $(shell dpkg-architecture -qDEB_HOST_GNU_TYPE)
+DEB_BUILD_GNU_TYPE ?= $(shell dpkg-architecture -qDEB_BUILD_GNU_TYPE)
+ifeq ($(DEB_BUILD_GNU_TYPE),$(DEB_HOST_GNU_TYPE))
+  configure_flags += --build $(DEB_HOST_GNU_TYPE)
+else
+  configure_flags += --build $(DEB_BUILD_GNU_TYPE) --host $(DEB_HOST_GNU_TYPE)
+endif
+
+clean:
+	rm -f debian/.stamp-* doc/CHANGES.tmp include/reprtime.h
+	$(MAKE) distclean
+	dh_autotools-dev_restoreconfig
+	dh_clean
+
+configure: config.status
+config.status:
+	dh_testdir
+	dh_autotools-dev_updateconfig
+	./configure $(configure_flags) \
+		--prefix=/usr --mandir=\$${prefix}/share/man \
+		--with-pcre=/usr --with-domain-name=/etc/mailname \
+		--with-mailbox=/var/mail \
+		--with-editor=/usr/bin/editor --with-ispell=ispell \
+		--without-pgp --without-pgpk --with-gpg=gpg \
+		--without-metamail --with-slrnface=slrnface \
+		--with-sum=sum --with-shell=bash \
+		--with-spool-dir=/var/spool/news \
+		--with-nov-dir=/var/spool/news/over.view \
+		--with-libdir=/var/lib/news --with-inews-dir=/usr/bin \
+		--with-nntp-default-server=localhost \
+		--with-screen=ncursesw --enable-nntp --enable-ipv6 \
+		--enable-included-msgs --enable-nls \
+		--enable-mh-mail-handling --enable-cancel-locks \
+		--enable-heapsort --enable-debug --with-pkg-config \
+		--with-mime-default-charset=ISO-8859-15
+
+build: build-arch build-indep
+build-arch: debian/.stamp-build
+build-indep: debian/.stamp-build
+debian/.stamp-build: config.status
+	dh_testdir
+	cd src && $(MAKE)
+	touch $@
+
+binary-arch: debian/.stamp-build checkroot
+	dh_testdir
+	dh_prep
+	dh_installdirs /etc/tin/ /usr/bin/ /usr/share/doc/tin/tools/
+
+	$(MAKE) -C src install_nls prefix=$D/usr
+	cp src/tin $D/usr/bin/
+	cp doc/tin.defaults $D/etc/tin/
+	cp tools/* $D/usr/share/doc/tin/tools/
+
+	dh_installmenu
+	dh_installdocs
+	dh_installexamples
+	dh_installman doc/tin.1 doc/tin.5 
+	dh_link usr/share/man/man1/tin.1.gz usr/share/man/man1/rtin.1.gz \
+		usr/bin/tin usr/bin/rtin
+	cat doc/CHANGES doc/CHANGES.old > doc/CHANGES.tmp
+	dh_installchangelogs doc/CHANGES.tmp
+	dh_installdebconf
+	dh_strip
+	dh_compress
+	dh_fixperms
+	dh_shlibdeps
+	dh_gencontrol
+	dh_installdeb
+	dh_md5sums
+	dh_builddeb
+
+debian/po/templates.pot: debian/templates
+	debconf-updatepo
+
+checkroot:
+	test root = "`whoami`"
+
+binary:	binary-arch binary-indep
+
+.PHONY: binary binary-arch binary-indep configure build build-arch build-indep clean checkroot

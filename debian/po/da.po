@@ -1,0 +1,31 @@
+# Danish translation tin.
+# Copyright (C) 2010 tin & nedenstående oversættere.
+# This file is distributed under the same license as the tin package.
+# Joe Hansen (joedalton2@yahoo.dk), 2010.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: tin\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2010-06-02 10:50+0200\n"
+"PO-Revision-Date: 2010-11-11 12:42+0000\n"
+"Last-Translator: Joe Hansen <joedalton2@yahoo.dk>\n"
+"Language-Team: Danish <dansk@dansk-gruppen.dk>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#. Type: string
+#. Description
+#: ../tin.templates:1001
+msgid "Enter the fully qualified domain name of your news server"
+msgstr "Indtast det fuldstændigt kvalificerede domænenavn på din nyhedsserver"
+
+#. Type: string
+#. Description
+#: ../tin.templates:1001
+msgid ""
+"What news server (NNTP server) should be used for reading and posting news?"
+msgstr ""
+"Hvilken nyhedsserver (NNTP-server) skal bruges til at læse og sende nyheder?"
+

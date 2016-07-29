@@ -1,0 +1,31 @@
+# translation of ru.po to Russian
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+#
+# Yuri Kozlov <yuray@komyakino.ru>, 2009.
+msgid ""
+msgstr ""
+"Project-Id-Version: tin 1:1.9.4-1\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2009-03-03 10:32+0100\n"
+"PO-Revision-Date: 2009-08-06 20:31+0400\n"
+"Last-Translator: Yuri Kozlov <yuray@komyakino.ru>\n"
+"Language-Team: Russian <debian-l10n-russian@lists.debian.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: KBabel 1.11.4\n"
+"Plural-Forms:  nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
+
+#. Type: string
+#. Description
+#: ../tin.templates:1001
+msgid "Enter the fully qualified domain name of your news server"
+msgstr "Введите полностью определённое доменное имя вашего сервера новостей"
+
+#. Type: string
+#. Description
+#: ../tin.templates:1001
+msgid "What news server (NNTP server) should be used for reading and posting news?"
+msgstr "Сервер новостей (сервер NNTP) для чтения и отправки новостей:"
+
