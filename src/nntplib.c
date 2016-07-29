@@ -859,10 +859,10 @@ reconnect(
 		DEBUG_IO((stderr, _("Resend last command (%s)\n"), buf));
 		put_server(buf);
 		did_reconnect = TRUE;
-		retry = 0;
+		return 0;
 	}
 
-	return retry;
+	return --retry;
 }
 
 
@@ -935,7 +935,7 @@ get_server(
 				strcpy(last_put, "MODE READER");
 				nntp_caps.type = BROKEN;
 			}
-			retry_cnt = reconnect(retry_cnt--);		/* Will abort when out of tries */
+			retry_cnt = reconnect(retry_cnt);		/* Will abort when out of tries */
 			reconnected_in_last_get_server = TRUE;
 		} else {
 			/*
