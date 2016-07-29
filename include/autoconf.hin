@@ -940,4 +940,8 @@ Added missing headers after gettext update, using autoheader
  */
 #	undef DISABLE_PIPELINING
 
+/* debian-specific */
+#define XFACE_ABLE
+#define NNTP_SERVER_FILE "/etc/news/server"
+
 #endif /* !TIN_AUTOCONF_H */
