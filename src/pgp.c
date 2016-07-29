@@ -250,8 +250,10 @@ do_pgp(
 	/*
 	 * <mailfrom> is valid only when signing and a local address exists
 	 */
+#ifdef NOT_DEBIAN
 	if ((CURR_GROUP.attribute->from) != NULL)
 		strip_name(CURR_GROUP.attribute->from, mailfrom);
+#endif
 
 	switch (what) {
 		case PGP_KEY_SIGN:
