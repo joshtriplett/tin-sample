@@ -927,7 +927,9 @@ check_article_to_be_posted(
 			my_fprintf(stderr, _(txt_error_sender_in_header_not_allowed), cnt);
 			EndInverse();
 			my_fflush(stderr);
+#ifdef NOT_DEBIAN
 			errors++;
+#endif
 		}
 #endif /* !FORGERY */
 
@@ -975,7 +977,9 @@ check_article_to_be_posted(
 				EndInverse();
 				my_fflush(stderr);
 #ifndef FORGERY
+#ifdef NOT_DEBIAN
 				errors++;
+#endif
 #endif /* !FORGERY */
 			}
 			free(cp2);
