@@ -799,12 +799,11 @@ init_selfinfo(
 	if (!*subscriptions_file)
 		joinpath(subscriptions_file, sizeof(subscriptions_file), libdir, SUBSCRIPTIONS_FILE);
 	if (!*overviewfmt_file)
-		joinpath(overviewfmt_file, sizeof(overviewfmt_file), libdir, OVERVIEW_FMT);
+		joinpath(overviewfmt_file, sizeof(overviewfmt_file), "/etc/news/", OVERVIEW_FMT);
 	if (!*default_organization) {
 		char buf[LEN], filename[PATH_LEN];
 
-		joinpath(filename, sizeof(filename), libdir, "organization");
-		if ((fp = fopen(filename, "r")) != NULL) {
+		if ((fp = fopen("/etc/news/organization", "r")) != NULL) {
 			if (fgets(buf, (int) sizeof(buf), fp) != NULL) {
 				ptr = strrchr(buf, '\n');
 				if (ptr != NULL)
