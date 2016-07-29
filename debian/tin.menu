@@ -1,7 +1,0 @@
-?package(tin):\
-  section="Applications/Network/Communication" \
-  hints="News"\
-  title="rtin"\
-  longtitle="tin, a Usenet newsreader"\
-  needs="text"\
-  command="/usr/bin/rtin"

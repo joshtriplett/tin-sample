@@ -1,3 +1,0 @@
-version=3
-opts=dversionmangle=s/r$//,pgpsigurlmangle=s/$/.sign/ \
-ftp://ftp.tin.org/pub/news/clients/tin/v2.3/tin-([\d\.]+)\.tar\.xz
