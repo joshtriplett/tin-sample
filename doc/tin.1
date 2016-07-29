@@ -197,7 +197,7 @@ equivalent to ''\fB\-nqd\fP''.
 .B \-r
 Read news remotely from the default NNTP server specified in the environment
 variable $\fBNNTPSERVER\fP or contained in the file
-\fI/etc/nntpserver\fR.
+\fI/etc/news/server\fR.
 .TP
 .B \-R
 Read news saved by the ''\fB\-S\fP'' option.
@@ -3237,7 +3237,7 @@ For a detailed description see
 .IR /etc/mail/mailcap
 .PP
 
-.IR /etc/nntpserver
+.IR /etc/news/server
 .PP
 
 .IR ${TIN_HOMEDIR:\-"$HOME"}/.cancelsecret
@@ -3426,7 +3426,7 @@ prepended to $\fBTIN_ACTIVEFILE\fP.
 .B NNTPSERVER
 The default NNTP server to remotely read news from. This variable only
 needs to be set if the ''\fB\-r\fP'' command-line option is specified and
-the file \fI/etc/nntpserver\fR does not exist. The ''\fB\-g\fP'' command
+the file \fI/etc/news/server\fR does not exist. The ''\fB\-g\fP'' command
 line option overrides $\fBNNTPSERVER\fP.
 .TP
 .B NNTPPORT
